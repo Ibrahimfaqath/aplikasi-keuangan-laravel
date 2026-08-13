@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Transaction;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+class ReportingService
+{
+    /**
+     * Membuat query transaksi milik user yang sedang login, difilter sesuai parameter.
+     *
+     * @param  array  $filters  search, type, period, start_date, end_date
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getFilteredQuery(array $filters)
+    {
+        $query = Transaction::where('user_id', Auth::id());
+
+        if (!empty($filters['search'])) {
+            $query->where('title', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        $period = $filters['period'] ?? 'all';
+        $today  = Carbon::today();
+
+        switch ($period) {
+            case 'today':
+                $query->whereDate('transaction_date', $today);
+                break;
+            case 'yesterday':
+                $query->whereDate('transaction_date', Carbon::yesterday());
+                break;
+            case '7_days':
+                $query->whereDate('transaction_date', '>=', $today->copy()->subDays(6));
+                break;
+            case '30_days':
+                $query->whereDate('transaction_date', '>=', $today->copy()->subDays(29));
+                break;
+            case 'this_month':
+                $query->whereMonth('transaction_date', $today->month)
+                      ->whereYear('transaction_date', $today->year);
+                break;
+            case 'last_month':
+                $lastMonth = $today->copy()->subMonth();
+                $query->whereMonth('transaction_date', $lastMonth->month)
+                      ->whereYear('transaction_date', $lastMonth->year);
+                break;
+            case 'this_year':
+                $query->whereYear('transaction_date', $today->year);
+                break;
+            case 'custom':
+                if (!empty($filters['start_date'])) {
+                    $query->whereDate('transaction_date', '>=', $filters['start_date']);
+                }
+                if (!empty($filters['end_date'])) {
+                    $query->whereDate('transaction_date', '<=', $filters['end_date']);
+                }
+                break;
+        }
+
+        return $query;
+    }
+
+    /**
+     * Menghitung total saldo, pemasukan, dan pengeluaran dari sebuah query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return array{totalIncome: float, totalExpense: float, totalBalance: float}
+     */
+    public function getStatistics($query)
+    {
+        $totalIncome  = (clone $query)->where('type', 'income')->sum('amount');
+        $totalExpense = (clone $query)->where('type', 'expense')->sum('amount');
+
+        return [
+            'totalIncome'  => $totalIncome,
+            'totalExpense' => $totalExpense,
+            'totalBalance' => $totalIncome - $totalExpense,
+        ];
+    }
+}

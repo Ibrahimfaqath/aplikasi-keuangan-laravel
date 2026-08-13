@@ -1,22 +1,36 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Route;
 
-// Route 1: Menampilkan halaman utama (daftar transaksi)
-Route::get('/transactions', [TransactionController::class, 'index']);
+// 1. Redirect halaman depan ke transaksi
+Route::get('/', function () {
+    return redirect('/transactions');
+});
 
-// Route 2: BARU - Menampilkan halaman form tambah transaksi
-Route::get('/transactions/create', [TransactionController::class, 'create']);
+// 2. Route Dashboard
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route 3: Memproses dan menyimpan data baru (Method POST)
-Route::post('/transactions', [TransactionController::class, 'store']);
+// 3. Route terproteksi Auth
+Route::middleware('auth')->group(function () {
+    // Export Laporan Keuangan
+    Route::get('/transactions/export-pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export-pdf');
+    Route::get('/transactions/export-excel', [TransactionController::class, 'exportExcel'])->name('transactions.export-excel');
 
-// Route 4: Menghapus data transaksi (Method DELETE)
-Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
+    // CRUD Utama Transaksi
+    Route::resource('transactions', TransactionController::class);
 
-// Route 5: Halaman Form Edit Transaksi
-Route::get('/transactions/{id}/edit', [TransactionController::class, 'edit']);
+    // Anggaran Bulanan
+    Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
 
-// Route 6: Memproses perubahan data (Method PUT)
-Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+    // Profile Management
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
