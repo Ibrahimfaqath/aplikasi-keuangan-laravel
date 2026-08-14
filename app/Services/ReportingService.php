@@ -112,31 +112,58 @@ class ReportingService
     }
 
     /**
-     * Total pemasukan/pengeluaran per hari untuk N hari terakhir.
-     * Dipakai untuk line chart "7 Hari" di dashboard (gaya prototipe).
+     * Data grafik garis gabungan (pemasukan + pengeluaran) per periode.
+     * Dipakai di line chart dashboard dengan toggle Minggu / Bulan / Tahun.
      *
-     * @param  string  $type   'expense' | 'income'
-     * @param  int     $days   jumlah hari (default 7)
-     * @return array{labels: string[], values: float[]}
+     * @param  string  $period  'week' | 'month' | 'year'
+     * @return array{labels: string[], income: float[], expense: float[]}
      */
-    public function getDailySeries(string $type = 'expense', int $days = 7): array
+    public function getTrendSeries(string $period = 'week'): array
     {
-        // Nama hari pendek urut sesuai dayOfWeek Carbon (0=Minggu .. 6=Sabtu)
+        $today  = Carbon::today();
+        $userId = Auth::id();
+
+        // Nama hari pendek sesuai dayOfWeek Carbon (0=Minggu .. 6=Sabtu)
         $shortDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-        $labels = [];
-        $values = [];
+        $labels  = [];
+        $income  = [];
+        $expense = [];
 
-        for ($i = $days - 1; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
+        if ($period === 'year') {
+            for ($i = 11; $i >= 0; $i--) {
+                $date = $today->copy()->subMonthsNoOverflow($i);
 
-            $labels[] = $shortDays[$date->dayOfWeek];
-            $values[] = (float) Transaction::where('user_id', Auth::id())
-                ->where('type', $type)
-                ->whereDate('transaction_date', $date)
-                ->sum('amount');
+                $labels[]  = $date->locale('id')->isoFormat('MMM');
+                $income[]  = (float) Transaction::where('user_id', $userId)
+                    ->where('type', 'income')
+                    ->whereYear('transaction_date', $date->year)
+                    ->whereMonth('transaction_date', $date->month)
+                    ->sum('amount');
+                $expense[] = (float) Transaction::where('user_id', $userId)
+                    ->where('type', 'expense')
+                    ->whereYear('transaction_date', $date->year)
+                    ->whereMonth('transaction_date', $date->month)
+                    ->sum('amount');
+            }
+        } else {
+            $days = $period === 'month' ? 30 : 7;
+
+            for ($i = $days - 1; $i >= 0; $i--) {
+                $date = $today->copy()->subDays($i);
+
+                $labels[]  = $period === 'month' ? $date->format('d M') : $shortDays[$date->dayOfWeek];
+                $income[]  = (float) Transaction::where('user_id', $userId)
+                    ->where('type', 'income')
+                    ->whereDate('transaction_date', $date)
+                    ->sum('amount');
+                $expense[] = (float) Transaction::where('user_id', $userId)
+                    ->where('type', 'expense')
+                    ->whereDate('transaction_date', $date)
+                    ->sum('amount');
+            }
         }
 
-        return ['labels' => $labels, 'values' => $values];
+        return ['labels' => $labels, 'income' => $income, 'expense' => $expense];
     }
 }
