@@ -48,7 +48,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
                 'system_instruction' => [
                     'parts' => [['text' => $systemPrompt]],
                 ],
@@ -95,7 +95,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -138,7 +138,7 @@ Jika tidak bisa menentukan, gunakan nilai default yang masuk akal. Hanya kembali
             $result = json_decode($text, true);
 
             if (!$result) {
-                return response()->json(['error' => 'Gagal mem解析 data struk.'], 500);
+                return response()->json(['error' => 'Gagal memproses data struk.'], 500);
             }
 
             return response()->json(['data' => $result]);
