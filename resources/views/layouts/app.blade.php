@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="DompetKu — dashboard keuangan pribadi: pantau saldo, pemasukan, pengeluaran, dan transaksi terakhir.">
+    <meta name="description" content="DompetKu — aplikasi keuangan pribadi: catat pemasukan, pengeluaran, dan atur anggaran bulanan.">
     <meta name="theme-color" content="#4f46e5">
     <link rel="canonical" href="{{ url()->current() }}">
 
@@ -16,11 +16,11 @@
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="DompetKu">
-    <meta property="og:title" content="{{ $title ?? 'Dashboard Keuangan - DompetKu' }}">
-    <meta property="og:description" content="Pantau saldo, pemasukan, pengeluaran, dan transaksi terakhir dalam satu dashboard.">
+    <meta property="og:title" content="{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}">
+    <meta property="og:description" content="Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.">
     <meta property="og:url" content="{{ url()->current() }}">
 
-    <title>{{ $title ?? 'Dashboard Keuangan - DompetKu' }}</title>
+    <title>{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}</title>
 
     <!-- 1. KUNCI WARNA CANVAS BROWSER (MEMATIKAN LIGHT FLASH SAMA SEKALI) -->
     <script>

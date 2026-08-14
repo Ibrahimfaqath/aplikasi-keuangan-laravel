@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\BudgetController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -12,10 +11,10 @@ Route::get('/', function () {
     return redirect(auth()->check() ? '/transactions' : '/login');
 });
 
-// 2. Route Dashboard
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// 2. Halaman utama sudah menampilkan ringkasan keuangan (transactions.index),
+//    jadi URL /dashboard lama diarahkan ke sana (jaga bookmark lama).
+//    Guest langsung ke login — konsisten dengan halaman depan.
+Route::get('/dashboard', fn () => redirect(auth()->check() ? route('transactions.index') : route('login')));
 
 // 3. Route terproteksi Auth
 Route::middleware('auth')->group(function () {
