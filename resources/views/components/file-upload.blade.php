@@ -25,7 +25,7 @@
         
         <button type="button" 
                 onclick="captureFromCamera('fileInput-{{ $name }}')"
-                class="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-200 dark:border-emerald-900/50 font-semibold text-sm transition">
+                class="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200 dark:border-indigo-900/50 font-semibold text-sm transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -34,20 +34,21 @@
         </button>
     </div>
 
-    <!-- Drop Zone -->
+    <!-- Hidden file input (always accessible for Galeri/Kamera buttons) -->
+    <input type="file" 
+           name="{{ $name }}" 
+           id="fileInput-{{ $name }}" 
+           accept="image/*"
+           capture="environment"
+           class="hidden"
+           @change="handleFileSelect($event, '{{ $name }}')"
+           {{ $required ? 'required' : '' }}>
+
+    <!-- Drop Zone (desktop only) -->
     <div id="drop-zone-{{ $name }}" 
-         class="relative border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 rounded-2xl p-6 text-center bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer"
+         class="relative border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 rounded-2xl p-6 text-center bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer hidden md:block"
          @dragover.prevent
          @drop.prevent="handleDrop($event, '{{ $name }}')">
-        
-        <input type="file" 
-               name="{{ $name }}" 
-               id="fileInput-{{ $name }}" 
-               accept="image/*"
-               capture="environment"
-               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-               @change="handleFileSelect($event, '{{ $name }}')"
-               {{ $required ? 'required' : '' }}>
 
         <!-- Placeholder -->
         <div x-show="!hasFile && !preview" class="space-y-2">
