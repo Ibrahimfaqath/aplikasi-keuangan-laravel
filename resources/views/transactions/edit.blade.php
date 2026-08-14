@@ -58,6 +58,9 @@
         }
         /* Date input calendar icon */
         .date-field {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
             background-position: right 0.75rem center;
             background-repeat: no-repeat;
