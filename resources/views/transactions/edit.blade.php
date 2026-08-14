@@ -6,8 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="Perbarui detail transaksi atau ganti bukti foto di DompetKu.">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#4f46e5">
     <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Branding / Icons -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="DompetKu">
     <meta property="og:title" content="Edit Transaksi - DompetKu">
@@ -28,10 +35,8 @@
         })();
     </script>
 
-    <!-- CSS hasil build (Vite) — menggantikan Tailwind CDN agar jauh lebih ringan -->
-    @vite(['resources/css/app.css'])
-
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- CSS & JS hasil build (Vite) — Alpine dibundle, tanpa CDN -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         body { overflow-x: hidden; }
@@ -390,6 +395,9 @@
         });
     });
     </script>
+
+    <!-- FOOTER -->
+    <x-footer />
 
 </body>
 </html>

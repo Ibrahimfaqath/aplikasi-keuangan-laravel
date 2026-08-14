@@ -1,0 +1,23 @@
+{
+    "name": "DompetKu — Aplikasi Keuangan Pribadi",
+    "short_name": "DompetKu",
+    "description": "Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.",
+    "lang": "id",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#4f46e5",
+    "icons": [
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

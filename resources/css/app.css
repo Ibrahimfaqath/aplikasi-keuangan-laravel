@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* Warna seleksi teks mengikuti brand */
+    ::selection {
+        background-color: rgb(99 102 241 / 0.25);
+    }
+
+    /* Sembunyikan elemen Alpine sebelum diinisialisasi (mencegah flash) */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Hormati preferensi pengguna: matikan animasi/transisi */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+
 @layer utilities {
     @keyframes skeleton-shimmer {
         0% {

@@ -6,9 +6,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
-// 1. Redirect halaman depan ke transaksi
+// 1. Redirect halaman depan: langsung ke transaksi (sudah login) atau login (guest)
+//    — memangkas redirect chain agar halaman pertama lebih cepat.
 Route::get('/', function () {
-    return redirect('/transactions');
+    return redirect(auth()->check() ? '/transactions' : '/login');
 });
 
 // 2. Route Dashboard

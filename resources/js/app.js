@@ -1,74 +1,58 @@
 /**
- * APP.JS - Legacy JavaScript untuk kompatibilitas
- * 
- * NOTE: Untuk halaman index.blade.php sudah menggunakan Alpine.js
- * File ini hanya digunakan untuk halaman-halaman lain yang belum migrasi ke Alpine
+ * APP.JS - Entry global DompetKu
+ *
+ * 1. Membundle Alpine.js (tidak lagi dari CDN) agar lebih cepat & konsisten.
+ * 2. Handler tunggal untuk tema (dark/light) & mode privasi — dipakai oleh
+ *    komponen navbar di SEMUA halaman (dashboard, transaksi, profil, dll).
  */
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------------
-    // 1. THEME MANAGEMENT - Hanya jika belum di-handle oleh Alpine
+    // 1. THEME MANAGEMENT (vanilla, berlaku di semua halaman)
+    //    Ikon matahari/bulan dikendalikan CSS (dark:) di komponen navbar.
     // -----------------------------------------------------------------
     const themeBtn = document.getElementById('theme-toggle');
-    const darkIcon = document.getElementById('theme-toggle-dark-icon');
-    const lightIcon = document.getElementById('theme-toggle-light-icon');
-
-    function updateThemeIcons() {
-        const isDark = document.documentElement.classList.contains('dark');
-        if (isDark) {
-            lightIcon?.classList.remove('hidden');
-            darkIcon?.classList.add('hidden');
-        } else {
-            darkIcon?.classList.remove('hidden');
-            lightIcon?.classList.add('hidden');
-        }
-    }
-    updateThemeIcons();
 
     themeBtn?.addEventListener('click', () => {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.documentElement.style.backgroundColor = isDark ? '#111827' : '#f9fafb';
-        updateThemeIcons();
+        document.documentElement.style.backgroundColor = isDark ? '#111827' : '#f8fafc';
+        // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
+        window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
     });
 
     // -----------------------------------------------------------------
-    // 2. PRIVACY MANAGEMENT - Legacy support
+    // 2. PRIVACY MANAGEMENT (vanilla, berlaku di semua halaman)
+    //    Mendukung dua jenis elemen saldo:
+    //    - .balance-text  (data-value)  -> dashboard (layouts.app)
+    //    - .privacy-target (data-amount) -> halaman transaksi (Alpine)
     // -----------------------------------------------------------------
     const privacyBtn = document.getElementById('privacy-toggle-btn');
-    const privacyText = document.getElementById('privacy-btn-text');
     const eyeOpen = document.getElementById('privacy-eye-open');
     const eyeClosed = document.getElementById('privacy-eye-closed');
-    const balanceTexts = document.querySelectorAll('.balance-text');
 
     let isPrivate = localStorage.getItem('privacy_mode') === 'enabled';
 
     function renderPrivacyUI() {
-        balanceTexts.forEach(el => {
+        document.querySelectorAll('.balance-text').forEach((el) => {
             const realVal = el.getAttribute('data-value') || 'Rp 0';
-            // FIX: Gunakan data-value, bukan langsung textContent
-            // TextContent awal sudah masked, tapi kita update sesuai state
             el.textContent = isPrivate ? '••••••••' : realVal;
         });
 
-        if (privacyText) {
-            privacyText.textContent = isPrivate ? 'Tampilkan Saldo' : 'Sembunyikan Saldo';
-        }
+        document.querySelectorAll('.privacy-target').forEach((el) => {
+            const realVal = el.getAttribute('data-amount') || 'Rp 0';
+            el.textContent = isPrivate ? '••••••••' : realVal;
+        });
 
-        if (isPrivate) {
-            eyeOpen?.classList.add('hidden');
-            eyeOpen?.classList.remove('block');
-            eyeClosed?.classList.remove('hidden');
-            eyeClosed?.classList.add('block');
-        } else {
-            eyeClosed?.classList.add('hidden');
-            eyeClosed?.classList.remove('block');
-            eyeOpen?.classList.remove('hidden');
-            eyeOpen?.classList.add('block');
-        }
+        eyeOpen?.classList.toggle('hidden', isPrivate);
+        eyeOpen?.classList.toggle('block', !isPrivate);
+        eyeClosed?.classList.toggle('hidden', !isPrivate);
+        eyeClosed?.classList.toggle('block', isPrivate);
     }
 
-    // Terapkan UI Privasi
     renderPrivacyUI();
 
     privacyBtn?.addEventListener('click', () => {
@@ -78,38 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -----------------------------------------------------------------
-    // 3. SKELETON LOAD HYDRATION - FIXED
+    // 3. START ALPINE — setelah listener vanilla terpasang
     // -----------------------------------------------------------------
-    // PERBAIKAN: Skeleton sekarang di-handle oleh Alpine di index.blade.php
-    // Untuk halaman lain yang masih pakai file ini, kita tetap support
-    const skeletons = document.querySelectorAll('.skeleton-item');
-    const contents = document.querySelectorAll('.content-item');
+    Alpine.start();
 
-    // Cek apakah ada skeleton yang belum di-handle oleh Alpine
-    // Jika ada, kita handle dengan loading state yang legitimate
-    if (skeletons.length > 0 && contents.length > 0) {
-        // Cek apakah ada data yang sudah dirender (indikasi server-side render)
-        // Jika data sudah ada, kita langsung tampilkan content
-        // Tapi dengan transisi yang smooth
-        
-        // Tapi hati-hati: di index.blade.php sudah pake Alpine, 
-        // jangan double-handle
-        
-        // Solusi: cek apakah ada Alpine di halaman
-        const hasAlpine = window.Alpine !== undefined;
-        if (!hasAlpine) {
-            // Halaman tanpa Alpine, handle dengan setTimeout yang lebih cerdas
-            // BUKAN fake loading, tapi legitimate initial render wait
-            setTimeout(() => {
-                skeletons.forEach(el => {
-                    el.classList.add('loaded');
-                    el.style.display = 'none';
-                });
-                contents.forEach(el => {
-                    el.classList.remove('hidden');
-                    el.style.display = '';
-                });
-            }, 100); // Minimal time for initial paint
-        }
-    }
+    // Re-terapkan mask privasi setelah Alpine selesai merender
+    // (x-bind:data-amount / x-text baru tersedia setelah init, sehingga
+    //  nilai yang sudah di-mask tidak tertimpa nilai asli oleh Alpine)
+    requestAnimationFrame(() => requestAnimationFrame(() => renderPrivacyUI()));
 });
