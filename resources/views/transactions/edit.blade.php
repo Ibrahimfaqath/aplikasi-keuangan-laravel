@@ -88,6 +88,9 @@
     <!-- NAVBAR -->
     <x-navbar />
 
+    <!-- AI Chat Widget -->
+    <x-ai-chat />
+
     <!-- Toast -->
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
@@ -255,6 +258,85 @@
                         </p>
                     @enderror
                 </div>
+
+                <!-- AI Quick Input: Voice & OCR Struk -->
+                <div x-data="aiInput()" class="space-y-2">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                        Input Cepat <span class="text-slate-400 font-normal lowercase">(AI)</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" @click="toggleVoice()"
+                                :class="recording ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-300 dark:border-rose-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                                class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                            <span x-text="recording ? 'Merekam...' : 'Suara'" x-cloak>Suara</span>
+                        </button>
+                        <button type="button" @click="$refs.ocrInput.click()"
+                                class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold text-sm transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Struk AI
+                        </button>
+                    </div>
+                    <input type="file" x-ref="ocrInput" accept="image/*" capture="environment" class="hidden" @change="processOcr($event)">
+                    <p x-show="ocrLoading" x-cloak class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1">
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        Memproses struk...
+                    </p>
+                    <p x-show="ocrResult" x-cloak class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">✅ Struk berhasil dibaca!</p>
+                </div>
+
+                <script>
+                function aiInput() {
+                    return {
+                        recording: false, ocrLoading: false, ocrResult: false, voiceResult: '', recognition: null,
+                        toggleVoice() {
+                            if (this.recording) { this.recognition?.stop(); this.recording = false; return; }
+                            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                            if (!SR) { alert('Gunakan Chrome atau Edge untuk voice input.'); return; }
+                            this.recognition = new SR();
+                            this.recognition.lang = 'id-ID';
+                            this.recognition.continuous = false;
+                            this.recognition.interimResults = true;
+                            const self = this;
+                            this.recognition.onresult = function(e) {
+                                let t = '';
+                                for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+                                self.voiceResult = t;
+                                if (e.results[e.results.length - 1].isFinal) {
+                                    const l = t.toLowerCase();
+                                    if (l.includes('pemasukan') || l.includes('gaji') || l.includes('masuk')) document.querySelector('input[name=type][value=income]').checked = true;
+                                    else if (l.includes('pengeluaran') || l.includes('beli') || l.includes('bayar')) document.querySelector('input[name=type][value=expense]').checked = true;
+                                    const n = t.match(/[\d.,]+/);
+                                    if (n) document.getElementById('amount').value = n[0].replace(/[^\d]/g, '');
+                                    document.querySelector('input[name=title]').value = t;
+                                    self.recording = false;
+                                }
+                            };
+                            this.recognition.onerror = function() { self.recording = false; };
+                            this.recognition.onend = function() { self.recording = false; };
+                            this.recognition.start(); this.recording = true;
+                        },
+                        async processOcr(e) {
+                            const file = e.target.files[0]; if (!file) return;
+                            this.ocrLoading = true; this.ocrResult = false;
+                            const fd = new FormData(); fd.append('image', file);
+                            try {
+                                const res = await fetch('/ai/ocr', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }, body: fd });
+                                const data = await res.json();
+                                if (data.data) {
+                                    if (data.data.title) document.querySelector('input[name=title]').value = data.data.title;
+                                    if (data.data.amount) document.getElementById('amount').value = data.data.amount;
+                                    if (data.data.type) { const r = document.querySelector('input[name=type][value=' + data.data.type + ']'); if (r) r.checked = true; }
+                                    if (data.data.category) { const s = document.getElementById('category'); if (s) { for (let o of s.options) { if (o.value === data.data.category) { o.selected = true; break; } } } }
+                                    if (data.data.date) document.getElementById('transaction_date').value = data.data.date;
+                                    this.ocrResult = true;
+                                } else if (data.error) alert('Error: ' + data.error);
+                            } catch (err) { alert('Gagal: ' + err.message); }
+                            this.ocrLoading = false; e.target.value = '';
+                        }
+                    };
+                }
+                </script>
 
                 <!-- Upload Gambar - GALERI + KAMERA -->
                 <div class="space-y-2">

@@ -744,6 +744,9 @@
     <!-- EXPORT MODAL -->
     @include('components.export-modal')
 
+    <!-- AI Chat Widget -->
+    <x-ai-chat />
+
     <!-- FOOTER -->
     <x-footer />
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
@@ -27,6 +28,10 @@ Route::middleware('auth')->group(function () {
 
     // Anggaran Bulanan
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+
+    // AI Assistant
+    Route::post('/ai/chat', [AiController::class, 'chat'])->name('ai.chat');
+    Route::post('/ai/ocr', [AiController::class, 'ocr'])->name('ai.ocr');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
