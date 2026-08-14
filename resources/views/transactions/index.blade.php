@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-white dark:bg-black"
+<html lang="id" class="h-full bg-slate-50 dark:bg-slate-950"
       x-data="dashboardApp()"
       x-init="initDashboard()">
 
@@ -69,7 +69,7 @@
             background: #f1f5f9;
         }
         .dark img[loading="lazy"] {
-            background: #262626;
+            background: #1e293b;
         }
 
         /* Dropdown transition */
@@ -92,7 +92,7 @@
     </style>
 </head>
 
-<body class="min-h-full bg-white dark:bg-black text-slate-900 dark:text-white font-sans antialiased flex flex-col">
+<body class="min-h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex flex-col">
 
     <!-- ============================================================
     ALPINE.JS APP — loading, statistik & grafik (theme/privacy ditangani app.js)
@@ -106,16 +106,9 @@
                 totalIncome: {{ $totalIncome ?? $pemasukan ?? 0 }},
                 totalExpense: {{ $totalExpense ?? $pengeluaran ?? 0 }},
                 categoryExpenses: @json($categoryExpenses ?? []),
-                // Data grafik gabungan per periode: minggu / bulan / tahun
-                @php
-                    $trendDataJson = json_encode($trendData ?? [
-                        'week'  => ['labels' => [], 'income' => [], 'expense' => []],
-                        'month' => ['labels' => [], 'income' => [], 'expense' => []],
-                        'year'  => ['labels' => [], 'income' => [], 'expense' => []],
-                    ]);
-                @endphp
-                trendData: {!! $trendDataJson !!},
-                trendPeriod: 'week',
+                dailyExpense: @json($dailyExpense ?? ['labels' => [], 'values' => []]),
+                dailyIncome: @json($dailyIncome ?? ['labels' => [], 'values' => []]),
+                trendMode: 'expense',
                 trendChartInstance: null,
                 categoryChartInstance: null,
 
@@ -140,13 +133,7 @@
                     }, 500);
                 },
 
-                // Ganti periode grafik: minggu / bulan / tahun
-                setTrendPeriod(period) {
-                    this.trendPeriod = period;
-                    this.initTrendChart();
-                },
-
-                // Line chart gabungan pemasukan + pengeluaran per periode
+                // Line chart 7 hari (gaya prototipe) — data real per hari
                 initTrendChart() {
                     const canvas = document.getElementById('trendChart');
                     if (!canvas) return;
@@ -157,64 +144,61 @@
                     }
 
                     const isDark = this.isDarkMode;
-                    const textColor = isDark ? '#a3a3a3' : '#64748b';
-                    const gridColor = isDark ? '#262626' : '#f1f5f9';
+                    const textColor = isDark ? '#94a3b8' : '#64748b';
+                    const gridColor = isDark ? '#1e293b' : '#f1f5f9';
 
-                    const series = this.trendData[this.trendPeriod] ?? { labels: [], income: [], expense: [] };
-
-                    // Warna profesional: biru/emas untuk pemasukan, merah untuk pengeluaran
-                    const incomeColor = isDark ? '#d4af37' : '#2563eb';
-                    const expenseColor = isDark ? '#f87171' : '#ef4444';
-                    const incomeFill = isDark ? 'rgba(212, 175, 55, 0.08)' : 'rgba(37, 99, 235, 0.08)';
-                    const expenseFill = isDark ? 'rgba(248, 113, 113, 0.08)' : 'rgba(239, 68, 68, 0.08)';
+                    // Ambil data sesuai mode (Pengeluaran / Pemasukan)
+                    const series = this.trendMode === 'expense' ? this.dailyExpense : this.dailyIncome;
+                    const isExpense = this.trendMode === 'expense';
+                    const color = isExpense ? '#ef4444' : '#10b981';
 
                     this.trendChartInstance = new Chart(canvas, {
                         type: 'line',
                         data: {
                             labels: series.labels ?? [],
-                            datasets: [
-                                {
-                                    label: 'Pemasukan',
-                                    data: series.income ?? [],
-                                    borderColor: incomeColor,
-                                    backgroundColor: incomeFill,
-                                    borderWidth: 2.5,
-                                    tension: 0.35,
-                                    fill: false,
-                                    pointRadius: 3.5,
-                                    pointBackgroundColor: incomeColor,
-                                },
-                                {
-                                    label: 'Pengeluaran',
-                                    data: series.expense ?? [],
-                                    borderColor: expenseColor,
-                                    backgroundColor: expenseFill,
-                                    borderWidth: 2.5,
-                                    tension: 0.35,
-                                    fill: false,
-                                    pointRadius: 3.5,
-                                    pointBackgroundColor: expenseColor,
-                                }
-                            ]
+                            datasets: [{
+                                label: isExpense ? 'Pengeluaran' : 'Pemasukan',
+                                data: series.values ?? [],
+                                borderColor: color,
+                                backgroundColor: isExpense ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                                borderWidth: 2.5,
+                                tension: 0.35,
+                                fill: true,
+                                pointRadius: 3.5,
+                                pointBackgroundColor: color,
+                            }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            interaction: { mode: 'index', intersect: false },
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
                                     callbacks: {
-                                        label: (ctx) => ' ' + ctx.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(ctx.parsed.y),
+                                        label: (ctx) => ' Rp ' + new Intl.NumberFormat('id-ID').format(ctx.parsed.y),
                                     }
                                 }
                             },
                             scales: {
-                                x: { ticks: { color: textColor, maxTicksLimit: 10 }, grid: { display: false } },
+                                x: { ticks: { color: textColor }, grid: { display: false } },
                                 y: { ticks: { color: textColor }, grid: { color: gridColor } }
                             }
                         }
                     });
+                },
+
+                // Toggle grafik: Pengeluaran <-> Pemasukan
+                toggleTrend() {
+                    this.trendMode = this.trendMode === 'expense' ? 'income' : 'expense';
+                    const isExpense = this.trendMode === 'expense';
+
+                    // Update teks tombol & judul
+                    const btn = document.getElementById('trendToggle');
+                    const title = document.getElementById('trendTitle');
+                    if (btn) btn.textContent = isExpense ? 'Lihat Pemasukan' : 'Lihat Pengeluaran';
+                    if (title) title.textContent = (isExpense ? 'Pengeluaran' : 'Pemasukan') + ' 7 Hari';
+
+                    this.initTrendChart();
                 },
 
                 initCategoryChart() {
@@ -230,10 +214,7 @@
                     if (entries.length === 0) return;
 
                     const isDark = this.isDarkMode;
-                    // Palet profesional & berkelas (tidak mencolok)
-                    const palette = isDark
-                        ? ['#d4af37', '#f87171', '#60a5fa', '#a3a3a3', '#c084fc', '#34d399', '#fbbf24', '#f97316', '#94a3b8', '#f472b6']
-                        : ['#2563eb', '#d4af37', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f97316', '#ef4444', '#84cc16', '#64748b', '#f59e0b'];
+                    const palette = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f97316', '#64748b', '#84cc16'];
 
                     this.categoryChartInstance = new Chart(canvas, {
                         type: 'doughnut',
@@ -243,7 +224,7 @@
                                 data: entries.map(e => e.value),
                                 backgroundColor: entries.map((_, i) => palette[i % palette.length]),
                                 borderWidth: 2,
-                                borderColor: isDark ? '#0a0a0a' : '#ffffff',
+                                borderColor: isDark ? '#0f172a' : '#ffffff',
                             }]
                         },
                         options: {
@@ -253,7 +234,7 @@
                             plugins: {
                                 legend: {
                                     position: 'bottom',
-                                    labels: { color: isDark ? '#a3a3a3' : '#64748b', boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 11 } }
+                                    labels: { color: isDark ? '#94a3b8' : '#64748b', boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 11 } }
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -278,11 +259,11 @@
     <!-- Toast Notification -->
     @if(session('success'))
     <div id="toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-         class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-slate-100 dark:border-neutral-800">
+         class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800">
         <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <div class="ml-3 text-xs font-semibold text-slate-700 dark:text-neutral-100">{{ session('success') }}</div>
+        <div class="ml-3 text-xs font-semibold text-slate-700 dark:text-slate-200">{{ session('success') }}</div>
         <button @click="show = false" class="ml-auto p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -292,16 +273,47 @@
     <!-- MAIN CONTENT BODY -->
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
+        <!-- DASHBOARD HEADER -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                    Ringkasan Keuangan
+                </h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    Pantau seluruh pemasukan, pengeluaran, dan arus kas kamu.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 no-print flex-shrink-0">
+                <button type="button" onclick="openExportModal()"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export
+                </button>
+
+                <a href="{{ route('transactions.create') }}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-indigo-600/20 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Transaksi Baru
+                </a>
+            </div>
+        </div>
+
         <!-- SUMMARY CARDS — gaya prototipe: 3 kotak horizontal (saldo gradien + border berwarna) -->
         <section class="grid gap-2.5 sm:gap-4" style="grid-template-columns: 1.3fr 1fr 1fr;">
 
-            <!-- Kotak saldo: gradien biru (terang) / hitam-keemasan (gelap) -->
-            <div class="relative overflow-hidden p-3.5 sm:p-5 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-neutral-900 dark:via-neutral-900 dark:to-black text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-gold-400/25 flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+            <!-- Kotak saldo: gradien biru tua, teks putih, angka besar -->
+            <div class="relative overflow-hidden p-3.5 sm:p-5 bg-gradient-to-br from-blue-900 via-indigo-900 to-indigo-800 text-white rounded-2xl shadow-lg shadow-blue-900/25 flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
                 <!-- dekorasi lingkaran transparan -->
                 <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
                 <div class="absolute -bottom-8 -right-2 w-20 h-20 bg-white/5 rounded-full pointer-events-none"></div>
 
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-gold-400/90">Saldo</span>
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90">Saldo</span>
 
                 <div x-show="isLoading">
                     <div class="h-7 sm:h-9 w-full bg-white/15 rounded-lg animate-shimmer"></div>
@@ -315,11 +327,11 @@
             </div>
 
             <!-- Kotak pemasukan: border kiri hijau 4px, angka hijau -->
-            <div class="p-3.5 sm:p-5 bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 border-l-4 border-l-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Pemasukan</span>
+            <div class="p-3.5 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pemasukan</span>
 
                 <div x-show="isLoading">
-                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-neutral-700 rounded-lg animate-shimmer"></div>
+                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
                 </div>
 
                 <div class="text-xs sm:text-lg font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight break-words privacy-target"
@@ -330,11 +342,11 @@
             </div>
 
             <!-- Kotak pengeluaran: border kiri merah 4px, angka merah -->
-            <div class="p-3.5 sm:p-5 bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 border-l-4 border-l-rose-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">Pengeluaran</span>
+            <div class="p-3.5 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-rose-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pengeluaran</span>
 
                 <div x-show="isLoading">
-                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-neutral-700 rounded-lg animate-shimmer"></div>
+                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
                 </div>
 
                 <div class="text-xs sm:text-lg font-extrabold text-rose-600 dark:text-rose-400 leading-tight break-words privacy-target"
@@ -347,11 +359,11 @@
         </section>
 
         <!-- BUDGET CARD -->
-        <section class="bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 rounded-2xl p-4 sm:p-6 shadow-sm">
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Anggaran Bulanan</h2>
-                    <p class="text-xs text-slate-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                 </div>
                 <button type="button" onclick="openBudgetModal()"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 rounded-xl text-sm font-semibold hover:bg-amber-100 dark:hover:bg-amber-900/40 transition no-print">
@@ -370,19 +382,18 @@
                     $barColor   = $isOver ? 'bg-rose-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-emerald-500');
                 @endphp
 
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-500 dark:text-neutral-400 mb-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
                     <span>Terpakai: <span class="privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span></span>
                     <span>Batas: <span class="privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</span></span>
                 </div>
 
-                <div class="w-full h-3 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
+                <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                <p class="mt-2 text-xs font-semibold flex items-center gap-1.5 {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-neutral-400' }}">
+                <p class="mt-2 text-xs font-semibold {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-slate-400' }}">
                     @if($isOver)
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        Melebihi batas sebesar Rp {{ number_format(abs($remaining), 0, ',', '.') }}
+                        ⚠️ Melebihi batas sebesar Rp {{ number_format(abs($remaining), 0, ',', '.') }}
                     @else
                         Sisa <span class="privacy-target" data-amount="Rp {{ number_format($remaining, 0, ',', '.') }}">Rp {{ number_format($remaining, 0, ',', '.') }}</span> · {{ $percentage }}% dari anggaran terpakai
                     @endif
@@ -392,7 +403,7 @@
                     <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="text-sm text-slate-600 dark:text-neutral-300">
+                    <p class="text-sm text-slate-600 dark:text-slate-300">
                         Kamu belum mengatur anggaran untuk bulan ini. Klik
                         <button type="button" onclick="openBudgetModal()" class="font-semibold text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-700">Atur Anggaran</button>
                         untuk menetapkan batas pengeluaranmu.
@@ -401,43 +412,29 @@
             @endif
         </section>
 
-        <!-- CHART TREN — line chart gabungan pemasukan + pengeluaran, toggle Minggu/Bulan/Tahun -->
-        <section class="bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
+        <!-- CHART TREN 7 HARI — line chart gaya prototipe, data real -->
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
-                    <p class="text-xs text-slate-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white" id="trendTitle">Pengeluaran 7 Hari</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Total harian seminggu terakhir</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- Toggle periode: Minggu / Bulan / Tahun -->
-                    <div class="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-neutral-800 rounded-full no-print">
-                        <button type="button" @click="setTrendPeriod('week')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'week' ? 'bg-white dark:bg-gold-400 dark:text-black text-blue-600 shadow-sm' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-white'">
-                            Minggu
-                        </button>
-                        <button type="button" @click="setTrendPeriod('month')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'month' ? 'bg-white dark:bg-gold-400 dark:text-black text-blue-600 shadow-sm' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-white'">
-                            Bulan
-                        </button>
-                        <button type="button" @click="setTrendPeriod('year')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'year' ? 'bg-white dark:bg-gold-400 dark:text-black text-blue-600 shadow-sm' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-white'">
-                            Tahun
-                        </button>
-                    </div>
-                    <!-- Legenda pemasukan / pengeluaran -->
-                    <span class="flex items-center gap-3 text-xs font-semibold text-slate-600 dark:text-neutral-300">
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-gold-400 flex-shrink-0"></span> Pemasukan</span>
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span> Pengeluaran</span>
+                    <!-- Tombol toggle grafik Pengeluaran <-> Pemasukan -->
+                    <button type="button" id="trendToggle" @click="toggleTrend()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-800/60 rounded-full text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition no-print">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        Lihat Pemasukan
+                    </button>
+                    <span class="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span> Pengeluaran
                     </span>
                 </div>
             </div>
 
-            <div class="h-56 sm:h-72 flex items-center justify-center bg-slate-100 dark:bg-neutral-800/50 rounded-xl animate-shimmer"
+            <div class="h-56 sm:h-72 flex items-center justify-center bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-shimmer"
                  x-show="isLoading">
-                <span class="text-slate-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
+                <span class="text-slate-400 dark:text-slate-500 text-sm">Memuat grafik...</span>
             </div>
 
             <div class="h-56 sm:h-72" x-show="!isLoading">
@@ -446,15 +443,15 @@
         </section>
 
         <!-- CHART KATEGORI -->
-        <section class="bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
             <div class="mb-6">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Pengeluaran per Kategori</h2>
-                <p class="text-xs text-slate-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Lihat di mana uangmu paling banyak terpakai.</p>
             </div>
 
-            <div class="h-56 sm:h-72 flex items-center justify-center bg-slate-100 dark:bg-neutral-800/50 rounded-xl animate-shimmer"
+            <div class="h-56 sm:h-72 flex items-center justify-center bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-shimmer"
                  x-show="isLoading">
-                <span class="text-slate-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
+                <span class="text-slate-400 dark:text-slate-500 text-sm">Memuat grafik...</span>
             </div>
 
             <div class="h-56 sm:h-72" x-show="!isLoading">
@@ -462,19 +459,18 @@
             </div>
         </section>
 
-        <!-- FILTER — search pill ala Gemini + filter rapi -->
-        <section class="bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 rounded-2xl p-4 shadow-sm no-print">
+        <!-- FILTER -->
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-neutral-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..."
-                           class="w-full pl-11 pr-4 py-2.5 bg-transparent dark:bg-neutral-800/40 border border-slate-200 dark:border-neutral-700/80 rounded-full text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-500 focus:outline-none focus:border-blue-500 dark:focus:border-gold-400 transition">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="type" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-neutral-800/60 border border-slate-200 dark:border-neutral-700/80 rounded-full text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-gold-400">
+                    <select name="type" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua Tipe</option>
                         <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>Pemasukan</option>
                         <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
@@ -482,7 +478,7 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="category" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-neutral-800/60 border border-slate-200 dark:border-neutral-700/80 rounded-full text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-gold-400">
+                    <select name="category" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua Kategori</option>
                         @foreach (\App\Models\Transaction::allCategories() as $cat)
                             <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
@@ -491,7 +487,7 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="period" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-neutral-800/60 border border-slate-200 dark:border-neutral-700/80 rounded-full text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-gold-400">
+                    <select name="period" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="all">Semua Waktu</option>
                         <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hari Ini</option>
                         <option value="7_days" {{ request('period') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
@@ -500,12 +496,12 @@
                 </div>
 
                 <div class="lg:col-span-2 flex gap-2">
-                    <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-gold-400 dark:hover:bg-gold-300 dark:text-black text-white rounded-full text-xs sm:text-sm font-semibold shadow-sm shadow-blue-600/20 transition">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm shadow-indigo-600/20 transition">
                         Filter
                     </button>
                     @if(request('search') || request('type') || request('category') || request('period'))
-                        <a href="{{ route('transactions.index') }}" title="Reset filter" class="inline-flex items-center justify-center w-9 h-9 bg-white dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 border border-slate-200 dark:border-neutral-700 rounded-full text-sm font-semibold hover:bg-slate-50 dark:hover:bg-neutral-700 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <a href="{{ route('transactions.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+                            ✕
                         </a>
                     @endif
                 </div>
@@ -513,16 +509,16 @@
         </section>
 
         <!-- TABLE TRANSACTIONS (RIWAYAT) -->
-        <section id="riwayat" class="bg-white dark:bg-neutral-900 border border-slate-200/80 dark:border-neutral-800 rounded-2xl shadow-sm overflow-hidden">
+        <section id="riwayat" class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
 
             <!-- Header: Transaksi Terakhir (gaya prototipe section 3) -->
-            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-neutral-800">
+            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Transaksi Terakhir</h2>
-                    <p class="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
                 </div>
                 <a href="{{ route('transactions.create') }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-gold-400/10 text-blue-600 dark:text-gold-400 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-gold-400/20 transition no-print">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Tambah
                 </a>
@@ -533,35 +529,35 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50/80 dark:bg-neutral-800/40 border-b border-slate-200/80 dark:border-neutral-800">
-                                <th class="py-3.5 px-6"><div class="h-4 w-20 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-24 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6 text-right"><div class="h-4 w-20 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer ml-auto"></div></th>
-                                <th class="py-3.5 px-6 text-center"><div class="h-4 w-12 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer mx-auto"></div></th>
+                            <tr class="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800">
+                                <th class="py-3.5 px-6"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-6"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-6 text-right"><div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer ml-auto"></div></th>
+                                <th class="py-3.5 px-6 text-center"><div class="h-4 w-12 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer mx-auto"></div></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-neutral-800">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                             @for ($i = 0; $i < 5; $i++)
                             <tr>
                                 <td class="py-4 px-6">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-slate-200 dark:bg-neutral-700 rounded-xl animate-shimmer"></div>
+                                        <div class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-xl animate-shimmer"></div>
                                         <div class="space-y-2">
-                                            <div class="h-4 w-32 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div>
-                                            <div class="h-3 w-20 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div>
+                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div>
+                                            <div class="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-6"><div class="h-4 w-24 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-6"><div class="h-6 w-20 bg-slate-200 dark:bg-neutral-700 rounded-full animate-shimmer"></div></td>
-                                <td class="py-4 px-6 text-right"><div class="h-4 w-28 bg-slate-200 dark:bg-neutral-700 rounded animate-shimmer ml-auto"></div></td>
+                                <td class="py-4 px-6"><div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></td>
+                                <td class="py-4 px-6"><div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer"></div></td>
+                                <td class="py-4 px-6"><div class="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded-full animate-shimmer"></div></td>
+                                <td class="py-4 px-6 text-right"><div class="h-4 w-28 bg-slate-200 dark:bg-slate-700 rounded animate-shimmer ml-auto"></div></td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <div class="h-8 w-8 bg-slate-200 dark:bg-neutral-700 rounded-lg animate-shimmer"></div>
-                                        <div class="h-8 w-8 bg-slate-200 dark:bg-neutral-700 rounded-lg animate-shimmer"></div>
+                                        <div class="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
+                                        <div class="h-8 w-8 bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
                                     </div>
                                 </td>
                             </tr>
@@ -577,7 +573,7 @@
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50/80 dark:bg-neutral-800/40 border-b border-slate-200/80 dark:border-neutral-800 text-slate-500 dark:text-neutral-400 text-xs font-semibold uppercase tracking-wider">
+                            <tr class="bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
                                 <th class="py-3.5 px-6">Tanggal</th>
                                 <th class="py-3.5 px-6">Bukti</th>
                                 <th class="py-3.5 px-6">Keterangan</th>
@@ -587,16 +583,16 @@
                                 <th class="py-3.5 px-6 text-center no-print">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-neutral-800 text-xs sm:text-sm">
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm">
                             @php $items = $transactions ?? $transaksi ?? []; @endphp
                             @forelse ($items as $item)
-                            <tr class="hover:bg-slate-50/80 dark:hover:bg-neutral-800/50 transition">
-                                <td class="py-4 px-6 font-medium text-slate-500 dark:text-neutral-400 whitespace-nowrap">
+                            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
+                                <td class="py-4 px-6 font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                                 </td>
                                 <td class="py-4 px-6">
                                     @if(!empty($item->image))
-                                    <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="block w-8 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-neutral-700">
+                                    <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="block w-8 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
                                         <img src="{{ asset('storage/' . $item->image) }}"
                                              loading="lazy"
                                              class="w-full h-full object-cover"
@@ -610,7 +606,7 @@
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </td>
                                 <td class="py-4 px-6">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-gold-400/10 dark:text-gold-400 border border-blue-200/60 dark:border-gold-400/25">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
                                         {{ $item->category ?? 'Lainnya' }}
                                     </span>
                                 </td>
@@ -640,11 +636,11 @@
                             @empty
                             <tr>
                                 <td colspan="7" class="py-16 text-center">
-                                    <div class="w-12 h-12 mx-auto mb-3 bg-blue-50 dark:bg-neutral-800 text-blue-500 rounded-xl flex items-center justify-center">
+                                    <div class="w-12 h-12 mx-auto mb-3 bg-indigo-50 dark:bg-slate-800 text-indigo-500 rounded-xl flex items-center justify-center">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <h3 class="text-sm font-bold text-slate-900 dark:text-white">Tidak ada transaksi</h3>
-                                    <p class="text-xs text-slate-500 dark:text-neutral-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
                                 </td>
                             </tr>
                             @endforelse
@@ -653,7 +649,7 @@
                 </div>
 
                 <!-- MOBILE LIST VIEW -->
-                <div class="block md:hidden divide-y divide-slate-100 dark:divide-neutral-800">
+                <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse ($items as $item)
                     <div class="p-4 space-y-2.5">
 
@@ -673,11 +669,11 @@
                             <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="flex-shrink-0">
                                 <img src="{{ asset('storage/' . $item->image) }}"
                                      loading="lazy"
-                                     class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-neutral-700"
+                                     class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
                                      alt="Bukti transaksi">
                             </a>
                             @else
-                            <div class="flex-shrink-0 w-12 h-12 bg-slate-100 dark:bg-neutral-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-neutral-700">
+                            <div class="flex-shrink-0 w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700">
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -688,7 +684,7 @@
                                 <p class="font-semibold text-slate-900 dark:text-white truncate text-sm sm:text-base">
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </p>
-                                <p class="text-[11px] font-medium text-blue-600 dark:text-gold-400 mt-0.5">
+                                <p class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 mt-0.5">
                                     {{ $item->category ?? 'Lainnya' }}
                                 </p>
                             </div>
@@ -700,8 +696,8 @@
                         </div>
 
                         <!-- Baris 3: Action Buttons -->
-                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-neutral-800/60">
-                            <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300 rounded-lg text-xs font-semibold transition">
+                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
+                            <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-xs font-semibold transition">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 <span>Edit</span>
                             </a>
@@ -717,18 +713,18 @@
                     </div>
                     @empty
                     <div class="py-16 text-center">
-                        <div class="w-12 h-12 mx-auto mb-3 bg-blue-50 dark:bg-neutral-800 text-blue-500 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-indigo-50 dark:bg-slate-800 text-indigo-500 rounded-xl flex items-center justify-center">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">Tidak ada transaksi</h3>
-                        <p class="text-xs text-slate-500 dark:text-neutral-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
                     </div>
                     @endforelse
                 </div>
 
                 <!-- PAGINATION WITH RAPIH SPACING -->
                 @if(isset($transactions) && method_exists($transactions, 'links') && $transactions->hasPages())
-                <div class="px-6 py-3 border-t border-slate-200/80 dark:border-neutral-800 bg-slate-50/50 dark:bg-black/50">
+                <div class="px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                     {{ $transactions->links('vendor.pagination.tailwind') }}
                 </div>
                 @endif
@@ -738,11 +734,14 @@
 
     </div>
 
-    <!-- Spacer agar konten tidak tertutup FAB di mobile -->
-    <div class="h-24 md:hidden"></div>
+    <!-- Spacer agar konten tidak tertutup bottom nav & FAB di mobile -->
+    <div class="h-28 md:hidden"></div>
+
+    <!-- MOBILE BOTTOM NAV (komponen terpadu) -->
+    @include('components.mobile-nav')
 
     <!-- ============================================================
-         MOBILE FAB — expand 3 pilihan (scale + fade)
+         MOBILE FAB — gaya prototipe (expand 3 pilihan, scale + fade)
          ============================================================ -->
     <div class="fixed bottom-24 right-5 md:hidden z-40" x-data="{ open: false }" @click.outside="open = false">
 
@@ -757,25 +756,22 @@
              class="absolute bottom-16 right-0 flex flex-col items-end gap-2">
 
             <a href="{{ route('ai.index') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-100 border border-slate-200 dark:border-neutral-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                Tanya AI
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                ✨ Tanya AI
             </a>
             <a href="{{ route('transactions.create') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-100 border border-slate-200 dark:border-neutral-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Scan Struk
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                🧾 Scan Struk
             </a>
             <a href="{{ route('transactions.create') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-100 border border-slate-200 dark:border-neutral-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Transaksi Baru
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                ➕ Transaksi Baru
             </a>
         </div>
 
         <!-- Tombol FAB: 56px, warna utama, shadow besar -->
         <button type="button" @click="open = !open"
-                class="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-gold-400 dark:hover:bg-gold-300 dark:text-black text-white text-3xl font-light shadow-xl shadow-blue-600/40 flex items-center justify-center transition-transform duration-200"
+                class="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-3xl font-light shadow-xl shadow-indigo-600/40 flex items-center justify-center transition-transform duration-200"
                 :class="open ? 'rotate-45' : ''"
                 aria-label="Tambah cepat">+</button>
     </div>
@@ -783,23 +779,23 @@
     <!-- BUDGET MODAL -->
     <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
         <!-- Backdrop Blur -->
-        <div class="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeBudgetModal()"></div>
+        <div class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onclick="closeBudgetModal()"></div>
 
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md">
 
                 <!-- Header Modal -->
-                <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-neutral-800">
+                <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-xl">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div>
                             <h3 class="text-base font-bold text-slate-900 dark:text-white">Anggaran Bulanan</h3>
-                            <p class="text-xs text-slate-500 dark:text-neutral-400">Atur batas pengeluaran bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Atur batas pengeluaran bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                         </div>
                     </div>
-                    <button type="button" onclick="closeBudgetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-neutral-200 p-1 rounded-lg">
+                    <button type="button" onclick="closeBudgetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
@@ -808,16 +804,16 @@
                 <form action="{{ route('budgets.store') }}" method="POST" class="p-6 space-y-4">
                     @csrf
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-neutral-400 mb-2">Batas Pengeluaran (Rp)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Batas Pengeluaran (Rp)</label>
                         <div class="relative rounded-xl shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-bold text-sm">Rp</div>
-                            <input type="number" name="amount" value="{{ $budget?->amount }}" placeholder="Contoh: 5000000" required min="0" step="any" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-xl text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="number" name="amount" value="{{ $budget?->amount }}" placeholder="Contoh: 5000000" required min="0" step="any" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-neutral-800">
-                        <button type="button" onclick="closeBudgetModal()" class="px-4 py-2 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 border border-slate-200 dark:border-neutral-700 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-neutral-700 transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-gold-400 dark:hover:bg-gold-300 dark:text-black text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20 transition">Simpan Anggaran</button>
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" onclick="closeBudgetModal()" class="px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition">Batal</button>
+                        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/20 transition">Simpan Anggaran</button>
                     </div>
                 </form>
 

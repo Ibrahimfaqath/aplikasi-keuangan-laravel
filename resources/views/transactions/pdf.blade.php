@@ -206,21 +206,21 @@
         <tr>
             <td width="32%">
                 <div class="summary-card">
-                    <div class="summary-label">Total Pemasukan</div>
+                    <div class="summary-label">💰 Total Pemasukan</div>
                     <div class="summary-value income">Rp {{ number_format($totalIncome ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>
             <td width="2%"></td>
             <td width="32%">
                 <div class="summary-card">
-                    <div class="summary-label">Total Pengeluaran</div>
+                    <div class="summary-label">💸 Total Pengeluaran</div>
                     <div class="summary-value expense">Rp {{ number_format($totalExpense ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>
             <td width="2%"></td>
             <td width="32%">
                 <div class="summary-card">
-                    <div class="summary-label">Sisa Saldo Bersih</div>
+                    <div class="summary-label">📊 Sisa Saldo Bersih</div>
                     <div class="summary-value balance">Rp {{ number_format($totalBalance ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>

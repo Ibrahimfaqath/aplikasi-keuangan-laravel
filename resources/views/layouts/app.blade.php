@@ -41,7 +41,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-white min-h-screen antialiased flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased flex flex-col">
 
     <!-- NAVBAR (komponen terpadu) -->
     <x-navbar />
