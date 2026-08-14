@@ -106,7 +106,10 @@
                 totalIncome: {{ $totalIncome ?? $pemasukan ?? 0 }},
                 totalExpense: {{ $totalExpense ?? $pengeluaran ?? 0 }},
                 categoryExpenses: @json($categoryExpenses ?? []),
-                chartInstance: null,
+                dailyExpense: @json($dailyExpense ?? ['labels' => [], 'values' => []]),
+                dailyIncome: @json($dailyIncome ?? ['labels' => [], 'values' => []]),
+                trendMode: 'expense',
+                trendChartInstance: null,
                 categoryChartInstance: null,
 
                 initDashboard() {
@@ -115,7 +118,7 @@
                     // Sinkronkan grafik saat tema diganti lewat navbar (app.js)
                     window.addEventListener('theme-changed', (e) => {
                         this.isDarkMode = e.detail?.isDark ?? document.documentElement.classList.contains('dark');
-                        this.initChart();
+                        this.initTrendChart();
                         this.initCategoryChart();
                     });
 
@@ -123,47 +126,79 @@
                         this.isLoading = false;
                         this.$nextTick(() => {
                             setTimeout(() => {
-                                this.initChart();
+                                this.initTrendChart();
                                 this.initCategoryChart();
                             }, 100);
                         });
                     }, 500);
                 },
 
-                initChart() {
-                    const canvas = document.getElementById('mainChart');
+                // Line chart 7 hari (gaya prototipe) — data real per hari
+                initTrendChart() {
+                    const canvas = document.getElementById('trendChart');
                     if (!canvas) return;
 
-                    if (this.chartInstance) {
-                        this.chartInstance.destroy();
-                        this.chartInstance = null;
+                    if (this.trendChartInstance) {
+                        this.trendChartInstance.destroy();
+                        this.trendChartInstance = null;
                     }
 
                     const isDark = this.isDarkMode;
                     const textColor = isDark ? '#94a3b8' : '#64748b';
                     const gridColor = isDark ? '#1e293b' : '#f1f5f9';
 
-                    this.chartInstance = new Chart(canvas, {
-                        type: 'bar',
+                    // Ambil data sesuai mode (Pengeluaran / Pemasukan)
+                    const series = this.trendMode === 'expense' ? this.dailyExpense : this.dailyIncome;
+                    const isExpense = this.trendMode === 'expense';
+                    const color = isExpense ? '#ef4444' : '#10b981';
+
+                    this.trendChartInstance = new Chart(canvas, {
+                        type: 'line',
                         data: {
-                            labels: ['Pemasukan', 'Pengeluaran'],
+                            labels: series.labels ?? [],
                             datasets: [{
-                                data: [this.totalIncome, this.totalExpense],
-                                backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)'],
-                                borderRadius: 8,
-                                barThickness: 40
+                                label: isExpense ? 'Pengeluaran' : 'Pemasukan',
+                                data: series.values ?? [],
+                                borderColor: color,
+                                backgroundColor: isExpense ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                                borderWidth: 2.5,
+                                tension: 0.35,
+                                fill: true,
+                                pointRadius: 3.5,
+                                pointBackgroundColor: color,
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => ' Rp ' + new Intl.NumberFormat('id-ID').format(ctx.parsed.y),
+                                    }
+                                }
+                            },
                             scales: {
                                 x: { ticks: { color: textColor }, grid: { display: false } },
                                 y: { ticks: { color: textColor }, grid: { color: gridColor } }
                             }
                         }
                     });
+                },
+
+                // Toggle grafik: Pengeluaran <-> Pemasukan
+                toggleTrend() {
+                    this.trendMode = this.trendMode === 'expense' ? 'income' : 'expense';
+                    const isExpense = this.trendMode === 'expense';
+
+                    // Update teks tombol & judul
+                    const btn = document.getElementById('trendToggle');
+                    const title = document.getElementById('trendTitle');
+                    if (btn) btn.textContent = isExpense ? 'Lihat Pemasukan' : 'Lihat Pengeluaran';
+                    if (title) title.textContent = (isExpense ? 'Pengeluaran' : 'Pemasukan') + ' 7 Hari';
+
+                    this.initTrendChart();
                 },
 
                 initCategoryChart() {
@@ -269,60 +304,52 @@
             </div>
         </div>
 
-        <!-- SUMMARY CARDS -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <!-- SUMMARY CARDS — gaya prototipe: 3 kotak horizontal (saldo gradien + border berwarna) -->
+        <section class="grid gap-2.5 sm:gap-4" style="grid-template-columns: 1.3fr 1fr 1fr;">
 
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                    <span>Saldo Saat Ini</span>
-                    <div class="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    </div>
-                </div>
+            <!-- Kotak saldo: gradien biru tua, teks putih, angka besar -->
+            <div class="relative overflow-hidden p-3.5 sm:p-5 bg-gradient-to-br from-blue-900 via-indigo-900 to-indigo-800 text-white rounded-2xl shadow-lg shadow-blue-900/25 flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+                <!-- dekorasi lingkaran transparan -->
+                <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
+                <div class="absolute -bottom-8 -right-2 w-20 h-20 bg-white/5 rounded-full pointer-events-none"></div>
+
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90">Saldo</span>
 
                 <div x-show="isLoading">
-                    <div class="h-10 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
+                    <div class="h-7 sm:h-9 w-full bg-white/15 rounded-lg animate-shimmer"></div>
                 </div>
 
-                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white privacy-target"
+                <div class="text-base sm:text-2xl font-extrabold tracking-tight leading-tight privacy-target"
                      x-show="!isLoading"
                      x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                      x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
                 </div>
             </div>
 
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                    <span>Total Pemasukan</span>
-                    <div class="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                    </div>
-                </div>
+            <!-- Kotak pemasukan: border kiri hijau 4px, angka hijau -->
+            <div class="p-3.5 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pemasukan</span>
 
                 <div x-show="isLoading">
-                    <div class="h-10 w-40 bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
+                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
                 </div>
 
-                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400 privacy-target"
+                <div class="text-xs sm:text-lg font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight break-words privacy-target"
                      x-show="!isLoading"
                      x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                      x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)">
                 </div>
             </div>
 
-            <div class="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                    <span>Total Pengeluaran</span>
-                    <div class="p-2 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-xl">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
-                    </div>
-                </div>
+            <!-- Kotak pengeluaran: border kiri merah 4px, angka merah -->
+            <div class="p-3.5 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 border-l-4 border-l-rose-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
+                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pengeluaran</span>
 
                 <div x-show="isLoading">
-                    <div class="h-10 w-40 bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
+                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-slate-700 rounded-lg animate-shimmer"></div>
                 </div>
 
-                <div class="text-2xl sm:text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400 privacy-target"
+                <div class="text-xs sm:text-lg font-extrabold text-rose-600 dark:text-rose-400 leading-tight break-words privacy-target"
                      x-show="!isLoading"
                      x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                      x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)">
@@ -385,18 +412,21 @@
             @endif
         </section>
 
-        <!-- CHART -->
+        <!-- CHART TREN 7 HARI — line chart gaya prototipe, data real -->
         <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Arus Kas</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Perbandingan pemasukan vs pengeluaran</p>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white" id="trendTitle">Pengeluaran 7 Hari</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Total harian seminggu terakhir</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 text-xs font-semibold">
-                    <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></span> Pemasukan
-                    </span>
-                    <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Tombol toggle grafik Pengeluaran <-> Pemasukan -->
+                    <button type="button" id="trendToggle" @click="toggleTrend()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/70 dark:border-indigo-800/60 rounded-full text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition no-print">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        Lihat Pemasukan
+                    </button>
+                    <span class="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                         <span class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span> Pengeluaran
                     </span>
                 </div>
@@ -408,7 +438,7 @@
             </div>
 
             <div class="h-56 sm:h-72" x-show="!isLoading">
-                <canvas id="mainChart"></canvas>
+                <canvas id="trendChart"></canvas>
             </div>
         </section>
 
@@ -478,8 +508,21 @@
             </form>
         </section>
 
-        <!-- TABLE TRANSACTIONS -->
-        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+        <!-- TABLE TRANSACTIONS (RIWAYAT) -->
+        <section id="riwayat" class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+
+            <!-- Header: Transaksi Terakhir (gaya prototipe section 3) -->
+            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-slate-800">
+                <div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Transaksi Terakhir</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
+                </div>
+                <a href="{{ route('transactions.create') }}"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition no-print">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    Tambah
+                </a>
+            </div>
 
             <!-- SKELETON LOAD -->
             <div x-show="isLoading">
@@ -689,6 +732,48 @@
 
         </section>
 
+    </div>
+
+    <!-- Spacer agar konten tidak tertutup bottom nav & FAB di mobile -->
+    <div class="h-28 md:hidden"></div>
+
+    <!-- MOBILE BOTTOM NAV (komponen terpadu) -->
+    @include('components.mobile-nav')
+
+    <!-- ============================================================
+         MOBILE FAB — gaya prototipe (expand 3 pilihan, scale + fade)
+         ============================================================ -->
+    <div class="fixed bottom-24 right-5 md:hidden z-40" x-data="{ open: false }" @click.outside="open = false">
+
+        <!-- 3 pilihan muncul di atas FAB -->
+        <div x-show="open" x-cloak
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="opacity-0 scale-75"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-75"
+             class="absolute bottom-16 right-0 flex flex-col items-end gap-2">
+
+            <a href="{{ route('ai.index') }}"
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                ✨ Tanya AI
+            </a>
+            <a href="{{ route('transactions.create') }}"
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                🧾 Scan Struk
+            </a>
+            <a href="{{ route('transactions.create') }}"
+               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
+                ➕ Transaksi Baru
+            </a>
+        </div>
+
+        <!-- Tombol FAB: 56px, warna utama, shadow besar -->
+        <button type="button" @click="open = !open"
+                class="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-3xl font-light shadow-xl shadow-indigo-600/40 flex items-center justify-center transition-transform duration-200"
+                :class="open ? 'rotate-45' : ''"
+                aria-label="Tambah cepat">+</button>
     </div>
 
     <!-- BUDGET MODAL -->

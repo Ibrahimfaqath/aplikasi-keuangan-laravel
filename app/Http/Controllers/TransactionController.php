@@ -27,6 +27,10 @@ class TransactionController extends Controller
         $stats = $reportingService->getStatistics($query);
         $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
+        // Data line chart 7 hari (gaya prototipe) — real, per user
+        $dailyExpense = $reportingService->getDailySeries('expense', 7);
+        $dailyIncome  = $reportingService->getDailySeries('income', 7);
+
         $transactions = $query->orderBy('transaction_date', 'desc')
                               ->latest()
                               ->paginate(10)
@@ -51,6 +55,8 @@ class TransactionController extends Controller
             'budget'           => $budget,
             'monthlyExpense'   => $monthlyExpense,
             'categoryExpenses' => $categoryExpenses,
+            'dailyExpense'     => $dailyExpense,
+            'dailyIncome'      => $dailyIncome,
         ], $stats));
     }
 

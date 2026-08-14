@@ -10,6 +10,29 @@ use App\Models\Transaction;
 class AiController extends Controller
 {
     /**
+     * Halaman AI Assistant (chat penuh) — riwayat chat disimpan di session
+     * agar percakapan tetap ada saat halaman di-refresh.
+     */
+    public function page()
+    {
+        $messages = session('ai_messages', []);
+
+        return view('ai.index', [
+            'messages' => $messages,
+        ]);
+    }
+
+    /**
+     * Hapus riwayat chat AI (dipanggil dari tombol "Bersihkan" di halaman AI).
+     */
+    public function clear(Request $request)
+    {
+        $request->session()->forget('ai_messages');
+
+        return redirect()->route('ai.index')->with('success', 'Riwayat chat AI dibersihkan.');
+    }
+
+    /**
      * Kirim pesan ke AI assistant (Google Gemini)
      */
     public function chat(Request $request)
@@ -68,6 +91,13 @@ Data pengguna:
 
             $data = $response->json();
             $reply = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'Maaf, saya tidak bisa memproses permintaanmu.';
+
+            // Simpan riwayat percakapan di session (untuk halaman AI)
+            // dibatasi 100 pesan terakhir agar session tidak membengkak
+            $request->session()->push('ai_messages', ['role' => 'user', 'text' => $request->message]);
+            $request->session()->push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
+            $history = array_slice($request->session()->get('ai_messages', []), -100);
+            $request->session()->put('ai_messages', $history);
 
             return response()->json(['reply' => $reply]);
         } catch (\Throwable $e) {
@@ -142,6 +172,17 @@ Jika tidak bisa menentukan, gunakan nilai default yang masuk akal. Hanya kembali
             if (!$result) {
                 return response()->json(['error' => 'Gagal memproses data struk.'], 500);
             }
+
+            // Simpan hasil OCR sebagai "old input" session — jadi saat user
+            // membuka form tambah transaksi, field-nya sudah terisi otomatis
+            // (dipakai tombol "Tambah transaksi ini" di halaman AI).
+            $request->session()->flash('_old_input', [
+                'title'            => $result['title'] ?? '',
+                'amount'           => $result['amount'] ?? '',
+                'type'             => $result['type'] ?? 'expense',
+                'category'         => $result['category'] ?? '',
+                'transaction_date' => $result['date'] ?? now()->format('Y-m-d'),
+            ]);
 
             return response()->json(['data' => $result]);
         } catch (\Throwable $e) {

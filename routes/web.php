@@ -30,8 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
 
     // AI Assistant
+    Route::get('/ai', [AiController::class, 'page'])->name('ai.index');
     Route::post('/ai/chat', [AiController::class, 'chat'])->name('ai.chat');
     Route::post('/ai/ocr', [AiController::class, 'ocr'])->name('ai.ocr');
+    Route::delete('/ai/history', [AiController::class, 'clear'])->name('ai.clear');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

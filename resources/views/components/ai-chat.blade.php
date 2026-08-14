@@ -30,6 +30,12 @@
                 <h3 class="text-sm font-bold">DompetKu AI</h3>
                 <p class="text-[11px] text-white/70">Asisten keuangan pintar</p>
             </div>
+            <!-- Link ke halaman AI penuh -->
+            <a href="{{ route('ai.index') }}"
+               class="ml-auto text-[10px] font-semibold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white transition whitespace-nowrap"
+               title="Buka halaman AI penuh">
+                Buka penuh ↗
+            </a>
         </div>
 
         <!-- Messages -->

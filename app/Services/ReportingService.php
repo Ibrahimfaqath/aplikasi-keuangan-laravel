@@ -110,4 +110,33 @@ class ReportingService
             ->map(fn ($total) => (float) $total)
             ->toArray();
     }
+
+    /**
+     * Total pemasukan/pengeluaran per hari untuk N hari terakhir.
+     * Dipakai untuk line chart "7 Hari" di dashboard (gaya prototipe).
+     *
+     * @param  string  $type   'expense' | 'income'
+     * @param  int     $days   jumlah hari (default 7)
+     * @return array{labels: string[], values: float[]}
+     */
+    public function getDailySeries(string $type = 'expense', int $days = 7): array
+    {
+        // Nama hari pendek urut sesuai dayOfWeek Carbon (0=Minggu .. 6=Sabtu)
+        $shortDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+        $labels = [];
+        $values = [];
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+
+            $labels[] = $shortDays[$date->dayOfWeek];
+            $values[] = (float) Transaction::where('user_id', Auth::id())
+                ->where('type', $type)
+                ->whereDate('transaction_date', $date)
+                ->sum('amount');
+        }
+
+        return ['labels' => $labels, 'values' => $values];
+    }
 }
