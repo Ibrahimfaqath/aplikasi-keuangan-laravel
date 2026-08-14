@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="Tambahkan transaksi pemasukan atau pengeluaran dengan bukti foto di DompetKu.">
+    <meta name="theme-color" content="#10b981">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DompetKu">
+    <meta property="og:title" content="Tambah Transaksi - DompetKu">
+    <meta property="og:url" content="{{ url()->current() }}">
     <title>Tambah Transaksi - DompetKu</title>
     
     <!-- Theme Init -->
@@ -21,21 +28,9 @@
         })();
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                }
-            }
-        }
-    </script>
+    <!-- CSS hasil build (Vite) — menggantikan Tailwind CDN agar jauh lebih ringan -->
+    @vite(['resources/css/app.css'])
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
@@ -237,7 +232,7 @@
                             <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                 <span class="text-indigo-600 dark:text-indigo-400">Klik</span> atau tarik gambar ke sini
                             </p>
-                            <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, JPEG hingga 2MB</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
                         </div>
 
                         <!-- Preview -->

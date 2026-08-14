@@ -7,6 +7,7 @@ use App\Models\Budget;
 use App\Exports\TransactionsExport;
 use App\Services\ReportingService;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -89,12 +90,12 @@ class TransactionController extends Controller
             'amount'           => 'required|numeric|min:1',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
-            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('receipts', 'public');
+            $imagePath = $this->storeAndOptimizeImage($request->file('image'));
         }
 
         Transaction::create([
@@ -122,7 +123,7 @@ class TransactionController extends Controller
             'amount'           => 'required|numeric|min:1',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
-            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
         ]);
 
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
@@ -132,7 +133,7 @@ class TransactionController extends Controller
             if ($transaction->image && Storage::disk('public')->exists($transaction->image)) {
                 Storage::disk('public')->delete($transaction->image);
             }
-            $imagePath = $request->file('image')->store('receipts', 'public');
+            $imagePath = $this->storeAndOptimizeImage($request->file('image'));
         }
 
         $transaction->update([
@@ -157,5 +158,88 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return redirect('/transactions')->with('success', 'Transaksi berhasil dihapus!');
+    }
+
+    /**
+     * Menyimpan gambar bukti transaksi lalu mengompres/resize otomatis
+     * agar file tidak membebani penyimpanan dan halaman.
+     *
+     * Foto kamera HP biasanya 3-8 MB; hasilnya dikonversi ke JPEG
+     * (maks 1280px, kualitas 80) sehingga biasanya < 300 KB.
+     */
+    private function storeAndOptimizeImage(UploadedFile $file): string
+    {
+        // Simpan file asli dulu (masuk folder storage/app/public/receipts)
+        $path = $file->store('receipts', 'public');
+
+        try {
+            $optimizedPath = $this->optimizeImage(Storage::disk('public')->path($path));
+            if ($optimizedPath !== null && $optimizedPath !== $path) {
+                Storage::disk('public')->delete($path);
+                return $optimizedPath;
+            }
+        } catch (\Throwable $e) {
+            // Abaikan error optimasi — file asli tetap dipakai
+        }
+
+        return $path;
+    }
+
+    /**
+     * Memperkecil & mengompres gambar dengan GD. Mengembalikan path baru
+     * (format JPEG) jika berhasil dan lebih kecil, atau null jika tidak.
+     */
+    private function optimizeImage(string $fullPath): ?string
+    {
+        if (!extension_loaded('gd')) {
+            return null;
+        }
+
+        $info = @getimagesize($fullPath);
+        if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) {
+            return null;
+        }
+
+        [$width, $height] = $info;
+        $source = $info[2] === IMAGETYPE_JPEG ? @imagecreatefromjpeg($fullPath) : @imagecreatefrompng($fullPath);
+        if (!$source) {
+            return null;
+        }
+
+        // Koreksi orientasi foto HP (EXIF)
+        if (function_exists('exif_read_data')) {
+            $exif  = @exif_read_data($fullPath);
+            $angle = [3 => 180, 6 => -90, 8 => 90][$exif['Orientation'] ?? 0] ?? null;
+            if ($angle !== null) {
+                $source = imagerotate($source, $angle, 0);
+                $width  = imagesx($source);
+                $height = imagesy($source);
+            }
+        }
+
+        // Resize jika lebih besar dari 1280px (tetap 1:1 untuk gambar kecil)
+        $maxDim = 1280;
+        $scale  = min(1, $maxDim / max($width, $height));
+        if ($scale < 1) {
+            $canvas = imagecreatetruecolor((int) round($width * $scale), (int) round($height * $scale));
+            imagecopyresampled($canvas, $source, 0, 0, 0, 0, (int) round($width * $scale), (int) round($height * $scale), $width, $height);
+            imagedestroy($source);
+            $source = $canvas;
+        }
+
+        // Simpan sebagai JPEG kualitas 80
+        $dir     = dirname($fullPath);
+        $newName = pathinfo($fullPath, PATHINFO_FILENAME) . '-' . time() . '.jpg';
+        $newFull = $dir . '/' . $newName;
+        imagejpeg($source, $newFull, 80);
+        imagedestroy($source);
+
+        // Hanya pakai hasil optimasi jika benar-benar lebih kecil
+        if (!file_exists($newFull) || filesize($newFull) >= filesize($fullPath)) {
+            @unlink($newFull);
+            return null;
+        }
+
+        return 'receipts/' . $newName;
     }
 }
