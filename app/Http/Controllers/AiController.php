@@ -48,7 +48,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
                 'system_instruction' => [
                     'parts' => [['text' => $systemPrompt]],
                 ],
@@ -58,6 +58,7 @@ Data pengguna:
                 'generationConfig' => [
                     'temperature' => 0.7,
                     'maxOutputTokens' => 1024,
+                    'thinkingConfig' => ['thinkingBudget' => 0],
                 ],
             ]);
 
@@ -95,7 +96,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -120,6 +121,7 @@ Jika tidak bisa menentukan, gunakan nilai default yang masuk akal. Hanya kembali
                 'generationConfig' => [
                     'temperature' => 0.1,
                     'maxOutputTokens' => 512,
+                    'thinkingConfig' => ['thinkingBudget' => 0],
                 ],
             ]);
 
