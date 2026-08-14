@@ -108,6 +108,8 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 ## Catatan Penting
 
 - **Data lama**: kalau ada transaksi di database lokal, ekspor dari localhost (mysqldump / phpMyAdmin) lalu import ke database cPanel — jangan mulai dari migrasi kosong.
+- **JANGAN timpa `app/Providers/AppServiceProvider.php` di server** — file itu punya kustomisasi khusus cPanel (`usePublicPath` ke folder docroot subdomain + arah disk `public` ke `keuangan.almahir.cloud/storage`). Versi lokal TIDAK punya kustomisasi ini; kalau ketimpa, upload bukti transaksi akan 404.
+- **`.htaccess` di docroot subdomain** (bukan `public/.htaccess`) sudah berisi optimasi: kompresi Brotli/gzip, cache browser 1 tahun untuk aset build, dan header keamanan. Jangan timpa dengan versi default.
 - **HTTPS**: pastikan SSL aktif; kalau `.htaccess` default tidak memaksa HTTPS, gunakan URL `https://...` langsung.
 - **Update berikutnya**: cukup upload ulang folder `app/`, `routes/`, `resources/`, `public/build` (dan `composer.lock` jika ada perubahan dependency), lalu jalankan `php artisan optimize:clear` lalu `php artisan optimize`.
 - **Jangan pernah meng-upload `.env` dari localhost** ke server — selalu buat yang baru.
