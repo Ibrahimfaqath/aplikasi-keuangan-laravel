@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  PROTOTIPE UI — Aplikasi Keuangan "DompetKu" (mobile 390px)
+  ------------------------------------------------------------
+  File standalone: HTML + CSS + JavaScript vanilla + Chart.js (CDN).
+  Cara mengedit:
+    - Warna utama  : cari variabel --primary di <style>
+    - Data saldo   : cari SALDO / PEMASUKAN / PENGELUARAN di <script>
+    - Grafik       : fungsi buatDataAcak() & opsi Chart di <script>
+    - Transaksi    : array TRANSACTIONS di <script>
+    - Menu bawah   : array NAV_ITEMS di <script>
+    - FAB          : bagian .fab / .fab-options di <style> & <script>
+  ============================================================
+-->
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipe — DompetKu</title>
+
+    <!-- Chart.js (CDN) — dipakai untuk line chart di Section 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* ==========================================================
+           RESET & VARIABEL WARNA
+           ========================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #4f46e5;        /* warna utama (indigo) */
+            --primary-dark: #3730a3;
+            --green: #10b981;          /* pemasukan */
+            --red: #ef4444;            /* pengeluaran */
+            --bg: #f1f5f9;             /* latar halaman luar (preview) */
+            --card: #ffffff;           /* latar kartu */
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;   /* container di tengah layar */
+            color: var(--text);
+        }
+
+        /* ==========================================================
+           KONTAINER UTAMA (mockup HP) — max-width 390px, center
+           ========================================================== */
+        .phone {
+            position: relative;
+            width: 100%;
+            max-width: 390px;
+            background: var(--bg);
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(15, 23, 42, 0.12);
+            padding-bottom: 120px;     /* ruang untuk bottom nav + FAB */
+        }
+
+        /* ==========================================================
+           STATUS BAR DUMMY (jam + ikon sinyal/wifi/baterai)
+           ========================================================== */
+        .statusbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 34px;
+            padding: 0 18px;
+            background: var(--bg);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .statusbar .icons { display: flex; gap: 6px; font-size: 13px; }
+
+        /* ==========================================================
+           SECTION 1 — SALDO & STATISTIK (3 kotak horizontal)
+           ========================================================== */
+        .summary {
+            display: flex;            /* flex row */
+            gap: 10px;                /* jarak antar kotak 10px */
+            padding: 0 16px;
+            margin-top: 8px;
+        }
+
+        /* Kotak saldo: gradien biru tua, teks putih, angka besar */
+        .box-saldo {
+            flex: 1.3;
+            background: linear-gradient(135deg, #1e3a8a, #312e81); /* gradien biru tua */
+            color: #fff;
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 92px;
+            box-shadow: 0 6px 16px rgba(30, 58, 138, 0.35);
+        }
+        .box-saldo .label { font-size: 11px; opacity: 0.85; }
+        .box-saldo .value {
+            font-size: 20px;          /* angka besar */
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        /* Kotak statistik: border kiri 4px + angka berwarna */
+        .box-stat {
+            flex: 1;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 92px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        }
+        /* Pemasukan → border kiri hijau */
+        .box-stat.income  { border-left: 4px solid var(--green); }
+        /* Pengeluaran → border kiri merah */
+        .box-stat.expense { border-left: 4px solid var(--red); }
+
+        .box-stat .label { font-size: 11px; color: var(--muted); }
+        .box-stat.income .value  { font-size: 13px; font-weight: 800; color: var(--green); }
+        .box-stat.expense .value { font-size: 13px; font-weight: 800; color: var(--red); }
+
+        /* ==========================================================
+           SECTION 2 — LINE CHART (Chart.js)
+           ========================================================== */
+        .section {
+            background: var(--card);
+            margin: 14px 16px 0;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .section-header h2 { font-size: 14px; font-weight: 700; }
+
+        /* Tombol toggle grafik (Pengeluaran / Pemasukan) */
+        .toggle-btn {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            background: #eef2ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 999px;
+            padding: 5px 12px;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .toggle-btn:hover { background: #e0e7ff; }
+
+        /* Wadah canvas — tinggi 180px sesuai spesifikasi */
+        .chart-wrap {
+            position: relative;
+            height: 180px;
+        }
+
+        /* ==========================================================
+           SECTION 3 — 3 TRANSAKSI TERAKHIR
+           ========================================================== */
+        .recent-list { list-style: none; margin-top: 4px; }
+        .recent-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 2px;
+            border-bottom: 1px solid var(--border);
+        }
+        .recent-list li:last-child { border-bottom: none; }
+        .recent-list .icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: #f1f5f9;
+            flex-shrink: 0;
+        }
+        .recent-list .merchant { font-size: 13px; font-weight: 600; }
+        .recent-list .time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .recent-list .amount { margin-left: auto; font-size: 13px; font-weight: 700; }
+        .recent-list .amount.plus  { color: var(--green); }
+        .recent-list .amount.minus { color: var(--red); }
+
+        /* ==========================================================
+           FAB (Floating Action Button) — absolute, bottom 80px, right 20px
+           ========================================================== */
+        .fab-wrap {
+            position: absolute;        /* relatif terhadap .phone */
+            bottom: 80px;
+            right: 20px;
+            z-index: 40;
+        }
+
+        /* Tombol utama FAB: 56px, warna utama, shadow besar */
+        .fab {
+            width: 56px;
+            height: 56px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: 30px;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.45); /* shadow besar */
+            transition: transform .15s ease, background .15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab:hover { background: var(--primary-dark); transform: scale(1.05); }
+        .fab-wrap.open .fab { transform: rotate(45deg); } /* ikon + berputar saat terbuka */
+
+        /* 3 pilihan di atas FAB — animasi scale + fade */
+        .fab-options {
+            position: absolute;
+            bottom: 68px;              /* di atas tombol FAB */
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            opacity: 0;
+            transform: scale(0.6);     /* awal: kecil */
+            transform-origin: bottom right;
+            pointer-events: none;       /* tidak bisa diklik saat tersembunyi */
+            transition: opacity .18s ease, transform .18s ease;
+        }
+        .fab-wrap.open .fab-options {
+            opacity: 1;
+            transform: scale(1);        /* akhir: ukuran normal */
+            pointer-events: auto;
+        }
+        .fab-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.15);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform .12s ease;
+        }
+        .fab-option:hover { transform: translateX(-4px); }
+
+        /* ==========================================================
+           BOTTOM NAV — fixed bottom, putih, border-top tipis
+           ========================================================== */
+        .bottomnav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;          /* tetap dalam mockup 390px */
+            background: #fff;
+            border-top: 1px solid var(--border); /* border-top tipis */
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+            z-index: 50;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--muted);
+            transition: color .15s ease;
+        }
+        .nav-item svg { width: 22px; height: 22px; }
+        .nav-item.active { color: var(--primary); }
+
+        /* Toast kecil untuk demo interaksi */
+        .toast {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #0f172a;
+            color: #fff;
+            font-size: 12px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease, transform .2s ease;
+            z-index: 60;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="phone">
+
+        <!-- ================= STATUS BAR DUMMY ================= -->
+        <div class="statusbar">
+            <span id="clock">09:41</span>
+            <span class="icons">📶 📶 🔋</span>
+        </div>
+
+        <!-- ================= SECTION 1: SALDO & STATISTIK ================= -->
+        <section class="summary">
+            <!-- Kotak saldo (gradien biru tua) -->
+            <div class="box-saldo">
+                <span class="label">Saldo</span>
+                <span class="value" id="saldoValue">Rp 0</span>
+            </div>
+            <!-- Kotak pemasukan (border kiri hijau) -->
+            <div class="box-stat income">
+                <span class="label">Pemasukan</span>
+                <span class="value" id="incomeValue">Rp 0</span>
+            </div>
+            <!-- Kotak pengeluaran (border kiri merah) -->
+            <div class="box-stat expense">
+                <span class="label">Pengeluaran</span>
+                <span class="value" id="expenseValue">Rp 0</span>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: LINE CHART ================= -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Pengeluaran 7 Hari</h2>
+                <!-- Tombol toggle: ganti data grafik Pengeluaran <-> Pemasukan -->
+                <button class="toggle-btn" id="chartToggle">Lihat Pemasukan</button>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="expenseChart"></canvas>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: 3 TRANSAKSI TERAKHIR ================= -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Transaksi Terakhir</h2>
+            </div>
+            <ul class="recent-list" id="recentList">
+                <!-- item diisi lewat JavaScript dari array TRANSACTIONS -->
+            </ul>
+        </section>
+
+        <!-- ================= FAB + 3 PILIHAN ================= -->
+        <div class="fab-wrap" id="fabWrap">
+            <div class="fab-options" id="fabOptions">
+                <button class="fab-option" data-action="Tambah Pemasukan">➕ Pemasukan</button>
+                <button class="fab-option" data-action="Tambah Pengeluaran">➖ Pengeluaran</button>
+                <button class="fab-option" data-action="Scan Struk">🧾 Scan Struk</button>
+            </div>
+            <button class="fab" id="fabBtn" aria-label="Tambah">+</button>
+        </div>
+
+        <!-- ================= BOTTOM NAV (4 tab) ================= -->
+        <nav class="bottomnav" id="bottomNav">
+            <!-- isi tab di-generate JavaScript dari array NAV_ITEMS -->
+        </nav>
+
+        <!-- Toast untuk feedback interaksi -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script>
+        /* ============================================================
+           DATA DUMMY — edit di sini
+           ============================================================ */
+        // Saldo & statistik (Rp)
+        const SALDO      = 25345000;
+        const PEMASUKAN  = 8750000;
+        const PENGELUARAN = 4230000;
+
+        // Label hari untuk grafik
+        const DAY_LABELS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+        // 3 transaksi terakhir: {icon, nama merchant, nominal, waktu, tipe}
+        const TRANSACTIONS = [
+            { icon: '🍜', merchant: 'Warung Sate Madura', amount: 25000,  time: 'Hari ini · 12:30', type: 'minus' },
+            { icon: '⛽', merchant: 'Pertamina',           amount: 100000, time: 'Kemarin · 18:05',  type: 'minus' },
+            { icon: '💼', merchant: 'Gaji Bulanan',        amount: 5000000,time: 'Kemarin · 09:00',  type: 'plus'  },
+        ];
+
+        // 4 tab navigasi bawah: {label, icon SVG (path)}
+        const NAV_ITEMS = [
+            { label: 'Beranda',  icon: 'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10' },
+            { label: 'Statistik', icon: 'M18 20V10M12 20V4M6 20v-6' },
+            { label: 'Riwayat',  icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+            { label: 'Profil',   icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+        ];
+
+        /* ============================================================
+           UTILITAS FORMAT RUPIAH
+           ============================================================ */
+        function formatRp(n) {
+            return 'Rp ' + n.toLocaleString('id-ID');
+        }
+
+        /* ============================================================
+           STATUS BAR — jam dummy
+           ============================================================ */
+        document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID', {
+            hour: '2-digit', minute: '2-digit'
+        });
+
+        /* ============================================================
+           SECTION 1 — isi kotak saldo / pemasukan / pengeluaran
+           ============================================================ */
+        document.getElementById('saldoValue').textContent   = formatRp(SALDO);
+        document.getElementById('incomeValue').textContent  = formatRp(PEMASUKAN);
+        document.getElementById('expenseValue').textContent = formatRp(PENGELUARAN);
+
+        /* ============================================================
+           SECTION 2 — LINE CHART (Chart.js)
+           ============================================================ */
+        // Bangkitkan 7 angka acak sebagai simulasi pengeluaran/pemasukan harian
+        // rentang 50.000 - 500.000
+        function buatDataAcak() {
+            return Array.from({ length: 7 }, () =>
+                Math.floor(Math.random() * (500000 - 50000) + 50000)
+            );
+        }
+
+        // State grafik: mode 'expense' atau 'income'
+        let chartMode = 'expense';
+        let chartData = buatDataAcak();
+
+        // Inisialisasi chart
+        const ctx = document.getElementById('expenseChart');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: DAY_LABELS,
+                datasets: [{
+                    label: 'Pengeluaran',
+                    data: chartData,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                    borderWidth: 2,
+                    tension: 0.35,          // garis melengkung halus
+                    fill: true,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#ef4444',
+                }],
+            },
+            options: {
+                responsive: true,               // responsif terhadap ukuran wadah
+                maintainAspectRatio: false,     // pakai tinggi wadah (180px) bukan rasio asli
+                plugins: {
+                    legend: { display: false }, // sembunyikan legend
+                    tooltip: {
+                        // Tooltip menampilkan nominal dalam Rupiah
+                        callbacks: {
+                            label: (item) => formatRp(item.parsed.y),
+                        },
+                    },
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { callback: (v) => 'Rp' + (v / 1000) + 'rb' } },
+                },
+            },
+        });
+
+        // Toggle grafik: Pengeluaran <-> Pemasukan (data acak baru tiap toggle)
+        const chartToggle = document.getElementById('chartToggle');
+        chartToggle.addEventListener('click', () => {
+            chartMode = chartMode === 'expense' ? 'income' : 'expense';
+            const isExpense = chartMode === 'expense';
+
+            // Ganti data & warna sesuai mode
+            chart.data.datasets[0].label = isExpense ? 'Pengeluaran' : 'Pemasukan';
+            chart.data.datasets[0].data  = buatDataAcak();
+            chart.data.datasets[0].borderColor = isExpense ? '#ef4444' : '#10b981';
+            chart.data.datasets[0].backgroundColor = isExpense
+                ? 'rgba(239, 68, 68, 0.12)'
+                : 'rgba(16, 185, 129, 0.12)';
+            chart.data.datasets[0].pointBackgroundColor = isExpense ? '#ef4444' : '#10b981';
+
+            // Update judul & tombol
+            document.querySelector('.section-header h2').textContent =
+                (isExpense ? 'Pengeluaran' : 'Pemasukan') + ' 7 Hari';
+            chartToggle.textContent = isExpense ? 'Lihat Pemasukan' : 'Lihat Pengeluaran';
+
+            chart.update();
+        });
+
+        /* ============================================================
+           SECTION 3 — render 3 transaksi terakhir
+           ============================================================ */
+        const recentList = document.getElementById('recentList');
+        TRANSACTIONS.forEach((t) => {
+            const li = document.createElement('li');
+
+            const icon = document.createElement('span');
+            icon.className = 'icon';
+            icon.textContent = t.icon;
+
+            const info = document.createElement('div');
+            const merchant = document.createElement('p');
+            merchant.className = 'merchant';
+            merchant.textContent = t.merchant;
+            const time = document.createElement('p');
+            time.className = 'time';
+            time.textContent = t.time;
+            info.append(merchant, time);
+
+            const amount = document.createElement('span');
+            amount.className = 'amount ' + t.type;
+            amount.textContent = (t.type === 'plus' ? '+' : '-') + formatRp(t.amount);
+
+            li.append(icon, info, amount);
+            recentList.appendChild(li);
+        });
+
+        /* ============================================================
+           FAB — klik → 3 pilihan muncul dengan animasi scale + fade
+           ============================================================ */
+        const fabWrap = document.getElementById('fabWrap');
+        const fabBtn  = document.getElementById('fabBtn');
+
+        fabBtn.addEventListener('click', () => {
+            fabWrap.classList.toggle('open'); // .open memicu animasi di CSS
+        });
+
+        // Klik salah satu pilihan → tampilkan toast & tutup menu
+        document.querySelectorAll('.fab-option').forEach((opt) => {
+            opt.addEventListener('click', () => {
+                showToast('Aksi demo: ' + opt.dataset.action);
+                fabWrap.classList.remove('open');
+            });
+        });
+
+        // Klik di luar FAB menutup menu
+        document.addEventListener('click', (e) => {
+            if (!fabWrap.contains(e.target)) fabWrap.classList.remove('open');
+        });
+
+        /* ============================================================
+           BOTTOM NAV — render 4 tab & ganti tab aktif
+           ============================================================ */
+        const bottomNav = document.getElementById('bottomNav');
+
+        NAV_ITEMS.forEach((item, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-item' + (idx === 0 ? ' active' : ''); // tab pertama aktif
+            btn.innerHTML =
+                '<svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' +
+                '<path d="' + item.icon + '"/></svg>' +
+                '<span>' + item.label + '</span>';
+
+            btn.addEventListener('click', () => {
+                // aktifkan tab yang diklik, nonaktifkan lainnya
+                document.querySelectorAll('.nav-item').forEach((b) => b.classList.remove('active'));
+                btn.classList.add('active');
+                showToast('Menu: ' + item.label);
+            });
+
+            bottomNav.appendChild(btn);
+        });
+
+        /* ============================================================
+           TOAST — feedback kecil untuk semua interaksi
+           ============================================================ */
+        let toastTimer;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
+        }
+    </script>
+</body>
+</html>
