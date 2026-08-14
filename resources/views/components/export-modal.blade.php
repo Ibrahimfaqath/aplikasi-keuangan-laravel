@@ -51,7 +51,7 @@
                 <!-- Quick Period Filter -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Periode Laporan</label>
-                    <select name="period" id="modalPeriod" onchange="toggleCustomDates(this.value)" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select name="period" id="modalPeriod" onchange="toggleCustomDates(this.value)" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="all">Semua Transaksi</option>
                         <option value="today">Hari Ini</option>
                         <option value="yesterday">Kemarin</option>
@@ -79,7 +79,7 @@
                 <!-- Filter Tipe Transaksi -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tipe Transaksi</label>
-                    <select name="type" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select name="type" class="select-field w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua Tipe (Pemasukan & Pengeluaran)</option>
                         <option value="income">Hanya Pemasukan</option>
                         <option value="expense">Hanya Pengeluaran</option>

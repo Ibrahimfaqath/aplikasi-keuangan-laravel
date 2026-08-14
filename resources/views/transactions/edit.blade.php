@@ -41,6 +41,21 @@
     <style>
         body { overflow-x: hidden; }
         [x-cloak] { display: none !important; }
+
+        /* Custom select dropdown arrow */
+        .select-field {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.25em 1.25em;
+            padding-right: 2.5rem !important;
+        }
+        .dark .select-field {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
     </style>
 </head>
 
@@ -196,7 +211,7 @@
                         Kategori
                     </label>
                     <select name="category" id="category" required
-                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition @error('category') border-rose-400 bg-rose-50/20 @enderror">
+                            class="select-field w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition @error('category') border-rose-400 bg-rose-50/20 @enderror">
                         <option value="" disabled {{ old('category', $transaction->category ?? '') ? '' : 'selected' }}>Pilih kategori...</option>
                         <optgroup id="cat-income" label="Pemasukan">
                             @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat)
