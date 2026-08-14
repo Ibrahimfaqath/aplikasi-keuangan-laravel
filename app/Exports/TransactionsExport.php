@@ -32,6 +32,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             'ID Transaksi',
             'Tanggal Transaksi',
             'Keterangan / Judul',
+            'Kategori',
             'Jenis Transaksi',
             'Nominal (Rp)',
             'Status Bukti Upload'
@@ -44,6 +45,7 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
             'TRX-' . str_pad($transaction->id, 5, '0', STR_PAD_LEFT),
             Carbon::parse($transaction->transaction_date)->format('d/m/Y'),
             $transaction->title,
+            $transaction->category ?? '-',
             $transaction->type == 'income' ? 'Pemasukan' : 'Pengeluaran',
             $transaction->amount,
             $transaction->image ? 'Ada (Ter-upload)' : 'Tidak Ada'

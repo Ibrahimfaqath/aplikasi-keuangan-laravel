@@ -26,6 +26,10 @@ class ReportingService
             $query->where('type', $filters['type']);
         }
 
+        if (!empty($filters['category'])) {
+            $query->where('category', $filters['category']);
+        }
+
         $period = $filters['period'] ?? 'all';
         $today  = Carbon::today();
 
@@ -83,5 +87,27 @@ class ReportingService
             'totalExpense' => $totalExpense,
             'totalBalance' => $totalIncome - $totalExpense,
         ];
+    }
+
+    /**
+     * Rincian pengeluaran per kategori (untuk grafik donat).
+     * Mengikuti filter aktif yang sama dengan tabel transaksi.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return array<string, float>  contoh: ['Makanan & Minuman' => 150000, ...]
+     */
+    public function getCategoryBreakdown($query)
+    {
+        return (clone $query)
+            ->where('type', 'expense')
+            ->whereNotNull('category')
+            ->select('category')
+            ->selectRaw('SUM(amount) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get()
+            ->pluck('total', 'category')
+            ->map(fn ($total) => (float) $total)
+            ->toArray();
     }
 }

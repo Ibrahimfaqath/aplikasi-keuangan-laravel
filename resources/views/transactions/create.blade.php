@@ -189,6 +189,33 @@
                     </div>
                 </div>
 
+                <!-- Kategori -->
+                <div class="space-y-2">
+                    <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                        Kategori
+                    </label>
+                    <select name="category" id="category" required
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition @error('category') border-rose-400 bg-rose-50/20 @enderror">
+                        <option value="" disabled {{ old('category', $transaction->category ?? '') ? '' : 'selected' }}>Pilih kategori...</option>
+                        <optgroup id="cat-income" label="Pemasukan">
+                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat)
+                                <option value="{{ $cat }}" {{ old('category', $transaction->category ?? '') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            @endforeach
+                        </optgroup>
+                        <optgroup id="cat-expense" label="Pengeluaran">
+                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat)
+                                <option value="{{ $cat }}" {{ old('category', $transaction->category ?? '') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            @endforeach
+                        </optgroup>
+                    </select>
+                    @error('category')
+                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
+
                 <!-- Upload Gambar - GALERI + KAMERA -->
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
@@ -346,6 +373,27 @@
             e.stopPropagation();
             resetUpload();
         });
+
+        // KATEGORI: pilihan menyesuaikan jenis transaksi (Pemasukan/Pengeluaran)
+        const typeRadios = document.querySelectorAll('input[name="type"]');
+        const categorySelect = document.getElementById('category');
+        const catIncome = document.getElementById('cat-income');
+        const catExpense = document.getElementById('cat-expense');
+
+        function syncCategoryGroups() {
+            const isIncome = document.querySelector('input[name="type"]:checked')?.value === 'income';
+            if (catIncome) catIncome.style.display = isIncome ? '' : 'none';
+            if (catExpense) catExpense.style.display = isIncome ? 'none' : '';
+            if (categorySelect) {
+                const group = isIncome ? catIncome : catExpense;
+                const valid = Array.from(group?.querySelectorAll('option') ?? []).some(o => o.value === categorySelect.value);
+                if (!valid) {
+                    categorySelect.value = group?.querySelector('option')?.value ?? '';
+                }
+            }
+        }
+        typeRadios.forEach(r => r.addEventListener('change', syncCategoryGroups));
+        syncCategoryGroups();
 
         dropZone.addEventListener('dragover', function(e) {
             e.preventDefault();

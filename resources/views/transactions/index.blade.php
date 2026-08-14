@@ -90,7 +90,9 @@
                 totalBalance: {{ $totalBalance ?? $totalSaldo ?? 0 }},
                 totalIncome: {{ $totalIncome ?? $pemasukan ?? 0 }},
                 totalExpense: {{ $totalExpense ?? $pengeluaran ?? 0 }},
+                categoryExpenses: @json($categoryExpenses ?? []),
                 chartInstance: null,
+                categoryChartInstance: null,
 
                 initDashboard() {
                     this.isLoading = true;
@@ -99,12 +101,16 @@
                     window.addEventListener('theme-changed', (e) => {
                         this.isDarkMode = e.detail?.isDark ?? document.documentElement.classList.contains('dark');
                         this.initChart();
+                        this.initCategoryChart();
                     });
 
                     setTimeout(() => {
                         this.isLoading = false;
                         this.$nextTick(() => {
-                            setTimeout(() => this.initChart(), 100);
+                            setTimeout(() => {
+                                this.initChart();
+                                this.initCategoryChart();
+                            }, 100);
                         });
                     }, 500);
                 },
@@ -140,6 +146,55 @@
                             scales: {
                                 x: { ticks: { color: textColor }, grid: { display: false } },
                                 y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                            }
+                        }
+                    });
+                },
+
+                initCategoryChart() {
+                    const canvas = document.getElementById('categoryChart');
+                    if (!canvas) return;
+
+                    if (this.categoryChartInstance) {
+                        this.categoryChartInstance.destroy();
+                        this.categoryChartInstance = null;
+                    }
+
+                    const entries = Object.entries(this.categoryExpenses ?? {}).map(([label, value]) => ({ label, value }));
+                    if (entries.length === 0) return;
+
+                    const isDark = this.isDarkMode;
+                    const palette = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f97316', '#64748b', '#84cc16'];
+
+                    this.categoryChartInstance = new Chart(canvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: entries.map(e => e.label),
+                            datasets: [{
+                                data: entries.map(e => e.value),
+                                backgroundColor: entries.map((_, i) => palette[i % palette.length]),
+                                borderWidth: 2,
+                                borderColor: isDark ? '#0f172a' : '#ffffff',
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '62%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: isDark ? '#94a3b8' : '#64748b', boxWidth: 12, boxHeight: 12, padding: 12, font: { size: 11 } }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (ctx) => {
+                                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                            const pct = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
+                                            return ` ${ctx.label}: Rp ${new Intl.NumberFormat('id-ID').format(ctx.parsed)} (${pct}%)`;
+                                        }
+                                    }
+                                }
                             }
                         }
                     });
@@ -342,21 +397,47 @@
             </div>
         </section>
 
+        <!-- CHART KATEGORI -->
+        <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
+            <div class="mb-6">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Pengeluaran per Kategori</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Lihat di mana uangmu paling banyak terpakai.</p>
+            </div>
+
+            <div class="h-56 sm:h-72 flex items-center justify-center bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-shimmer"
+                 x-show="isLoading">
+                <span class="text-slate-400 dark:text-slate-500 text-sm">Memuat grafik...</span>
+            </div>
+
+            <div class="h-56 sm:h-72" x-show="!isLoading">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </section>
+
         <!-- FILTER -->
         <section class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-                <div class="lg:col-span-5 relative">
+                <div class="lg:col-span-4 relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
-                <div class="lg:col-span-3">
+                <div class="lg:col-span-2">
                     <select name="type" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option value="">Semua Tipe</option>
                         <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>Pemasukan</option>
                         <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
+                    </select>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <select name="category" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Semua Kategori</option>
+                        @foreach (\App\Models\Transaction::allCategories() as $cat)
+                            <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -373,7 +454,7 @@
                     <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm shadow-indigo-600/20 transition">
                         Filter
                     </button>
-                    @if(request('search') || request('type') || request('period'))
+                    @if(request('search') || request('type') || request('category') || request('period'))
                         <a href="{{ route('transactions.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                             ✕
                         </a>
@@ -438,6 +519,7 @@
                                 <th class="py-3.5 px-6">Tanggal</th>
                                 <th class="py-3.5 px-6">Bukti</th>
                                 <th class="py-3.5 px-6">Keterangan</th>
+                                <th class="py-3.5 px-6">Kategori</th>
                                 <th class="py-3.5 px-6">Jenis</th>
                                 <th class="py-3.5 px-6 text-right">Nominal</th>
                                 <th class="py-3.5 px-6 text-center no-print">Aksi</th>
@@ -466,6 +548,11 @@
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </td>
                                 <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                                        {{ $item->category ?? 'Lainnya' }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ ($item->type ?? 'income') == 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200/60' }}">
                                         {{ ($item->type ?? 'income') == 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                     </span>
@@ -490,7 +577,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="py-16 text-center">
+                                <td colspan="7" class="py-16 text-center">
                                     <div class="w-12 h-12 mx-auto mb-3 bg-indigo-50 dark:bg-slate-800 text-indigo-500 rounded-xl flex items-center justify-center">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
@@ -538,6 +625,9 @@
                             <div class="flex-1 min-w-0">
                                 <p class="font-semibold text-slate-900 dark:text-white truncate text-sm sm:text-base">
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
+                                </p>
+                                <p class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 mt-0.5">
+                                    {{ $item->category ?? 'Lainnya' }}
                                 </p>
                             </div>
 

@@ -9,6 +9,7 @@ use App\Services\ReportingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,10 +21,11 @@ class TransactionController extends Controller
     {
         $reportingService = new ReportingService();
 
-        $filters = $request->only(['search', 'type', 'period', 'start_date', 'end_date']);
+        $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
         $query = $reportingService->getFilteredQuery($filters);
         $stats = $reportingService->getStatistics($query);
+        $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
         $transactions = $query->orderBy('transaction_date', 'desc')
                               ->latest()
@@ -44,10 +46,11 @@ class TransactionController extends Controller
                         ->sum('amount');
 
         return view('transactions.index', array_merge([
-            'transactions'   => $transactions,
-            'filters'        => $filters,
-            'budget'         => $budget,
-            'monthlyExpense' => $monthlyExpense,
+            'transactions'     => $transactions,
+            'filters'          => $filters,
+            'budget'           => $budget,
+            'monthlyExpense'   => $monthlyExpense,
+            'categoryExpenses' => $categoryExpenses,
         ], $stats));
     }
 
@@ -55,7 +58,7 @@ class TransactionController extends Controller
     {
         $reportingService = new ReportingService();
 
-        $filters = $request->only(['search', 'type', 'period', 'start_date', 'end_date']);
+        $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
         $query = $reportingService->getFilteredQuery($filters);
         $stats = $reportingService->getStatistics($query);
@@ -74,7 +77,7 @@ class TransactionController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $filters = $request->only(['search', 'type', 'period', 'start_date', 'end_date']);
+        $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
         return Excel::download(new TransactionsExport($filters), 'Laporan_Keuangan_' . Carbon::now()->format('Ymd_His') . '.xlsx');
     }
 
@@ -87,6 +90,7 @@ class TransactionController extends Controller
     {
         $request->validate([
             'title'            => 'required|string|max:255',
+            'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'amount'           => 'required|numeric|min:1',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
@@ -101,6 +105,7 @@ class TransactionController extends Controller
         Transaction::create([
             'user_id'          => Auth::id(),
             'title'            => $request->title,
+            'category'         => $request->category,
             'amount'           => $request->amount,
             'type'             => $request->type,
             'transaction_date' => $request->transaction_date,
@@ -120,6 +125,7 @@ class TransactionController extends Controller
     {
         $request->validate([
             'title'            => 'required|string|max:255',
+            'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'amount'           => 'required|numeric|min:1',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
@@ -138,6 +144,7 @@ class TransactionController extends Controller
 
         $transaction->update([
             'title'            => $request->title,
+            'category'         => $request->category,
             'amount'           => $request->amount,
             'type'             => $request->type,
             'transaction_date' => $request->transaction_date,

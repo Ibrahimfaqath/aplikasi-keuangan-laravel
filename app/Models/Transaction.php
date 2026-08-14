@@ -12,11 +12,51 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'category',
         'amount',
         'type',
         'transaction_date',
         'image',
     ];
+
+    /** Kategori pemasukan yang tersedia. */
+    public const INCOME_CATEGORIES = [
+        'Gaji',
+        'Bonus',
+        'Bisnis',
+        'Investasi',
+        'Hadiah',
+        'Lainnya',
+    ];
+
+    /** Kategori pengeluaran yang tersedia. */
+    public const EXPENSE_CATEGORIES = [
+        'Makanan & Minuman',
+        'Transportasi',
+        'Tagihan & Utilitas',
+        'Belanja',
+        'Hiburan',
+        'Kesehatan',
+        'Pendidikan',
+        'Keluarga',
+        'Lainnya',
+    ];
+
+    /**
+     * Daftar kategori untuk sebuah jenis transaksi.
+     */
+    public static function categoriesFor(string $type): array
+    {
+        return $type === 'income' ? self::INCOME_CATEGORIES : self::EXPENSE_CATEGORIES;
+    }
+
+    /**
+     * Semua kategori (pemasukan + pengeluaran), unik & urut.
+     */
+    public static function allCategories(): array
+    {
+        return array_values(array_unique(array_merge(self::INCOME_CATEGORIES, self::EXPENSE_CATEGORIES)));
+    }
 
     public function user()
     {

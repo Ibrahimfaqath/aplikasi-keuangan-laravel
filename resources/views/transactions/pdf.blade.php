@@ -232,10 +232,11 @@
         <thead>
             <tr>
                 <th width="5%" class="text-center">No</th>
-                <th width="15%">Tanggal</th>
-                <th width="40%">Keterangan Transaksi</th>
-                <th width="15%" class="text-center">Jenis</th>
-                <th width="25%" class="text-right">Nominal</th>
+                <th width="13%">Tanggal</th>
+                <th width="32%">Keterangan Transaksi</th>
+                <th width="14%">Kategori</th>
+                <th width="14%" class="text-center">Jenis</th>
+                <th width="22%" class="text-right">Nominal</th>
             </tr>
         </thead>
         <tbody>
@@ -244,6 +245,7 @@
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td>{{ \Carbon\Carbon::parse($item->transaction_date)->format('d/m/Y') }}</td>
                 <td><strong>{{ $item->title }}</strong></td>
+                <td>{{ $item->category ?? '-' }}</td>
                 <td class="text-center">
                     @if($item->type == 'income')
                         <span class="badge-income">Pemasukan</span>
@@ -257,7 +259,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center" style="padding: 30px; color: #94a3b8; font-size: 11px;">
+                <td colspan="6" class="text-center" style="padding: 30px; color: #94a3b8; font-size: 11px;">
                     Tidak ada data transaksi yang ditemukan.
                 </td>
             </tr>
@@ -266,7 +268,7 @@
             <!-- Total Row -->
             @if(isset($transactions) && $transactions->count() > 0)
             <tr class="total-row">
-                <td colspan="4" class="text-right">
+                <td colspan="5" class="text-right">
                     TOTAL SELURUH TRANSAKSI
                 </td>
                 <td class="text-right" style="font-weight: 800; font-size: 11px;">
