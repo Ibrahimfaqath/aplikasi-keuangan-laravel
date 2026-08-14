@@ -218,7 +218,6 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">DompetKu</span>
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">v1.0</span>
                         </div>
                     </a>
                 </div>
@@ -789,21 +788,8 @@
 
                 <!-- PAGINATION WITH RAPIH SPACING -->
                 @if(isset($transactions) && method_exists($transactions, 'links') && $transactions->hasPages())
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    
-                    <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        Menampilkan 
-                        <span class="font-semibold text-slate-900 dark:text-white">{{ $transactions->firstItem() }}</span> 
-                        sampai 
-                        <span class="font-semibold text-slate-900 dark:text-white">{{ $transactions->lastItem() }}</span> 
-                        dari 
-                        <span class="font-semibold text-slate-900 dark:text-white">{{ $transactions->total() }}</span> 
-                        transaksi
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        {{ $transactions->links('vendor.pagination.tailwind') }}
-                    </div>
+                <div class="px-6 py-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                    {{ $transactions->links('vendor.pagination.tailwind') }}
                 </div>
                 @endif
             </div>

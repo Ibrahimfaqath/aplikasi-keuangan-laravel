@@ -16,7 +16,6 @@
                     <!-- Brand Name & Badge -->
                     <div class="flex items-center gap-2">
                         <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-white">DompetKu</span>
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">v1.0</span>
                     </div>
                 </a>
             </div>
@@ -124,13 +123,13 @@
             <span>Dashboard</span>
         </a>
 
-        <a href="{{ route('transaksi.index') ?? '#' }}" 
-           class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('transaksi.*') ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+        <a href="{{ route('transactions.index') }}" 
+           class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('transactions.*') ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
             <span>Transaksi</span>
         </a>
 
-        <a href="{{ route('transaksi.create') ?? '#' }}" 
+        <a href="{{ route('transactions.create') }}" 
            class="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-600/30">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
             <span>Tambah Transaksi</span>

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="space-y-8" x-data="dashboardApp()" x-init="initDashboard()">
-    
+<div class="space-y-8">
+
     <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -16,7 +16,6 @@
 
         <!-- Tombol Privasi -->
         <button id="privacy-toggle-btn" type="button"
-            @click="togglePrivacy()"
             class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors">
             <svg id="privacy-eye-open" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -25,7 +24,7 @@
             <svg id="privacy-eye-closed" class="hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.025 10.025 0 0110.141 3.937A10.01 10.01 0 0121.542 12c-.876 2.791-3.024 5.025-5.753 6.136M9.88 9.88a3 3 0 104.243 4.243m-4.242-4.242L3 3m18 18l-18-18" />
             </svg>
-            <span id="privacy-btn-text" x-text="isPrivate ? 'Tampilkan Saldo' : 'Sembunyikan Saldo'"></span>
+            <span id="privacy-btn-text">Sembunyikan Saldo</span>
         </button>
     </div>
 
@@ -42,22 +41,13 @@
                     </svg>
                 </div>
             </div>
-            <div class="h-9 flex items-center">
-                <!-- Skeleton (tampil saat loading) -->
-                <div class="skeleton-item h-8 w-44 bg-gray-200 dark:bg-gray-700 rounded-lg animate-shimmer" 
-                     x-show="isLoading"></div>
-                <!-- Content (tampil saat selesai loading) -->
-                <div class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white" 
-                     x-show="!isLoading">
-                    <span class="balance-text" 
-                          data-value="Rp {{ number_format($totalSaldo ?? 15500000, 0, ',', '.') }}"
-                          x-text="isPrivate ? '••••••••' : 'Rp {{ number_format($totalSaldo ?? 15500000, 0, ',', '.') }}'">
-                    </span>
-                </div>
-            </div>
+            <span class="balance-text block text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white"
+                  data-value="Rp {{ number_format($totalSaldo, 0, ',', '.') }}">
+                Rp {{ number_format($totalSaldo, 0, ',', '.') }}
+            </span>
         </div>
 
-        <!-- KARTU 2: PEMASUKAN -->
+        <!-- KARTU 2: PEMASUKAN BULAN INI -->
         <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Pemasukan Bulan Ini</span>
@@ -67,20 +57,13 @@
                     </svg>
                 </div>
             </div>
-            <div class="h-9 flex items-center">
-                <div class="skeleton-item h-8 w-36 bg-gray-200 dark:bg-gray-700 rounded-lg animate-shimmer" 
-                     x-show="isLoading"></div>
-                <div class="text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400" 
-                     x-show="!isLoading">
-                    <span class="balance-text" 
-                          data-value="Rp {{ number_format($pemasukan ?? 8200000, 0, ',', '.') }}"
-                          x-text="isPrivate ? '••••••••' : 'Rp {{ number_format($pemasukan ?? 8200000, 0, ',', '.') }}'">
-                    </span>
-                </div>
-            </div>
+            <span class="balance-text block text-3xl font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400"
+                  data-value="Rp {{ number_format($pemasukan, 0, ',', '.') }}">
+                Rp {{ number_format($pemasukan, 0, ',', '.') }}
+            </span>
         </div>
 
-        <!-- KARTU 3: PENGELUARAN -->
+        <!-- KARTU 3: PENGELUARAN BULAN INI -->
         <div class="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Pengeluaran Bulan Ini</span>
@@ -90,17 +73,10 @@
                     </svg>
                 </div>
             </div>
-            <div class="h-9 flex items-center">
-                <div class="skeleton-item h-8 w-36 bg-gray-200 dark:bg-gray-700 rounded-lg animate-shimmer" 
-                     x-show="isLoading"></div>
-                <div class="text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400" 
-                     x-show="!isLoading">
-                    <span class="balance-text" 
-                          data-value="Rp {{ number_format($pengeluaran ?? 3450000, 0, ',', '.') }}"
-                          x-text="isPrivate ? '••••••••' : 'Rp {{ number_format($pengeluaran ?? 3450000, 0, ',', '.') }}'">
-                    </span>
-                </div>
-            </div>
+            <span class="balance-text block text-3xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400"
+                  data-value="Rp {{ number_format($pengeluaran, 0, ',', '.') }}">
+                Rp {{ number_format($pengeluaran, 0, ',', '.') }}
+            </span>
         </div>
 
     </div>
@@ -109,140 +85,96 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Transaksi Terakhir</h2>
-            <span class="text-xs font-semibold px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">Bulan Ini</span>
+            <a href="{{ route('transactions.index') }}"
+               class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                Lihat Semua
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
                 <thead class="bg-gray-50 dark:bg-gray-700/40 text-xs uppercase text-gray-400 dark:text-gray-500 font-semibold tracking-wider">
                     <tr>
-                        <th scope="col" class="px-6 py-4">Kategori & Transaksi</th>
+                        <th scope="col" class="px-6 py-4">Transaksi</th>
                         <th scope="col" class="px-6 py-4">Tanggal</th>
-                        <th scope="col" class="px-6 py-4">Status</th>
+                        <th scope="col" class="px-6 py-4">Jenis</th>
                         <th scope="col" class="px-6 py-4 text-right">Nominal</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60">
-
-                    <!-- SKELETON ROWS -->
-                    @for ($i = 0; $i < 3; $i++)
-                    <tr class="skeleton-item" x-show="isLoading">
+                    @forelse ($recentTransactions as $transaction)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl animate-shimmer"></div>
-                                <div class="space-y-2">
-                                    <div class="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-shimmer"></div>
-                                    <div class="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-shimmer"></div>
+                                @if (!empty($transaction->image))
+                                <a href="{{ asset('storage/' . $transaction->image) }}" target="_blank"
+                                   class="block w-10 h-10 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+                                    <img src="{{ asset('storage/' . $transaction->image) }}"
+                                         loading="lazy"
+                                         class="w-full h-full object-cover"
+                                         alt="Bukti {{ $transaction->title }}">
+                                </a>
+                                @else
+                                <div class="p-2.5 {{ $transaction->type === 'income' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400' }} rounded-xl flex-shrink-0">
+                                    @if ($transaction->type === 'income')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    @else
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    @endif
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4"><div class="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-shimmer"></div></td>
-                        <td class="px-6 py-4"><div class="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full animate-shimmer"></div></td>
-                        <td class="px-6 py-4 text-right"><div class="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-shimmer ml-auto"></div></td>
-                    </tr>
-                    @endfor
-
-                    <!-- CONTENT ROWS (contoh data statis) -->
-                    <tr class="content-item" x-show="!isLoading">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
+                                @endif
                                 <div>
-                                    <p class="font-semibold text-gray-900 dark:text-white">Gaji Bulanan</p>
-                                    <p class="text-xs text-gray-400">Transfer Bank</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $transaction->title }}</p>
+                                    <p class="text-xs text-gray-400">
+                                        {{ \Carbon\Carbon::parse($transaction->transaction_date)->isoFormat('dddd, D MMM YYYY') }}
+                                    </p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">01 Aug 2026</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Selesai</span>
+                            {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}
                         </td>
-                        <td class="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                            <span class="balance-text" 
-                                  data-value="+Rp 8.200.000"
-                                  x-text="isPrivate ? '••••••••' : '+Rp 8.200.000'">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $transaction->type === 'income' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300' }}">
+                                {{ $transaction->type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                             </span>
                         </td>
+                        <td class="px-6 py-4 text-right font-bold whitespace-nowrap {{ $transaction->type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
+                            @php $signed = ($transaction->type === 'income' ? '+' : '-') . 'Rp ' . number_format($transaction->amount, 0, ',', '.'); @endphp
+                            <span class="balance-text" data-value="{{ $signed }}">{{ $signed }}</span>
+                        </td>
                     </tr>
-
-                    <tr class="content-item" x-show="!isLoading">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-xl">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-900 dark:text-white">Belanja Bulanan</p>
-                                    <p class="text-xs text-gray-400">Supermarket</p>
-                                </div>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="px-6 py-16 text-center">
+                            <div class="w-12 h-12 mx-auto mb-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                             </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">03 Aug 2026</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Selesai</span>
-                        </td>
-                        <td class="px-6 py-4 text-right font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap">
-                            <span class="balance-text" 
-                                  data-value="-Rp 1.450.000"
-                                  x-text="isPrivate ? '••••••••' : '-Rp 1.450.000'">
-                            </span>
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Belum ada transaksi</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
+                            <a href="{{ route('transactions.create') }}"
+                               class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Tambah Transaksi
+                            </a>
                         </td>
                     </tr>
-
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 
 </div>
-
-<!-- Alpine.js component untuk dashboard -->
-<script>
-    function dashboardApp() {
-        return {
-            isLoading: true,
-            isPrivate: false,
-            
-            initDashboard() {
-                // Ambil privacy state dari localStorage
-                const privacyStored = localStorage.getItem('privacy_mode');
-                this.isPrivate = privacyStored === 'enabled';
-                
-                // Simulasi loading
-                this.isLoading = true;
-                
-                // Gunakan requestAnimationFrame untuk memastikan skeleton dirender
-                requestAnimationFrame(() => {
-                    // Beri waktu minimal untuk skeleton terlihat
-                    const start = performance.now();
-                    
-                    const waitForRender = () => {
-                        if (document.querySelector('.skeleton-item')) {
-                            // Skeleton ada di DOM, selesai loading
-                            setTimeout(() => {
-                                this.isLoading = false;
-                            }, 50);
-                        } else if (performance.now() - start < 300) {
-                            requestAnimationFrame(waitForRender);
-                        } else {
-                            this.isLoading = false;
-                        }
-                    };
-                    
-                    waitForRender();
-                });
-            },
-            
-            togglePrivacy() {
-                this.isPrivate = !this.isPrivate;
-                localStorage.setItem('privacy_mode', this.isPrivate ? 'enabled' : 'disabled');
-                
-                // Update semua balance-text secara manual (karena Alpine reactive)
-                // Tapi karena kita pakai x-text, Alpine sudah handle
-            }
-        }
-    }
-</script>
 @endsection
