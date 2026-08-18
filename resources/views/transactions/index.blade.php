@@ -375,55 +375,98 @@
 
         <!-- BUDGET CARD -->
         <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 sm:p-6 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Anggaran Bulanan</h2>
-                    <p class="text-xs text-slate-500 dark:text-white/70">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Anggaran Bulanan</h2>
+                        <p class="text-xs text-slate-500 dark:text-white/70">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
+                    </div>
                 </div>
                 <button type="button" onclick="openBudgetModal()"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 rounded-xl text-sm font-semibold hover:bg-amber-100 dark:hover:bg-amber-900/40 transition no-print">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl text-xs font-semibold hover:bg-blue-100 dark:hover:bg-navy-400/20 transition no-print">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
-                    {{ $budget ? 'Ubah Anggaran' : 'Atur Anggaran' }}
+                    {{ $budget ? 'Ubah' : 'Atur' }}
                 </button>
             </div>
 
             @if($budget)
                 @php
+                    $now        = \Carbon\Carbon::now();
                     $percentage = $budget->amount > 0 ? min(100, round(($monthlyExpense / $budget->amount) * 100)) : 0;
                     $remaining  = $budget->amount - $monthlyExpense;
                     $isOver     = $remaining < 0;
+                    $daysLeft   = max(1, $now->daysInMonth - $now->day + 1);
+                    $daily      = $remaining > 0 ? floor($remaining / $daysLeft) : 0;
                     $barColor   = $isOver ? 'bg-rose-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-emerald-500');
+                    $statusTxt  = $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-white/70';
+                    $pctColor   = $isOver ? 'text-rose-600 dark:text-rose-400' : ($percentage >= 80 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400');
                 @endphp
 
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-semibold text-slate-500 dark:text-white/70 mb-2">
-                    <span>Terpakai: <span class="privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span></span>
-                    <span>Batas: <span class="privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</span></span>
+                <!-- Angka utama: sisa anggaran (atau kelebihan) -->
+                <div class="flex items-end justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider {{ $statusTxt }}">
+                            {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
+                        </p>
+                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }} privacy-target"
+                           data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
+                            {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
+                        </p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-2xl sm:text-3xl font-extrabold tracking-tight {{ $pctColor }}">{{ $percentage }}%</p>
+                        <p class="text-[11px] font-medium text-slate-400 dark:text-white/50">terpakai</p>
+                    </div>
                 </div>
 
-                <div class="w-full h-3 bg-slate-100 dark:bg-navy-800 rounded-full overflow-hidden">
+                <!-- Progress bar -->
+                <div class="mt-4 w-full h-3.5 bg-slate-100 dark:bg-navy-800 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                <p class="mt-2 text-xs font-semibold flex items-center gap-1.5 {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-white/70' }}">
-                    @if($isOver)
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        Melebihi batas sebesar Rp {{ number_format(abs($remaining), 0, ',', '.') }}
-                    @else
-                        Sisa <span class="privacy-target" data-amount="Rp {{ number_format($remaining, 0, ',', '.') }}">Rp {{ number_format($remaining, 0, ',', '.') }}</span> · {{ $percentage }}% dari anggaran terpakai
-                    @endif
+                <!-- Ringkasan: batas / terpakai / sisa per hari -->
+                <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100 dark:border-navy-800">
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Batas</p>
+                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white truncate privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Terpakai</p>
+                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white truncate privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Sisa / hari</p>
+                        <p class="mt-0.5 text-sm font-bold {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }} truncate privacy-target" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+
+                @if($isOver)
+                <p class="mt-4 flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Pengeluaran sudah melewati batas bulan ini. Pertimbangkan untuk menyesuaikan anggaranmu.
                 </p>
+                @endif
             @else
-                <div class="flex items-start gap-3 p-4 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/50 rounded-xl">
-                    <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-sm text-slate-600 dark:text-white/80">
-                        Kamu belum mengatur anggaran untuk bulan ini. Klik
-                        <button type="button" onclick="openBudgetModal()" class="font-semibold text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-700">Atur Anggaran</button>
-                        untuk menetapkan batas pengeluaranmu.
-                    </p>
+                <div class="flex flex-col items-center text-center py-6 px-4 bg-slate-50/60 dark:bg-navy-800/40 border border-dashed border-slate-200 dark:border-navy-700 rounded-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white">Belum ada anggaran bulan ini</h3>
+                    <p class="text-xs text-slate-500 dark:text-white/70 mt-1 max-w-xs">Tetapkan batas pengeluaran untuk mengontrol keuanganmu lebih disiplin.</p>
+                    <button type="button" onclick="openBudgetModal()"
+                            class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white rounded-xl text-xs font-semibold shadow-sm shadow-blue-600/20 transition no-print">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Atur Anggaran
+                    </button>
                 </div>
             @endif
         </section>
@@ -682,7 +725,7 @@
                 <!-- MOBILE LIST VIEW -->
                 <div class="block md:hidden divide-y divide-slate-100 dark:divide-navy-800">
                     @forelse ($items as $item)
-                    <div class="p-4 space-y-2.5">
+                    <div class="p-4" x-data="{ open: false }">
 
                         <!-- Baris 1: Tanggal + Jenis -->
                         <div class="flex items-center justify-between text-xs">
@@ -694,15 +737,16 @@
                             </span>
                         </div>
 
-                        <!-- Baris 2: Gambar + Judul + Nominal -->
-                        <div class="flex items-center gap-3 pt-1">
+                        <!-- Baris 2: Ringkasan — tap untuk membuka aksi -->
+                        <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
+                                class="w-full flex items-center gap-3 pt-1 text-left group">
                             @if(!empty($item->image))
-                            <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="flex-shrink-0">
+                            <div class="flex-shrink-0">
                                 <img src="{{ asset('storage/' . $item->image) }}"
                                      loading="lazy"
                                      class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-navy-700"
                                      alt="Bukti transaksi">
-                            </a>
+                            </div>
                             @else
                             <div class="flex-shrink-0 w-12 h-12 bg-slate-100 dark:bg-navy-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-navy-700">
                                 <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -720,14 +764,33 @@
                                 </p>
                             </div>
 
-                            <p class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base whitespace-nowrap privacy-target"
-                               data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                                Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
-                            </p>
-                        </div>
+                            <div class="flex-shrink-0 flex flex-col items-end gap-1">
+                                <p class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base whitespace-nowrap privacy-target"
+                                   data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
+                                    Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+                                </p>
+                                <svg class="w-4 h-4 text-slate-400 dark:text-white/40 transition-transform duration-200"
+                                     :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </button>
 
-                        <!-- Baris 3: Action Buttons -->
-                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-navy-800/60">
+                        <!-- Panel aksi: muncul saat baris di-tap (disembunyikan saat print) -->
+                        <div id="tx-actions-{{ $item->id }}" x-show="open" x-cloak
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 -translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 -translate-y-1"
+                             class="no-print flex items-center justify-end gap-2 pt-3 mt-3 border-t border-slate-100/60 dark:border-navy-800/60">
+                            @if(!empty($item->image))
+                            <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-navy-800 dark:hover:bg-navy-700 text-slate-600 dark:text-white/80 rounded-lg text-xs font-semibold transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <span>Bukti</span>
+                            </a>
+                            @endif
                             <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-navy-800 dark:hover:bg-navy-700 text-slate-600 dark:text-white/80 rounded-lg text-xs font-semibold transition">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 <span>Edit</span>
@@ -776,8 +839,10 @@
                 <!-- Header Modal -->
                 <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-navy-800">
                     <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-xl">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
                         </div>
                         <div>
                             <h3 id="budget-modal-title" class="text-base font-bold text-slate-900 dark:text-white">Anggaran Bulanan</h3>
@@ -790,19 +855,47 @@
                 </div>
 
                 <!-- Form Body -->
-                <form action="{{ route('budgets.store') }}" method="POST" class="p-6 space-y-4">
+                <form action="{{ route('budgets.store') }}" method="POST" class="p-6 space-y-4" x-data="budgetForm({{ $budget?->amount ?? 0 }})">
                     @csrf
+
+                    <!-- Ringkasan pengeluaran bulan ini (konteks saat menyetel anggaran) -->
+                    @if($monthlyExpense > 0)
+                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-100 dark:border-navy-700/60 rounded-xl">
+                        <span class="text-xs font-medium text-slate-500 dark:text-white/70">Pengeluaran bulan ini</span>
+                        <span class="text-sm font-bold text-slate-900 dark:text-white privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70 mb-2">Batas Pengeluaran (Rp)</label>
+                        <label for="budget-amount-input" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70 mb-2">Batas Pengeluaran</label>
                         <div class="relative rounded-xl shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 font-bold text-sm">Rp</div>
-                            <input type="number" name="amount" value="{{ $budget?->amount }}" placeholder="Contoh: 5000000" required min="0" step="any" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 rounded-xl text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" inputmode="numeric" id="budget-amount-input" name="amount"
+                                   x-model="displayAmount" @input="amount = onAmountInput($event.target.value)"
+                                   placeholder="0" autocomplete="off"
+                                   class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 rounded-xl text-slate-900 dark:text-white font-bold text-base sm:text-lg tracking-tight placeholder-slate-300 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-navy-400 focus:bg-white dark:focus:bg-navy-800 transition">
+                        </div>
+                        <p class="mt-1.5 text-[11px] text-slate-400 dark:text-white/50">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
+                    </div>
+
+                    <!-- Chip nominal cepat -->
+                    <div>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/60 mb-2">Pilih cepat</p>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="preset in presets" :key="preset">
+                                <button type="button" @click="setPreset(preset)"
+                                        class="px-3 py-1.5 bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold text-slate-600 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400 hover:text-blue-600 dark:hover:text-navy-300 transition"
+                                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(preset)">
+                                </button>
+                            </template>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-navy-800">
                         <button type="button" onclick="closeBudgetModal()" class="px-4 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/80 border border-slate-200 dark:border-navy-700 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-navy-700 transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20 transition">Simpan Anggaran</button>
+                        <button type="submit"
+                                :disabled="!(parseFloat(amount) > 0)"
+                                class="px-5 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20 transition disabled:opacity-40 disabled:cursor-not-allowed">Simpan Anggaran</button>
                     </div>
                 </form>
 
@@ -826,6 +919,29 @@
                 closeExportModal();
             }
         });
+
+        // Form anggaran: input Rupiah otomatis + chip nominal cepat
+        function budgetForm(initialAmount = 0) {
+            const init = Number(initialAmount) || 0;
+            return {
+                amount: init,
+                displayAmount: init > 0 ? new Intl.NumberFormat('id-ID').format(init) : '',
+                presets: [500000, 1000000, 2000000, 5000000, 10000000],
+
+                // Format angka mentah -> "1.500.000" (hanya angka & pemisah ribuan)
+                onAmountInput(value) {
+                    const digits = String(value).replace(/\D/g, '');
+                    this.amount = digits === '' ? 0 : parseInt(digits, 10);
+                    this.displayAmount = this.amount > 0 ? new Intl.NumberFormat('id-ID').format(this.amount) : '';
+                    return this.displayAmount;
+                },
+
+                setPreset(value) {
+                    this.amount = value;
+                    this.displayAmount = new Intl.NumberFormat('id-ID').format(value);
+                },
+            };
+        }
     </script>
 
     <!-- EXPORT MODAL -->
