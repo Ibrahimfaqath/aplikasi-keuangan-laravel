@@ -657,7 +657,26 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-navy-800 text-xs sm:text-sm">
-                            @php $items = $transactions ?? $transaksi ?? []; @endphp
+                            @php
+                                $items = $transactions ?? $transaksi ?? [];
+                                // Icon & warna kategori sebagai placeholder saat tidak ada gambar bukti
+                                $catVisuals = [
+                                    'Gaji'               => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>', 'bg' => 'bg-emerald-50 dark:bg-emerald-950/60', 'color' => 'text-emerald-600 dark:text-emerald-400'],
+                                    'Bonus'              => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>', 'bg' => 'bg-amber-50 dark:bg-amber-950/60', 'color' => 'text-amber-600 dark:text-amber-400'],
+                                    'Bisnis'             => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>', 'bg' => 'bg-blue-50 dark:bg-blue-950/60', 'color' => 'text-blue-600 dark:text-blue-400'],
+                                    'Investasi'          => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>', 'bg' => 'bg-indigo-50 dark:bg-indigo-950/60', 'color' => 'text-indigo-600 dark:text-indigo-400'],
+                                    'Hadiah'             => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>', 'bg' => 'bg-pink-50 dark:bg-pink-950/60', 'color' => 'text-pink-600 dark:text-pink-400'],
+                                    'Makanan & Minuman'  => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 2v20"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>', 'bg' => 'bg-orange-50 dark:bg-orange-950/60', 'color' => 'text-orange-600 dark:text-orange-400'],
+                                    'Transportasi'       => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>', 'bg' => 'bg-slate-100 dark:bg-slate-800', 'color' => 'text-slate-600 dark:text-slate-400'],
+                                    'Tagihan & Utilitas' => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>', 'bg' => 'bg-yellow-50 dark:bg-yellow-950/60', 'color' => 'text-yellow-600 dark:text-yellow-400'],
+                                    'Belanja'            => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>', 'bg' => 'bg-purple-50 dark:bg-purple-950/60', 'color' => 'text-purple-600 dark:text-purple-400'],
+                                    'Hiburan'            => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>', 'bg' => 'bg-rose-50 dark:bg-rose-950/60', 'color' => 'text-rose-600 dark:text-rose-400'],
+                                    'Kesehatan'          => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>', 'bg' => 'bg-red-50 dark:bg-red-950/60', 'color' => 'text-red-600 dark:text-red-400'],
+                                    'Pendidikan'         => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>', 'bg' => 'bg-cyan-50 dark:bg-cyan-950/60', 'color' => 'text-cyan-600 dark:text-cyan-400'],
+                                    'Keluarga'           => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>', 'bg' => 'bg-teal-50 dark:bg-teal-950/60', 'color' => 'text-teal-600 dark:text-teal-400'],
+                                ];
+                                $defaultCat = ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/>', 'bg' => 'bg-slate-100 dark:bg-slate-800', 'color' => 'text-slate-500 dark:text-slate-400'];
+                            @endphp
                             @forelse ($items as $item)
                             <tr class="hover:bg-slate-50/80 dark:hover:bg-navy-800/50 transition">
                                 <td class="py-4 px-6 font-medium text-slate-500 dark:text-white/70 whitespace-nowrap">
@@ -672,7 +691,10 @@
                                              alt="Bukti">
                                     </a>
                                     @else
-                                    <span class="text-slate-400">-</span>
+                                    @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
+                                    <div class="w-8 h-8 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center" title="{{ $item->category ?? 'Lainnya' }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                                    </div>
                                     @endif
                                 </td>
                                 <td class="py-4 px-6 font-semibold text-slate-900 dark:text-white">
@@ -747,10 +769,9 @@
                                      alt="Bukti transaksi">
                             </div>
                             @else
-                            <div class="flex-shrink-0 w-12 h-12 bg-slate-100 dark:bg-navy-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-navy-700">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                            @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
+                            <div class="flex-shrink-0 w-12 h-12 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center" title="{{ $item->category ?? 'Lainnya' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
                             </div>
                             @endif
 
