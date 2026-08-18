@@ -338,12 +338,16 @@
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight truncate privacy-target"
-                           x-show="!isLoading"
-                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                        <div x-show="isLoading"><div class="h-5 sm:h-6 w-28 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer mt-1"></div></div>
+                        <div x-show="!isLoading">
+                            <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
+                            <p class="mt-0.5 text-sm sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight truncate privacy-target"
+                               x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                               x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
+                        </div>
+                        <div x-show="isLoading" class="space-y-1.5">
+                            <div class="h-2.5 w-16 bg-slate-200 dark:bg-navy-700 rounded animate-shimmer"></div>
+                            <div class="h-5 sm:h-7 w-24 sm:w-32 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -354,12 +358,16 @@
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight truncate privacy-target"
-                           x-show="!isLoading"
-                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
-                        <div x-show="isLoading"><div class="h-5 sm:h-6 w-28 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer mt-1"></div></div>
+                        <div x-show="!isLoading">
+                            <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
+                            <p class="mt-0.5 text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight truncate privacy-target"
+                               x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                               x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                        </div>
+                        <div x-show="isLoading" class="space-y-1.5">
+                            <div class="h-2.5 w-16 bg-slate-200 dark:bg-navy-700 rounded animate-shimmer"></div>
+                            <div class="h-5 sm:h-7 w-24 sm:w-32 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
+                        </div>
                     </div>
                 </div>
             </div>
