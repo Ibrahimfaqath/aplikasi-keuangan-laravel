@@ -89,7 +89,7 @@
 
                 <div>
                     <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70 mb-1.5">Nama Lengkap</label>
-                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name"
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required autocomplete="name"
                            class="w-full px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-200 dark:border-navy-700/80 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                     @error('name') <p class="text-xs text-rose-600 dark:text-rose-400 mt-1.5">{{ $message }}</p> @enderror
                 </div>
