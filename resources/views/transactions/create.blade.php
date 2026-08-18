@@ -108,9 +108,6 @@
 
 <body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased">
 
-    <!-- AI Chat Widget -->
-    <x-ai-chat />
-
     <!-- Toast -->
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
