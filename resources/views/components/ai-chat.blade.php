@@ -28,7 +28,7 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-sm font-bold dark:text-white">AI Assistant</h3>
+                <h3 class="text-sm font-bold dark:text-white">Asisten AI</h3>
                 <p class="text-[11px] text-white/70 dark:text-white/70">Asisten keuangan pintar</p>
             </div>
             <!-- Link ke halaman AI penuh -->
@@ -138,6 +138,28 @@ function aiChat() {
         input: '',
         loading: false,
         messages: [],
+
+        init() {
+            // Muat riwayat percakapan dari session (sinkron dengan halaman AI)
+            this.loadHistory();
+        },
+
+        async loadHistory() {
+            try {
+                const res = await fetch('/ai/history', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+                const data = await res.json();
+                if (Array.isArray(data.messages) && data.messages.length && !this.messages.length) {
+                    this.messages = data.messages.map(m => ({ role: m.role, text: m.text }));
+                }
+            } catch (e) {
+                // Riwayat opsional — abaikan jika gagal
+            }
+        },
 
         toggleChat() {
             this.open = !this.open;
