@@ -29,9 +29,9 @@
                 </a>
             </div>
 
-            <!-- KANAN: Tombol Tambah Transaksi (ikon saja di mobile, pill di desktop) -->
+            <!-- KANAN: Tombol Tambah Transaksi (hanya desktop — mobile pakai bottom nav FAB) -->
             <a href="{{ route('transactions.create') }}"
-               class="inline-flex items-center justify-center gap-1.5 p-2.5 sm:px-4 sm:py-2 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-sm font-semibold shadow-sm shadow-blue-600/20 dark:shadow-black/40 transition flex-shrink-0"
+               class="hidden md:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-sm font-semibold shadow-sm shadow-blue-600/20 dark:shadow-black/40 transition flex-shrink-0"
                title="Tambah Transaksi">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
