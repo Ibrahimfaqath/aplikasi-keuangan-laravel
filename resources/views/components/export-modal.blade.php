@@ -9,7 +9,7 @@
             <!-- Header Modal -->
             <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-navy-800">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 rounded-xl">
+                    <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
                     <div>
@@ -105,11 +105,13 @@
 <script>
     function openExportModal() {
         document.getElementById('exportModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
         updateExportAction('/transactions/export-pdf');
     }
 
     function closeExportModal() {
         document.getElementById('exportModal').classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
     function updateExportAction(url) {

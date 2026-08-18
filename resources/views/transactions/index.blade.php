@@ -28,10 +28,11 @@
     <script>
         (function initTheme() {
             try {
-                const stored = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const isDark = stored === 'dark' || (!stored && prefersDark);
+                const savedTheme = localStorage.getItem('theme');
+                // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
+                const isDark = savedTheme !== 'light';
                 if (isDark) document.documentElement.classList.add('dark');
+                document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
             } catch (e) {
                 document.documentElement.classList.remove('dark');
             }
@@ -44,10 +45,10 @@
     <style>
         body { overflow-x: hidden; }
         @media print {
-            body { background-color: #ffffff !important; color: #ffffff !important; }
-            header, form, button, .no-print, nav, #exportModal { display: none !important; }
+            body { background-color: #ffffff !important; color: #000000 !important; }
+            header, form, button, .no-print, nav, #exportModal, .fixed { display: none !important; }
             .print-only { display: block !important; }
-            .shadow-sm, .shadow-md, .shadow-xl { shadow: none !important; border: 1px solid #ccc !important; }
+            .shadow-sm, .shadow-md, .shadow-xl, .shadow-lg { box-shadow: none !important; border: 1px solid #ccc !important; }
         }
 
         @keyframes skeleton-shimmer {
@@ -162,7 +163,7 @@
 
                     const series = this.trendData[this.trendPeriod] ?? { labels: [], income: [], expense: [] };
 
-                    // Warna profesional: biru/emas untuk pemasukan, merah untuk pengeluaran
+                    // Warna profesional: biru/navy untuk pemasukan, merah untuk pengeluaran
                     const incomeColor = isDark ? '#3b63b8' : '#2563eb';
                     const expenseColor = isDark ? '#f87171' : '#ef4444';
                     const incomeFill = isDark ? 'rgba(59, 99, 184, 0.08)' : 'rgba(37, 99, 235, 0.08)';
@@ -293,7 +294,7 @@
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <!-- SUMMARY CARDS — gaya prototipe: 3 kotak horizontal (saldo gradien + border berwarna) -->
-        <section class="grid gap-2.5 sm:gap-4" style="grid-template-columns: 1.3fr 1fr 1fr;">
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 sm:[grid-template-columns:1.3fr_1fr_1fr]">
 
             <!-- Kotak saldo: gradien biru (terang) / hitam-keemasan (gelap) -->
             <div class="relative overflow-hidden p-3.5 sm:p-5 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25 flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
@@ -301,13 +302,13 @@
                 <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
                 <div class="absolute -bottom-8 -right-2 w-20 h-20 bg-white/5 rounded-full pointer-events-none"></div>
 
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-400/90">Saldo</span>
+                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-300/90">Saldo</span>
 
                 <div x-show="isLoading">
                     <div class="h-7 sm:h-9 w-full bg-white/15 rounded-lg animate-shimmer"></div>
                 </div>
 
-                <div class="text-base sm:text-2xl font-extrabold tracking-tight leading-tight privacy-target"
+                <div class="text-base sm:text-2xl font-extrabold tracking-tight leading-tight break-words privacy-target"
                      x-show="!isLoading"
                      x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                      x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
@@ -316,7 +317,7 @@
 
             <!-- Kotak pemasukan: border kiri hijau 4px, angka hijau -->
             <div class="p-3.5 sm:p-5 bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 border-l-4 border-l-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</span>
+                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</span>
 
                 <div x-show="isLoading">
                     <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
@@ -331,7 +332,7 @@
 
             <!-- Kotak pengeluaran: border kiri merah 4px, angka merah -->
             <div class="p-3.5 sm:p-5 bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 border-l-4 border-l-rose-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</span>
+                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</span>
 
                 <div x-show="isLoading">
                     <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
@@ -522,7 +523,7 @@
                     <p class="text-xs text-slate-500 dark:text-white/70 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
                 </div>
                 <a href="{{ route('transactions.create') }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-navy-400/20 transition no-print">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-navy-400/20 transition no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Tambah
                 </a>
@@ -610,7 +611,7 @@
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </td>
                                 <td class="py-4 px-6">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-navy-400/10 dark:text-navy-400 border border-blue-200/60 dark:border-navy-400/25">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-navy-400/10 dark:text-navy-300 border border-blue-200/60 dark:border-navy-400/25">
                                         {{ $item->category ?? 'Lainnya' }}
                                     </span>
                                 </td>
@@ -688,7 +689,7 @@
                                 <p class="font-semibold text-slate-900 dark:text-white truncate text-sm sm:text-base">
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </p>
-                                <p class="text-[11px] font-medium text-blue-600 dark:text-navy-400 mt-0.5">
+                                <p class="text-[11px] font-medium text-blue-600 dark:text-navy-300 mt-0.5">
                                     {{ $item->category ?? 'Lainnya' }}
                                 </p>
                             </div>
@@ -758,17 +759,17 @@
 
             <a href="{{ route('ai.index') }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 Tanya AI
             </a>
             <a href="{{ route('transactions.create') }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 Scan Struk
             </a>
             <a href="{{ route('transactions.create') }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Transaksi Baru
             </a>
         </div>
@@ -781,7 +782,7 @@
     </div>
 
     <!-- BUDGET MODAL -->
-    <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
         <!-- Backdrop Blur -->
         <div class="fixed inset-0 bg-slate-900/60 dark:bg-navy-950/80 backdrop-blur-sm transition-opacity" onclick="closeBudgetModal()"></div>
 
@@ -795,7 +796,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Anggaran Bulanan</h3>
+                            <h3 id="budget-modal-title" class="text-base font-bold text-slate-900 dark:text-white">Anggaran Bulanan</h3>
                             <p class="text-xs text-slate-500 dark:text-white/70">Atur batas pengeluaran bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                         </div>
                     </div>
@@ -826,8 +827,21 @@
     </div>
 
     <script>
-        function openBudgetModal() { document.getElementById('budgetModal').classList.remove('hidden'); }
-        function closeBudgetModal() { document.getElementById('budgetModal').classList.add('hidden'); }
+        function openBudgetModal() {
+            document.getElementById('budgetModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        // Tutup modal dengan ESC (anggaran & export) + kunci scroll body
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeBudgetModal();
+                closeExportModal();
+            }
+        });
     </script>
 
     <!-- EXPORT MODAL -->

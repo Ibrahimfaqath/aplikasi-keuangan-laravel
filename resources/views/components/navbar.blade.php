@@ -84,7 +84,7 @@
             <!-- Navigasi -->
             <div class="px-3 py-3 space-y-1">
                 <a href="{{ route('transactions.index') }}" @click="sidebarOpen = false"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('transactions.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('transactions.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/>
                     </svg>
@@ -92,7 +92,7 @@
                 </a>
 
                 <a href="{{ route('ai.index') }}" @click="sidebarOpen = false"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('ai.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('ai.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                     </svg>
@@ -100,7 +100,7 @@
                 </a>
 
                 <a href="{{ route('profile.edit') }}" @click="sidebarOpen = false"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('profile.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('profile.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
@@ -139,7 +139,7 @@
                 <button type="button" id="privacy-toggle-btn"
                         class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 transition-colors text-left"
                         aria-label="Sembunyikan atau tampilkan saldo">
-                    <svg id="privacy-eye-open" class="w-4 h-4 block text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg id="privacy-eye-open" class="w-4 h-4 block text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>

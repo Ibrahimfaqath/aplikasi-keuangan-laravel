@@ -20,9 +20,11 @@
     <script>
         (function initTheme() {
             try {
-                const s = localStorage.getItem('theme');
-                const d = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (s === 'dark' || (!s && d)) document.documentElement.classList.add('dark');
+                const savedTheme = localStorage.getItem('theme');
+                // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
+                const isDark = savedTheme !== 'light';
+                if (isDark) document.documentElement.classList.add('dark');
+                document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
             } catch(e) {}
         })();
     </script>
@@ -204,6 +206,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Export Laporan (PDF/Excel/Print) -->
+    @include('components.export-modal')
 
     <x-footer />
 

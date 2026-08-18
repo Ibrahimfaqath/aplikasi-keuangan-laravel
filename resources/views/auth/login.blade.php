@@ -27,7 +27,7 @@
         <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between mt-5">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 dark:border-navy-700 dark:bg-navy-800 text-blue-600 dark:text-navy-400 shadow-sm focus:ring-blue-500" name="remember">
+                <input id="remember_me" type="checkbox" class="rounded border-gray-300 dark:border-navy-700 dark:bg-navy-800 text-blue-600 dark:text-navy-300 shadow-sm focus:ring-blue-500" name="remember">
                 <span class="ms-2 text-sm text-gray-600 dark:text-white/80">{{ __('Ingat saya') }}</span>
             </label>
 
@@ -40,7 +40,7 @@
 
         <!-- Action Buttons: Link Register & Tombol Login -->
         <div class="flex items-center justify-between mt-6 pt-5 border-t border-gray-100 dark:border-navy-800">
-            <a class="text-sm font-medium text-blue-600 dark:text-navy-400 hover:text-blue-800 dark:hover:text-navy-300 underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-navy-950 focus:ring-blue-500" href="{{ route('register') }}">
+            <a class="text-sm font-medium text-blue-600 dark:text-navy-300 hover:text-blue-800 dark:hover:text-navy-200 underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-navy-950 focus:ring-blue-500" href="{{ route('register') }}">
                 Belum punya akun? Daftar
             </a>
 

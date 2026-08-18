@@ -22,7 +22,7 @@
         <!-- Header -->
         <div class="px-5 py-4 bg-blue-600 dark:bg-navy-900 dark:border-b dark:border-navy-800 text-white flex items-center gap-3">
             <div class="w-9 h-9 rounded-full bg-white/20 dark:bg-navy-400/20 flex items-center justify-center">
-                <svg class="w-5 h-5 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                 </svg>
             </div>
@@ -32,7 +32,7 @@
             </div>
             <!-- Link ke halaman AI penuh -->
             <a href="{{ route('ai.index') }}"
-               class="ml-auto text-[10px] font-semibold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 dark:bg-navy-400/10 dark:hover:bg-navy-400/20 dark:text-navy-400 text-white transition whitespace-nowrap"
+               class="ml-auto text-[10px] font-semibold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 dark:bg-navy-400/10 dark:hover:bg-navy-400/20 dark:text-navy-300 text-white transition whitespace-nowrap"
                title="Buka halaman AI penuh">
                 Buka penuh
             </a>
@@ -43,7 +43,7 @@
             <!-- Welcome -->
             <div class="flex gap-3">
                 <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-navy-400/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 </div>
                 <div class="bg-slate-100 dark:bg-navy-800 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%]">
                     <p class="text-sm text-slate-700 dark:text-white/80">Halo! Saya bisa bantu analisis keuangan, saran budget, atau jawab pertanyaan seputar transaksi kamu.</p>
@@ -52,7 +52,7 @@
 
             <!-- Quick Actions -->
             <div class="flex flex-wrap gap-2">
-                <button @click="sendMessage('Bagaimana ringkasan keuangan saya bulan ini?')" class="px-3 py-1.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 rounded-full text-xs font-semibold border border-blue-200/60 dark:border-navy-400/25 hover:bg-blue-100 dark:hover:bg-navy-400/20 transition">
+                <button @click="sendMessage('Bagaimana ringkasan keuangan saya bulan ini?')" class="px-3 py-1.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-full text-xs font-semibold border border-blue-200/60 dark:border-navy-400/25 hover:bg-blue-100 dark:hover:bg-navy-400/20 transition">
                     Ringkasan bulan ini
                 </button>
                 <button @click="sendMessage('Tips menghemat pengeluaran saya?')" class="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-semibold border border-emerald-200/60 dark:border-emerald-800/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition">
@@ -67,7 +67,7 @@
             <template x-for="(msg, i) in messages" :key="i">
                 <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex gap-3'">
                     <div x-show="msg.role === 'assistant'" class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-navy-400/10 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     </div>
                     <div :class="msg.role === 'user' 
                         ? 'bg-blue-600 dark:bg-navy-400 dark:text-white text-white rounded-2xl rounded-tr-md px-4 py-3 max-w-[85%]' 
@@ -80,7 +80,7 @@
             <!-- Loading -->
             <div x-show="loading" class="flex gap-3">
                 <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-navy-400/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                 </div>
                 <div class="bg-slate-100 dark:bg-navy-800 rounded-2xl rounded-tl-md px-4 py-3">
                     <div class="flex gap-1.5">
@@ -129,11 +129,12 @@ function aiChat() {
         },
 
         formatMessage(text) {
-            // Bold
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            // Line breaks
-            text = text.replace(/\n/g, '<br>');
-            return text;
+            // Sanitasi HTML dulu (cegah XSS dari balasan AI), lalu format **tebal** & baris baru
+            let t = String(text);
+            t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            t = t.replace(/\n/g, '<br>');
+            return t;
         },
 
         async sendMessage(text) {

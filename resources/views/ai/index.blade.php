@@ -21,10 +21,11 @@
     <script>
         (function initTheme() {
             try {
-                const stored = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const isDark = stored === 'dark' || (!stored && prefersDark);
+                const savedTheme = localStorage.getItem('theme');
+                // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
+                const isDark = savedTheme !== 'light';
                 if (isDark) document.documentElement.classList.add('dark');
+                document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
             } catch (e) {
                 document.documentElement.classList.remove('dark');
             }
@@ -108,7 +109,7 @@
                 <template x-if="messages.length === 0 && !sending">
                     <div class="text-center pt-10 sm:pt-16">
                         <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-50 dark:bg-navy-400/10 border border-blue-100 dark:border-navy-400/25 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-8 h-8 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                             </svg>
                         </div>
@@ -121,7 +122,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8 max-w-lg mx-auto">
                             <button type="button" @click="sendMessage('Bagaimana ringkasan keuangan saya bulan ini?')"
                                     class="text-left p-4 bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm hover:border-blue-300 dark:hover:border-navy-400/40 hover:shadow-md transition group">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                                 </div>
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">Ringkasan bulan ini</p>
@@ -129,7 +130,7 @@
                             </button>
                             <button type="button" @click="sendMessage('Kategori mana yang paling banyak pengeluaran saya?')"
                                     class="text-left p-4 bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm hover:border-blue-300 dark:hover:border-navy-400/40 hover:shadow-md transition group">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">Analisis kategori</p>
@@ -137,7 +138,7 @@
                             </button>
                             <button type="button" @click="sendMessage('Berikan tips menghemat pengeluaran saya')"
                                     class="text-left p-4 bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm hover:border-blue-300 dark:hover:border-navy-400/40 hover:shadow-md transition group">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                                 </div>
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">Tips hemat</p>
@@ -145,7 +146,7 @@
                             </button>
                             <button type="button" @click="$refs.ocrInput.click()"
                                     class="text-left p-4 bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm hover:border-blue-300 dark:hover:border-navy-400/40 hover:shadow-md transition group">
-                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                                <div class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 </div>
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">Scan struk</p>
@@ -162,7 +163,7 @@
                         <!-- Avatar AI -->
                         <div x-show="msg.role !== 'user'"
                              class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-navy-400/10 border border-blue-100 dark:border-navy-400/25 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <svg class="w-4 h-4 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                            <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                         </div>
 
                         <div :class="msg.role === 'user'
@@ -215,7 +216,7 @@
                 <!-- TYPING INDICATOR -->
                 <div x-show="sending" class="flex gap-2.5">
                     <div class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-navy-400/10 border border-blue-100 dark:border-navy-400/25 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-blue-600 dark:text-navy-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                     </div>
                     <div class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5">
                         <span class="typing-dot w-1.5 h-1.5 bg-slate-400 dark:bg-navy-400 rounded-full inline-block"></span>
@@ -286,10 +287,11 @@
                     if (el) el.scrollTop = el.scrollHeight;
                 },
 
-                // Format sederhana: **tebal** + baris baru
+                // Format sederhana: **tebal** + baris baru (HTML disanitasi dulu — cegah XSS)
                 formatMessage(text) {
                     if (!text) return '';
                     let t = String(text);
+                    t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
                     t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     t = t.replace(/\n/g, '<br>');
                     return t;
@@ -405,5 +407,9 @@
             };
         }
     </script>
+
+    <!-- Export Laporan (PDF/Excel/Print) -->
+    @include('components.export-modal')
+
 </body>
 </html>
