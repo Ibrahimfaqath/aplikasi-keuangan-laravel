@@ -950,8 +950,5 @@
     <!-- AI Chat Widget (disembunyikan di mobile — FAB dashboard sudah punya akses AI) -->
     <x-ai-chat class="hidden md:block" />
 
-    <!-- FOOTER -->
-    <x-footer />
-
 </body>
 </html>

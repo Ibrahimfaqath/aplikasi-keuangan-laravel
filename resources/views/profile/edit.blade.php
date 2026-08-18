@@ -255,7 +255,5 @@
     <!-- Export Laporan (PDF/Excel/Print) -->
     @include('components.export-modal')
 
-    <x-footer />
-
 </body>
 </html>

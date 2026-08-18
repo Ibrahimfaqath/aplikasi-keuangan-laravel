@@ -729,8 +729,5 @@
     <!-- Export Laporan (PDF/Excel/Print) -->
     @include('components.export-modal')
 
-    <!-- FOOTER -->
-    <x-footer />
-
 </body>
 </html>
