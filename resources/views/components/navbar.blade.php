@@ -1,6 +1,7 @@
-<nav x-data="{ sidebarOpen: false }"
-     @keydown.escape.window="sidebarOpen = false"
-     class="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-navy-800 bg-white/80 dark:bg-navy-950/80 backdrop-blur-xl">
+<div x-data="{ sidebarOpen: false }"
+     @keydown.escape.window="sidebarOpen = false">
+
+<nav class="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-navy-800 bg-white/80 dark:bg-navy-950/80 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-2 sm:gap-3">
 
@@ -39,10 +40,13 @@
             </a>
         </div>
     </div>
+</nav>
 
     <!-- ============================================================
-         SIDEBAR DRAWER — muncul dari kiri saat burger diklik
-         Berisi: profil, navigasi, export, tema, privasi, keluar
+         SIDEBAR DRAWER — muncul dari kiri saat burger diklik.
+         Berada DI LUAR <nav>: backdrop-filter pada <nav> membuat
+         position:fixed relatif ke nav, bukan viewport (bug: drawer
+         hanya tampil setinggi navbar).
          ============================================================ -->
     <div x-show="sidebarOpen"
          x-cloak
@@ -165,4 +169,4 @@
             </div>
         </div>
     </div>
-</nav>
+</div>
