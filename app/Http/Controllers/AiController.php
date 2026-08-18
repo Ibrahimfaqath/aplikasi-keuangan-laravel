@@ -71,7 +71,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
+            ])->timeout(90)->connectTimeout(10)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
                 'system_instruction' => [
                     'parts' => [['text' => $systemPrompt]],
                 ],
@@ -126,7 +126,7 @@ Data pengguna:
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
+            ])->timeout(90)->connectTimeout(10)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
                 'contents' => [
                     [
                         'parts' => [

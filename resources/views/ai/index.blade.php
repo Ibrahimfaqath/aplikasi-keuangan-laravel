@@ -84,8 +84,7 @@
          HALAMAN AI — layout chat penuh ala Gemini:
          kolom chat di tengah + input mengambang di bawah
          ============================================================ -->
-    <div class="w-full flex-1 flex flex-col"
-         style="height: calc(100dvh - 4rem);"
+    <div class="w-full flex-1 flex flex-col h-[calc(100dvh_-_8rem_-_env(safe-area-inset-bottom))] md:h-[calc(100dvh_-_4rem)]"
          x-data="aiPage()"
          x-init="init()">
 
@@ -247,7 +246,7 @@
                     <input type="file" x-ref="ocrInput" accept="image/*" capture="environment" class="hidden" @change="processOcr($event)">
 
                     <!-- Text input -->
-                    <input type="text" x-model="input" placeholder="Tanya seputar keuanganmu..." autocomplete="off"
+                    <input type="text" x-model="input" x-ref="chatInput" placeholder="Tanya seputar keuanganmu..." autocomplete="off" enterkeyhint="send"
                            class="flex-1 min-w-0 px-3 py-2 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:outline-none"
                            :disabled="sending">
 
@@ -280,6 +279,11 @@
 
                 init() {
                     this.$nextTick(() => this.scrollBottom());
+                    // Fokus input otomatis di desktop (di mobile biarkan —
+                    // keyboard tidak muncul dengan sendirinya)
+                    if (window.matchMedia('(min-width: 768px)').matches) {
+                        this.$refs.chatInput?.focus();
+                    }
                 },
 
                 scrollBottom() {
