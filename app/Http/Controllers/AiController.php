@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Models\Transaction;
+use App\Services\TransactionParser;
 
 class AiController extends Controller
 {
@@ -83,6 +84,9 @@ JSON>>>
 Jika pesan BUKAN transaksi, jawab seperti biasa TANPA blok JSON.
 Kategori valid: " . self::CATEGORIES_HINT;
 
+        $reply = null;
+        $transaction = null;
+
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -100,30 +104,42 @@ Kategori valid: " . self::CATEGORIES_HINT;
                 ],
             ]);
 
-            if ($response->failed()) {
-                return response()->json(['error' => 'Gagal menghubungi AI. Coba lagi nanti.'], 500);
+            if (!$response->failed()) {
+                $data = $response->json();
+                $reply = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+                // Deteksi intent transaksi dari balasan (blok <<<JSON ... JSON>>>)
+                [$reply, $transaction] = $this->extractTransaction($reply ?? '');
             }
-
-            $data = $response->json();
-            $reply = $data['candidates'][0]['content']['parts'][0]['text'] ?? 'Maaf, saya tidak bisa memproses permintaanmu.';
-
-            // Deteksi intent transaksi dari balasan (blok <<<JSON ... JSON>>>)
-            [$reply, $transaction] = $this->extractTransaction($reply);
-
-            // Simpan riwayat percakapan di session (untuk halaman AI)
-            // dibatasi 100 pesan terakhir agar session tidak membengkak
-            $request->session()->push('ai_messages', ['role' => 'user', 'text' => $request->message]);
-            $request->session()->push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
-            $history = array_slice($request->session()->get('ai_messages', []), -100);
-            $request->session()->put('ai_messages', $history);
-
-            return response()->json([
-                'reply'       => $reply,
-                'transaction' => $transaction, // null jika bukan niat transaksi
-            ]);
         } catch (\Throwable $e) {
-            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            // Gemini error/offline — lanjut ke parser lokal di bawah.
+            $reply = null;
         }
+
+        // Parser lokal (fallback): selalu coba, baik Gemini tidak membalas,
+        // tidak mengembalikan JSON transaksi, maupun API-nya sedang bermasalah.
+        // Supaya input transaksi lewat chat TETAP berfungsi cepat & tepat.
+        if ($transaction === null) {
+            $transaction = TransactionParser::fromText($request->message);
+        }
+
+        if ($reply === null) {
+            $reply = $transaction !== null
+                ? 'Siap! Aku catat transaksinya ya. Periksa datanya dulu sebelum disimpan.'
+                : 'Maaf, AI sedang tidak tersedia. Coba lagi sebentar ya.';
+        }
+
+        // Simpan riwayat percakapan di session (untuk halaman AI)
+        // dibatasi 100 pesan terakhir agar session tidak membengkak
+        $request->session()->push('ai_messages', ['role' => 'user', 'text' => $request->message]);
+        $request->session()->push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
+        $history = array_slice($request->session()->get('ai_messages', []), -100);
+        $request->session()->put('ai_messages', $history);
+
+        return response()->json([
+            'reply'       => $reply,
+            'transaction' => $transaction, // null jika bukan niat transaksi
+        ]);
     }
 
     /**

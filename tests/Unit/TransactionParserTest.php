@@ -1,0 +1,134 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Services\TransactionParser;
+use PHPUnit\Framework\TestCase;
+
+class TransactionParserTest extends TestCase
+{
+    public function test_detects_expense_with_thousand_word(): void
+    {
+        $item = TransactionParser::fromText('beli nasi goreng 25 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(25000, $item['amount']);
+        $this->assertSame('expense', $item['type']);
+    }
+
+    public function test_detects_income_gaji(): void
+    {
+        $item = TransactionParser::fromText('gaji masuk 5 juta');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(5000000, $item['amount']);
+        $this->assertSame('income', $item['type']);
+    }
+
+    public function test_detects_rp_formatted_amount(): void
+    {
+        $item = TransactionParser::fromText('bayar listrik Rp 200.000');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(200000, $item['amount']);
+        $this->assertSame('Tagihan & Utilitas', $item['category']);
+    }
+
+    public function test_detects_singkatan_rb(): void
+    {
+        $item = TransactionParser::fromText('jajan 15rb');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(15000, $item['amount']);
+    }
+
+    public function test_detects_singkatan_k(): void
+    {
+        $item = TransactionParser::fromText('beli kopi 20k');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(20000, $item['amount']);
+        $this->assertSame('Makanan & Minuman', $item['category']);
+    }
+
+    public function test_detects_comma_juta(): void
+    {
+        $item = TransactionParser::fromText('terima transfer 1,5 juta');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(1500000, $item['amount']);
+        $this->assertSame('income', $item['type']);
+    }
+
+    public function test_detects_plain_amount(): void
+    {
+        $item = TransactionParser::fromText('beli bensin 50000');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(50000, $item['amount']);
+        $this->assertSame('Transportasi', $item['category']);
+    }
+
+    public function test_returns_null_without_amount(): void
+    {
+        $this->assertNull(TransactionParser::fromText('bagaimana kondisi keuangan saya?'));
+    }
+
+    public function test_returns_null_without_intent_keyword(): void
+    {
+        $this->assertNull(TransactionParser::fromText('uang 50 ribu saja'));
+    }
+
+    public function test_category_fallback_lainnya(): void
+    {
+        $item = TransactionParser::fromText('bayar hal aneh 10 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertSame('Lainnya', $item['category']);
+    }
+
+    public function test_detects_transport_category(): void
+    {
+        $item = TransactionParser::fromText('isi bensin 100 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertSame('Transportasi', $item['category']);
+        $this->assertEquals(100000, $item['amount']);
+    }
+
+    public function test_ribu_does_not_match_keluarga_ibu(): void
+    {
+        // Regresi: kata kunci "ibu" tidak boleh cocok dengan "r-ibu" dalam "10 ribu"
+        $item = TransactionParser::fromText('bayar hal aneh 10 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertSame('Lainnya', $item['category']);
+    }
+
+    public function test_title_keeps_minuman_utuh(): void
+    {
+        // Regresi: kata kunci "minum" tidak boleh merusak kata "minuman"
+        $item = TransactionParser::fromText('beli minuman 10 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertStringContainsString('minuman', mb_strtolower($item['title']));
+        $this->assertSame('Makanan & Minuman', $item['category']);
+    }
+
+    public function test_income_transfer_masuk(): void
+    {
+        $item = TransactionParser::fromText('transfer masuk 500 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertSame('income', $item['type']);
+        $this->assertEquals(500000, $item['amount']);
+    }
+
+    public function test_expense_kirim_uang(): void
+    {
+        $item = TransactionParser::fromText('kirim uang 100 ribu ke mama');
+
+        $this->assertNotNull($item);
+        $this->assertSame('expense', $item['type']);
+    }
+}
