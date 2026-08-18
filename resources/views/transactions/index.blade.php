@@ -293,8 +293,25 @@
     <!-- MAIN CONTENT BODY -->
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
+        <!-- SKELETON KARTU SALDO — satu blok utuh meniru bentuk kartu (label, saldo, dua tile) -->
+        <div x-show="isLoading"
+             class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
+            <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
+            <div class="absolute -bottom-10 -right-4 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
+
+            <div class="relative space-y-4">
+                <div class="h-3 w-16 bg-white/15 rounded animate-shimmer"></div>
+                <div class="h-12 sm:h-14 w-full max-w-xs bg-white/15 rounded-xl animate-shimmer"></div>
+                <div class="pt-4 border-t border-white/15 grid grid-cols-2 gap-2 sm:gap-3">
+                    <div class="h-16 rounded-xl bg-white/10 animate-shimmer"></div>
+                    <div class="h-16 rounded-xl bg-white/10 animate-shimmer"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- KARTU SALDO — satu persegi panjang: saldo besar + tombol privasi di kanan, pemasukan/pengeluaran kecil di bawah -->
-        <section class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
+        <section x-show="!isLoading"
+                 class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
 
             <!-- dekorasi lingkaran transparan -->
             <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
@@ -318,12 +335,7 @@
             </div>
 
             <!-- Saldo BESAR -->
-            <div x-show="isLoading">
-                <div class="h-10 sm:h-12 w-full max-w-xs mt-3 bg-white/15 rounded-xl animate-shimmer"></div>
-            </div>
-
             <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words privacy-target"
-                 x-show="!isLoading"
                  x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
@@ -338,16 +350,10 @@
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <div x-show="!isLoading">
-                            <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
-                            <p class="mt-0.5 text-sm sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight truncate privacy-target"
-                               x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                               x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                        </div>
-                        <div x-show="isLoading" class="space-y-1.5">
-                            <div class="h-2.5 w-16 bg-slate-200 dark:bg-navy-700 rounded animate-shimmer"></div>
-                            <div class="h-5 sm:h-7 w-24 sm:w-32 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
-                        </div>
+                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
+                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight truncate privacy-target"
+                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     </div>
                 </div>
 
@@ -358,16 +364,10 @@
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <div x-show="!isLoading">
-                            <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
-                            <p class="mt-0.5 text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight truncate privacy-target"
-                               x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                               x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
-                        </div>
-                        <div x-show="isLoading" class="space-y-1.5">
-                            <div class="h-2.5 w-16 bg-slate-200 dark:bg-navy-700 rounded animate-shimmer"></div>
-                            <div class="h-5 sm:h-7 w-24 sm:w-32 bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
-                        </div>
+                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
+                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight truncate privacy-target"
+                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
                     </div>
                 </div>
             </div>
