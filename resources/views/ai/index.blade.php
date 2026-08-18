@@ -229,10 +229,10 @@
             </div>
         </div>
 
-        <!-- INPUT MENGAMBANG (fixed: di atas bottom nav mobile, di bawah di desktop)
-             Background gradien memudar: pesan yang di-scroll hilang di belakangnya,
-             tidak terlihat melewati celah di sekitar kolom input -->
-        <div class="fixed bottom-24 md:bottom-6 inset-x-0 z-40 px-4 sm:px-6 pb-4 pt-8 pointer-events-none bg-gradient-to-t from-white via-white/90 to-transparent dark:from-navy-950 dark:via-navy-950/90 dark:to-transparent">
+        <!-- INPUT MENGAMBANG (fixed: menempel sampai bawah layar sehingga gradien
+             menutupi seluruh area antara kolom input dan navbar — tidak ada celah
+             untuk pesan lewat saat di-scroll) -->
+        <div class="fixed inset-x-0 bottom-0 z-40 px-4 sm:px-6 pt-8 pb-24 md:pb-6 pointer-events-none bg-gradient-to-t from-white via-white/90 to-transparent dark:from-navy-950 dark:via-navy-950/90 dark:to-transparent">
             <div class="max-w-3xl mx-auto pointer-events-auto">
                 <form @submit.prevent="sendMessage(input)" class="flex items-center gap-1.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-full pl-2 pr-1.5 py-1.5 shadow-lg shadow-slate-900/10 dark:shadow-black/50">
 
