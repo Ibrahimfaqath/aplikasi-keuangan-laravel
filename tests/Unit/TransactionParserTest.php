@@ -131,4 +131,81 @@ class TransactionParserTest extends TestCase
         $this->assertNotNull($item);
         $this->assertSame('expense', $item['type']);
     }
+
+    public function test_spelled_number_voice_dua_puluh_lima_ribu(): void
+    {
+        // Voice input Chrome id-ID sering mengucapkan angka menjadi kata
+        $item = TransactionParser::fromText('beli nasi goreng dua puluh lima ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(25000, $item['amount']);
+        $this->assertSame('expense', $item['type']);
+    }
+
+    public function test_spelled_number_seratus_ribu(): void
+    {
+        $item = TransactionParser::fromText('bayar listrik seratus ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(100000, $item['amount']);
+        $this->assertSame('Tagihan & Utilitas', $item['category']);
+    }
+
+    public function test_spelled_number_satu_juta_lima_ratus_ribu(): void
+    {
+        $item = TransactionParser::fromText('gaji masuk satu juta lima ratus ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(1500000, $item['amount']);
+        $this->assertSame('income', $item['type']);
+    }
+
+    public function test_spelled_number_lima_belas_ribu(): void
+    {
+        $item = TransactionParser::fromText('jajan lima belas ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(15000, $item['amount']);
+    }
+
+    public function test_spelled_number_dua_ratus_lima_puluh(): void
+    {
+        $item = TransactionParser::fromText('beli buku dua ratus lima puluh ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(250000, $item['amount']);
+    }
+
+    public function test_pembelian_pulsa(): void
+    {
+        $item = TransactionParser::fromText('catat pembelian pulsa 100 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(100000, $item['amount']);
+        $this->assertSame('Tagihan & Utilitas', $item['category']);
+    }
+
+    public function test_pinjam_uang(): void
+    {
+        $item = TransactionParser::fromText('minjem duit 50 ribu ke adek');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(50000, $item['amount']);
+        $this->assertSame('expense', $item['type']);
+    }
+
+    public function test_spelled_unit_without_scale_is_ignored(): void
+    {
+        // "satu kopi" bukan nominal — jangan salah tangkap
+        $this->assertNull(TransactionParser::fromText('beli satu kopi'));
+    }
+
+    public function test_spelled_seratus_ribu_ratusan(): void
+    {
+        $item = TransactionParser::fromText('belanja di indomaret tiga ratus ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(300000, $item['amount']);
+        $this->assertSame('Belanja', $item['category']);
+    }
 }

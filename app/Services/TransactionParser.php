@@ -25,6 +25,7 @@ class TransactionParser
         'beli', 'bayar', 'jajan', 'makan', 'minum', 'habis', 'isi',
         'top up', 'topup', 'langganan', 'sewa', 'cicil', 'angsur',
         'kirim', 'transfer keluar', 'tarik', 'ambil', 'belanja',
+        'pembelian', 'pembayaran', 'pinjam', 'minjem', 'utang', 'hutang',
         'kehabisan', 'pakai', 'pake', 'ngopi',
     ];
 
@@ -37,7 +38,7 @@ class TransactionParser
         'Hiburan'              => ['nonton', 'film', 'bioskop', 'game', 'netflix', 'spotify', 'konser', 'liburan', 'hiburan'],
         'Kesehatan'            => ['obat', 'dokter', 'klinik', 'apotik', 'apotek', 'berobat', 'vitamin', 'rumah sakit', 'kesehatan'],
         'Pendidikan'           => ['buku', 'kursus', 'sekolah', 'kuliah', 'spp', 'les', 'seminar', 'pelatihan', 'pendidikan'],
-        'Keluarga'             => ['keluarga', 'anak', 'ibu', 'ayah', 'orang tua', 'adik', 'kakak', 'rumah tangga'],
+        'Keluarga'             => ['keluarga', 'anak', 'ibu', 'ayah', 'orang tua', 'adik', 'adek', 'kakak', 'rumah tangga'],
         'Gaji'                 => ['gaji', 'upah', 'honor'],
         'Bonus'                => ['bonus', 'thr'],
         'Bisnis'               => ['bisnis', 'jualan', 'dagang', 'usaha', 'toko'],
@@ -116,7 +117,101 @@ class TransactionParser
             return [self::parsePlainNumber($m[1]), $m[0]];
         }
 
+        // Pola angka TERUCAP (hasil voice input Chrome id-ID):
+        //   "dua puluh lima ribu", "seratus ribu", "lima juta"
+        // Chrome sering mengubah angka jadi kata saat diketik via suara.
+        $numWord = '(?:nol|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh|sebelas|belas|puluh|ratus|ribu|juta|miliar|seratus|seribu|sejuta)';
+        if (preg_match('/\b' . $numWord . '(?:\s+' . $numWord . ')*\b/u', $text, $m)) {
+            // Hanya terima jika ada kata skala uang (ribu/juta/miliar) —
+            // hindari salah tangkap kata unit tunggal ("satu kopi", "dua buku").
+            if (preg_match('/\b(?:ribu|juta|miliar)\b/u', $m[0])) {
+                $value = self::parseSpelledNumber($m[0]);
+                if ($value !== null && $value > 0) {
+                    return [$value, $m[0]];
+                }
+            }
+        }
+
         return [null, null];
+    }
+
+    /**
+     * Ubah angka yang diucapkan dalam Bahasa Indonesia menjadi float.
+     * Mendukung kombinasi umum: "dua puluh lima ribu", "seratus ribu",
+     * "satu juta lima ratus ribu", "lima belas ribu", "dua ratus lima puluh".
+     *
+     * Algoritma: susun di stack, lalu skala (ribu/juta/miliar) mengunci
+     * seluruh nilai yang sudah terakumulasi. Contoh:
+     *   dua ratus lima puluh  => [200, 50]  => 250
+     *   dua puluh lima ribu   => [20, 5] *1000 => 25000
+     */
+    private static function parseSpelledNumber(string $phrase): ?float
+    {
+        $small = [
+            'nol' => 0, 'satu' => 1, 'dua' => 2, 'tiga' => 3, 'empat' => 4,
+            'lima' => 5, 'enam' => 6, 'tujuh' => 7, 'delapan' => 8, 'sembilan' => 9,
+            'sepuluh' => 10, 'sebelas' => 11,
+            'seratus' => 100, 'seribu' => 1000, 'sejuta' => 1_000_000,
+        ];
+        $scale = [
+            'ribu'   => 1_000,
+            'juta'   => 1_000_000,
+            'miliar' => 1_000_000_000,
+        ];
+
+        $words = preg_split('/\s+/u', trim(mb_strtolower($phrase))) ?: [];
+        if (!$words) {
+            return null;
+        }
+
+        $stack = [];
+        $total = 0;
+
+        foreach ($words as $word) {
+            if (isset($small[$word])) {
+                $stack[] = $small[$word];
+                continue;
+            }
+            if ($word === 'belas') {
+                $last = array_pop($stack);
+                if ($last === null || $last < 1 || $last > 9) {
+                    return null;
+                }
+                $stack[] = $last + 10;   // 11-19
+                continue;
+            }
+            if ($word === 'puluh') {
+                $last = array_pop($stack);
+                if ($last === null || $last < 1 || $last > 9) {
+                    return null;
+                }
+                $stack[] = $last * 10;   // 20-90
+                continue;
+            }
+            if ($word === 'ratus') {
+                $last = array_pop($stack);
+                if ($last === null || $last < 1 || $last > 9) {
+                    return null;
+                }
+                $stack[] = $last * 100;  // 100-900
+                continue;
+            }
+            if (isset($scale[$word])) {
+                $value = array_sum($stack);
+                if ($value <= 0) {
+                    $value = 1;          // "ribu" saja = 1000
+                }
+                $total += $value * $scale[$word];
+                $stack = [];
+                continue;
+            }
+            // kata asing di tengah frasa — hentikan parsing
+            return null;
+        }
+
+        $value = $total + array_sum($stack);
+
+        return $value > 0 ? round($value, 2) : null;
     }
 
     /**
@@ -185,7 +280,7 @@ class TransactionParser
             'tolong', 'catat', 'catatkan', 'ayo', 'aku', 'saya', 'gue', 'mau',
             'sudah', 'tadi', 'hari ini', 'hari', 'kemarin', 'kemarinnya',
             'uang', 'duit', 'dengan', 'sebesar', 'sebanyak', 'sekitar', 'kurang lebih',
-            'rp', 'untuk', 'buat', 'nih', 'deh', 'ya', 'dong', 'lah',
+            'rp', 'untuk', 'buat', 'nih', 'deh', 'ya', 'dong', 'lah', 'ke', 'di',
         ];
         $words = array_merge($filler, self::INCOME_KEYWORDS, self::EXPENSE_KEYWORDS);
         // Urutkan dari yang terpanjang dulu supaya frasa multi-kata
