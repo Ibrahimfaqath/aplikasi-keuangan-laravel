@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="DompetKu — aplikasi keuangan pribadi: catat pemasukan, pengeluaran, dan atur anggaran bulanan.">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#0A1128">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Branding / Icons -->
@@ -26,12 +26,12 @@
     <script>
         (function() {
             var savedTheme = localStorage.getItem('theme');
-            var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            var isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+            // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
+            var isDark = savedTheme !== 'light';
 
             if (isDark) {
                 document.documentElement.classList.add('dark');
-                document.documentElement.style.backgroundColor = '#111827';
+                document.documentElement.style.backgroundColor = '#0A1128';
             } else {
                 document.documentElement.classList.remove('dark');
                 document.documentElement.style.backgroundColor = '#f8fafc';
@@ -41,7 +41,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-black dark:text-white min-h-screen antialiased flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-navy-950 dark:text-white min-h-screen antialiased flex flex-col">
 
     <!-- NAVBAR (komponen terpadu) -->
     <x-navbar />

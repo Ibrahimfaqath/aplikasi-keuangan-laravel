@@ -13,18 +13,19 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Palet emas untuk mode gelap (hitam + emas + putih)
-                gold: {
-                    50: '#fbf8ec',
-                    100: '#f5ecc7',
-                    200: '#ecd99a',
-                    300: '#e2c468',
-                    400: '#d4af37', // emas klasik
-                    500: '#c19b2e',
-                    600: '#a37f26',
-                    700: '#82621f',
-                    800: '#654c19',
-                    900: '#4a3812',
+                // Palet navy untuk mode gelap (navy + biru + putih)
+                navy: {
+                    50: '#eef1f9',
+                    100: '#d8e0f0',
+                    200: '#b3c3e3',
+                    300: '#7f9cd2', // aksen terang (hover)
+                    400: '#3b63b8', // aksen utama
+                    500: '#2b4d96', // aksen dalam
+                    600: '#001F54', // biru tua utama (brand)
+                    700: '#152649', // permukaan hover
+                    800: '#101d3c', // permukaan kartu
+                    900: '#0c1630', // permukaan dasar
+                    950: '#0A1128', // latar halaman
                 },
             },
         },

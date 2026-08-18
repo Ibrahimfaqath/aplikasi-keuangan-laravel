@@ -41,8 +41,8 @@
         </div>
 
         <!-- Action Buttons: Link Login & Tombol Register -->
-        <div class="flex items-center justify-between mt-6 pt-5 border-t border-gray-100 dark:border-neutral-800">
-            <a class="text-sm font-medium text-blue-600 dark:text-gold-400 hover:text-blue-800 dark:hover:text-gold-300 underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-neutral-900 focus:ring-blue-500" href="{{ route('login') }}">
+        <div class="flex items-center justify-between mt-6 pt-5 border-t border-gray-100 dark:border-navy-800">
+            <a class="text-sm font-medium text-blue-600 dark:text-navy-400 hover:text-blue-800 dark:hover:text-navy-300 underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-navy-950 focus:ring-blue-500" href="{{ route('login') }}">
                 Sudah punya akun? Login
             </a>
 

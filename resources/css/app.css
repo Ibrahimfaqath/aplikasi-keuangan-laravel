@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-    /* Warna seleksi teks mengikuti brand (biru untuk terang, emas untuk gelap) */
+    /* Warna seleksi teks mengikuti brand (biru untuk terang, navy untuk gelap) */
     ::selection {
         background-color: rgb(37 99 235 / 0.25);
     }
     .dark ::selection {
-        background-color: rgb(212 175 55 / 0.3);
+        background-color: rgb(59 99 184 / 0.3);
     }
 
     /* Sembunyikan elemen Alpine sebelum diinisialisasi (mencegah flash) */
@@ -53,9 +53,9 @@
     .dark .animate-shimmer {
         background: linear-gradient(
             90deg,
-            rgba(38, 38, 38, 0.9) 25%,
-            rgba(64, 64, 64, 0.95) 37%,
-            rgba(38, 38, 38, 0.9) 63%
+            rgba(16, 29, 60, 0.9) 25%,
+            rgba(21, 38, 73, 0.95) 37%,
+            rgba(16, 29, 60, 0.9) 63%
         );
         background-size: 200% 100%;
         animation: skeleton-shimmer 1.4s infinite ease-in-out;

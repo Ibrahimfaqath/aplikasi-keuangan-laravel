@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="DompetKu — aplikasi pencatatan keuangan pribadi. Kelola pemasukan, pengeluaran, dan anggaran bulanan dengan mudah dan aman.">
-        <meta name="theme-color" content="#4f46e5">
+        <meta name="theme-color" content="#0A1128">
         <link rel="canonical" href="{{ url()->current() }}">
 
         <!-- Branding / Icons -->
@@ -28,8 +28,8 @@
             (function() {
                 try {
                     var savedTheme = localStorage.getItem('theme');
-                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
+                    if (savedTheme !== 'light') {
                         document.documentElement.classList.add('dark');
                     }
                 } catch (e) {}
@@ -45,25 +45,25 @@
         @stack('head')
     </head>
     <body class="font-sans text-slate-900 dark:text-white antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 bg-gradient-to-b from-blue-50 via-white to-blue-50/70 dark:from-black dark:via-black dark:to-neutral-900">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 bg-gradient-to-b from-blue-50 via-white to-blue-50/70 dark:from-navy-950 dark:via-navy-950 dark:to-navy-900">
 
             <!-- Branding -->
             <a href="/" class="flex flex-col items-center gap-3 group">
                 <x-application-logo class="w-16 h-16 drop-shadow-lg group-hover:scale-105 transition-transform duration-200" />
                 <div class="text-center">
                     <span class="block text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">DompetKu</span>
-                    <span class="block text-xs text-slate-500 dark:text-neutral-400 mt-0.5">Aplikasi Keuangan Pribadi</span>
+                    <span class="block text-xs text-slate-500 dark:text-white/70 mt-0.5">Aplikasi Keuangan Pribadi</span>
                 </div>
             </a>
 
             <!-- Kartu -->
-            <div class="w-full sm:max-w-md mt-6 bg-white dark:bg-neutral-900 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-neutral-800 rounded-2xl overflow-hidden">
+            <div class="w-full sm:max-w-md mt-6 bg-white dark:bg-navy-900 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-navy-800 rounded-2xl overflow-hidden">
                 <div class="px-6 py-6 sm:px-8 sm:py-7">
                     {{ $slot }}
                 </div>
             </div>
 
-            <p class="mt-6 text-xs text-slate-400 dark:text-neutral-500">© {{ date('Y') }} DompetKu — Kelola keuanganmu dengan mudah dan aman.</p>
+            <p class="mt-6 text-xs text-slate-400 dark:text-white/50">© {{ date('Y') }} DompetKu — Kelola keuanganmu dengan mudah dan aman.</p>
         </div>
     </body>
 </html>

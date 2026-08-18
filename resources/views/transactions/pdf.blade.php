@@ -20,13 +20,13 @@
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 20px; 
-            border-bottom: 3px solid #4f46e5; 
+            border-bottom: 3px solid #001F54; 
             padding-bottom: 12px;
         }
         .company-logo { 
             font-size: 18px; 
             font-weight: 800; 
-            color: #4f46e5; 
+            color: #001F54; 
             letter-spacing: 1px;
             text-transform: uppercase;
         }
@@ -78,7 +78,7 @@
         }
         .income { color: #059669; }
         .expense { color: #dc2626; }
-        .balance { color: #4f46e5; }
+        .balance { color: #001F54; }
 
         /* Main Data Table */
         .data-table { 
@@ -286,7 +286,7 @@
                 <td>
                     • Laporan ini dihasilkan secara otomatis oleh sistem DompetKu.
                 </td>
-                <td style="text-align: right; font-weight: 600; color: #4f46e5;">
+                <td style="text-align: right; font-weight: 600; color: #001F54;">
                     Periode: {{ $period ?? 'Semua Waktu' }}
                 </td>
             </tr>

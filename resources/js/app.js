@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeBtn?.addEventListener('click', () => {
         const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.documentElement.style.backgroundColor = isDark ? '#111827' : '#f8fafc';
+        document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
         // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
         window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
     });
