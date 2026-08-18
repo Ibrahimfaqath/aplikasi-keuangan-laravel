@@ -291,7 +291,7 @@
     @endif
 
     <!-- MAIN CONTENT BODY -->
-    <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
+    <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <!-- SKELETON KARTU SALDO — satu blok utuh meniru bentuk kartu (label, saldo, dua tile) -->
         <div x-show="isLoading"
