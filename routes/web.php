@@ -31,7 +31,6 @@ Route::middleware('auth')->group(function () {
 
     // AI Assistant
     Route::get('/ai', [AiController::class, 'page'])->name('ai.index');
-    Route::get('/ai/history', [AiController::class, 'history'])->name('ai.history');
     Route::post('/ai/chat', [AiController::class, 'chat'])->name('ai.chat');
     Route::post('/ai/ocr', [AiController::class, 'ocr'])->name('ai.ocr');
     Route::post('/ai/ocr-items', [AiController::class, 'ocrItems'])->name('ai.ocr-items');

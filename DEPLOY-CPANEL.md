@@ -108,7 +108,7 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 ## Catatan Penting
 
 - **Data lama**: kalau ada transaksi di database lokal, ekspor dari localhost (mysqldump / phpMyAdmin) lalu import ke database cPanel — jangan mulai dari migrasi kosong.
-- **`app/Providers/AppServiceProvider.php` boleh & sebaiknya sama persis di lokal dan server** — kustomisasi cPanel (`usePublicPath` ke docroot subdomain + arah disk `public` ke `keuangan.almahir.cloud/storage`) kini **terdeteksi otomatis**: aktif hanya jika folder `../keuangan.almahir.cloud` ditemukan relatif terhadap project (ada di server, tidak ada di lokal). Tidak ada lagi file "sakral" yang dilarang ditimpa saat deploy.
+- **JANGAN timpa `app/Providers/AppServiceProvider.php` di server** — file itu punya kustomisasi khusus cPanel (`usePublicPath` ke folder docroot subdomain + arah disk `public` ke `keuangan.almahir.cloud/storage`). Versi lokal TIDAK punya kustomisasi ini; kalau ketimpa, upload bukti transaksi akan 404.
 - **`.htaccess` di docroot subdomain** (bukan `public/.htaccess`) sudah berisi optimasi: kompresi Brotli/gzip, cache browser 1 tahun untuk aset build, dan header keamanan. Jangan timpa dengan versi default.
 - **`.htaccess` juga mematikan ModSecurity** (`SecRuleEngine Off`) untuk subdomain ini — WAF hosting memblokir `POST /register` (406) sehingga user baru tidak bisa daftar. `.env` & file sensitif berada di luar docroot (`laravel-keuangan/`), jadi tidak terekspos. Kalau blok ModSecurity ini dihapus saat update, registrasi akan diblokir lagi.
 - **HTTPS**: pastikan SSL aktif; kalau `.htaccess` default tidak memaksa HTTPS, gunakan URL `https://...` langsung.

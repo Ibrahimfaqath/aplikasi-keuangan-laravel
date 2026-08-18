@@ -39,17 +39,6 @@ class AiController extends Controller
     }
 
     /**
-     * Riwayat chat AI dari session — dipakai widget chat agar percakapan
-     * tetap tampil saat widget dibuka lagi / halaman di-refresh.
-     */
-    public function history(Request $request)
-    {
-        return response()->json([
-            'messages' => $request->session()->get('ai_messages', []),
-        ]);
-    }
-
-    /**
      * Kirim pesan ke AI assistant (Google Gemini)
      */
     public function chat(Request $request)
