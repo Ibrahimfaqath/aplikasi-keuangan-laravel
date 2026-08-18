@@ -92,7 +92,7 @@
          x-init="init()">
 
         <!-- AREA CHAT (scroll) -->
-        <div id="chatScroll" x-ref="chatScroll" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pb-40 md:pb-24">
+        <div id="chatScroll" x-ref="chatScroll" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pb-52 md:pb-32">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
                 <!-- Tombol bersihkan riwayat (muncul jika ada chat) -->
@@ -229,11 +229,17 @@
             </div>
         </div>
 
-        <!-- INPUT MENGAMBANG (fixed: menempel sampai bawah layar sehingga gradien
-             menutupi seluruh area antara kolom input dan navbar — tidak ada celah
-             untuk pesan lewat saat di-scroll) -->
-        <div class="fixed inset-x-0 bottom-0 z-40 px-4 sm:px-6 pt-8 pb-24 md:pb-6 pointer-events-none bg-gradient-to-t from-white via-white/90 to-transparent dark:from-navy-950 dark:via-navy-950/90 dark:to-transparent">
-            <div class="max-w-3xl mx-auto pointer-events-auto">
+        <!-- INPUT MENGAMBANG: menempel sampai bawah layar.
+             Lapisan SOLID menutup penuh celah antara pil input & navbar (pesan
+             benar-benar hilang saat di-scroll), lapisan GRADIEN di atas pil memberi
+             efek memudar (transisi) saat pesan mendekati kolom input -->
+        <div class="fixed inset-x-0 bottom-0 z-40 px-4 sm:px-6 pt-10 pb-24 md:pb-6 pointer-events-none">
+            <!-- latar solid: menutup seluruh area dari pil input sampai navbar -->
+            <div class="absolute inset-0 bg-white dark:bg-navy-950"></div>
+            <!-- gradien memudar di atas kolom input -->
+            <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-transparent to-white dark:to-navy-950"></div>
+
+            <div class="relative max-w-3xl mx-auto pointer-events-auto">
                 <form @submit.prevent="sendMessage(input)" class="flex items-center gap-1.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-full pl-2 pr-1.5 py-1.5 shadow-lg shadow-slate-900/10 dark:shadow-black/50">
 
                     <!-- Tombol microfon -->
