@@ -30,3 +30,6 @@ Thumbs.db
 /keuangan-pribadi.zip
 /dompetku-deploy.zip
 /dompetku-update.zip
+
+# File tool AI eksternal
+.aider*
