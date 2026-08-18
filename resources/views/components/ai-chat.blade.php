@@ -1,6 +1,6 @@
 <!-- AI Chat Widget -->
 @props(['class' => ''])
-<div x-data="aiChat()" x-cloak class="fixed bottom-6 right-6 z-50 {{ $class }}">
+<div x-data="aiChat()" x-cloak class="fixed bottom-20 md:bottom-6 right-6 z-50 {{ $class }}">
 
     <!-- Floating Button -->
     <button @click="toggleChat()" 

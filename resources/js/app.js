@@ -2,8 +2,8 @@
  * APP.JS - Entry global DompetKu
  *
  * 1. Membundle Alpine.js (tidak lagi dari CDN) agar lebih cepat & konsisten.
- * 2. Handler tunggal untuk tema (dark/light) & mode privasi — dipakai oleh
- *    komponen navbar di SEMUA halaman (dashboard, transaksi, profil, dll).
+ * 2. Handler tunggal untuk tema (dark/light) & mode privasi — mendukung
+ *    BANYAK tombol (navbar drawer + halaman profil) lewat data-attribute.
  */
 import Alpine from 'alpinejs';
 
@@ -12,27 +12,30 @@ window.Alpine = Alpine;
 document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------------
     // 1. THEME MANAGEMENT (vanilla, berlaku di semua halaman)
-    //    Ikon matahari/bulan dikendalikan CSS (dark:) di komponen navbar.
+    //    Mendukung beberapa tombol [data-theme-toggle].
+    //    Ikon matahari/bulan dikendalikan CSS (dark:) di tombol masing-masing.
     // -----------------------------------------------------------------
-    const themeBtn = document.getElementById('theme-toggle');
+    const themeButtons = document.querySelectorAll('[data-theme-toggle]');
 
-    themeBtn?.addEventListener('click', () => {
-        const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
-        // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
-        window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
+    themeButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
+            // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
+            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
+        });
     });
 
     // -----------------------------------------------------------------
     // 2. PRIVACY MANAGEMENT (vanilla, berlaku di semua halaman)
-    //    Mendukung dua jenis elemen saldo:
+    //    Mendukung beberapa tombol [data-privacy-toggle]; ikon mata per
+    //    tombol lewat [data-eye-open] / [data-eye-closed].
+    //    Elemen saldo yang di-mask:
     //    - .balance-text  (data-value)  -> dashboard (layouts.app)
     //    - .privacy-target (data-amount) -> halaman transaksi (Alpine)
     // -----------------------------------------------------------------
-    const privacyBtn = document.getElementById('privacy-toggle-btn');
-    const eyeOpen = document.getElementById('privacy-eye-open');
-    const eyeClosed = document.getElementById('privacy-eye-closed');
+    const privacyButtons = document.querySelectorAll('[data-privacy-toggle]');
 
     let isPrivate = localStorage.getItem('privacy_mode') === 'enabled';
 
@@ -47,18 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
             el.textContent = isPrivate ? '••••••••' : realVal;
         });
 
-        eyeOpen?.classList.toggle('hidden', isPrivate);
-        eyeOpen?.classList.toggle('block', !isPrivate);
-        eyeClosed?.classList.toggle('hidden', !isPrivate);
-        eyeClosed?.classList.toggle('block', isPrivate);
+        privacyButtons.forEach((btn) => {
+            const eyeOpen = btn.querySelector('[data-eye-open]');
+            const eyeClosed = btn.querySelector('[data-eye-closed]');
+            eyeOpen?.classList.toggle('hidden', isPrivate);
+            eyeOpen?.classList.toggle('block', !isPrivate);
+            eyeClosed?.classList.toggle('hidden', !isPrivate);
+            eyeClosed?.classList.toggle('block', isPrivate);
+        });
     }
 
     renderPrivacyUI();
 
-    privacyBtn?.addEventListener('click', () => {
-        isPrivate = !isPrivate;
-        localStorage.setItem('privacy_mode', isPrivate ? 'enabled' : 'disabled');
-        renderPrivacyUI();
+    privacyButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            isPrivate = !isPrivate;
+            localStorage.setItem('privacy_mode', isPrivate ? 'enabled' : 'disabled');
+            renderPrivacyUI();
+        });
     });
 
     // -----------------------------------------------------------------

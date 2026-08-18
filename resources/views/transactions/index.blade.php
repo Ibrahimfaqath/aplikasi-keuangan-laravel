@@ -739,43 +739,6 @@
 
     </div>
 
-    <!-- Spacer agar konten tidak tertutup FAB di mobile -->
-    <div class="h-24 md:hidden"></div>
-
-    <!-- ============================================================
-         MOBILE FAB — expand 2 pilihan (scale + fade)
-         ============================================================ -->
-    <div class="fixed bottom-6 right-5 md:hidden z-40" x-data="{ open: false }" @click.outside="open = false">
-
-        <!-- 2 pilihan muncul di atas FAB -->
-        <div x-show="open" x-cloak
-             x-transition:enter="transition ease-out duration-150"
-             x-transition:enter-start="opacity-0 scale-75"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-100"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-75"
-             class="absolute bottom-16 right-0 flex flex-col items-end gap-2">
-
-            <a href="{{ route('ai.index') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                Tanya AI
-            </a>
-            <a href="{{ route('transactions.create') }}"
-               class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-navy-800 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-700 rounded-full text-xs font-semibold shadow-lg shadow-slate-900/10">
-                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Transaksi Baru
-            </a>
-        </div>
-
-        <!-- Tombol FAB: 56px, warna utama, shadow besar -->
-        <button type="button" @click="open = !open"
-                class="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-3xl font-light shadow-xl shadow-blue-600/40 flex items-center justify-center transition-transform duration-200"
-                :class="open ? 'rotate-45' : ''"
-                aria-label="Tambah cepat">+</button>
-    </div>
-
     <!-- BUDGET MODAL -->
     <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
         <!-- Backdrop Blur -->
