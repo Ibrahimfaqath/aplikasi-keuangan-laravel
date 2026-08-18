@@ -173,43 +173,66 @@
                                     : 'bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl rounded-tl-md px-4 py-2.5 max-w-[85%] shadow-sm'">
 
                             <!-- Pesan teks biasa -->
-                            <div x-show="!msg.ocr">
-                                <p class="text-sm whitespace-pre-wrap break-words" :class="msg.role === 'user' ? 'text-white dark:text-white' : 'text-slate-700 dark:text-white/80'" x-html="formatMessage(msg.text)"></p>
+                            <p class="text-sm whitespace-pre-wrap break-words" :class="msg.role === 'user' ? 'text-white dark:text-white' : 'text-slate-700 dark:text-white/80'" x-html="formatMessage(msg.text)"></p>
+
+                            <!-- KARTU KONFIRMASI TRANSAKSI (niat transaksi dari chat) -->
+                            <div x-show="msg.transaction" class="mt-2.5 rounded-xl border border-slate-200 dark:border-navy-700 overflow-hidden bg-white dark:bg-navy-950/40">
+                                <div class="px-3.5 py-2.5 space-y-1">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-sm font-bold text-slate-800 dark:text-white truncate" x-text="msg.transaction?.title"></span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase flex-shrink-0"
+                                              :class="msg.transaction?.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400'"
+                                              x-text="msg.transaction?.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs text-slate-500 dark:text-white/60" x-text="msg.transaction?.category"></span>
+                                        <span class="text-sm font-extrabold text-slate-900 dark:text-white" x-text="formatRp(msg.transaction?.amount)"></span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400 dark:text-white/50" x-text="msg.transaction?.transaction_date"></p>
+                                </div>
+                                <button type="button" @click="saveTransaction(msg)" :disabled="msg.saved || msg.saving"
+                                        class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-xs font-bold border-t border-slate-100 dark:border-navy-800 transition"
+                                        :class="msg.saved ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400' : 'bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white disabled:opacity-40 disabled:cursor-not-allowed'">
+                                    <svg x-show="msg.saved" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <svg x-show="!msg.saved" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                    <span x-text="msg.saved ? 'Tersimpan ✓' : (msg.saving ? 'Menyimpan...' : 'Simpan Transaksi')"></span>
+                                </button>
                             </div>
 
-                            <!-- Hasil OCR struk (kartu data) -->
-                            <div x-show="msg.ocr">
-                                <p class="text-sm text-slate-700 dark:text-white/80 mb-2.5 break-words" x-text="msg.text"></p>
-                                <div class="rounded-xl bg-slate-50 dark:bg-navy-800/60 border border-slate-200/70 dark:border-navy-700/60 p-3 space-y-1.5">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-[11px] text-slate-500 dark:text-white/70">Keterangan</span>
-                                        <span class="text-xs font-bold text-slate-800 dark:text-white text-right" x-text="msg.ocr.title || '-'"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-[11px] text-slate-500 dark:text-white/70">Nominal</span>
-                                        <span class="text-xs font-extrabold text-slate-900 dark:text-white" x-text="formatRp(msg.ocr.amount)"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-[11px] text-slate-500 dark:text-white/70">Jenis</span>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"
-                                              :class="msg.ocr.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400'"
-                                              x-text="msg.ocr.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-[11px] text-slate-500 dark:text-white/70">Kategori</span>
-                                        <span class="text-xs font-semibold text-slate-700 dark:text-white/80" x-text="msg.ocr.category || '-'"></span>
-                                    </div>
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="text-[11px] text-slate-500 dark:text-white/70">Tanggal</span>
-                                        <span class="text-xs font-semibold text-slate-700 dark:text-white/80" x-text="msg.ocr.date || '-'"></span>
-                                    </div>
+                            <!-- KARTU HASIL SCAN STRUK (item per item) -->
+                            <div x-show="msg.ocrItems" class="mt-2.5 rounded-xl border border-slate-200 dark:border-navy-700 overflow-hidden bg-white dark:bg-navy-950/40">
+                                <div class="px-3.5 py-2 border-b border-slate-100 dark:border-navy-800 flex items-center justify-between gap-2">
+                                    <span class="text-[11px] font-bold text-slate-700 dark:text-white/80">Hasil scan — <span x-text="msg.ocrItems?.length"></span> item</span>
+                                    <label class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-white/60 cursor-pointer select-none">
+                                        <input type="checkbox" class="rounded border-slate-300 dark:border-navy-600 text-blue-600 dark:text-navy-400 focus:ring-blue-500 w-3.5 h-3.5"
+                                               :checked="msg.selected?.every(Boolean)"
+                                               @change="msg.selected = msg.selected.map(() => $event.target.checked)">
+                                        Semua
+                                    </label>
                                 </div>
-                                <!-- Tombol: isi form tambah transaksi (form sudah ter-prefill via session) -->
-                                <a href="{{ route('transactions.create') }}"
-                                   class="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                                    Tambah transaksi ini
-                                </a>
+                                <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-navy-800">
+                                    <template x-for="(it, idx) in (msg.ocrItems || [])" :key="idx">
+                                        <label class="flex items-start gap-2.5 px-3.5 py-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-navy-800/50 transition">
+                                            <input type="checkbox" x-model="msg.selected[idx]"
+                                                   class="mt-0.5 rounded border-slate-300 dark:border-navy-600 text-blue-600 dark:text-navy-400 focus:ring-blue-500 w-3.5 h-3.5 flex-shrink-0">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <span class="text-xs font-bold text-slate-800 dark:text-white truncate" x-text="it.title"></span>
+                                                    <span class="text-xs font-extrabold text-slate-900 dark:text-white flex-shrink-0" x-text="formatRp(it.amount)"></span>
+                                                </div>
+                                                <p class="text-[11px] text-slate-500 dark:text-white/60 mt-0.5 truncate" x-text="it.category + ' · ' + (it.type === 'income' ? 'Pemasukan' : 'Pengeluaran')"></p>
+                                            </div>
+                                        </label>
+                                    </template>
+                                </div>
+                                <button type="button" @click="saveTransaction(msg)"
+                                        :disabled="msg.saved || msg.saving || !(msg.selected || []).some(Boolean)"
+                                        class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 text-xs font-bold border-t border-slate-100 dark:border-navy-800 transition"
+                                        :class="msg.saved ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400' : 'bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white disabled:opacity-40 disabled:cursor-not-allowed'">
+                                    <svg x-show="msg.saved" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <svg x-show="!msg.saved" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                    <span x-text="msg.saved ? 'Semua tersimpan ✓' : (msg.saving ? 'Menyimpan...' : 'Simpan ' + selectedCount(msg) + ' transaksi')"></span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -286,6 +309,7 @@
                 input: '',
                 sending: false,
                 recording: false,
+                manualStop: false,
                 recognition: null,
 
                 init() {
@@ -326,6 +350,49 @@
                     return 'Rp ' + v.toLocaleString('id-ID');
                 },
 
+                // Jumlah item tercentang di kartu hasil scan struk
+                selectedCount(msg) {
+                    if (!msg.ocrItems) return 0;
+                    return msg.ocrItems.reduce((n, _, i) => n + (msg.selected?.[i] ? 1 : 0), 0);
+                },
+
+                // Simpan transaksi dari kartu konfirmasi chat / hasil scan struk
+                async saveTransaction(msg) {
+                    if (msg.saving || msg.saved) return;
+
+                    let items = null;
+                    if (msg.transaction) {
+                        items = [msg.transaction];
+                    } else if (msg.ocrItems) {
+                        items = msg.ocrItems.filter((_, i) => msg.selected?.[i]);
+                    }
+                    if (!items || !items.length) return;
+
+                    msg.saving = true;
+                    try {
+                        const res = await fetch('/ai/transactions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            },
+                            body: JSON.stringify({ items }),
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            msg.saved = true;
+                            this.messages.push({ role: 'assistant', text: '✅ ' + data.count + ' transaksi berhasil disimpan ke laporan keuanganmu.' });
+                        } else {
+                            this.messages.push({ role: 'assistant', text: data.error || 'Gagal menyimpan transaksi.' });
+                        }
+                    } catch (e) {
+                        this.messages.push({ role: 'assistant', text: 'Gagal menyimpan transaksi. Periksa koneksi internet kamu.' });
+                    }
+                    msg.saving = false;
+                    this.$nextTick(() => this.scrollBottom());
+                },
+
                 async sendMessage(text) {
                     if (!text || !text.trim() || this.sending) return;
                     const msg = text.trim();
@@ -347,7 +414,7 @@
                         });
                         const data = await res.json();
                         if (data.reply) {
-                            this.messages.push({ role: 'assistant', text: data.reply });
+                            this.messages.push({ role: 'assistant', text: data.reply, transaction: data.transaction || null });
                         } else if (data.error) {
                             this.messages.push({ role: 'assistant', text: data.error });
                         }
@@ -360,8 +427,10 @@
                 },
 
                 // Input suara (Web Speech API — Chrome/Edge)
+                // Optimasi: teks langsung terkirim otomatis setelah selesai bicara
                 toggleVoice() {
                     if (this.recording) {
+                        this.manualStop = true;
                         this.recognition?.stop();
                         this.recording = false;
                         return;
@@ -371,6 +440,7 @@
                         alert('Browser kamu tidak mendukung voice input. Gunakan Chrome atau Edge.');
                         return;
                     }
+                    this.manualStop = false;
                     this.recognition = new SpeechRecognition();
                     this.recognition.lang = 'id-ID';
                     this.recognition.interimResults = true;
@@ -382,7 +452,14 @@
                         }
                         self.input = transcript;
                     };
-                    this.recognition.onend = function () { self.recording = false; };
+                    this.recognition.onend = function () {
+                        self.recording = false;
+                        // Kirim otomatis setelah selesai bicara (kecuali user menghentikan manual)
+                        const transcript = self.input.trim();
+                        if (!self.manualStop && transcript) {
+                            self.sendMessage(transcript);
+                        }
+                    };
                     this.recognition.onerror = function () { self.recording = false; };
                     this.recognition.start();
                     this.recording = true;
@@ -402,7 +479,7 @@
                     formData.append('image', file);
 
                     try {
-                        const res = await fetch('/ai/ocr', {
+                        const res = await fetch('/ai/ocr-items', {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -411,11 +488,12 @@
                             body: formData,
                         });
                         const data = await res.json();
-                        if (data.data) {
+                        if (data.items && data.items.length) {
                             this.messages.push({
                                 role: 'assistant',
-                                text: 'Struk berhasil dibaca. Berikut datanya — klik tombol di bawah untuk mengisi form transaksi:',
-                                ocr: data.data,
+                                text: 'Struk berhasil dibaca (' + data.items.length + ' item' + (data.store ? ' — ' + data.store : '') + '). Centang item yang ingin disimpan:',
+                                ocrItems: data.items,
+                                selected: data.items.map(() => true),
                             });
                         } else if (data.error) {
                             this.messages.push({ role: 'assistant', text: data.error });

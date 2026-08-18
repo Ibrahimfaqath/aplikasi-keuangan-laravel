@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/ai', [AiController::class, 'page'])->name('ai.index');
     Route::post('/ai/chat', [AiController::class, 'chat'])->name('ai.chat');
     Route::post('/ai/ocr', [AiController::class, 'ocr'])->name('ai.ocr');
+    Route::post('/ai/ocr-items', [AiController::class, 'ocrItems'])->name('ai.ocr-items');
+    Route::post('/ai/transactions', [AiController::class, 'storeTransactions'])->name('ai.transactions');
     Route::delete('/ai/history', [AiController::class, 'clear'])->name('ai.clear');
 
     // Profile Management
