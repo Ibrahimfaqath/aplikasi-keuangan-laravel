@@ -58,6 +58,9 @@
         #chatScroll::-webkit-scrollbar { width: 6px; }
         #chatScroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
         .dark #chatScroll::-webkit-scrollbar-thumb { background: #404040; }
+
+        /* Sembunyikan bottom nav saat kolom chat difokus (keyboard terbuka di mobile) */
+        body.chat-input-focus #bottomNav { transform: translateY(110%); }
     </style>
 </head>
 
@@ -89,7 +92,7 @@
          x-init="init()">
 
         <!-- AREA CHAT (scroll) -->
-        <div id="chatScroll" x-ref="chatScroll" class="flex-1 min-h-0 overflow-y-auto pb-40 md:pb-24">
+        <div id="chatScroll" x-ref="chatScroll" class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pb-40 md:pb-24">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
                 <!-- Tombol bersihkan riwayat (muncul jika ada chat) -->
@@ -171,12 +174,12 @@
 
                             <!-- Pesan teks biasa -->
                             <div x-show="!msg.ocr">
-                                <p class="text-sm whitespace-pre-wrap" :class="msg.role === 'user' ? 'text-white dark:text-white' : 'text-slate-700 dark:text-white/80'" x-html="formatMessage(msg.text)"></p>
+                                <p class="text-sm whitespace-pre-wrap break-words" :class="msg.role === 'user' ? 'text-white dark:text-white' : 'text-slate-700 dark:text-white/80'" x-html="formatMessage(msg.text)"></p>
                             </div>
 
                             <!-- Hasil OCR struk (kartu data) -->
                             <div x-show="msg.ocr">
-                                <p class="text-sm text-slate-700 dark:text-white/80 mb-2.5" x-text="msg.text"></p>
+                                <p class="text-sm text-slate-700 dark:text-white/80 mb-2.5 break-words" x-text="msg.text"></p>
                                 <div class="rounded-xl bg-slate-50 dark:bg-navy-800/60 border border-slate-200/70 dark:border-navy-700/60 p-3 space-y-1.5">
                                     <div class="flex items-center justify-between gap-2">
                                         <span class="text-[11px] text-slate-500 dark:text-white/70">Keterangan</span>
@@ -279,10 +282,18 @@
 
                 init() {
                     this.$nextTick(() => this.scrollBottom());
+
+                    // Sembunyikan bottom nav saat kolom chat difokus (keyboard terbuka di mobile)
+                    const input = this.$refs.chatInput;
+                    if (input) {
+                        input.addEventListener('focus', () => document.body.classList.add('chat-input-focus'));
+                        input.addEventListener('blur', () => document.body.classList.remove('chat-input-focus'));
+                    }
+
                     // Fokus input otomatis di desktop (di mobile biarkan —
                     // keyboard tidak muncul dengan sendirinya)
                     if (window.matchMedia('(min-width: 768px)').matches) {
-                        this.$refs.chatInput?.focus();
+                        input?.focus();
                     }
                 },
 

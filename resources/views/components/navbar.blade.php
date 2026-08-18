@@ -173,7 +173,8 @@
     <!-- ============================================================
          BOTTOM NAVIGATION (mobile only): Beranda · AI · +Tambah · Laporan · Profil
          ============================================================ -->
-    <nav class="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-navy-950/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-navy-800 pb-[env(safe-area-inset-bottom)]"
+    <nav id="bottomNav"
+         class="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-navy-950/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-navy-800 pb-[env(safe-area-inset-bottom)] transition-transform duration-300"
          aria-label="Navigasi utama">
         <div class="grid grid-cols-5 h-16">
 
