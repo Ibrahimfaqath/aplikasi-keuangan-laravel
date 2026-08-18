@@ -2,39 +2,40 @@
      @keydown.escape.window="sidebarOpen = false"
      class="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-navy-800 bg-white/80 dark:bg-navy-950/80 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="relative flex items-center justify-between h-16">
+        <div class="flex items-center justify-between h-16 gap-2 sm:gap-3">
 
-            <!-- KIRI: Tombol Burger (buka sidebar) -->
-            <button @click="sidebarOpen = true"
-                    type="button"
-                    class="p-2 -ml-1 rounded-xl text-slate-600 dark:text-white/90 hover:bg-slate-100 dark:hover:bg-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-navy-400 transition"
-                    aria-label="Buka menu navigasi"
-                    aria-haspopup="dialog"
-                    :aria-expanded="sidebarOpen">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
-
-            <!-- TENGAH: Logo DompetKu -->
-            <a href="{{ route('transactions.index') }}"
-               class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-blue-400 dark:from-navy-400 dark:via-navy-400 dark:to-navy-500 dark:text-white flex items-center justify-center text-white shadow-md shadow-blue-500/20 dark:shadow-black/40 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>
+            <!-- KIRI: Tombol Burger + Logo (flexbox, tidak mungkin bertabrakan) -->
+            <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <button @click="sidebarOpen = true"
+                        type="button"
+                        class="p-2 -ml-1 rounded-xl text-slate-600 dark:text-white/90 hover:bg-slate-100 dark:hover:bg-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-navy-300 transition flex-shrink-0"
+                        aria-label="Buka menu navigasi"
+                        aria-haspopup="dialog"
+                        :aria-expanded="sidebarOpen">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
-                </div>
-                <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">DompetKu</span>
-            </a>
+                </button>
 
-            <!-- KANAN: Tombol Tambah Transaksi -->
+                <a href="{{ route('transactions.index') }}"
+                   class="flex items-center gap-2 group min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-blue-400 dark:from-navy-400 dark:via-navy-400 dark:to-navy-500 dark:text-white flex items-center justify-center text-white shadow-md shadow-blue-500/20 dark:shadow-black/40 group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>
+                        </svg>
+                    </div>
+                    <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white truncate">DompetKu</span>
+                </a>
+            </div>
+
+            <!-- KANAN: Tombol Tambah Transaksi (ikon saja di mobile, pill di desktop) -->
             <a href="{{ route('transactions.create') }}"
-               class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-sm font-semibold shadow-sm shadow-blue-600/20 dark:shadow-black/40 transition">
+               class="inline-flex items-center justify-center gap-1.5 p-2.5 sm:px-4 sm:py-2 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-sm font-semibold shadow-sm shadow-blue-600/20 dark:shadow-black/40 transition flex-shrink-0"
+               title="Tambah Transaksi">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                 </svg>
                 <span class="hidden sm:inline">Tambah Transaksi</span>
-                <span class="sm:hidden">Tambah</span>
             </a>
         </div>
     </div>
