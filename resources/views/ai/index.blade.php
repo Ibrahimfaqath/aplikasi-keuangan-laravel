@@ -84,12 +84,12 @@
          HALAMAN AI — layout chat penuh ala Gemini:
          kolom chat di tengah + input mengambang di bawah
          ============================================================ -->
-    <div class="w-full flex-1 flex flex-col h-[calc(100dvh_-_8rem_-_env(safe-area-inset-bottom))] md:h-[calc(100dvh_-_4rem)]"
+    <div class="w-full flex-1 min-h-0 flex flex-col"
          x-data="aiPage()"
          x-init="init()">
 
         <!-- AREA CHAT (scroll) -->
-        <div id="chatScroll" x-ref="chatScroll" class="flex-1 overflow-y-auto">
+        <div id="chatScroll" x-ref="chatScroll" class="flex-1 min-h-0 overflow-y-auto pb-40 md:pb-24">
             <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
                 <!-- Tombol bersihkan riwayat (muncul jika ada chat) -->
@@ -226,9 +226,9 @@
             </div>
         </div>
 
-        <!-- INPUT MENGAMBANG DI BAWAH (ala Gemini) -->
-        <div class="px-4 sm:px-6 pb-4 sm:pb-5 pt-1 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-navy-950 dark:via-navy-950/95 dark:to-transparent">
-            <div class="max-w-3xl mx-auto">
+        <!-- INPUT MENGAMBANG (fixed: di atas bottom nav mobile, di bawah di desktop) -->
+        <div class="fixed bottom-24 md:bottom-6 inset-x-0 z-40 px-4 sm:px-6 pb-2 pt-1 pointer-events-none">
+            <div class="max-w-3xl mx-auto pointer-events-auto">
                 <form @submit.prevent="sendMessage(input)" class="flex items-center gap-1.5 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-700 rounded-full pl-2 pr-1.5 py-1.5 shadow-lg shadow-slate-900/10 dark:shadow-black/50">
 
                     <!-- Tombol microfon -->
