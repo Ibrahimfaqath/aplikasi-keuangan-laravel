@@ -294,6 +294,10 @@
                     <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse inline-block"></span>
                     Mendengarkan... bicaralah sekarang
                 </p>
+                <p x-show="autoSending" x-cloak class="text-[11px] text-blue-600 dark:text-navy-300 font-semibold mt-2 text-center flex items-center justify-center gap-1">
+                    <span class="w-3 h-3 border-2 border-blue-600 dark:border-navy-300 border-t-transparent rounded-full animate-spin inline-block"></span>
+                    Transkrip diterima — mengirim otomatis...
+                </p>
             </div>
         </div>
     </div>
@@ -309,8 +313,10 @@
                 input: '',
                 sending: false,
                 recording: false,
+                autoSending: false,
                 manualStop: false,
                 recognition: null,
+                silenceTimer: null,
 
                 init() {
                     this.$nextTick(() => this.scrollBottom());
@@ -430,7 +436,9 @@
                 // Optimasi: teks langsung terkirim otomatis setelah selesai bicara
                 toggleVoice() {
                     if (this.recording) {
+                        // Ketuk lagi = hentikan manual, transkrip tetap di kolom untuk diedit
                         this.manualStop = true;
+                        clearTimeout(this.silenceTimer);
                         this.recognition?.stop();
                         this.recording = false;
                         return;
@@ -443,24 +451,42 @@
                     this.manualStop = false;
                     this.recognition = new SpeechRecognition();
                     this.recognition.lang = 'id-ID';
+                    // continuous=true: tidak berhenti di tengah kalimat saat ada jeda
+                    // sesaat — berhenti otomatis via timer diam di bawah.
+                    this.recognition.continuous = true;
                     this.recognition.interimResults = true;
                     const self = this;
                     this.recognition.onresult = function (e) {
                         let transcript = '';
-                        for (let i = e.resultIndex; i < e.results.length; i++) {
+                        for (let i = 0; i < e.results.length; i++) {
                             transcript += e.results[i][0].transcript;
                         }
                         self.input = transcript;
+                        // Reset timer diam: 1,2 dtk tanpa suara = selesai bicara
+                        clearTimeout(self.silenceTimer);
+                        self.silenceTimer = setTimeout(() => {
+                            self.recognition?.stop();
+                        }, 1200);
                     };
                     this.recognition.onend = function () {
                         self.recording = false;
                         // Kirim otomatis setelah selesai bicara (kecuali user menghentikan manual)
                         const transcript = self.input.trim();
                         if (!self.manualStop && transcript) {
-                            self.sendMessage(transcript);
+                            // Tampilkan indikator sebentar supaya user melihat
+                            // transkripnya terkirim, baru kirim pesannya.
+                            self.autoSending = true;
+                            setTimeout(() => {
+                                self.autoSending = false;
+                                self.sendMessage(transcript);
+                            }, 350);
                         }
+                        self.manualStop = false;
                     };
-                    this.recognition.onerror = function () { self.recording = false; };
+                    this.recognition.onerror = function () {
+                        self.recording = false;
+                        clearTimeout(self.silenceTimer);
+                    };
                     this.recognition.start();
                     this.recording = true;
                 },

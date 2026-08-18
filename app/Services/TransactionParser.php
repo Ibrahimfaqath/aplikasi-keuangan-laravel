@@ -67,7 +67,12 @@ class TransactionParser
         if ($type === null) {
             // Ada nominal tapi tidak ada kata kunci tegas (mis. "uang 50 ribu") —
             // biarkan Gemini yang memutuskan, hindari salah tangkap.
-            return null;
+            // KECUALI pesan berisi kata perintah mencatat ("catat ...",
+            // "input ...", "tambah ...") — itu jelas niat transaksi, default pengeluaran.
+            if (!self::hasRecordIntent($text)) {
+                return null;
+            }
+            $type = 'expense';
         }
 
         $title = self::extractTitle($message, $amountStr, $type);
@@ -247,6 +252,24 @@ class TransactionParser
     }
 
     /**
+     * Kata perintah yang menandakan user ingin MENCATAT transaksi,
+     * dipakai saat jenis (income/expense) belum terdeteksi.
+     */
+    private const RECORD_INTENT = [
+        'catat', 'catatkan', 'input', 'tambah', 'rekam', 'jangan lupa catat',
+    ];
+
+    private static function hasRecordIntent(string $text): bool
+    {
+        foreach (self::RECORD_INTENT as $kw) {
+            if (preg_match('/\b' . preg_quote($kw, '/') . '/u', $text)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Tebak kategori dari kata kunci pada teks lengkap.
      * Pencocokan pakai batas kata (\b) supaya "ibu" tidak cocok dengan
      * "r-ibu" ("10 ribu") dan sejenisnya.
@@ -281,6 +304,7 @@ class TransactionParser
             'sudah', 'tadi', 'hari ini', 'hari', 'kemarin', 'kemarinnya',
             'uang', 'duit', 'dengan', 'sebesar', 'sebanyak', 'sekitar', 'kurang lebih',
             'rp', 'untuk', 'buat', 'nih', 'deh', 'ya', 'dong', 'lah', 'ke', 'di',
+            'input', 'tambah', 'rekam',
         ];
         $words = array_merge($filler, self::INCOME_KEYWORDS, self::EXPENSE_KEYWORDS);
         // Urutkan dari yang terpanjang dulu supaya frasa multi-kata

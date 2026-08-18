@@ -377,9 +377,11 @@
                         ocrResult: false,
                         voiceResult: '',
                         recognition: null,
+                        silenceTimer: null,
 
                         toggleVoice() {
                             if (this.recording) {
+                                clearTimeout(this.silenceTimer);
                                 this.recognition?.stop();
                                 this.recording = false;
                                 return;
@@ -391,18 +393,24 @@
                             }
                             this.recognition = new SpeechRecognition();
                             this.recognition.lang = 'id-ID';
-                            this.recognition.continuous = false;
+                            // continuous=true: jangan berhenti di tengah kalimat saat jeda
+                            // sesaat; berhenti otomatis lewat timer diam 1,2 detik.
+                            this.recognition.continuous = true;
                             this.recognition.interimResults = true;
                             const self = this;
                             this.recognition.onresult = function(e) {
                                 let transcript = '';
-                                for (let i = e.resultIndex; i < e.results.length; i++) {
+                                for (let i = 0; i < e.results.length; i++) {
                                     transcript += e.results[i][0].transcript;
                                 }
                                 self.voiceResult = transcript;
+                                // Reset timer diam: selesai bicara = 1,2 dtk tanpa suara
+                                clearTimeout(self.silenceTimer);
+                                self.silenceTimer = setTimeout(() => {
+                                    self.recognition?.stop();
+                                }, 1200);
                                 if (e.results[e.results.length - 1].isFinal) {
                                     self.parseVoice(transcript);
-                                    self.recording = false;
                                 }
                             };
                             this.recognition.onerror = function() { self.recording = false; };

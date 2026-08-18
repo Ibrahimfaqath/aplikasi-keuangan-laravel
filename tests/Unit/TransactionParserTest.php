@@ -208,4 +208,31 @@ class TransactionParserTest extends TestCase
         $this->assertEquals(300000, $item['amount']);
         $this->assertSame('Belanja', $item['category']);
     }
+
+    public function test_record_intent_without_type_keyword(): void
+    {
+        // "catat ..." tanpa kata beli/bayar = jelas niat mencatat → expense
+        $item = TransactionParser::fromText('catat nasi goreng 25 ribu');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(25000, $item['amount']);
+        $this->assertSame('expense', $item['type']);
+        $this->assertSame('Makanan & Minuman', $item['category']);
+    }
+
+    public function test_record_intent_input(): void
+    {
+        $item = TransactionParser::fromText('input gaji 3 juta');
+
+        $this->assertNotNull($item);
+        $this->assertEquals(3000000, $item['amount']);
+        $this->assertSame('income', $item['type']);
+        $this->assertSame('Gaji', $item['category']);
+    }
+
+    public function test_question_without_record_intent_still_null(): void
+    {
+        // "uang 50 ribu saja" bukan perintah catat → tetap null (jangan salah tangkap)
+        $this->assertNull(TransactionParser::fromText('uang 50 ribu saja'));
+    }
 }

@@ -358,25 +358,34 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                         Struk berhasil dibaca!
                     </p>
+                    <p x-show="voiceResult" x-cloak class="text-xs text-blue-600 dark:text-navy-300 font-semibold flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                        Mendengarkan... <span x-text="voiceResult"></span>
+                    </p>
                 </div>
 
                 <script>
                 function aiInput() {
                     return {
-                        recording: false, ocrLoading: false, ocrResult: false, voiceResult: '', recognition: null,
+                        recording: false, ocrLoading: false, ocrResult: false, voiceResult: '', recognition: null, silenceTimer: null,
                         toggleVoice() {
-                            if (this.recording) { this.recognition?.stop(); this.recording = false; return; }
+                            if (this.recording) { clearTimeout(this.silenceTimer); this.recognition?.stop(); this.recording = false; return; }
                             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
                             if (!SR) { alert('Gunakan Chrome atau Edge untuk voice input.'); return; }
                             this.recognition = new SR();
                             this.recognition.lang = 'id-ID';
-                            this.recognition.continuous = false;
+                            // continuous=true: jangan berhenti di tengah kalimat saat jeda
+                            // sesaat; berhenti otomatis lewat timer diam 1,2 detik.
+                            this.recognition.continuous = true;
                             this.recognition.interimResults = true;
                             const self = this;
                             this.recognition.onresult = function(e) {
                                 let t = '';
-                                for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+                                for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
                                 self.voiceResult = t;
+                                // Reset timer diam: selesai bicara = 1,2 dtk tanpa suara
+                                clearTimeout(self.silenceTimer);
+                                self.silenceTimer = setTimeout(() => { self.recognition?.stop(); }, 1200);
                                 if (e.results[e.results.length - 1].isFinal) {
                                     const l = t.toLowerCase();
                                     if (l.includes('pemasukan') || l.includes('gaji') || l.includes('masuk')) document.querySelector('input[name=type][value=income]').checked = true;
