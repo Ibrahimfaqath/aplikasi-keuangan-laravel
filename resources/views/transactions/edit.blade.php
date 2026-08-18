@@ -100,6 +100,9 @@
             background-color: rgba(255, 255, 255, 0.16) !important;
             color: #ffffff !important;
         }
+        /* Baris kategori: sembunyikan scrollbar horizontal */
+        .cat-row::-webkit-scrollbar { display: none; }
+        .cat-row { scrollbar-width: none; }
     </style>
 </head>
 
@@ -125,10 +128,10 @@
     <!-- MAIN CONTENT -->
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <!-- Header: tombol back + judul -->
-        <div class="flex items-center gap-3 mb-6">
+        <!-- Header: tombol back di kiri, judul di tengah -->
+        <div class="relative flex items-center justify-center mb-6">
             <a href="{{ route('transactions.index') }}" aria-label="Kembali ke daftar transaksi"
-               class="flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-600 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 flex items-center justify-center transition">
+               class="absolute left-0 flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-600 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 flex items-center justify-center transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -273,32 +276,52 @@
                             'Pendidikan' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
                             'Keluarga' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
                         ];
+
+                        // Render tombol chip kategori (mode baris = satu baris scroll, mode grid = semua)
+                        $chipBtn = function ($cat, $rowMode) use ($catIcons) {
+                            $selected = old('category', $transaction->category ?? '') == $cat;
+                            $width = $rowMode ? ' w-24 flex-shrink-0' : '';
+                            $active = $selected ? ' active' : '';
+                            return '<button type="button" data-category="' . e($cat) . '"' .
+                                ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400' . $width . $active . '">' .
+                                '<span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center transition">' .
+                                '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
+                                '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
+                        };
                     @endphp
 
-                    <!-- Chip Kategori Pemasukan -->
-                    <div id="cat-income" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat)
-                            <button type="button" data-category="{{ $cat }}"
-                                    class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400 {{ old('category', $transaction->category ?? '') == $cat ? 'active' : '' }}">
-                                <span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $catIcons[$cat] ?? '' !!}</svg>
-                                </span>
-                                <span class="truncate w-full text-center">{{ $cat }}</span>
-                            </button>
-                        @endforeach
+                    <!-- Kategori Pemasukan: satu baris (scroll) + tombol tampilkan semua -->
+                    <div id="cat-income" class="space-y-1.5">
+                        <div id="cat-income-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
+                        </div>
+                        <div id="cat-income-grid" class="cat-grid hidden grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat, false) !!}@endforeach
+                        </div>
+                        <button type="button" id="toggle-cat-income"
+                                class="cat-toggle inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-navy-300 hover:text-blue-700 dark:hover:text-navy-200 transition">
+                            <span class="cat-toggle-label">Tampilkan semua</span>
+                            <svg class="cat-toggle-icon w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
 
-                    <!-- Chip Kategori Pengeluaran -->
-                    <div id="cat-expense" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat)
-                            <button type="button" data-category="{{ $cat }}"
-                                    class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400 {{ old('category', $transaction->category ?? '') == $cat ? 'active' : '' }}">
-                                <span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center transition">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{!! $catIcons[$cat] ?? '' !!}</svg>
-                                </span>
-                                <span class="truncate w-full text-center">{{ $cat }}</span>
-                            </button>
-                        @endforeach
+                    <!-- Kategori Pengeluaran: satu baris (scroll) + tombol tampilkan semua -->
+                    <div id="cat-expense" class="space-y-1.5">
+                        <div id="cat-expense-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
+                        </div>
+                        <div id="cat-expense-grid" class="cat-grid hidden grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat, false) !!}@endforeach
+                        </div>
+                        <button type="button" id="toggle-cat-expense"
+                                class="cat-toggle inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-navy-300 hover:text-blue-700 dark:hover:text-navy-200 transition">
+                            <span class="cat-toggle-label">Tampilkan semua</span>
+                            <svg class="cat-toggle-icon w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
                     @error('category')
                         <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
@@ -594,6 +617,25 @@
                 allChips.forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
                 if (categoryInput) categoryInput.value = this.dataset.category;
+            });
+        });
+
+        // Toggle kategori: satu baris <-> tampilkan semua
+        document.querySelectorAll('.cat-toggle').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const group = this.id.replace('toggle-cat-', '');
+                const row = document.getElementById('cat-' + group + '-row');
+                const grid = document.getElementById('cat-' + group + '-grid');
+                const expanded = !grid.classList.contains('hidden');
+                if (expanded) {
+                    grid.classList.add('hidden');
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                    grid.classList.remove('hidden');
+                }
+                this.querySelector('.cat-toggle-label').textContent = expanded ? 'Tampilkan semua' : 'Tampilkan sedikit';
+                this.querySelector('.cat-toggle-icon').classList.toggle('-rotate-180', !expanded);
             });
         });
 
