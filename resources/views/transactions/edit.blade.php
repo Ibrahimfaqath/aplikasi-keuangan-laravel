@@ -82,6 +82,19 @@
             border-color: #3b63b8 !important;
             color: #ffffff !important;
         }
+        /* Chip kategori aktif */
+        .cat-chip.active {
+            background-color: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+        .dark .cat-chip.active {
+            background-color: #3b63b8 !important;
+            border-color: #3b63b8 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(59, 99, 184, 0.35);
+        }
     </style>
 </head>
 
@@ -239,20 +252,40 @@
                     <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
                         Kategori
                     </label>
-                    <select name="category" id="category" required
-                            class="select-field w-full px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-200 dark:border-navy-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white/90 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-navy-800 transition @error('category') border-rose-400 bg-rose-50/20 @enderror">
-                        <option value="" disabled {{ old('category', $transaction->category ?? '') ? '' : 'selected' }}>Pilih kategori...</option>
-                        <optgroup id="cat-income" label="Pemasukan">
-                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat)
-                                <option value="{{ $cat }}" {{ old('category', $transaction->category ?? '') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                            @endforeach
-                        </optgroup>
-                        <optgroup id="cat-expense" label="Pengeluaran">
-                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat)
-                                <option value="{{ $cat }}" {{ old('category', $transaction->category ?? '') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                            @endforeach
-                        </optgroup>
-                    </select>
+                    <!-- Nilai kategori disimpan di sini (tetap dipakai validasi server) -->
+                    <input type="hidden" name="category" id="category" value="{{ old('category', $transaction->category ?? '') }}">
+
+                    @php
+                        $catIcons = [
+                            'Gaji' => '💰', 'Bonus' => '🎁', 'Bisnis' => '💼', 'Investasi' => '📈',
+                            'Hadiah' => '🎉', 'Lainnya' => '📦',
+                            'Makanan & Minuman' => '🍜', 'Transportasi' => '🚗', 'Tagihan & Utilitas' => '💡',
+                            'Belanja' => '🛒', 'Hiburan' => '🎬', 'Kesehatan' => '🏥',
+                            'Pendidikan' => '📚', 'Keluarga' => '👨‍👩‍👧‍👦',
+                        ];
+                    @endphp
+
+                    <!-- Chip Kategori Pemasukan -->
+                    <div id="cat-income" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat)
+                            <button type="button" data-category="{{ $cat }}"
+                                    class="cat-chip flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400 {{ old('category', $transaction->category ?? '') == $cat ? 'active' : '' }}">
+                                <span class="text-lg leading-none">{{ $catIcons[$cat] ?? '📦' }}</span>
+                                <span class="truncate w-full text-center">{{ $cat }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <!-- Chip Kategori Pengeluaran -->
+                    <div id="cat-expense" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat)
+                            <button type="button" data-category="{{ $cat }}"
+                                    class="cat-chip flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400 {{ old('category', $transaction->category ?? '') == $cat ? 'active' : '' }}">
+                                <span class="text-lg leading-none">{{ $catIcons[$cat] ?? '📦' }}</span>
+                                <span class="truncate w-full text-center">{{ $cat }}</span>
+                            </button>
+                        @endforeach
+                    </div>
                     @error('category')
                         <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -332,7 +365,7 @@
                                     if (data.data.title) document.querySelector('input[name=title]').value = data.data.title;
                                     if (data.data.amount) document.getElementById('amount').value = data.data.amount;
                                     if (data.data.type) { const r = document.querySelector('input[name=type][value=' + data.data.type + ']'); if (r) r.checked = true; }
-                                    if (data.data.category) { const s = document.getElementById('category'); if (s) { for (let o of s.options) { if (o.value === data.data.category) { o.selected = true; break; } } } }
+                                    if (data.data.category) { const chip = document.querySelector('.cat-chip[data-category="' + CSS.escape(data.data.category) + '"]'); if (chip) chip.click(); }
                                     if (data.data.date) document.getElementById('transaction_date').value = data.data.date;
                                     this.ocrResult = true;
                                 } else if (data.error) alert('Error: ' + data.error);
@@ -534,22 +567,34 @@
             resetUpload();
         });
 
-        // KATEGORI: pilihan menyesuaikan jenis transaksi (Pemasukan/Pengeluaran)
+        // KATEGORI: pilih lewat chip, daftar menyesuaikan jenis transaksi (Pemasukan/Pengeluaran)
         const typeRadios = document.querySelectorAll('input[name="type"]');
-        const categorySelect = document.getElementById('category');
+        const categoryInput = document.getElementById('category');
         const catIncome = document.getElementById('cat-income');
         const catExpense = document.getElementById('cat-expense');
+        const allChips = document.querySelectorAll('.cat-chip');
+
+        // Klik chip = pilih kategori
+        allChips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                allChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                if (categoryInput) categoryInput.value = this.dataset.category;
+            });
+        });
 
         function syncCategoryGroups() {
             const isIncome = document.querySelector('input[name="type"]:checked')?.value === 'income';
             if (catIncome) catIncome.style.display = isIncome ? '' : 'none';
             if (catExpense) catExpense.style.display = isIncome ? 'none' : '';
-            if (categorySelect) {
-                const group = isIncome ? catIncome : catExpense;
-                const valid = Array.from(group?.querySelectorAll('option') ?? []).some(o => o.value === categorySelect.value);
-                if (!valid) {
-                    categorySelect.value = group?.querySelector('option')?.value ?? '';
-                }
+            // Jika kategori terpilih tidak ada di jenis aktif, kosongkan pilihan
+            const valid = Array.from(allChips).some(c =>
+                c.dataset.category === (categoryInput?.value || '') &&
+                c.closest(isIncome ? '#cat-income' : '#cat-expense')
+            );
+            if (!valid && categoryInput?.value) {
+                categoryInput.value = '';
+                allChips.forEach(c => c.classList.remove('active'));
             }
         }
         typeRadios.forEach(r => r.addEventListener('change', syncCategoryGroups));
