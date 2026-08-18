@@ -293,58 +293,60 @@
     <!-- MAIN CONTENT BODY -->
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
-        <!-- SUMMARY CARDS — gaya prototipe: 3 kotak horizontal (saldo gradien + border berwarna) -->
-        <section class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 sm:[grid-template-columns:1.3fr_1fr_1fr]">
+        <!-- KARTU SALDO — satu persegi panjang: saldo besar + tombol privasi di kanan, pemasukan/pengeluaran kecil di bawah -->
+        <section class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
 
-            <!-- Kotak saldo: gradien biru (terang) / hitam-keemasan (gelap) -->
-            <div class="relative overflow-hidden p-3.5 sm:p-5 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25 flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <!-- dekorasi lingkaran transparan -->
-                <div class="absolute -top-6 -right-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
-                <div class="absolute -bottom-8 -right-2 w-20 h-20 bg-white/5 rounded-full pointer-events-none"></div>
+            <!-- dekorasi lingkaran transparan -->
+            <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
+            <div class="absolute -bottom-10 -right-4 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
 
+            <!-- Baris atas: label Saldo + tombol privasi di kanan -->
+            <div class="relative flex items-center justify-between">
                 <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-300/90">Saldo</span>
 
-                <div x-show="isLoading">
-                    <div class="h-7 sm:h-9 w-full bg-white/15 rounded-lg animate-shimmer"></div>
-                </div>
-
-                <div class="text-base sm:text-2xl font-extrabold tracking-tight leading-tight break-words privacy-target"
-                     x-show="!isLoading"
-                     x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
-                     x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
-                </div>
+                <button type="button" data-privacy-toggle
+                        class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 text-white transition"
+                        aria-label="Sembunyikan atau tampilkan saldo">
+                    <svg data-eye-open class="w-5 h-5 block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    <svg data-eye-closed class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.018 10.018 0 013.98-.923c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m-6.115-3.473a3 3 0 01-4.242-4.242M3 3l18 18"/>
+                    </svg>
+                </button>
             </div>
 
-            <!-- Kotak pemasukan: border kiri hijau 4px, angka hijau -->
-            <div class="p-3.5 sm:p-5 bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 border-l-4 border-l-emerald-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</span>
-
-                <div x-show="isLoading">
-                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
-                </div>
-
-                <div class="text-xs sm:text-lg font-extrabold text-emerald-600 dark:text-emerald-400 leading-tight break-words privacy-target"
-                     x-show="!isLoading"
-                     x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                     x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)">
-                </div>
+            <!-- Saldo BESAR -->
+            <div x-show="isLoading">
+                <div class="h-10 sm:h-12 w-full max-w-xs mt-3 bg-white/15 rounded-xl animate-shimmer"></div>
             </div>
 
-            <!-- Kotak pengeluaran: border kiri merah 4px, angka merah -->
-            <div class="p-3.5 sm:p-5 bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 border-l-4 border-l-rose-500 rounded-2xl shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[120px]">
-                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</span>
-
-                <div x-show="isLoading">
-                    <div class="h-5 sm:h-7 w-full bg-slate-200 dark:bg-navy-700 rounded-lg animate-shimmer"></div>
-                </div>
-
-                <div class="text-xs sm:text-lg font-extrabold text-rose-600 dark:text-rose-400 leading-tight break-words privacy-target"
-                     x-show="!isLoading"
-                     x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                     x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)">
-                </div>
+            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words privacy-target"
+                 x-show="!isLoading"
+                 x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
+                 x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
+            <!-- Pemasukan & Pengeluaran (ukuran kecil) -->
+            <div class="relative grid grid-cols-2 gap-3 mt-4 sm:mt-5 pt-4 border-t border-white/15">
+                <div class="min-w-0">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pemasukan</span>
+                    <div class="mt-0.5 text-sm sm:text-base font-bold text-emerald-300 dark:text-emerald-400 leading-tight break-words privacy-target"
+                         x-show="!isLoading"
+                         x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                         x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></div>
+                    <div x-show="isLoading"><div class="h-4 sm:h-5 w-24 bg-white/15 rounded-lg animate-shimmer mt-1"></div></div>
+                </div>
+                <div class="min-w-0 text-right">
+                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pengeluaran</span>
+                    <div class="mt-0.5 text-sm sm:text-base font-bold text-rose-300 dark:text-rose-400 leading-tight break-words privacy-target"
+                         x-show="!isLoading"
+                         x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                         x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></div>
+                    <div x-show="isLoading"><div class="h-4 sm:h-5 w-24 bg-white/15 rounded-lg animate-shimmer mt-1 ml-auto"></div></div>
+                </div>
+            </div>
         </section>
 
         <!-- BUDGET CARD -->
