@@ -105,9 +105,6 @@
 
 <body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased">
 
-    <!-- NAVBAR -->
-    <x-navbar />
-
     <!-- AI Chat Widget -->
     <x-ai-chat />
 
@@ -128,27 +125,22 @@
     <!-- MAIN CONTENT -->
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <!-- Page Header -->
+        <!-- Header: tombol back + judul -->
         <div class="flex items-center gap-3 mb-6">
-            <div class="p-3 bg-blue-50 dark:bg-navy-400/10 rounded-xl text-blue-600 dark:text-navy-300 border border-blue-100/60 dark:border-navy-400/20">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <a href="{{ route('transactions.index') }}" aria-label="Kembali ke daftar transaksi"
+               class="flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-600 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 flex items-center justify-center transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-            </div>
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Tambah Transaksi Baru</h1>
-                <p class="text-xs sm:text-sm text-slate-500 dark:text-white/70 mt-0.5">Catat pemasukan atau pengeluaranmu secara akurat.</p>
-            </div>
+            </a>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Tambah Transaksi</h1>
         </div>
 
-        <!-- Form Card -->
-        <main class="bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm overflow-hidden">
+        <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            @csrf
 
-            <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
-                @csrf
-
-                <!-- Jenis Transaksi -->
-                <div class="space-y-2">
+            <!-- Jenis Transaksi (langsung di bawah header) -->
+            <div class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
                         Jenis Transaksi
                     </label>
@@ -177,6 +169,9 @@
                         </p>
                     @enderror
                 </div>
+
+                <!-- Form Card -->
+                <main class="bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
 
                 <!-- Nominal -->
                 <div class="space-y-2">
@@ -551,8 +546,8 @@
                     </button>
                 </div>
 
-            </form>
-        </main>
+            </main>
+        </form>
     </div>
 
     <!-- SCRIPT UPLOAD - CREATE -->
