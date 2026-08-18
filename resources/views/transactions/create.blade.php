@@ -83,19 +83,14 @@
             color: #ffffff !important;
         }
         /* Chip kategori aktif */
+        /* Chip aktif: warna sesuai kategori via CSS custom property --cat-color */
         .cat-chip.active {
-            background-color: #2563eb !important;
-            border-color: #2563eb !important;
+            background-color: var(--cat-color, #2563eb) !important;
+            border-color: var(--cat-color, #2563eb) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--cat-color, #2563eb) 30%, transparent);
         }
-        .dark .cat-chip.active {
-            background-color: #3b63b8 !important;
-            border-color: #3b63b8 !important;
-            color: #ffffff !important;
-            box-shadow: 0 4px 12px rgba(59, 99, 184, 0.35);
-        }
-        /* Ikon di dalam chip aktif ikut berwarna putih */
+        /* Ikon di dalam chip aktif: transparan putih */
         .cat-chip.active > span:first-child {
             background-color: rgba(255, 255, 255, 0.16) !important;
             color: #ffffff !important;
@@ -273,14 +268,26 @@
                             'Keluarga' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
                         ];
 
+                        // Warna per kategori (hex) — chip aktif pakai warna ini
+                        $catColors = [
+                            'Gaji' => '#10b981', 'Bonus' => '#f59e0b', 'Bisnis' => '#2563eb',
+                            'Investasi' => '#6366f1', 'Hadiah' => '#ec4899', 'Lainnya' => '#6b7280',
+                            'Makanan & Minuman' => '#f97316', 'Transportasi' => '#64748b',
+                            'Tagihan & Utilitas' => '#eab308', 'Belanja' => '#a855f7',
+                            'Hiburan' => '#f43f5e', 'Kesehatan' => '#ef4444',
+                            'Pendidikan' => '#06b6d4', 'Keluarga' => '#14b8a6',
+                        ];
+
                         // Render tombol chip kategori (mode baris = satu baris scroll, mode grid = semua)
-                        $chipBtn = function ($cat, $rowMode) use ($catIcons) {
+                        $chipBtn = function ($cat, $rowMode) use ($catIcons, $catColors) {
                             $selected = old('category', $transaction->category ?? '') == $cat;
+                            $color = $catColors[$cat] ?? '#6b7280';
                             $width = $rowMode ? ' w-24 flex-shrink-0' : '';
                             $active = $selected ? ' active' : '';
                             return '<button type="button" data-category="' . e($cat) . '"' .
-                                ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-[11px] font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-blue-400 dark:hover:border-navy-400' . $width . $active . '">' .
-                                '<span class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 flex items-center justify-center transition">' .
+                                ' style="--cat-color: ' . $color . '"' .
+                                ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-slate-300 dark:hover:border-navy-600' . $width . $active . '">' .
+                                '<span class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-navy-700/60 flex items-center justify-center transition">' .
                                 '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                                 '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
                         };
