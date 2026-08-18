@@ -328,23 +328,39 @@
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
-            <!-- Pemasukan & Pengeluaran (ukuran kecil) -->
-            <div class="relative grid grid-cols-2 gap-3 mt-4 sm:mt-5 pt-4 border-t border-white/15">
-                <div class="min-w-0">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pemasukan</span>
-                    <div class="mt-0.5 text-sm sm:text-base font-bold text-emerald-300 dark:text-emerald-400 leading-tight break-words privacy-target"
-                         x-show="!isLoading"
-                         x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                         x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></div>
-                    <div x-show="isLoading"><div class="h-4 sm:h-5 w-24 bg-white/15 rounded-lg animate-shimmer mt-1"></div></div>
+            <!-- Pemasukan & Pengeluaran (tile berisi, berdampingan rapat) -->
+            <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-white/15">
+
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white/10 dark:bg-white/5 px-2.5 sm:px-3 py-2.5 min-w-0">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 dark:text-emerald-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pemasukan</p>
+                        <p class="mt-0.5 text-base sm:text-lg font-bold text-emerald-300 dark:text-emerald-400 leading-tight break-words privacy-target"
+                           x-show="!isLoading"
+                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
+                        <div x-show="isLoading"><div class="h-5 sm:h-6 w-28 bg-white/15 rounded-lg animate-shimmer mt-1"></div></div>
+                    </div>
                 </div>
-                <div class="min-w-0 text-right">
-                    <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pengeluaran</span>
-                    <div class="mt-0.5 text-sm sm:text-base font-bold text-rose-300 dark:text-rose-400 leading-tight break-words privacy-target"
-                         x-show="!isLoading"
-                         x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                         x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></div>
-                    <div x-show="isLoading"><div class="h-4 sm:h-5 w-24 bg-white/15 rounded-lg animate-shimmer mt-1 ml-auto"></div></div>
+
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white/10 dark:bg-white/5 px-2.5 sm:px-3 py-2.5 min-w-0">
+                    <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-500/20 text-rose-300 dark:text-rose-400 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                        </svg>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-blue-100/80 dark:text-navy-300/80">Pengeluaran</p>
+                        <p class="mt-0.5 text-base sm:text-lg font-bold text-rose-300 dark:text-rose-400 leading-tight break-words privacy-target"
+                           x-show="!isLoading"
+                           x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                           x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                        <div x-show="isLoading"><div class="h-5 sm:h-6 w-28 bg-white/15 rounded-lg animate-shimmer mt-1"></div></div>
+                    </div>
                 </div>
             </div>
         </section>
