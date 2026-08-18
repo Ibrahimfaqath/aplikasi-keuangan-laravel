@@ -453,24 +453,32 @@
                             </p>
                             <p class="text-xs text-slate-400 dark:text-white/50">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
                         </div>
+                    </div>
 
-                        <!-- Preview -->
-                        <div id="previewContainer" 
-                             class="hidden items-center justify-between p-3 bg-white dark:bg-navy-900 rounded-xl border border-slate-200 dark:border-navy-800">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <img id="imagePreview" src="#" alt="Preview" class="w-12 h-12 rounded-lg object-cover border border-slate-100 dark:border-navy-800 flex-shrink-0">
-                                <div class="text-left min-w-0">
-                                    <p id="fileName" class="text-xs font-bold text-slate-800 dark:text-white/90 truncate"></p>
-                                    <p id="fileSize" class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold"></p>
+                    <!-- Preview Gambar (semua ukuran layar) -->
+                    <div id="previewContainer" class="hidden">
+                        <div class="relative overflow-hidden rounded-xl border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
+                            <img id="imagePreview" src="#" alt="Preview bukti transaksi"
+                                 class="w-full max-h-80 object-contain bg-slate-50 dark:bg-navy-950">
+                            <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-slate-100 dark:border-navy-800">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <div class="min-w-0">
+                                        <p id="fileName" class="text-xs font-bold text-slate-800 dark:text-white/90 truncate"></p>
+                                        <p id="fileSize" class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold"></p>
+                                    </div>
                                 </div>
+                                <button type="button"
+                                        id="removeFileBtn"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Hapus
+                                </button>
                             </div>
-                            <button type="button" 
-                                    id="removeFileBtn"
-                                    class="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
                         </div>
                     </div>
 
@@ -520,8 +528,8 @@
                 fileName.textContent = file.name;
                 fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
                 placeholder.classList.add('hidden');
+                dropZone.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
-                previewContainer.classList.add('flex');
             };
             reader.readAsDataURL(file);
         }
@@ -532,8 +540,8 @@
             fileName.textContent = '';
             fileSize.textContent = '';
             placeholder.classList.remove('hidden');
+            dropZone.classList.remove('hidden');
             previewContainer.classList.add('hidden');
-            previewContainer.classList.remove('flex');
         }
 
         fileInput.addEventListener('change', function(e) {
