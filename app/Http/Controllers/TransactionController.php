@@ -27,9 +27,13 @@ class TransactionController extends Controller
         $stats = $reportingService->getStatistics($query);
         $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
-        // Data line chart 7 hari (gaya prototipe) — real, per user
-        $dailyExpense = $reportingService->getDailySeries('expense', 7);
-        $dailyIncome  = $reportingService->getDailySeries('income', 7);
+        // Data line chart gabungan (pemasukan + pengeluaran) per periode:
+        // minggu, bulan, dan tahun — real, per user
+        $trendData = [
+            'week'  => $reportingService->getTrendSeries('week'),
+            'month' => $reportingService->getTrendSeries('month'),
+            'year'  => $reportingService->getTrendSeries('year'),
+        ];
 
         $transactions = $query->orderBy('transaction_date', 'desc')
                               ->latest()
@@ -55,8 +59,7 @@ class TransactionController extends Controller
             'budget'           => $budget,
             'monthlyExpense'   => $monthlyExpense,
             'categoryExpenses' => $categoryExpenses,
-            'dailyExpense'     => $dailyExpense,
-            'dailyIncome'      => $dailyIncome,
+            'trendData'        => $trendData,
         ], $stats));
     }
 

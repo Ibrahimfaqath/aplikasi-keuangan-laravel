@@ -44,26 +44,26 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('head')
     </head>
-    <body class="font-sans text-slate-900 dark:text-slate-100 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 bg-gradient-to-b from-slate-100 via-slate-50 to-indigo-50/70 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/40">
+    <body class="font-sans text-slate-900 dark:text-white antialiased">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 bg-gradient-to-b from-blue-50 via-white to-blue-50/70 dark:from-black dark:via-black dark:to-neutral-900">
 
             <!-- Branding -->
             <a href="/" class="flex flex-col items-center gap-3 group">
                 <x-application-logo class="w-16 h-16 drop-shadow-lg group-hover:scale-105 transition-transform duration-200" />
                 <div class="text-center">
                     <span class="block text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">DompetKu</span>
-                    <span class="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aplikasi Keuangan Pribadi</span>
+                    <span class="block text-xs text-slate-500 dark:text-neutral-400 mt-0.5">Aplikasi Keuangan Pribadi</span>
                 </div>
             </a>
 
             <!-- Kartu -->
-            <div class="w-full sm:max-w-md mt-6 bg-white dark:bg-slate-900 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden">
+            <div class="w-full sm:max-w-md mt-6 bg-white dark:bg-neutral-900 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-neutral-800 rounded-2xl overflow-hidden">
                 <div class="px-6 py-6 sm:px-8 sm:py-7">
                     {{ $slot }}
                 </div>
             </div>
 
-            <p class="mt-6 text-xs text-slate-400 dark:text-slate-500">© {{ date('Y') }} DompetKu — Kelola keuanganmu dengan mudah dan aman.</p>
+            <p class="mt-6 text-xs text-slate-400 dark:text-neutral-500">© {{ date('Y') }} DompetKu — Kelola keuanganmu dengan mudah dan aman.</p>
         </div>
     </body>
 </html>
