@@ -683,19 +683,25 @@
                                     {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                                 </td>
                                 <td class="py-4 px-6">
-                                    @if(!empty($item->image))
-                                    <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="block w-8 h-8 rounded-lg overflow-hidden border border-slate-200 dark:border-navy-700">
-                                        <img src="{{ asset('storage/' . $item->image) }}"
-                                             loading="lazy"
-                                             class="w-full h-full object-cover"
-                                             alt="Bukti">
-                                    </a>
-                                    @else
                                     @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                                    <div class="w-8 h-8 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center" title="{{ $item->category ?? 'Lainnya' }}">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                                    <div class="relative w-8 h-8" x-data="txProof({{ $loop->index }})">
+                                        {{-- Icon kategori: selalu tampil, fade-out jika ada gambar --}}
+                                        <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center transition-opacity duration-500"
+                                             :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                                        </div>
+                                        {{-- Gambar bukti: fade-in setelah delay --}}
+                                        @if(!empty($item->image))
+                                        <a href="{{ asset('storage/' . $item->image) }}" target="_blank"
+                                           class="absolute inset-0 rounded-lg overflow-hidden border border-slate-200 dark:border-navy-700 transition-opacity duration-500"
+                                           :class="show ? 'opacity-100' : 'opacity-0'">
+                                            <img src="{{ asset('storage/' . $item->image) }}"
+                                                 loading="lazy"
+                                                 class="w-full h-full object-cover"
+                                                 alt="Bukti">
+                                        </a>
+                                        @endif
                                     </div>
-                                    @endif
                                 </td>
                                 <td class="py-4 px-6 font-semibold text-slate-900 dark:text-white">
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
@@ -761,19 +767,24 @@
                         <!-- Baris 2: Ringkasan — tap untuk membuka aksi -->
                         <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
                                 class="w-full flex items-center gap-3 pt-1 text-left group">
-                            @if(!empty($item->image))
-                            <div class="flex-shrink-0">
-                                <img src="{{ asset('storage/' . $item->image) }}"
-                                     loading="lazy"
-                                     class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-navy-700"
-                                     alt="Bukti transaksi">
-                            </div>
-                            @else
                             @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                            <div class="flex-shrink-0 w-12 h-12 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center" title="{{ $item->category ?? 'Lainnya' }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                            <div class="flex-shrink-0 relative w-12 h-12" x-data="txProof({{ $loop->index }})">
+                                {{-- Icon kategori --}}
+                                <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center transition-opacity duration-500"
+                                     :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                                </div>
+                                {{-- Gambar bukti --}}
+                                @if(!empty($item->image))
+                                <div class="absolute inset-0 rounded-xl overflow-hidden border border-slate-200 dark:border-navy-700 transition-opacity duration-500"
+                                     :class="show ? 'opacity-100' : 'opacity-0'">
+                                    <img src="{{ asset('storage/' . $item->image) }}"
+                                         loading="lazy"
+                                         class="w-full h-full object-cover"
+                                         alt="Bukti transaksi">
+                                </div>
+                                @endif
                             </div>
-                            @endif
 
                             <div class="flex-1 min-w-0">
                                 <p class="font-semibold text-slate-900 dark:text-white truncate text-sm sm:text-base">
@@ -960,6 +971,23 @@
                     this.amount = value;
                     this.displayAmount = new Intl.NumberFormat('id-ID').format(value);
                 },
+            };
+        }
+    </script>
+
+    <!-- Alpine component: animasi transisi icon → gambar bukti -->
+    <script>
+        function txProof(index) {
+            return {
+                show: false,
+                init() {
+                    // Cek apakah ada elemen gambar di dalam container ini
+                    const hasImage = this.$el.querySelector('img');
+                    if (hasImage) {
+                        // Staggered delay: 600ms awal + 80ms per item
+                        setTimeout(() => { this.show = true; }, 600 + (index * 80));
+                    }
+                }
             };
         }
     </script>
