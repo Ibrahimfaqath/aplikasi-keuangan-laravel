@@ -684,7 +684,7 @@
                                 </td>
                                 <td class="py-4 px-6">
                                     @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                                    <div class="relative w-8 h-8" x-data="txProof({{ $loop->index }})">
+                                    <div class="relative w-8 h-8" x-data="{ show: false }" x-init="@if(!empty($item->image))setTimeout(() => show = true, 600 + ({{ $loop->index }} * 80))@endif">
                                         {{-- Icon kategori: selalu tampil, fade-out jika ada gambar --}}
                                         <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center transition-opacity duration-500"
                                              :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
@@ -768,7 +768,7 @@
                         <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
                                 class="w-full flex items-center gap-3 pt-1 text-left group">
                             @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                            <div class="flex-shrink-0 relative w-12 h-12" x-data="txProof({{ $loop->index }})">
+                            <div class="flex-shrink-0 relative w-12 h-12" x-data="{ show: false }" x-init="@if(!empty($item->image))setTimeout(() => show = true, 600 + ({{ $loop->index }} * 80))@endif">
                                 {{-- Icon kategori --}}
                                 <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center transition-opacity duration-500"
                                      :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
@@ -971,23 +971,6 @@
                     this.amount = value;
                     this.displayAmount = new Intl.NumberFormat('id-ID').format(value);
                 },
-            };
-        }
-    </script>
-
-    <!-- Alpine component: animasi transisi icon → gambar bukti -->
-    <script>
-        function txProof(index) {
-            return {
-                show: false,
-                init() {
-                    // Cek apakah ada elemen gambar di dalam container ini
-                    const hasImage = this.$el.querySelector('img');
-                    if (hasImage) {
-                        // Staggered delay: 600ms awal + 80ms per item
-                        setTimeout(() => { this.show = true; }, 600 + (index * 80));
-                    }
-                }
             };
         }
     </script>
