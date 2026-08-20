@@ -131,16 +131,26 @@ class ReportingService
             $endDate   = $today->copy()->endOfMonth();
 
             // 1 query: GROUP BY year, month, type
+            // Gunakan YEAR()/MONTH() agar kompatibel MySQL & SQLite
+            $driver = \Illuminate\Support\Facades\DB::getDriverName();
+            if ($driver === 'sqlite') {
+                $yExpr = "strftime('%Y', transaction_date)";
+                $mExpr = "strftime('%m', transaction_date)";
+            } else {
+                $yExpr = 'YEAR(transaction_date)';
+                $mExpr = 'MONTH(transaction_date)';
+            }
+
             $rows = Transaction::where('user_id', $userId)
                 ->whereBetween('transaction_date', [$startDate, $endDate])
-                ->selectRaw("strftime('%Y', transaction_date) as y, strftime('%m', transaction_date) as m, type, SUM(amount) as total")
-                ->groupBy('y', 'm', 'type')
+                ->selectRaw("{$yExpr} as y, {$mExpr} as m, type, SUM(amount) as total")
+                ->groupByRaw("{$yExpr}, {$mExpr}, type")
                 ->get();
 
             // Bangun map: 'YYYY-MM' => ['income' => x, 'expense' => y]
             $map = [];
             foreach ($rows as $row) {
-                $key = $row->y . '-' . $row->m;
+                $key = str_pad((string) $row->y, 4, '0', STR_PAD_LEFT) . '-' . str_pad((string) $row->m, 2, '0', STR_PAD_LEFT);
                 $map[$key][$row->type] = (float) $row->total;
             }
 
@@ -159,8 +169,8 @@ class ReportingService
             // 1 query: GROUP BY date, type
             $rows = Transaction::where('user_id', $userId)
                 ->where('transaction_date', '>=', $startDate)
-                ->selectRaw("date(transaction_date) as d, type, SUM(amount) as total")
-                ->groupBy('d', 'type')
+                ->selectRaw('DATE(transaction_date) as d, type, SUM(amount) as total')
+                ->groupByRaw('DATE(transaction_date), type')
                 ->get();
 
             $map = [];
