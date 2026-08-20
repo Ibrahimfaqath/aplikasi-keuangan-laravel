@@ -90,6 +90,18 @@
         .dark .select-field {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
+
+        /* Transisi icon → gambar bukti (murni CSS, tanpa Alpine) */
+        @keyframes txFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes txFadeOut {
+            from { opacity: 1; }
+            to   { opacity: 0; }
+        }
+        .tx-fade-in  { opacity: 0; animation: txFadeIn 0.5s ease forwards; }
+        .tx-fade-out { opacity: 1; animation: txFadeOut 0.5s ease forwards; }
     </style>
 </head>
 
@@ -683,18 +695,23 @@
                                     {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                                 </td>
                                 <td class="py-4 px-6">
-                                    @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                                    <div class="relative w-8 h-8" x-data="{ show: false }" x-init="@if(!empty($item->image))setTimeout(() => show = true, 600 + ({{ $loop->index }} * 80))@endif">
-                                        {{-- Icon kategori: selalu tampil, fade-out jika ada gambar --}}
-                                        <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center transition-opacity duration-500"
-                                             :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
+                                    @php
+                                        $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat;
+                                        $hasImg = !empty($item->image);
+                                        $delay = 600 + ($loop->index * 80);
+                                    @endphp
+                                    <div class="relative w-8 h-8">
+                                        {{-- Icon kategori --}}
+                                        <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-lg flex items-center justify-center {{ $hasImg ? 'tx-fade-out' : '' }}"
+                                             style="{{ $hasImg ? 'animation-delay:' . $delay . 'ms' : '' }}"
+                                             title="{{ $item->category ?? 'Lainnya' }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
                                         </div>
-                                        {{-- Gambar bukti: fade-in setelah delay --}}
-                                        @if(!empty($item->image))
+                                        {{-- Gambar bukti --}}
+                                        @if($hasImg)
                                         <a href="{{ asset('storage/' . $item->image) }}" target="_blank"
-                                           class="absolute inset-0 rounded-lg overflow-hidden border border-slate-200 dark:border-navy-700 transition-opacity duration-500"
-                                           :class="show ? 'opacity-100' : 'opacity-0'">
+                                           class="absolute inset-0 rounded-lg overflow-hidden border border-slate-200 dark:border-navy-700 tx-fade-in"
+                                           style="animation-delay:{{ $delay }}ms">
                                             <img src="{{ asset('storage/' . $item->image) }}"
                                                  loading="lazy"
                                                  class="w-full h-full object-cover"
@@ -767,17 +784,22 @@
                         <!-- Baris 2: Ringkasan — tap untuk membuka aksi -->
                         <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
                                 class="w-full flex items-center gap-3 pt-1 text-left group">
-                            @php $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat; @endphp
-                            <div class="flex-shrink-0 relative w-12 h-12" x-data="{ show: false }" x-init="@if(!empty($item->image))setTimeout(() => show = true, 600 + ({{ $loop->index }} * 80))@endif">
+                            @php
+                                $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat;
+                                $hasImg = !empty($item->image);
+                                $delay = 600 + ($loop->index * 80);
+                            @endphp
+                            <div class="flex-shrink-0 relative w-12 h-12">
                                 {{-- Icon kategori --}}
-                                <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center transition-opacity duration-500"
-                                     :class="show ? 'opacity-0' : 'opacity-100'" title="{{ $item->category ?? 'Lainnya' }}">
+                                <div class="absolute inset-0 {{ $cv['bg'] }} {{ $cv['color'] }} rounded-xl flex items-center justify-center {{ $hasImg ? 'tx-fade-out' : '' }}"
+                                     style="{{ $hasImg ? 'animation-delay:' . $delay . 'ms' : '' }}"
+                                     title="{{ $item->category ?? 'Lainnya' }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
                                 </div>
                                 {{-- Gambar bukti --}}
-                                @if(!empty($item->image))
-                                <div class="absolute inset-0 rounded-xl overflow-hidden border border-slate-200 dark:border-navy-700 transition-opacity duration-500"
-                                     :class="show ? 'opacity-100' : 'opacity-0'">
+                                @if($hasImg)
+                                <div class="absolute inset-0 rounded-xl overflow-hidden border border-slate-200 dark:border-navy-700 tx-fade-in"
+                                     style="animation-delay:{{ $delay }}ms">
                                     <img src="{{ asset('storage/' . $item->image) }}"
                                          loading="lazy"
                                          class="w-full h-full object-cover"
