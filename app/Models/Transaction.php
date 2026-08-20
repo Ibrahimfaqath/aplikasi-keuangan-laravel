@@ -7,16 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
-    use HasFactory;
+    use HasFactory;    protected $fillable = [
+        'user_id', 'title', 'category', 'amount', 'type', 'transaction_date', 'image',
+    ];
 
-    protected $fillable = [
-        'user_id',
-        'title',
-        'category',
-        'amount',
-        'type',
-        'transaction_date',
-        'image',
+    protected $casts = [
+        'amount' => 'decimal:2',
     ];
 
     /** Kategori pemasukan yang tersedia. */

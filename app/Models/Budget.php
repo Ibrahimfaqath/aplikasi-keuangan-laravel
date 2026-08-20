@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Budget extends Model
 {
-    use HasFactory;
+    use HasFactory;    protected $fillable = [
+        'user_id', 'amount', 'month', 'year',
+    ];
 
-    protected $fillable = [
-        'user_id',
-        'amount',
-        'month',
-        'year',
+    protected $casts = [
+        'amount' => 'decimal:2',
     ];
 }

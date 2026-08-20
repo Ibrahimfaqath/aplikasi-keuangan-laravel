@@ -126,41 +126,55 @@ class ReportingService
         // Nama hari pendek sesuai dayOfWeek Carbon (0=Minggu .. 6=Sabtu)
         $shortDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
-        $labels  = [];
-        $income  = [];
-        $expense = [];
-
         if ($period === 'year') {
+            $startDate = $today->copy()->subMonthsNoOverflow(11)->startOfMonth();
+            $endDate   = $today->copy()->endOfMonth();
+
+            // 1 query: GROUP BY year, month, type
+            $rows = Transaction::where('user_id', $userId)
+                ->whereBetween('transaction_date', [$startDate, $endDate])
+                ->selectRaw("strftime('%Y', transaction_date) as y, strftime('%m', transaction_date) as m, type, SUM(amount) as total")
+                ->groupBy('y', 'm', 'type')
+                ->get();
+
+            // Bangun map: 'YYYY-MM' => ['income' => x, 'expense' => y]
+            $map = [];
+            foreach ($rows as $row) {
+                $key = $row->y . '-' . $row->m;
+                $map[$key][$row->type] = (float) $row->total;
+            }
+
+            $labels = $income = $expense = [];
             for ($i = 11; $i >= 0; $i--) {
                 $date = $today->copy()->subMonthsNoOverflow($i);
-
+                $key  = $date->format('Y-m');
                 $labels[]  = $date->locale('id')->isoFormat('MMM');
-                $income[]  = (float) Transaction::where('user_id', $userId)
-                    ->where('type', 'income')
-                    ->whereYear('transaction_date', $date->year)
-                    ->whereMonth('transaction_date', $date->month)
-                    ->sum('amount');
-                $expense[] = (float) Transaction::where('user_id', $userId)
-                    ->where('type', 'expense')
-                    ->whereYear('transaction_date', $date->year)
-                    ->whereMonth('transaction_date', $date->month)
-                    ->sum('amount');
+                $income[]  = $map[$key]['income'] ?? 0.0;
+                $expense[] = $map[$key]['expense'] ?? 0.0;
             }
         } else {
             $days = $period === 'month' ? 30 : 7;
+            $startDate = $today->copy()->subDays($days - 1);
 
+            // 1 query: GROUP BY date, type
+            $rows = Transaction::where('user_id', $userId)
+                ->where('transaction_date', '>=', $startDate)
+                ->selectRaw("date(transaction_date) as d, type, SUM(amount) as total")
+                ->groupBy('d', 'type')
+                ->get();
+
+            $map = [];
+            foreach ($rows as $row) {
+                $map[$row->d][$row->type] = (float) $row->total;
+            }
+
+            $labels = $income = $expense = [];
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = $today->copy()->subDays($i);
-
+                $key  = $date->format('Y-m-d');
                 $labels[]  = $period === 'month' ? $date->format('d M') : $shortDays[$date->dayOfWeek];
-                $income[]  = (float) Transaction::where('user_id', $userId)
-                    ->where('type', 'income')
-                    ->whereDate('transaction_date', $date)
-                    ->sum('amount');
-                $expense[] = (float) Transaction::where('user_id', $userId)
-                    ->where('type', 'expense')
-                    ->whereDate('transaction_date', $date)
-                    ->sum('amount');
+                $income[]  = $map[$key]['income'] ?? 0.0;
+                $expense[] = $map[$key]['expense'] ?? 0.0;
             }
         }
 
