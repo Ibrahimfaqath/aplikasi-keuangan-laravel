@@ -97,10 +97,14 @@ class TransactionController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->has('amount')) {
+            $request->merge(['amount' => $this->normalizeAmount($request->input('amount'))]);
+        }
+
         $request->validate([
             'title'            => 'required|string|max:255',
             'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
-            'amount'           => 'required|numeric|min:1',
+            'amount'           => 'required|numeric|min:1|max:999999999999.99',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
             'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
@@ -132,10 +136,14 @@ class TransactionController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($request->has('amount')) {
+            $request->merge(['amount' => $this->normalizeAmount($request->input('amount'))]);
+        }
+
         $request->validate([
             'title'            => 'required|string|max:255',
             'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
-            'amount'           => 'required|numeric|min:1',
+            'amount'           => 'required|numeric|min:1|max:999999999999.99',
             'type'             => 'required|in:income,expense',
             'transaction_date' => 'required|date',
             'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
@@ -257,5 +265,21 @@ class TransactionController extends Controller
         }
 
         return 'receipts/' . $newName;
+    }
+
+    /**
+     * Normalisasi nilai nominal uang agar bersih dari simbol dan format ribuan.
+     */
+    private function normalizeAmount($value): float
+    {
+        $s = preg_replace('/[^0-9.,]/', '', (string) $value);
+        if (str_contains($s, ',')) {
+            $s = str_replace('.', '', $s);
+            $s = str_replace(',', '.', $s);
+        } else {
+            $s = str_replace('.', '', $s);
+        }
+
+        return round((float) $s, 2);
     }
 }
