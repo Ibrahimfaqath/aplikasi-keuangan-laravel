@@ -117,7 +117,7 @@
                         </div>
                         <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Halo, ada yang bisa dibantu?</h2>
                         <p class="text-sm text-slate-500 dark:text-white/70 mt-1.5 max-w-sm mx-auto">
-                            Tanya apa saja tentang keuanganmu, atau foto struk belanja untuk dicatat otomatis.
+                            Tanya keuanganmu, tekan mikrofon untuk mencatat lewat suara, atau foto struk untuk ditinjau sebelum disimpan.
                         </p>
 
                         <!-- Kartu saran -->
@@ -152,7 +152,7 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 </div>
                                 <p class="text-xs font-bold text-slate-800 dark:text-white">Scan struk</p>
-                                <p class="text-[11px] text-slate-500 dark:text-white/70 mt-0.5">Foto struk, data otomatis terisi</p>
+                                <p class="text-[11px] text-slate-500 dark:text-white/70 mt-0.5">Pilih item hasil scan sebelum simpan</p>
                             </button>
                         </div>
                     </div>
@@ -280,7 +280,7 @@
                     <input type="file" x-ref="ocrInput" accept="image/*" capture="environment" class="hidden" @change="processOcr($event)">
 
                     <!-- Text input -->
-                    <input type="text" x-model="input" x-ref="chatInput" placeholder="Tanya seputar keuanganmu..." autocomplete="off" enterkeyhint="send"
+                    <input type="text" x-model="input" x-ref="chatInput" placeholder="Tanya, atau tekan mikrofon untuk bicara..." autocomplete="off" enterkeyhint="send" aria-label="Pesan untuk DompetKu AI"
                            class="flex-1 min-w-0 px-3 py-2 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:outline-none"
                            :disabled="sending">
 
@@ -298,6 +298,7 @@
                     <span class="w-3 h-3 border-2 border-blue-600 dark:border-navy-300 border-t-transparent rounded-full animate-spin inline-block"></span>
                     Transkrip diterima — mengirim otomatis...
                 </p>
+                <p x-show="voiceError" x-cloak class="mx-auto mt-2 max-w-xl text-center text-[11px] font-medium text-rose-600 dark:text-rose-400" x-text="voiceError"></p>
             </div>
         </div>
     </div>
@@ -314,6 +315,7 @@
                 sending: false,
                 recording: false,
                 autoSending: false,
+                voiceError: '',
                 manualStop: false,
                 recognition: null,
                 silenceTimer: null,
@@ -445,7 +447,7 @@
                     }
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     if (!SpeechRecognition) {
-                        alert('Browser kamu tidak mendukung voice input. Gunakan Chrome atau Edge.');
+                        this.voiceError = 'Input suara belum didukung browser ini. Gunakan Chrome atau Edge terbaru, atau ketik pesanmu.';
                         return;
                     }
                     this.manualStop = false;
@@ -483,12 +485,16 @@
                         }
                         self.manualStop = false;
                     };
-                    this.recognition.onerror = function () {
+                    this.recognition.onerror = function (event) {
                         self.recording = false;
                         clearTimeout(self.silenceTimer);
+                        self.voiceError = event.error === 'not-allowed' || event.error === 'service-not-allowed'
+                            ? 'Izin mikrofon belum aktif. Tekan ikon gembok di address bar, izinkan Mikrofon, lalu muat ulang halaman.'
+                            : 'Mikrofon tidak dapat digunakan saat ini. Kamu tetap bisa mengetik pesan.';
                     };
                     this.recognition.start();
                     this.recording = true;
+                    this.voiceError = '';
                 },
 
                 // OCR struk: kirim gambar ke /ai/ocr, tampilkan kartu data di chat

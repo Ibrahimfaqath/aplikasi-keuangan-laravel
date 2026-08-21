@@ -3,6 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+    html {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body { min-width: 320px; }
+
+    :focus-visible {
+        outline: 2px solid rgb(37 99 235);
+        outline-offset: 3px;
+    }
+
+    .dark :focus-visible { outline-color: rgb(127 156 210); }
+
+    button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+
     /* Warna seleksi teks mengikuti brand (biru untuk terang, navy untuk gelap) */
     ::selection {
         background-color: rgb(37 99 235 / 0.25);
@@ -30,6 +47,17 @@
 }
 
 @layer utilities {
+    .page-grid {
+        background-image: linear-gradient(rgb(148 163 184 / 0.10) 1px, transparent 1px), linear-gradient(90deg, rgb(148 163 184 / 0.10) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    .dark .page-grid {
+        background-image: linear-gradient(rgb(127 156 210 / 0.06) 1px, transparent 1px), linear-gradient(90deg, rgb(127 156 210 / 0.06) 1px, transparent 1px);
+    }
+
+    .shadow-brand { box-shadow: 0 18px 45px -18px rgb(37 99 235 / 0.55); }
+
     @keyframes skeleton-shimmer {
         0% {
             background-position: -200% 0;
