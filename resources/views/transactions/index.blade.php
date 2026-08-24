@@ -295,22 +295,6 @@
     <!-- MAIN CONTENT BODY -->
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
-        <!-- Page heading: memberi orientasi sebelum ringkasan angka -->
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-navy-300">Ringkasan keuangan</p>
-                <h1 class="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl">Halo, {{ Str::of(Auth::user()->name ?? 'Pengguna')->before(' ') }}.</h1>
-                <p class="mt-1 text-sm text-slate-500 dark:text-white/65">Pantau arus uang dan anggaranmu untuk {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}.</p>
-            </div>
-            <a href="{{ route('transactions.create') }}" class="inline-flex w-fit items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-blue-600/25 transition hover:-translate-y-0.5 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 no-print">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Tambah transaksi
-            </a>
-        </div>
-
-        <!-- Overview: saldo dan anggaran berada dalam satu area keputusan -->
-        <div class="grid items-stretch gap-5 lg:grid-cols-[1.1fr_.9fr]">
-
         <!-- SKELETON KARTU SALDO — satu blok utuh meniru bentuk kartu (label, saldo, dua tile) -->
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
@@ -329,7 +313,7 @@
 
         <!-- KARTU SALDO — satu persegi panjang: saldo besar + tombol privasi di kanan, pemasukan/pengeluaran kecil di bawah -->
         <section x-show="!isLoading"
-                 class="relative h-full overflow-hidden p-5 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
+                 class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
 
             <!-- dekorasi lingkaran transparan -->
             <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
@@ -337,7 +321,7 @@
 
             <!-- Baris atas: label Saldo + tombol privasi di kanan -->
             <div class="relative flex items-center justify-between">
-                <div><span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-300/90">Saldo saat ini</span><p class="mt-1 text-xs text-white/65">Akumulasi seluruh transaksi</p></div>
+                <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-300/90">Saldo</span>
 
                 <button type="button" data-privacy-toggle
                         class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 text-white transition"
@@ -391,7 +375,7 @@
         </section>
 
         <!-- BUDGET CARD -->
-        <section class="h-full bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 sm:p-6 shadow-sm">
             <div class="flex items-center justify-between gap-3 mb-5">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl flex-shrink-0">
@@ -488,10 +472,7 @@
             @endif
         </section>
 
-        </div>
-
         <!-- CHART TREN — line chart gabungan pemasukan + pengeluaran, toggle Minggu/Bulan/Tahun -->
-        <div class="grid gap-5 xl:grid-cols-[1.35fr_.85fr]">
         <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
@@ -551,14 +532,9 @@
                 <canvas id="categoryChart"></canvas>
             </div>
         </section>
-        </div>
 
         <!-- FILTER — search pill ala Gemini + filter rapi -->
         <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 shadow-sm no-print">
-            <div class="mb-4 flex items-center justify-between gap-3 px-1">
-                <div><h2 class="text-sm font-bold text-slate-900 dark:text-white">Temukan transaksi</h2><p class="mt-0.5 text-xs text-slate-500 dark:text-white/60">Cari berdasarkan nama, jenis, kategori, atau periode.</p></div>
-                @if(request('search') || request('type') || request('category') || request('period'))<span class="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700 dark:bg-navy-400/10 dark:text-navy-300">Filter aktif</span>@endif
-            </div>
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-white/50">
@@ -613,8 +589,8 @@
             <!-- Header: Transaksi Terakhir (gaya prototipe section 3) -->
             <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-navy-800">
                 <div>
-                    <h2 class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Daftar transaksi</h2>
-                    <p class="text-xs text-slate-500 dark:text-white/70 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat · terbaru ditampilkan lebih dulu</p>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Transaksi Terakhir</h2>
+                    <p class="text-xs text-slate-500 dark:text-white/70 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
                 </div>
                 <a href="{{ route('transactions.create') }}"
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-lg text-xs font-semibold hover:bg-blue-100 dark:hover:bg-navy-400/20 transition no-print">
@@ -742,9 +718,9 @@
                                         {{ ($item->type ?? 'income') == 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right font-extrabold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}"
+                                <td class="py-4 px-6 text-right font-extrabold text-slate-900 dark:text-white whitespace-nowrap privacy-target"
                                     data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </td>
                                 <td class="py-4 px-6 text-center no-print">
                                     <div class="inline-flex items-center gap-1">
@@ -822,9 +798,9 @@
                             </div>
 
                             <div class="flex-shrink-0 flex flex-col items-end gap-1">
-                                <p class="font-extrabold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}"
+                                <p class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base whitespace-nowrap privacy-target"
                                    data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </p>
                                 <svg class="w-4 h-4 text-slate-400 dark:text-white/40 transition-transform duration-200"
                                      :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

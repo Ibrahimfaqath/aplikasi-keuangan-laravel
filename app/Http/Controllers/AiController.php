@@ -84,15 +84,10 @@ JSON>>>
 Jika pesan BUKAN transaksi, jawab seperti biasa TANPA blok JSON.
 Kategori valid: " . self::CATEGORIES_HINT;
 
-        // Transaksi sederhana tidak perlu menunggu layanan AI eksternal.
-        // Parser lokal mendukung nominal angka dan nominal yang diucapkan,
-        // sehingga input suara terasa instan dan tetap bekerja saat AI sibuk.
-        $transaction = TransactionParser::fromText($request->message);
-        $reply = $transaction !== null
-            ? 'Saya menemukan transaksi dari pesanmu. Periksa datanya dulu sebelum disimpan.'
-            : null;
+        $reply = null;
+        $transaction = null;
 
-        if ($transaction === null) try {
+        try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
             ])->timeout(90)->connectTimeout(10)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={$apiKey}", [
@@ -144,16 +139,6 @@ Kategori valid: " . self::CATEGORIES_HINT;
         return response()->json([
             'reply'       => $reply,
             'transaction' => $transaction, // null jika bukan niat transaksi
-        ]);
-    }
-
-    /** Parser cepat untuk transkrip suara pada form tambah transaksi. */
-    public function parseTransaction(Request $request)
-    {
-        $data = $request->validate(['message' => 'required|string|max:2000']);
-
-        return response()->json([
-            'transaction' => TransactionParser::fromText($data['message']),
         ]);
     }
 

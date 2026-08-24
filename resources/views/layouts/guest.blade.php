@@ -45,9 +45,7 @@
         @stack('head')
     </head>
     <body class="font-sans text-slate-900 dark:text-white antialiased">
-        <div class="min-h-screen relative isolate flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 overflow-hidden bg-gradient-to-b from-blue-50 via-white to-blue-50/70 dark:from-navy-950 dark:via-navy-950 dark:to-navy-900">
-            <div class="page-grid absolute inset-0 -z-10 opacity-70"></div>
-            <div class="absolute -top-24 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-400/15 blur-3xl dark:bg-navy-400/15"></div>
+        <div class="min-h-screen flex flex-col sm:justify-center items-center px-4 pt-8 sm:pt-0 pb-10 bg-gradient-to-b from-blue-50 via-white to-blue-50/70 dark:from-navy-950 dark:via-navy-950 dark:to-navy-900">
 
             <!-- Branding -->
             <a href="/" class="flex flex-col items-center gap-3 group">
@@ -59,7 +57,7 @@
             </a>
 
             <!-- Kartu -->
-            <div class="w-full sm:max-w-md mt-6 bg-white/95 dark:bg-navy-900/95 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-navy-800 rounded-2xl overflow-hidden backdrop-blur">
+            <div class="w-full sm:max-w-md mt-6 bg-white dark:bg-navy-900 shadow-xl shadow-slate-900/5 dark:shadow-black/20 border border-slate-200/80 dark:border-navy-800 rounded-2xl overflow-hidden">
                 <div class="px-6 py-6 sm:px-8 sm:py-7">
                     {{ $slot }}
                 </div>
