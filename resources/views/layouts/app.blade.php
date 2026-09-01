@@ -22,11 +22,10 @@
 
     <title>{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}</title>
 
-    <!-- 1. KUNCI WARNA CANVAS BROWSER (MEMATIKAN LIGHT FLASH SAMA SEKALI) -->
+    <!-- 1. Kunci Warna Canvas Browser (Mencegah Flash Putih Saat Reload) -->
     <script>
         (function() {
             var savedTheme = localStorage.getItem('theme');
-            // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
             var isDark = savedTheme !== 'light';
 
             if (isDark) {
@@ -40,17 +39,25 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-navy-950 dark:text-white min-h-screen antialiased flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-navy-950 dark:text-white min-h-screen antialiased flex flex-col selection:bg-blue-500 selection:text-white">
 
-    <!-- NAVBAR (komponen terpadu) -->
+    <!-- NAVBAR (Komponen Navigasi Utama & Bottom Bar Mobile) -->
     <x-navbar />
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
-        {{ $slot ?? '' }}
-        @yield('content')
+    <!-- MAIN CONTENT AREA -->
+    <!-- pb-32 di mobile memberi ruang ~128px di bawah sehingga tombol paling bawah tidak tertutup navbar -->
+    <main class="flex-grow pb-32 md:pb-12">
+        {{ $slot }}
+        
+        <!-- Spacer cadangan khusus mobile untuk menjamin kenyamanan scroll -->
+        <div class="h-6 md:hidden w-full pointer-events-none" aria-hidden="true"></div>
     </main>
 
+    <!-- Modal Export Laporan (bisa dipanggil dari bottom bar di semua halaman layout app) -->
+    @include('components.export-modal')
+
+    @stack('scripts')
 </body>
 </html>
