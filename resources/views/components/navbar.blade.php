@@ -158,21 +158,31 @@
     <nav id="bottomNav"
          class="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-navy-950/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-navy-800 pb-[env(safe-area-inset-bottom)] transition-transform duration-300"
          aria-label="Navigasi utama">
-        <div class="grid grid-cols-4 h-16">
+        <div class="grid grid-cols-5 h-16 items-center">
 
-            <!-- Beranda -->
+            <!-- 1. Beranda -->
             <a href="{{ route('transactions.index') }}"
-               class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors {{ request()->routeIs('transactions.*') ? 'text-navy-600 dark:text-navy-300' : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white' }}">
+               class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors {{ request()->routeIs('transactions.*') && !request()->routeIs('profile.*') ? 'text-blue-600 dark:text-navy-300' : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/>
                 </svg>
                 <span>Beranda</span>
             </a>
 
-            <!-- + Tambah -->
-            <div class="flex items-start justify-center">
+            <!-- 2. Anggaran -->
+            <button type="button" onclick="window.openBudgetModal ? openBudgetModal() : null"
+                    class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white transition-colors"
+                    aria-label="Atur Anggaran">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <span>Anggaran</span>
+            </button>
+
+            <!-- 3. + Tambah (Tengah / FAB) -->
+            <div class="flex items-center justify-center">
                 <a href="{{ route('transactions.create') }}"
-                   class="-mt-5 w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white shadow-lg shadow-blue-600/30 ring-4 ring-white dark:ring-navy-950 flex items-center justify-center transition"
+                   class="-mt-6 w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 text-white shadow-lg shadow-blue-600/30 dark:shadow-black/50 ring-4 ring-white dark:ring-navy-950 flex items-center justify-center transition-transform active:scale-95 flex-shrink-0"
                    title="Tambah Transaksi" aria-label="Tambah Transaksi">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -180,8 +190,8 @@
                 </a>
             </div>
 
-            <!-- Laporan (Export) -->
-            <button type="button" onclick="openExportModal()"
+            <!-- 4. Laporan -->
+            <button type="button" onclick="window.openExportModal ? openExportModal() : (window.location.href = '{{ route('transactions.export-pdf') }}')"
                     class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white transition-colors"
                     aria-label="Export Laporan">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -190,9 +200,9 @@
                 <span>Laporan</span>
             </button>
 
-            <!-- Profil -->
+            <!-- 5. Profil -->
             <a href="{{ route('profile.edit') }}"
-               class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors {{ request()->routeIs('profile.*') ? 'text-navy-600 dark:text-navy-300' : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white' }}">
+               class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors {{ request()->routeIs('profile.*') ? 'text-blue-600 dark:text-navy-300' : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
