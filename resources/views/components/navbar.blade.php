@@ -5,7 +5,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-2 sm:gap-3">
 
-            <!-- KIRI: Tombol Burger + Logo (flexbox, tidak mungkin bertabrakan) -->
+            <!-- KIRI: Tombol Burger + Logo -->
             <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
                 <button @click="sidebarOpen = true"
                         type="button"
@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <!-- KANAN: Tombol Tambah Transaksi (hanya desktop — mobile pakai bottom nav FAB) -->
+            <!-- KANAN: Tombol Tambah Transaksi -->
             <a href="{{ route('transactions.create') }}"
                class="hidden md:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white text-sm font-semibold shadow-sm shadow-blue-600/20 dark:shadow-black/40 transition flex-shrink-0"
                title="Tambah Transaksi">
@@ -42,12 +42,7 @@
     </div>
 </nav>
 
-    <!-- ============================================================
-         SIDEBAR DRAWER — muncul dari kiri saat burger diklik.
-         Berada DI LUAR <nav>: backdrop-filter pada <nav> membuat
-         position:fixed relatif ke nav, bukan viewport (bug: drawer
-         hanya tampil setinggi navbar).
-         ============================================================ -->
+    <!-- SIDEBAR DRAWER -->
     <div x-show="sidebarOpen"
          x-cloak
          class="fixed inset-0 z-[100] hidden md:block"
@@ -58,10 +53,8 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="sidebarOpen = false"></div>
 
-        <!-- Panel -->
         <div class="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white dark:bg-navy-900 border-r border-slate-200 dark:border-navy-800 shadow-2xl flex flex-col overflow-y-auto"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="-translate-x-full"
@@ -94,14 +87,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/>
                     </svg>
                     <span>Beranda</span>
-                </a>
-
-                <a href="{{ route('ai.index') }}" @click="sidebarOpen = false"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors {{ request()->routeIs('ai.*') ? 'bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300' : 'text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
-                    </svg>
-                    <span>AI Assistant</span>
                 </a>
 
                 <a href="{{ route('profile.edit') }}" @click="sidebarOpen = false"
@@ -169,13 +154,11 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         BOTTOM NAVIGATION (mobile only): Beranda · AI · +Tambah · Laporan · Profil
-         ============================================================ -->
+    <!-- BOTTOM NAVIGATION (mobile only) -->
     <nav id="bottomNav"
          class="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-navy-950/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-navy-800 pb-[env(safe-area-inset-bottom)] transition-transform duration-300"
          aria-label="Navigasi utama">
-        <div class="grid grid-cols-5 h-16">
+        <div class="grid grid-cols-4 h-16">
 
             <!-- Beranda -->
             <a href="{{ route('transactions.index') }}"
@@ -186,16 +169,7 @@
                 <span>Beranda</span>
             </a>
 
-            <!-- AI Assistant -->
-            <a href="{{ route('ai.index') }}"
-               class="flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors {{ request()->routeIs('ai.*') ? 'text-navy-600 dark:text-navy-300' : 'text-slate-500 dark:text-white/60 hover:text-slate-800 dark:hover:text-white' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
-                </svg>
-                <span>AI</span>
-            </a>
-
-            <!-- + Tambah (tengah, menonjol) -->
+            <!-- + Tambah -->
             <div class="flex items-start justify-center">
                 <a href="{{ route('transactions.create') }}"
                    class="-mt-5 w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white shadow-lg shadow-blue-600/30 ring-4 ring-white dark:ring-navy-950 flex items-center justify-center transition"

@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#0A1128">
     <link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Branding / Icons -->
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
@@ -21,12 +20,10 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <title>Tambah Transaksi - DompetKu</title>
     
-    <!-- Theme Init -->
     <script>
         (function initTheme() {
             try {
                 const savedTheme = localStorage.getItem('theme');
-                // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
                 const isDark = savedTheme !== 'light';
                 if (isDark) document.documentElement.classList.add('dark');
                 document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
@@ -36,14 +33,12 @@
         })();
     </script>
 
-    <!-- CSS & JS hasil build (Vite) — Alpine dibundle, tanpa CDN -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         body { overflow-x: hidden; }
         [x-cloak] { display: none !important; }
 
-        /* Custom select dropdown arrow */
         .select-field {
             appearance: none;
             -webkit-appearance: none;
@@ -57,7 +52,6 @@
         .dark .select-field {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
-        /* Date input — hide native dropdown arrow, show calendar icon */
         .date-field {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -71,7 +65,6 @@
         .dark .date-field {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
         }
-        /* Upload button active state */
         .btn-upload.active {
             background-color: #2563eb !important;
             border-color: #2563eb !important;
@@ -82,20 +75,16 @@
             border-color: #3b63b8 !important;
             color: #ffffff !important;
         }
-        /* Chip kategori aktif */
-        /* Chip aktif: warna sesuai kategori via CSS custom property --cat-color */
         .cat-chip.active {
             background-color: var(--cat-color, #2563eb) !important;
             border-color: var(--cat-color, #2563eb) !important;
             color: #ffffff !important;
             box-shadow: 0 4px 12px color-mix(in srgb, var(--cat-color, #2563eb) 30%, transparent);
         }
-        /* Ikon di dalam chip aktif: transparan putih */
         .cat-chip.active > span:first-child {
             background-color: rgba(255, 255, 255, 0.16) !important;
             color: #ffffff !important;
         }
-        /* Baris kategori: sembunyikan scrollbar horizontal */
         .cat-row::-webkit-scrollbar { display: none; }
         .cat-row { scrollbar-width: none; }
     </style>
@@ -103,7 +92,6 @@
 
 <body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased">
 
-    <!-- Toast -->
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
          class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-navy-900 rounded-2xl shadow-xl border border-slate-100 dark:border-navy-800">
@@ -117,10 +105,8 @@
     </div>
     @endif
 
-    <!-- MAIN CONTENT -->
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <!-- Header: tombol back di kiri, judul di tengah -->
         <div class="relative flex items-center justify-center mb-6">
             <a href="{{ route('transactions.index') }}" aria-label="Kembali ke daftar transaksi"
                class="absolute left-0 flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-600 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 flex items-center justify-center transition">
@@ -134,41 +120,38 @@
         <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            <!-- Jenis Transaksi (langsung di bawah header) -->
             <div class="space-y-2">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
-                        Jenis Transaksi
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                    Jenis Transaksi
+                </label>
+                
+                <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 dark:bg-navy-800/80 rounded-xl border border-slate-200/60 dark:border-navy-700/60">
+                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-400 has-[:checked]:shadow-sm has-[:checked]:border-emerald-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
+                        <input type="radio" name="type" value="income" class="sr-only" {{ old('type', 'income') == 'income' ? 'checked' : '' }} required>
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
                     </label>
-                    
-                    <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 dark:bg-navy-800/80 rounded-xl border border-slate-200/60 dark:border-navy-700/60">
-                        <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-400 has-[:checked]:shadow-sm has-[:checked]:border-emerald-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
-                            <input type="radio" name="type" value="income" class="sr-only" {{ old('type', 'income') == 'income' ? 'checked' : '' }} required>
-                            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                            <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
-                        </label>
 
-                        <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-rose-700 dark:has-[:checked]:text-rose-400 has-[:checked]:shadow-sm has-[:checked]:border-rose-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
-                            <input type="radio" name="type" value="expense" class="sr-only" {{ old('type') == 'expense' ? 'checked' : '' }} required>
-                            <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                            </svg>
-                            <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
-                        </label>
-                    </div>
-                    @error('type')
-                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
+                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-rose-700 dark:has-[:checked]:text-rose-400 has-[:checked]:shadow-sm has-[:checked]:border-rose-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
+                        <input type="radio" name="type" value="expense" class="sr-only" {{ old('type') == 'expense' ? 'checked' : '' }} required>
+                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                        </svg>
+                        <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
+                    </label>
                 </div>
+                @error('type')
+                    <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {{ $message }}
+                    </p>
+                @enderror
+            </div>
 
-                <!-- Form Card -->
-                <main class="bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
+            <main class="bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
 
-                <!-- Nominal -->
                 <div class="space-y-2">
                     <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
                         Nominal Transaksi
@@ -197,7 +180,6 @@
                     @enderror
                 </div>
 
-                <!-- Grid: Tanggal + Judul -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div class="space-y-2">
                         <label for="transaction_date" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
@@ -241,16 +223,13 @@
                     </div>
                 </div>
 
-                <!-- Kategori -->
                 <div class="space-y-2">
                     <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
                         Kategori
                     </label>
-                    <!-- Nilai kategori disimpan di sini (tetap dipakai validasi server) -->
-                    <input type="hidden" name="category" id="category" value="{{ old('category', $transaction->category ?? '') }}">
+                    <input type="hidden" name="category" id="category" value="{{ old('category', '') }}">
 
                     @php
-                        // Ikon profesional gaya garis (Heroicons v1 / Lucide) — konsisten dengan seluruh aplikasi
                         $catIcons = [
                             'Gaji' => '<path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>',
                             'Bonus' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>',
@@ -268,7 +247,6 @@
                             'Keluarga' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
                         ];
 
-                        // Warna per kategori (hex) — chip aktif pakai warna ini
                         $catColors = [
                             'Gaji' => '#10b981', 'Bonus' => '#f59e0b', 'Bisnis' => '#2563eb',
                             'Investasi' => '#6366f1', 'Hadiah' => '#ec4899', 'Lainnya' => '#6b7280',
@@ -278,9 +256,8 @@
                             'Pendidikan' => '#06b6d4', 'Keluarga' => '#14b8a6',
                         ];
 
-                        // Render tombol chip kategori (mode baris = satu baris scroll, mode grid = semua)
                         $chipBtn = function ($cat, $rowMode) use ($catIcons, $catColors) {
-                            $selected = old('category', $transaction->category ?? '') == $cat;
+                            $selected = old('category', '') == $cat;
                             $color = $catColors[$cat] ?? '#6b7280';
                             $width = $rowMode ? ' w-24 flex-shrink-0' : '';
                             $active = $selected ? ' active' : '';
@@ -293,7 +270,6 @@
                         };
                     @endphp
 
-                    <!-- Kategori Pemasukan: satu baris (scroll) + tombol tampilkan semua -->
                     <div id="cat-income" class="space-y-1.5">
                         <div id="cat-income-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                             @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
@@ -310,7 +286,6 @@
                         </button>
                     </div>
 
-                    <!-- Kategori Pengeluaran: satu baris (scroll) + tombol tampilkan semua -->
                     <div id="cat-expense" class="space-y-1.5">
                         <div id="cat-expense-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                             @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
@@ -334,51 +309,29 @@
                     @enderror
                 </div>
 
-                <!-- AI Quick Input: Voice & OCR Struk -->
-                <div x-data="aiInput()" class="space-y-2">
+                <!-- Web Speech API Input Suara (Lokal Bawaan Browser) -->
+                <div x-data="voiceInput()" class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
-                        Input Cepat <span class="text-slate-400 font-normal lowercase">(AI)</span>
+                        Input Cepat via Suara <span class="text-slate-400 font-normal lowercase">(Bawaan Browser)</span>
                     </label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Voice Input -->
-                        <button type="button" @click="toggleVoice()"
-                                :class="recording ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-300 dark:border-rose-800' : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-white/70 border-slate-200 dark:border-navy-700'"
-                                class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-                            </svg>
-                            <span x-text="recording ? 'Merekam...' : 'Suara'" x-cloak>Suara</span>
-                        </button>
-                        <!-- OCR Struk -->
-                        <button type="button" @click="$refs.ocrInput.click()"
-                                class="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-navy-800 hover:bg-slate-200 dark:hover:bg-navy-700 text-slate-600 dark:text-white/70 rounded-xl border border-slate-200 dark:border-navy-700 font-semibold text-sm transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Struk AI
-                        </button>
-                    </div>
-                    <input type="file" x-ref="ocrInput" accept="image/*" capture="environment" class="hidden" @change="processOcr($event)">
-                    <p x-show="ocrLoading" x-cloak class="text-xs text-blue-600 dark:text-navy-300 font-semibold flex items-center gap-1">
-                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        Memproses struk dengan AI...
-                    </p>
-                    <p x-show="ocrResult" x-cloak class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        Struk berhasil dibaca! Silakan periksa field di atas.
-                    </p>
+                    <button type="button" @click="toggleVoice()"
+                            :class="recording ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-300 dark:border-rose-800' : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-white/70 border-slate-200 dark:border-navy-700'"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                        <span x-text="recording ? 'Merekam... Ucapkan transaksi (mis: Beli nasi goreng 25 ribu)' : 'Mulai Catat dengan Suara'" x-cloak>Mulai Catat dengan Suara</span>
+                    </button>
                     <p x-show="voiceResult" x-cloak class="text-xs text-blue-600 dark:text-navy-300 font-semibold flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
-                        Mendengarkan... <span x-text="voiceResult"></span>
+                        Terdengar: <span x-text="voiceResult"></span>
                     </p>
                 </div>
 
                 <script>
-                function aiInput() {
+                function voiceInput() {
                     return {
                         recording: false,
-                        ocrLoading: false,
-                        ocrResult: false,
                         voiceResult: '',
                         recognition: null,
                         silenceTimer: null,
@@ -397,8 +350,6 @@
                             }
                             this.recognition = new SpeechRecognition();
                             this.recognition.lang = 'id-ID';
-                            // continuous=true: jangan berhenti di tengah kalimat saat jeda
-                            // sesaat; berhenti otomatis lewat timer diam 1,2 detik.
                             this.recognition.continuous = true;
                             this.recognition.interimResults = true;
                             const self = this;
@@ -408,13 +359,12 @@
                                     transcript += e.results[i][0].transcript;
                                 }
                                 self.voiceResult = transcript;
-                                // Reset timer diam: selesai bicara = 1,2 dtk tanpa suara
                                 clearTimeout(self.silenceTimer);
                                 self.silenceTimer = setTimeout(() => {
                                     self.recognition?.stop();
                                 }, 1200);
                                 if (e.results[e.results.length - 1].isFinal) {
-                                    self.parseVoice(transcript);
+                                    self.parseText(transcript);
                                 }
                             };
                             this.recognition.onerror = function() { self.recording = false; };
@@ -423,74 +373,44 @@
                             this.recording = true;
                         },
 
-                        parseVoice(text) {
-                            const lower = text.toLowerCase();
-                            // Deteksi tipe
-                            if (lower.includes('pemasukan') || lower.includes('gaji') || lower.includes('masuk')) {
-                                document.querySelector('input[name=type][value=income]').checked = true;
-                            } else if (lower.includes('pengeluaran') || lower.includes('beli') || lower.includes('bayar') || lower.includes('keluar')) {
-                                document.querySelector('input[name=type][value=expense]').checked = true;
-                            }
-                            // Deteksi nominal
-                            const numMatch = text.match(/[\d.,]+/);
-                            if (numMatch) {
-                                const amount = numMatch[0].replace(/[^\d]/g, '');
-                                document.getElementById('amount').value = amount;
-                            }
-                            // Set keterangan
-                            document.querySelector('input[name=title]').value = text;
-                        },
-
-                        async processOcr(e) {
-                            const file = e.target.files[0];
-                            if (!file) return;
-                            this.ocrLoading = true;
-                            this.ocrResult = false;
-                            const formData = new FormData();
-                            formData.append('image', file);
+                        async parseText(text) {
                             try {
-                                const res = await fetch('/ai/ocr', {
+                                const res = await fetch('/transactions/parse-voice', {
                                     method: 'POST',
                                     headers: {
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                         'Accept': 'application/json',
                                     },
-                                    body: formData,
+                                    body: JSON.stringify({ text: text }),
                                 });
-                                const data = await res.json();
-                                if (data.data) {
-                                    if (data.data.title) document.querySelector('input[name=title]').value = data.data.title;
-                                    if (data.data.amount) document.getElementById('amount').value = data.data.amount;
-                                    if (data.data.type) {
-                                        const radio = document.querySelector('input[name=type][value=' + data.data.type + ']');
+                                const json = await res.json();
+                                if (json.data) {
+                                    if (json.data.title) document.getElementById('title').value = json.data.title;
+                                    if (json.data.amount) document.getElementById('amount').value = json.data.amount;
+                                    if (json.data.type) {
+                                        const radio = document.querySelector('input[name=type][value=' + json.data.type + ']');
                                         if (radio) radio.checked = true;
                                     }
-                                    if (data.data.category) {
-                                        const chip = document.querySelector('.cat-chip[data-category="' + CSS.escape(data.data.category) + '"]');
+                                    if (json.data.category) {
+                                        const chip = document.querySelector('.cat-chip[data-category="' + CSS.escape(json.data.category) + '"]');
                                         if (chip) chip.click();
                                     }
-                                    if (data.data.date) document.getElementById('transaction_date').value = data.data.date;
-                                    this.ocrResult = true;
-                                } else if (data.error) {
-                                    alert('Error: ' + data.error);
                                 }
                             } catch (err) {
-                                alert('Gagal memproses struk: ' + err.message);
+                                console.error('Voice parse error:', err);
                             }
-                            this.ocrLoading = false;
-                            e.target.value = '';
                         }
                     };
                 }
                 </script>
 
-                <!-- Upload Gambar - GALERI + KAMERA -->
+                <!-- Upload Gambar -->
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
                         Upload Bukti Transaksi <span class="text-slate-400 font-normal lowercase">(opsional)</span>
                     </label>
 
-                    <!-- Tombol Pilihan: Galeri & Kamera -->
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" 
                                 id="btnGallery"
@@ -512,14 +432,11 @@
                         </button>
                     </div>
 
-                    <!-- Hidden file input (accessible by Galeri & Kamera buttons) -->
                     <input type="file" name="image" id="fileInput" accept="image/*" class="hidden">
 
-                    <!-- Drop Zone (desktop only) -->
                     <div id="dropZone" 
                          class="relative border-2 border-dashed border-slate-200 dark:border-navy-800 hover:border-blue-400 dark:hover:border-blue-500 rounded-xl p-6 text-center bg-slate-50/50 dark:bg-navy-800/40 hover:bg-slate-50 dark:hover:bg-navy-800/50 transition cursor-pointer hidden md:block">
 
-                        <!-- Placeholder -->
                         <div id="uploadPlaceholder" class="space-y-2">
                             <div class="w-12 h-12 mx-auto bg-blue-50 dark:bg-navy-400/10 text-blue-500 dark:text-navy-300 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -533,7 +450,6 @@
                         </div>
                     </div>
 
-                    <!-- Preview Gambar (semua ukuran layar) -->
                     <div id="previewContainer" class="hidden">
                         <div class="relative overflow-hidden rounded-xl border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
                             <img id="imagePreview" src="#" alt="Preview bukti transaksi"
@@ -568,7 +484,6 @@
                     @enderror
                 </div>
 
-                <!-- Submit -->
                 <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-slate-200/80 dark:border-navy-800">
                     <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-900 text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200 dark:border-navy-800 rounded-xl text-xs sm:text-sm font-semibold transition">
                         Batal
@@ -585,7 +500,6 @@
         </form>
     </div>
 
-    <!-- SCRIPT UPLOAD - CREATE -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.getElementById('fileInput');
@@ -654,14 +568,12 @@
             resetUpload();
         });
 
-        // KATEGORI: pilih lewat chip, daftar menyesuaikan jenis transaksi (Pemasukan/Pengeluaran)
         const typeRadios = document.querySelectorAll('input[name="type"]');
         const categoryInput = document.getElementById('category');
         const catIncome = document.getElementById('cat-income');
         const catExpense = document.getElementById('cat-expense');
         const allChips = document.querySelectorAll('.cat-chip');
 
-        // Klik chip = pilih kategori
         allChips.forEach(chip => {
             chip.addEventListener('click', function() {
                 allChips.forEach(c => c.classList.remove('active'));
@@ -670,7 +582,6 @@
             });
         });
 
-        // Toggle kategori: satu baris <-> tampilkan semua
         document.querySelectorAll('.cat-toggle').forEach(btn => {
             btn.addEventListener('click', function() {
                 const group = this.id.replace('toggle-cat-', '');
@@ -693,7 +604,6 @@
             const isIncome = document.querySelector('input[name="type"]:checked')?.value === 'income';
             if (catIncome) catIncome.style.display = isIncome ? '' : 'none';
             if (catExpense) catExpense.style.display = isIncome ? 'none' : '';
-            // Jika kategori terpilih tidak ada di jenis aktif, kosongkan pilihan
             const valid = Array.from(allChips).some(c =>
                 c.dataset.category === (categoryInput?.value || '') &&
                 c.closest(isIncome ? '#cat-income' : '#cat-expense')
@@ -733,7 +643,6 @@
     });
     </script>
 
-    <!-- Export Laporan (PDF/Excel/Print) -->
     @include('components.export-modal')
 
 </body>

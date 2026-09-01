@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\Budget;
 use App\Exports\TransactionsExport;
 use App\Services\ReportingService;
+use App\Services\TransactionParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,6 @@ class TransactionController extends Controller
         $stats = $reportingService->getStatistics($query);
         $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
-        // Data line chart gabungan (pemasukan + pengeluaran) per periode:
-        // minggu, bulan, dan tahun — real, per user
         $trendData = [
             'week'  => $reportingService->getTrendSeries('week'),
             'month' => $reportingService->getTrendSeries('month'),
@@ -61,6 +60,19 @@ class TransactionController extends Controller
             'categoryExpenses' => $categoryExpenses,
             'trendData'        => $trendData,
         ], $stats));
+    }
+
+    public function parseVoice(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string|max:1000',
+        ]);
+
+        $parsed = TransactionParser::fromText($request->text);
+
+        return response()->json([
+            'data' => $parsed,
+        ]);
     }
 
     public function exportPdf(Request $request)
@@ -184,16 +196,8 @@ class TransactionController extends Controller
         return redirect('/transactions')->with('success', 'Transaksi berhasil dihapus!');
     }
 
-    /**
-     * Menyimpan gambar bukti transaksi lalu mengompres/resize otomatis
-     * agar file tidak membebani penyimpanan dan halaman.
-     *
-     * Foto kamera HP biasanya 3-8 MB; hasilnya dikonversi ke JPEG
-     * (maks 1280px, kualitas 80) sehingga biasanya < 300 KB.
-     */
     private function storeAndOptimizeImage(UploadedFile $file): string
     {
-        // Simpan file asli dulu (masuk folder storage/app/public/receipts)
         $path = $file->store('receipts', 'public');
 
         try {
@@ -203,16 +207,12 @@ class TransactionController extends Controller
                 return $optimizedPath;
             }
         } catch (\Throwable $e) {
-            // Abaikan error optimasi — file asli tetap dipakai
+            // Error ditoleransi
         }
 
         return $path;
     }
 
-    /**
-     * Memperkecil & mengompres gambar dengan GD. Mengembalikan path baru
-     * (format JPEG) jika berhasil dan lebih kecil, atau null jika tidak.
-     */
     private function optimizeImage(string $fullPath): ?string
     {
         if (!extension_loaded('gd')) {
@@ -230,7 +230,6 @@ class TransactionController extends Controller
             return null;
         }
 
-        // Koreksi orientasi foto HP (EXIF)
         if (function_exists('exif_read_data')) {
             $exif  = @exif_read_data($fullPath);
             $angle = [3 => 180, 6 => -90, 8 => 90][$exif['Orientation'] ?? 0] ?? null;
@@ -241,7 +240,6 @@ class TransactionController extends Controller
             }
         }
 
-        // Resize jika lebih besar dari 1280px (tetap 1:1 untuk gambar kecil)
         $maxDim = 1280;
         $scale  = min(1, $maxDim / max($width, $height));
         if ($scale < 1) {
@@ -251,14 +249,12 @@ class TransactionController extends Controller
             $source = $canvas;
         }
 
-        // Simpan sebagai JPEG kualitas 80
         $dir     = dirname($fullPath);
         $newName = pathinfo($fullPath, PATHINFO_FILENAME) . '-' . time() . '.jpg';
         $newFull = $dir . '/' . $newName;
         imagejpeg($source, $newFull, 80);
         imagedestroy($source);
 
-        // Hanya pakai hasil optimasi jika benar-benar lebih kecil
         if (!file_exists($newFull) || filesize($newFull) >= filesize($fullPath)) {
             @unlink($newFull);
             return null;
@@ -267,9 +263,6 @@ class TransactionController extends Controller
         return 'receipts/' . $newName;
     }
 
-    /**
-     * Normalisasi nilai nominal uang agar bersih dari simbol dan format ribuan.
-     */
     private function normalizeAmount($value): float
     {
         $s = preg_replace('/[^0-9.,]/', '', (string) $value);

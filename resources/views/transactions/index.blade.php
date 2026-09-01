@@ -11,7 +11,6 @@
     <meta name="theme-color" content="#0A1128">
     <link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Branding / Icons -->
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
@@ -24,12 +23,10 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <title>Transaksi - DompetKu</title>
 
-    <!-- Theme Init - KRITIKAL Sebelum Render -->
     <script>
         (function initTheme() {
             try {
                 const savedTheme = localStorage.getItem('theme');
-                // Default tema gelap navy (#0A1128) — mode terang hanya jika user memilihnya
                 const isDark = savedTheme !== 'light';
                 if (isDark) document.documentElement.classList.add('dark');
                 document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
@@ -39,7 +36,6 @@
         })();
     </script>
 
-    <!-- CSS & JS hasil build (Vite) — Alpine & Chart.js ikut dibundle, tanpa CDN -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/chart.js'])
 
     <style>
@@ -66,17 +62,11 @@
             animation: skeleton-shimmer 1.4s infinite ease-in-out;
         }
 
-        img[loading="lazy"] {
-            background: #f1f5f9;
-        }
-        .dark img[loading="lazy"] {
-            background: #101d3c;
-        }
+        img[loading="lazy"] { background: #f1f5f9; }
+        .dark img[loading="lazy"] { background: #101d3c; }
 
-        /* Dropdown transition */
         [x-cloak] { display: none !important; }
 
-        /* Custom select dropdown arrow — professional & consistent */
         .select-field {
             appearance: none;
             -webkit-appearance: none;
@@ -90,16 +80,11 @@
         .dark .select-field {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
-
-
     </style>
 </head>
 
 <body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased flex flex-col">
 
-    <!-- ============================================================
-    ALPINE.JS APP — loading, statistik & grafik (theme/privacy ditangani app.js)
-    ============================================================ -->
     <script>
         function dashboardApp() {
             return {
@@ -109,7 +94,6 @@
                 totalIncome: {{ $totalIncome ?? $pemasukan ?? 0 }},
                 totalExpense: {{ $totalExpense ?? $pengeluaran ?? 0 }},
                 categoryExpenses: @json($categoryExpenses ?? []),
-                // Data grafik gabungan per periode: minggu / bulan / tahun
                 @php
                     $trendDataJson = json_encode($trendData ?? [
                         'week'  => ['labels' => [], 'income' => [], 'expense' => []],
@@ -125,7 +109,6 @@
                 initDashboard() {
                     this.isLoading = true;
 
-                    // Sinkronkan grafik saat tema diganti lewat navbar (app.js)
                     window.addEventListener('theme-changed', (e) => {
                         this.isDarkMode = e.detail?.isDark ?? document.documentElement.classList.contains('dark');
                         this.initTrendChart();
@@ -143,13 +126,11 @@
                     }, 500);
                 },
 
-                // Ganti periode grafik: minggu / bulan / tahun
                 setTrendPeriod(period) {
                     this.trendPeriod = period;
                     this.initTrendChart();
                 },
 
-                // Line chart gabungan pemasukan + pengeluaran per periode
                 initTrendChart() {
                     const canvas = document.getElementById('trendChart');
                     if (!canvas) return;
@@ -165,7 +146,6 @@
 
                     const series = this.trendData[this.trendPeriod] ?? { labels: [], income: [], expense: [] };
 
-                    // Warna profesional: biru/navy untuk pemasukan, merah untuk pengeluaran
                     const incomeColor = isDark ? '#3b63b8' : '#2563eb';
                     const expenseColor = isDark ? '#f87171' : '#ef4444';
                     const incomeFill = isDark ? 'rgba(59, 99, 184, 0.08)' : 'rgba(37, 99, 235, 0.08)';
@@ -233,7 +213,6 @@
                     if (entries.length === 0) return;
 
                     const isDark = this.isDarkMode;
-                    // Palet profesional & berkelas (tidak mencolok)
                     const palette = isDark
                         ? ['#3b63b8', '#f87171', '#60a5fa', '#a3a3a3', '#c084fc', '#34d399', '#fbbf24', '#f97316', '#94a3b8', '#f472b6']
                         : ['#2563eb', '#3b63b8', '#0ea5e9', '#8b5cf6', '#14b8a6', '#f97316', '#ef4444', '#84cc16', '#64748b', '#f59e0b'];
@@ -275,10 +254,8 @@
         }
     </script>
 
-    <!-- NAVBAR (komponen terpadu) -->
     <x-navbar />
 
-    <!-- Toast Notification -->
     @if(session('success'))
     <div id="toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
          class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-navy-900 rounded-2xl shadow-xl border border-slate-100 dark:border-navy-800">
@@ -292,10 +269,8 @@
     </div>
     @endif
 
-    <!-- MAIN CONTENT BODY -->
     <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
-        <!-- SKELETON KARTU SALDO — satu blok utuh meniru bentuk kartu (label, saldo, dua tile) -->
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
             <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
@@ -311,15 +286,12 @@
             </div>
         </div>
 
-        <!-- KARTU SALDO — satu persegi panjang: saldo besar + tombol privasi di kanan, pemasukan/pengeluaran kecil di bawah -->
         <section x-show="!isLoading"
                  class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
 
-            <!-- dekorasi lingkaran transparan -->
             <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
             <div class="absolute -bottom-10 -right-4 w-24 h-24 bg-white/5 rounded-full pointer-events-none"></div>
 
-            <!-- Baris atas: label Saldo + tombol privasi di kanan -->
             <div class="relative flex items-center justify-between">
                 <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-blue-100/90 dark:text-navy-300/90">Saldo</span>
 
@@ -335,13 +307,11 @@
                 </button>
             </div>
 
-            <!-- Saldo BESAR -->
             <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words privacy-target"
                  x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
-            <!-- Pemasukan & Pengeluaran (tile berisi, berdampingan rapat) -->
             <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-white/15">
 
                 <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white dark:bg-navy-800/80 border border-slate-200/80 dark:border-navy-700/60 px-2.5 sm:px-3 py-2.5 min-w-0">
@@ -410,7 +380,6 @@
                     $pctColor   = $isOver ? 'text-rose-600 dark:text-rose-400' : ($percentage >= 80 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400');
                 @endphp
 
-                <!-- Angka utama: sisa anggaran (atau kelebihan) -->
                 <div class="flex items-end justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-[11px] font-semibold uppercase tracking-wider {{ $statusTxt }}">
@@ -427,12 +396,10 @@
                     </div>
                 </div>
 
-                <!-- Progress bar -->
                 <div class="mt-4 w-full h-3.5 bg-slate-100 dark:bg-navy-800 rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                <!-- Ringkasan: batas / terpakai / sisa per hari -->
                 <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100 dark:border-navy-800">
                     <div class="min-w-0">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Batas</p>
@@ -472,7 +439,7 @@
             @endif
         </section>
 
-        <!-- CHART TREN — line chart gabungan pemasukan + pengeluaran, toggle Minggu/Bulan/Tahun -->
+        <!-- CHART TREN -->
         <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
@@ -480,7 +447,6 @@
                     <p class="text-xs text-slate-500 dark:text-white/70">Perbandingan pemasukan dan pengeluaran</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <!-- Toggle periode: Minggu / Bulan / Tahun -->
                     <div class="inline-flex items-center gap-1 p-1 bg-slate-100 dark:bg-navy-800 rounded-full no-print">
                         <button type="button" @click="setTrendPeriod('week')"
                                 class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
@@ -498,7 +464,6 @@
                             Tahun
                         </button>
                     </div>
-                    <!-- Legenda pemasukan / pengeluaran -->
                     <span class="flex items-center gap-3 text-xs font-semibold text-slate-600 dark:text-white/80">
                         <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-navy-400 flex-shrink-0"></span> Pemasukan</span>
                         <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></span> Pengeluaran</span>
@@ -533,7 +498,7 @@
             </div>
         </section>
 
-        <!-- FILTER — search pill ala Gemini + filter rapi -->
+        <!-- FILTER -->
         <section class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl p-4 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
@@ -583,10 +548,9 @@
             </form>
         </section>
 
-        <!-- TABLE TRANSACTIONS (RIWAYAT) -->
+        <!-- TABLE TRANSACTIONS -->
         <section id="riwayat" class="bg-white dark:bg-navy-900 border border-slate-200/80 dark:border-navy-800 rounded-2xl shadow-sm overflow-hidden">
 
-            <!-- Header: Transaksi Terakhir (gaya prototipe section 3) -->
             <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-200/80 dark:border-navy-800">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Transaksi Terakhir</h2>
@@ -599,7 +563,6 @@
                 </a>
             </div>
 
-            <!-- SKELETON LOAD -->
             <div x-show="isLoading">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -642,9 +605,7 @@
                 </div>
             </div>
 
-            <!-- CONTENT TRANSACTIONS -->
             <div x-show="!isLoading">
-                <!-- DESKTOP TABLE -->
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -661,7 +622,6 @@
                         <tbody class="divide-y divide-slate-100 dark:divide-navy-800 text-xs sm:text-sm">
                             @php
                                 $items = $transactions ?? $transaksi ?? [];
-                                // Icon & warna kategori sebagai placeholder saat tidak ada gambar bukti
                                 $catVisuals = [
                                     'Gaji'               => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>', 'bg' => 'bg-emerald-50 dark:bg-emerald-950/60', 'color' => 'text-emerald-600 dark:text-emerald-400'],
                                     'Bonus'              => ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>', 'bg' => 'bg-amber-50 dark:bg-amber-950/60', 'color' => 'text-amber-600 dark:text-amber-400'],
@@ -751,12 +711,9 @@
                     </table>
                 </div>
 
-                <!-- MOBILE LIST VIEW -->
                 <div class="block md:hidden divide-y divide-slate-100 dark:divide-navy-800">
                     @forelse ($items as $item)
                     <div class="p-4" x-data="{ open: false }">
-
-                        <!-- Baris 1: Tanggal + Jenis -->
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-slate-400 font-medium">
                                 {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
@@ -766,13 +723,11 @@
                             </span>
                         </div>
 
-                        <!-- Baris 2: Ringkasan — tap untuk membuka aksi -->
                         <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
                                 class="w-full flex items-center gap-3 pt-1 text-left group">
                             @php
                                 $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat;
                                 $hasImg = !empty($item->image);
-                                $delay = 600 + ($loop->index * 80);
                             @endphp
                             @if($hasImg)
                             <a href="{{ asset('storage/' . $item->image) }}" target="_blank">
@@ -809,7 +764,6 @@
                             </div>
                         </button>
 
-                        <!-- Panel aksi: muncul saat baris di-tap (disembunyikan saat print) -->
                         <div id="tx-actions-{{ $item->id }}" x-show="open" x-cloak
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 -translate-y-1"
@@ -849,7 +803,6 @@
                     @endforelse
                 </div>
 
-                <!-- PAGINATION WITH RAPIH SPACING -->
                 @if(isset($transactions) && method_exists($transactions, 'links') && $transactions->hasPages())
                 <div class="px-6 py-3 border-t border-slate-200/80 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-950/50">
                     {{ $transactions->links('vendor.pagination.tailwind') }}
@@ -863,13 +816,11 @@
 
     <!-- BUDGET MODAL -->
     <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
-        <!-- Backdrop Blur -->
         <div class="fixed inset-0 bg-slate-900/60 dark:bg-navy-950/80 backdrop-blur-sm transition-opacity" onclick="closeBudgetModal()"></div>
 
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md">
 
-                <!-- Header Modal -->
                 <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-navy-800">
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-blue-50 dark:bg-navy-400/10 text-blue-600 dark:text-navy-300 rounded-xl">
@@ -887,11 +838,9 @@
                     </button>
                 </div>
 
-                <!-- Form Body -->
                 <form action="{{ route('budgets.store') }}" method="POST" class="p-6 space-y-4" x-data="budgetForm({{ $budget?->amount ?? 0 }})">
                     @csrf
 
-                    <!-- Ringkasan pengeluaran bulan ini (konteks saat menyetel anggaran) -->
                     @if($monthlyExpense > 0)
                     <div class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-100 dark:border-navy-700/60 rounded-xl">
                         <span class="text-xs font-medium text-slate-500 dark:text-white/70">Pengeluaran bulan ini</span>
@@ -911,7 +860,6 @@
                         <p class="mt-1.5 text-[11px] text-slate-400 dark:text-white/50">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
                     </div>
 
-                    <!-- Chip nominal cepat -->
                     <div>
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/60 mb-2">Pilih cepat</p>
                         <div class="flex flex-wrap gap-2">
@@ -945,7 +893,6 @@
             document.getElementById('budgetModal').classList.add('hidden');
             document.body.style.overflow = '';
         }
-        // Tutup modal dengan ESC (anggaran & export) + kunci scroll body
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeBudgetModal();
@@ -953,7 +900,6 @@
             }
         });
 
-        // Form anggaran: input Rupiah otomatis + chip nominal cepat
         function budgetForm(initialAmount = 0) {
             const init = Number(initialAmount) || 0;
             return {
@@ -961,7 +907,6 @@
                 displayAmount: init > 0 ? new Intl.NumberFormat('id-ID').format(init) : '',
                 presets: [500000, 1000000, 2000000, 5000000, 10000000],
 
-                // Format angka mentah -> "1.500.000" (hanya angka & pemisah ribuan)
                 onAmountInput(value) {
                     const digits = String(value).replace(/\D/g, '');
                     this.amount = digits === '' ? 0 : parseInt(digits, 10);
@@ -977,11 +922,7 @@
         }
     </script>
 
-    <!-- EXPORT MODAL -->
     @include('components.export-modal')
-
-    <!-- AI Chat Widget (disembunyikan di mobile — FAB dashboard sudah punya akses AI) -->
-    <x-ai-chat class="hidden md:block" />
 
 </body>
 </html>
