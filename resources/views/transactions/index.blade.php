@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="id" class="h-full bg-white dark:bg-navy-950"
       x-data="dashboardApp()"
       x-init="initDashboard()">
@@ -269,7 +269,7 @@
     </div>
     @endif
 
-    <div class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
+    <div class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
@@ -286,7 +286,7 @@
             </div>
         </div>
 
-        <section x-show="!isLoading"
+        <section x-show="!isLoading" x-cloak
                  class="relative overflow-hidden p-4 sm:p-6 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 dark:from-navy-900 dark:via-navy-900 dark:to-navy-950 text-white rounded-2xl shadow-lg shadow-blue-900/25 dark:shadow-black/50 dark:border dark:border-navy-400/25">
 
             <div class="absolute -top-8 -right-8 w-32 h-32 bg-white/5 rounded-full pointer-events-none"></div>
@@ -307,36 +307,43 @@
                 </button>
             </div>
 
-            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words privacy-target"
+            <!-- UI/UX FIX: data-privacy-toggle ditambahkan langsung. Angka terlalu panjang di HP otomatis break-words (turun) dan menghilangkan truncate ... -->
+            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words privacy-target cursor-pointer inline-block transition-opacity active:opacity-70"
+                 data-privacy-toggle
+                 title="Ketuk untuk sembunyikan/tampilkan saldo"
                  x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
             <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-white/15">
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white dark:bg-navy-800/80 border border-slate-200/80 dark:border-navy-700/60 px-2.5 sm:px-3 py-2.5 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white dark:bg-navy-800/80 border border-slate-200/80 dark:border-navy-700/60 px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0 cursor-pointer group"
+                     data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight truncate privacy-target"
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pemasukan</p>
+                        <!-- UI/UX FIX: truncate diganti break-all sm:break-words agar tidak potong titik-titik pada nominal fantastis -->
+                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight break-all sm:break-words privacy-target transition-opacity group-active:opacity-70"
                            x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                            x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white dark:bg-navy-800/80 border border-slate-200/80 dark:border-navy-700/60 px-2.5 sm:px-3 py-2.5 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-white dark:bg-navy-800/80 border border-slate-200/80 dark:border-navy-700/60 px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0 cursor-pointer group"
+                     data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                         </svg>
                     </span>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight truncate privacy-target"
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/70">Pengeluaran</p>
+                        <!-- UI/UX FIX: break-all sm:break-words diterapkan -->
+                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-rose-600 dark:text-rose-400 leading-tight break-all sm:break-words privacy-target transition-opacity group-active:opacity-70"
                            x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                            x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
                     </div>
@@ -385,7 +392,10 @@
                         <p class="text-[11px] font-semibold uppercase tracking-wider {{ $statusTxt }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }} privacy-target"
+                        <!-- UI/UX FIX: break-words & bisa diketuk -->
+                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white' }} privacy-target cursor-pointer transition-opacity active:opacity-70 inline-block"
+                           data-privacy-toggle
+                           title="Ketuk untuk sembunyikan/tampilkan saldo"
                            data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
                             {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
                         </p>
@@ -401,17 +411,18 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100 dark:border-navy-800">
-                    <div class="min-w-0">
+                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Batas</p>
-                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white truncate privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
+                        <!-- UI/UX FIX: break-all sm:break-words -->
+                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
                     </div>
-                    <div class="min-w-0">
+                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Terpakai</p>
-                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white truncate privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-slate-900 dark:text-white break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
                     </div>
-                    <div class="min-w-0">
+                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-white/50">Sisa / hari</p>
-                        <p class="mt-0.5 text-sm font-bold {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }} truncate privacy-target" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold {{ $isOver ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }} break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
                     </div>
                 </div>
 
@@ -678,7 +689,9 @@
                                         {{ ($item->type ?? 'income') == 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right font-extrabold text-slate-900 dark:text-white whitespace-nowrap privacy-target"
+                                <td class="py-4 px-6 text-right font-extrabold text-slate-900 dark:text-white whitespace-nowrap privacy-target cursor-pointer"
+                                    data-privacy-toggle
+                                    title="Ketuk untuk sembunyikan/tampilkan"
                                     data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </td>
@@ -753,7 +766,10 @@
                             </div>
 
                             <div class="flex-shrink-0 flex flex-col items-end gap-1">
-                                <p class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base whitespace-nowrap privacy-target"
+                                <!-- UI/UX FIX: data-privacy-toggle pada angka di list mobile -->
+                                <p class="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base whitespace-nowrap privacy-target cursor-pointer"
+                                   data-privacy-toggle
+                                   title="Ketuk untuk sembunyikan/tampilkan"
                                    data-amount="Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </p>
@@ -842,7 +858,7 @@
                     @csrf
 
                     @if($monthlyExpense > 0)
-                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-100 dark:border-navy-700/60 rounded-xl">
+                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-100 dark:border-navy-700/60 rounded-xl cursor-pointer" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
                         <span class="text-xs font-medium text-slate-500 dark:text-white/70">Pengeluaran bulan ini</span>
                         <span class="text-sm font-bold text-slate-900 dark:text-white privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span>
                     </div>
