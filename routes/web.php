@@ -3,18 +3,19 @@
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // 1. Halaman depan: landing page (guest) atau redirect ke transaksi (sudah login)
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect('/transactions');
     }
     return view('landing');
 });
 
 // 2. Redirect URL /dashboard lama ke transactions.index
-Route::get('/dashboard', fn () => redirect(auth()->check() ? route('transactions.index') : route('login')));
+Route::get('/dashboard', fn () => redirect(Auth::check() ? route('transactions.index') : route('login')));
 
 // 3. Route terproteksi Auth
 Route::middleware('auth')->group(function () {

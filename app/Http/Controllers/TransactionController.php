@@ -140,13 +140,13 @@ class TransactionController extends Controller
         return redirect('/transactions')->with('success', 'Transaksi berhasil ditambahkan!');
     }
 
-    public function edit($id)
+    public function edit(string $id)
     {
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
         return view('transactions.edit', compact('transaction'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         if ($request->has('amount')) {
             $request->merge(['amount' => $this->normalizeAmount($request->input('amount'))]);
@@ -183,7 +183,7 @@ class TransactionController extends Controller
         return redirect('/transactions')->with('success', 'Transaksi berhasil diperbarui!');
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
 
@@ -263,7 +263,7 @@ class TransactionController extends Controller
         return 'receipts/' . $newName;
     }
 
-    private function normalizeAmount($value): float
+    private function normalizeAmount(mixed $value): float
     {
         $s = preg_replace('/[^0-9.,]/', '', (string) $value);
         if (str_contains($s, ',')) {
