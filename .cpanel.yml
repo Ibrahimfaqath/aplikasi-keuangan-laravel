@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home3/almahir/ibrahim_projects/finance.almahir.cloud
+    - /bin/cp -R * $DEPLOYPATH
