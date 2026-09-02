@@ -940,5 +940,8 @@
 
     @include('components.export-modal')
 
+    <!-- AI Chat Widget Floating -->
+    <x-ai-chat class="hidden md:block" />
+
 </body>
 </html>
