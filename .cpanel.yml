@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home3/almahir/ibrahim_projects/finance.almahir.cloud
+    - export DEPLOYPATH=/home3/almahir/ibrahim_projects/laravel_finance
     - /bin/cp -R * $DEPLOYPATH
