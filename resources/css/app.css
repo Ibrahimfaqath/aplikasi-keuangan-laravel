@@ -60,4 +60,13 @@
         background-size: 200% 100%;
         animation: skeleton-shimmer 1.4s infinite ease-in-out;
     }
+
+    /* AI Chat Widget - Global Floating */
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+    .animate-bounce {
+        animation: bounce 0.6s infinite;
+    }
 }

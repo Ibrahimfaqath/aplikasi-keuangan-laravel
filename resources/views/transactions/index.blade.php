@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="id" class="h-full bg-white dark:bg-navy-950"
       x-data="dashboardApp()"
       x-init="initDashboard()">
@@ -940,8 +940,15 @@
 
     @include('components.export-modal')
 
-    <!-- AI Chat Widget Floating -->
-    <x-ai-chat class="hidden md:block" />
+    <!-- AI Floating Button -->
+@auth
+<div style="position:fixed;bottom:100px;right:20px;z-index:9999;">
+    <a href="{{ route('ai.index') }}" 
+       style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:#2563eb;color:white;border-radius:50%;box-shadow:0 10px 25px rgba(37,99,235,0.3);text-decoration:none;font-size:14px;font-weight:bold;font-family:sans-serif;">
+        AI
+    </a>
+</div>
+@endauth
 
 </body>
 </html>
