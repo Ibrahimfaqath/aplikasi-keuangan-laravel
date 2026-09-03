@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use App\Models\Transaction;
+use App\Services\ReportingService;
 
 class AiController extends Controller
 {
@@ -42,35 +43,94 @@ class AiController extends Controller
         }
 
         $user = Auth::user();
+        $reportingService = new ReportingService();
+        $now = Carbon::now();
 
+        // 1. Data semua waktu
+        $allTimeQuery = $reportingService->getFilteredQuery(['period' => 'all']);
+        $allTimeStats = $reportingService->getStatistics($allTimeQuery);
+
+        // 2. Data bulan ini
+        $thisMonthQuery = $reportingService->getFilteredQuery(['period' => 'this_month']);
+        $thisMonthStats = $reportingService->getStatistics($thisMonthQuery);
+        $thisMonthCategories = $reportingService->getCategoryBreakdown($thisMonthQuery);
+
+        // 3. Data bulan lalu
+        $lastMonth = $now->copy()->subMonth();
+        $lastMonthQuery = $reportingService->getFilteredQuery([
+            'period' => 'custom',
+            'start_date' => $lastMonth->copy()->startOfMonth()->format('Y-m-d'),
+            'end_date' => $lastMonth->copy()->endOfMonth()->format('Y-m-d'),
+        ]);
+        $lastMonthStats = $reportingService->getStatistics($lastMonthQuery);
+
+        // 4. Data minggu ini
+        $thisWeekQuery = $reportingService->getFilteredQuery(['period' => '7_days']);
+        $thisWeekStats = $reportingService->getStatistics($thisWeekQuery);
+
+        // 5. Data tahun ini
+        $thisYearQuery = $reportingService->getFilteredQuery(['period' => 'this_year']);
+        $thisYearStats = $reportingService->getStatistics($thisYearQuery);
+
+        // 6. Transaksi terakhir (20)
         $transactions = Transaction::where('user_id', $user->id)
             ->orderBy('transaction_date', 'desc')
             ->limit(20)
             ->get(['title', 'amount', 'type', 'category', 'transaction_date']);
 
-        $totalIncome = Transaction::where('user_id', $user->id)->where('type', 'income')->sum('amount');
-        $totalExpense = Transaction::where('user_id', $user->id)->where('type', 'expense')->sum('amount');
-        $balance = $totalIncome - $totalExpense;
-
+        // Build system prompt dengan data lengkap
         $systemPrompt = "Kamu adalah asisten keuangan pribadi bernama DompetKu AI. Jawab dalam Bahasa Indonesia yang ramah dan santai.
 
-DATA KEUANGAN USER:
-- Total Pemasukan: Rp " . number_format($totalIncome, 0, ',', '.') . "
-- Total Pengeluaran: Rp " . number_format($totalExpense, 0, ',', '.') . "
-- Saldo: Rp " . number_format($balance, 0, ',', '.') . "
+DATA KEUANGAN USER (SEMUA WAKTU):
+- Total Pemasukan: Rp " . number_format($allTimeStats['totalIncome'], 0, ',', '.') . "
+- Total Pengeluaran: Rp " . number_format($allTimeStats['totalExpense'], 0, ',', '.') . "
+- Saldo: Rp " . number_format($allTimeStats['totalBalance'], 0, ',', '.') . "
 
-TRANSAKSI TERAKHIR:
+DATA BULAN INI (" . $now->isoFormat('MMMM YYYY') . "):
+- Pemasukan: Rp " . number_format($thisMonthStats['totalIncome'], 0, ',', '.') . "
+- Pengeluaran: Rp " . number_format($thisMonthStats['totalExpense'], 0, ',', '.') . "
+- Saldo: Rp " . number_format($thisMonthStats['totalBalance'], 0, ',', '.') . "
+
+KATEGORI PENGELUARAN BULAN INI:
+" . $this->formatCategoryBreakdown($thisMonthCategories) . "
+
+DATA BULAN LALU (" . $lastMonth->isoFormat('MMMM YYYY') . "):
+- Pemasukan: Rp " . number_format($lastMonthStats['totalIncome'], 0, ',', '.') . "
+- Pengeluaran: Rp " . number_format($lastMonthStats['totalExpense'], 0, ',', '.') . "
+- Saldo: Rp " . number_format($lastMonthStats['totalBalance'], 0, ',', '.') . "
+
+DATA MINGGU INI:
+- Pemasukan: Rp " . number_format($thisWeekStats['totalIncome'], 0, ',', '.') . "
+- Pengeluaran: Rp " . number_format($thisWeekStats['totalExpense'], 0, ',', '.') . "
+
+DATA TAHUN INI:
+- Pemasukan: Rp " . number_format($thisYearStats['totalIncome'], 0, ',', '.') . "
+- Pengeluaran: Rp " . number_format($thisYearStats['totalExpense'], 0, ',', '.') . "
+
+TRANSAKSI TERAKHIR (20):
 " . $transactions->map(fn($t) => "- {$t->transaction_date}: {$t->title} ({$t->type}) Rp " . number_format($t->amount, 0, ',', '.'))->implode("\n") . "
 
 ATURAN PENTING:
-1. Jika user ingin MENCATAT transaksi, jangan langsung simpan. Berikan ringkasan transaksi dan MINTA KONFIRMASI dulu.
-2. Format respons untuk transaksi:
-   'Aku tangkap ya: [detail transaksi]. Setujui dengan klik tombol Simpan di bawah, atau ketik batal.'
-3. Sertakan JSON transaksi di akhir respons dengan format:
-   <<<JSON
-   {\"intent\":\"transaction\",\"title\":\"Judul\",\"amount\":25000,\"type\":\"expense\",\"category\":\"Makanan & Minuman\",\"date\":\"" . now()->format('Y-m-d') . "\"}
-   JSON>>>
-4. Kategori valid: " . self::CATEGORIES_HINT;
+1. Gunakan DATA NYATA dari atas untuk menjawab pertanyaan user. JANGAN mengarang angka.
+2. Jika user menanyakan data di luar periode yang tersedia, jawab dengan data yang ada atau minta klarifikasi.
+3. Jika user ingin MENCATAT transaksi, ikuti aturan konfirmasi (lihat instruksi di bawah).
+4. Format respons untuk transaksi: sertakan JSON di akhir respons.
+
+" . ($this->isTransactionRequest($request->message) ? "
+INSTRUKSI KHUSUS (user ingin mencatat transaksi):
+- Deteksi transaksi dari pesan user.
+- Berikan ringkasan dan MINTA KONFIRMASI.
+- Sertakan JSON transaksi di akhir respons dengan format:
+<<<JSON
+{\"intent\":\"transaction\",\"title\":\"Judul\",\"amount\":25000,\"type\":\"expense\",\"category\":\"Makanan & Minuman\",\"date\":\"" . now()->format('Y-m-d') . "\"}
+JSON>>>
+" : "
+INSTRUKSI KHUSUS (user bertanya tentang keuangan):
+- Jawab berdasarkan DATA NYATA di atas.
+- Berikan analisis sederhana jika diminta.
+- Jika data tidak tersedia, katakan dengan jujur.
+") . "
+Kategori valid: " . self::CATEGORIES_HINT;
 
         $reply = null;
         $transaction = null;
@@ -91,7 +151,7 @@ ATURAN PENTING:
             if ($response->successful()) {
                 $data = $response->json();
                 $reply = $data['choices'][0]['message']['content'] ?? null;
-
+                
                 [$reply, $transaction] = $this->extractTransaction($reply ?? '');
             }
         } catch (\Throwable $e) {
@@ -105,7 +165,7 @@ ATURAN PENTING:
         // Simpan ke session untuk riwayat
         Session::push('ai_messages', ['role' => 'user', 'text' => $request->message]);
         Session::push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
-
+        
         $history = array_slice(Session::get('ai_messages', []), -100);
         Session::put('ai_messages', $history);
 
@@ -125,9 +185,6 @@ ATURAN PENTING:
             'transaction_date' => 'required|date',
         ]);
 
-        // ... create
-
-
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'title' => trim($request->title),
@@ -139,9 +196,9 @@ ATURAN PENTING:
         ]);
 
         $successMsg = "✅ Transaksi berhasil disimpan!\n📝 {$transaction->title}\n💰 Rp " . number_format($transaction->amount, 0, ',', '.') . "\n📂 {$transaction->category}";
-
+        
         Session::push('ai_messages', [
-            'role' => 'assistant',
+            'role' => 'assistant', 
             'text' => $successMsg,
         ]);
 
@@ -155,7 +212,7 @@ ATURAN PENTING:
     public function cancelTransaction(Request $request)
     {
         Session::push('ai_messages', [
-            'role' => 'assistant',
+            'role' => 'assistant', 
             'text' => '❌ Transaksi dibatalkan. Ketik ulang jika ingin mencatat lagi ya!',
         ]);
 
@@ -223,5 +280,36 @@ ATURAN PENTING:
         }
 
         return [$reply, $transaction];
+    }
+
+    private function formatCategoryBreakdown(array $categories): string
+    {
+        if (empty($categories)) {
+            return "  (Belum ada data pengeluaran bulan ini)";
+        }
+        
+        $result = [];
+        foreach ($categories as $category => $amount) {
+            $result[] = "  - {$category}: Rp " . number_format($amount, 0, ',', '.');
+        }
+        return implode("\n", $result);
+    }
+
+    private function isTransactionRequest(string $message): bool
+    {
+        $keywords = ['catat', 'catatkan', 'input', 'tambah', 'rekam', 'beli', 'bayar', 'jajan', 'makan', 'minum', 'isi', 'top up', 'gaji', 'bonus', 'transfer'];
+        $lower = mb_strtolower($message);
+        
+        // Cek apakah ada kata kunci transaksi
+        foreach ($keywords as $kw) {
+            if (str_contains($lower, $kw)) {
+                // Cek juga apakah ada nominal (angka atau kata angka)
+                if (preg_match('/\d{3,}/', $message) || preg_match('/\b(ribu|juta|miliar|rb|k)\b/', $lower)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }
