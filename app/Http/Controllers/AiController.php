@@ -37,48 +37,38 @@ class AiController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        $apiKey = config('services.deepseek.key');
-        $apiUrl = config('services.deepseek.url');
+        $apiKey = config('services.kiosapi.key');
+        $apiUrl = config('services.kiosapi.url');
+        $apiModel = config('services.kiosapi.model');
 
-        if (!$apiKey) {
-            return response()->json(['error' => 'API key belum dikonfigurasi.'], 500);
+        if (blank($apiKey)) {
+            Log::warning('KIOSAPI_API_KEY is not configured', [
+                'user_id' => Auth::id(),
+            ]);
+            return response()->json([
+                'reply' => 'Maaf, asisten belum dikonfigurasi. Silakan hubungi administrator.',
+            ], 500);
         }
 
         $user = Auth::user();
-        $reportingService = new ReportingService();
         $now = Carbon::now();
+        $chatStarted = microtime(true);
 
-        // 1. Data semua waktu
-        $allTimeQuery = $reportingService->getFilteredQuery(['period' => 'all']);
-        $allTimeStats = $reportingService->getStatistics($allTimeQuery);
-
-        // 2. Data bulan ini
-        $thisMonthQuery = $reportingService->getFilteredQuery(['period' => 'this_month']);
-        $thisMonthStats = $reportingService->getStatistics($thisMonthQuery);
-        $thisMonthCategories = $reportingService->getCategoryBreakdown($thisMonthQuery);
-
-        // 3. Data bulan lalu
-        $lastMonth = $now->copy()->subMonth();
-        $lastMonthQuery = $reportingService->getFilteredQuery([
-            'period' => 'custom',
-            'start_date' => $lastMonth->copy()->startOfMonth()->format('Y-m-d'),
-            'end_date' => $lastMonth->copy()->endOfMonth()->format('Y-m-d'),
-        ]);
-        $lastMonthStats = $reportingService->getStatistics($lastMonthQuery);
-
-        // 4. Data minggu ini
-        $thisWeekQuery = $reportingService->getFilteredQuery(['period' => '7_days']);
-        $thisWeekStats = $reportingService->getStatistics($thisWeekQuery);
-
-        // 5. Data tahun ini
-        $thisYearQuery = $reportingService->getFilteredQuery(['period' => 'this_year']);
-        $thisYearStats = $reportingService->getStatistics($thisYearQuery);
-
-        // 6. Transaksi terakhir (20)
-        $transactions = Transaction::where('user_id', $user->id)
-            ->orderBy('transaction_date', 'desc')
-            ->limit(20)
-            ->get(['title', 'amount', 'type', 'category', 'transaction_date']);
+        // Financial context in 3 queries (was ~12): one conditional
+        // aggregate for all periods, one category breakdown, one recent list.
+        // The numbers produced are identical to the previous per-period
+        // ReportingService queries; only the query count is reduced.
+        $contextStarted = microtime(true);
+        $ctx = $this->buildFinancialContext((int) $user->id, $now);
+        $allTimeStats = $ctx['allTime'];
+        $thisMonthStats = $ctx['thisMonth'];
+        $thisMonthCategories = $ctx['monthCategories'];
+        $lastMonthStats = $ctx['lastMonth'];
+        $thisWeekStats = $ctx['thisWeek'];
+        $thisYearStats = $ctx['thisYear'];
+        $transactions = $ctx['recent'];
+        $lastMonth = $ctx['lastMonthDate'];
+        $contextMs = (int) round((microtime(true) - $contextStarted) * 1000);
 
         // Build system prompt dengan data lengkap
         $systemPrompt = "Kamu adalah asisten keuangan pribadi bernama DompetKu AI. Jawab dalam Bahasa Indonesia yang ramah dan santai.
@@ -136,38 +126,77 @@ Kategori valid: " . self::CATEGORIES_HINT;
 
         $reply = null;
         $transaction = null;
+        $httpStatus = null;
+        $apiMs = null;
+        $parseMs = null;
 
         try {
-            $response = Http::withHeaders([
-                'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer ' . $apiKey,
-            ])->timeout(30)->post($apiUrl, [
-                'model' => 'deepseek-chat',
-                'messages' => [
-                    ['role' => 'system', 'content' => $systemPrompt],
-                    ['role' => 'user', 'content' => $request->message],
-                ],
-                'temperature' => 0.7,
-            ]);
+            $apiStarted = microtime(true);
+            $response = Http::withToken($apiKey)
+                ->acceptJson()
+                ->timeout(60)
+                ->post($apiUrl, [
+                    'model' => $apiModel,
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $request->message],
+                    ],
+                    'temperature' => 0.7,
+                ]);
+            $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
+            $httpStatus = $response->status();
 
             if ($response->successful()) {
-                $data = $response->json();
-                $reply = $data['choices'][0]['message']['content'] ?? null;
-                
-                [$reply, $transaction] = $this->extractTransaction($reply ?? '');
+                $parseStarted = microtime(true);
+                $content = $this->extractContent($response);
+                if ($content === null) {
+                    Log::error('KiosAPI returned malformed response', [
+                        'user_id' => Auth::id(),
+                        'http_status' => $response->status(),
+                        'body_sample' => mb_substr($response->body(), 0, 500),
+                    ]);
+                    $reply = 'Maaf, asisten sedang mengalami masalah. Coba lagi ya!';
+                } else {
+                    [$reply, $transaction] = $this->extractTransaction($content);
+                }
+                $parseMs = (int) round((microtime(true) - $parseStarted) * 1000);
+            } else {
+                $this->logApiError($response);
+                $reply = 'Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!';
             }
-        } catch (\Throwable $e) {
-            Log::error('AI chat error', [
-                'message' => $request->message,
-                'error_type' => get_class($e),
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('KiosAPI connection error', [
                 'user_id' => Auth::id(),
+                'error_type' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+            $reply = 'Maaf, koneksi ke asisten terputus. Periksa koneksi internetmu ya!';
+        } catch (\Throwable $e) {
+            Log::error('KiosAPI request exception', [
+                'user_id' => Auth::id(),
+                'error_type' => get_class($e),
+                'message' => $e->getMessage(),
             ]);
             $reply = 'Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!';
         }
 
         if ($reply === null) {
-            $reply = 'Maaf, layanan sedang sibuk. Coba lagi ya!';
+            $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
         }
+
+        // Safe timing breakdown (debug level): distinguishes application
+        // latency (context/prompt building) from KiosAPI/model latency.
+        // Never logs keys, headers, financial figures, or message content.
+        Log::debug('AI chat timing', [
+            'user_id' => Auth::id(),
+            'context_ms' => $contextMs,
+            'api_ms' => $apiMs,
+            'parse_ms' => $parseMs,
+            'total_ms' => (int) round((microtime(true) - $chatStarted) * 1000),
+            'prompt_chars' => strlen($systemPrompt),
+            'http_status' => $httpStatus,
+            'has_transaction' => $transaction !== null,
+        ]);
 
         // Simpan ke session untuk riwayat
         Session::push('ai_messages', ['role' => 'user', 'text' => $request->message]);
@@ -189,47 +218,75 @@ Kategori valid: " . self::CATEGORIES_HINT;
 
     public function confirmTransaction(Request $request)
     {
-        // Verify there's a pending transaction candidate from AI flow
-        $pendingTransaction = Session::get('pending_transaction');
-        
-        if (!$pendingTransaction) {
+        // The server-side pending candidate is authoritative: the frontend
+        // must send back the exact candidate it received from /ai/chat.
+        // Without a valid pending candidate, confirmation is rejected.
+        $pending = $this->normalizeCandidate(Session::get('pending_transaction'));
+
+        if (!$pending) {
             Log::warning('AI confirm attempted without pending candidate', [
                 'user_id' => Auth::id(),
-                'request_data' => $request->all(),
             ]);
+            Session::forget('pending_transaction');
             return response()->json([
                 'success' => false,
                 'message' => 'Sesi konfirmasi telah berakhir. Ketik ulang transaksi jika ingin mencatat ya!',
             ], 400);
         }
 
-        // Validate that the pending candidate has required fields
-        $request->validate([
+        // Accept the legacy "date" alias so older/verbatim AI payloads validate.
+        $request->merge([
+            'transaction_date' => $request->input('transaction_date', $request->input('date')),
+        ]);
+
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:1',
+            'amount' => 'required|numeric|min:1|max:999999999999.99',
             'type' => ['required', Rule::in(['income', 'expense'])],
             'category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'transaction_date' => 'required|date',
         ]);
 
-        // Make sure the pending transaction data is consistent with the request
-        $pendingTransaction['title'] = trim($request->title);
-        $pendingTransaction['amount'] = (float) $request->amount;
-        $pendingTransaction['type'] = $request->type;
-        $pendingTransaction['category'] = $request->category;
-        $pendingTransaction['transaction_date'] = Carbon::parse($request->transaction_date)->format('Y-m-d');
+        // Category must be valid for the selected type (e.g. an expense
+        // cannot be saved with the income-only "Gaji" category).
+        if (!in_array($validated['category'], Transaction::categoriesFor($validated['type']), true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak sesuai dengan jenis transaksi. Periksa lagi ya!',
+            ], 422);
+        }
+
+        // The request must match the pending candidate field-for-field.
+        // This prevents the frontend from sending arbitrary transaction data.
+        $matches =
+            trim($validated['title']) === $pending['title']
+            && (float) $validated['amount'] === (float) $pending['amount']
+            && $validated['type'] === $pending['type']
+            && $validated['category'] === $pending['category']
+            && Carbon::parse($validated['transaction_date'])->format('Y-m-d') === $pending['transaction_date'];
+
+        if (!$matches) {
+            Log::warning('AI confirm request does not match pending candidate', [
+                'user_id' => Auth::id(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Data konfirmasi tidak sesuai. Ketik ulang transaksi jika ingin mencatat ya!',
+            ], 422);
+        }
 
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
-            'title' => trim($request->title),
-            'category' => $request->category,
-            'amount' => (float) $request->amount,
-            'type' => $request->type,
-            'transaction_date' => Carbon::parse($request->transaction_date)->format('Y-m-d'),
+            'title' => $pending['title'],
+            'category' => $pending['category'],
+            'amount' => $pending['amount'],
+            'type' => $pending['type'],
+            'transaction_date' => $pending['transaction_date'],
             'image' => null,
         ]);
 
-        // Clear pending transaction after successful creation
+        // Clear pending AFTER successful creation; a retry then gets 400,
+        // so double confirmation can never create a duplicate.
         Session::forget('pending_transaction');
 
         $successMsg = "✅ Transaksi berhasil disimpan!\n📝 {$transaction->title}\n💰 Rp " . number_format($transaction->amount, 0, ',', '.') . "\n📂 {$transaction->category}";
@@ -308,18 +365,170 @@ Kategori valid: " . self::CATEGORIES_HINT;
         if (preg_match('/<<<JSON(.*?)JSON>>>/s', $reply, $m)) {
             $decoded = json_decode(trim($m[1]), true);
             $reply = trim(str_replace($m[0], '', $reply));
-            $transaction = is_array($decoded) ? $decoded : null;
-        }
-
-        if ($transaction) {
-            $title = trim((string) ($transaction['title'] ?? ''));
-            $amount = (float) ($transaction['amount'] ?? 0);
-            if ($title === '' || $amount < 1) {
-                $transaction = null;
-            }
+            $transaction = is_array($decoded) ? $this->normalizeCandidate($decoded) : null;
         }
 
         return [$reply, $transaction];
+    }
+
+    /**
+     * Normalize an AI transaction candidate to the canonical server shape:
+     * {title, amount, type, category, transaction_date}.
+     *
+     * Accepts the legacy "date" alias emitted by the model prompt so the
+     * frontend can POST the candidate back verbatim. Returns null when the
+     * candidate is not usable.
+     */
+    private function normalizeCandidate(mixed $candidate): ?array
+    {
+        if (!is_array($candidate)) {
+            return null;
+        }
+
+        $title = trim((string) ($candidate['title'] ?? ''));
+        $amount = (float) ($candidate['amount'] ?? 0);
+        $type = (string) ($candidate['type'] ?? '');
+        $category = trim((string) ($candidate['category'] ?? ''));
+        $date = $candidate['transaction_date'] ?? $candidate['date'] ?? null;
+
+        if ($title === '' || $amount < 1) {
+            return null;
+        }
+
+        if (!in_array($type, ['income', 'expense'], true)) {
+            return null;
+        }
+
+        if ($category === '' || !in_array($category, Transaction::allCategories(), true)) {
+            return null;
+        }
+
+        try {
+            $date = Carbon::parse($date)->format('Y-m-d');
+        } catch (\Throwable) {
+            $date = now()->format('Y-m-d');
+        }
+
+        return [
+            'title' => mb_substr($title, 0, 255),
+            'amount' => $amount,
+            'type' => $type,
+            'category' => $category,
+            'transaction_date' => $date,
+        ];
+    }
+
+    /**
+     * Validate and extract choices.0.message.content from an
+     * OpenAI-compatible Chat Completions response.
+     *
+     * Returns null if the response is invalid/malformed.
+     */
+    private function extractContent($response): ?string
+    {
+        $data = $response->json();
+        if (!is_array($data)) {
+            return null;
+        }
+
+        $content = $data['choices'][0]['message']['content'] ?? null;
+
+        return is_string($content) ? $content : null;
+    }
+
+    /**
+     * Log a safe summary of a failed API response. Never logs the API key
+     * or Authorization header.
+     */
+    private function logApiError($response): void
+    {
+        $status = $response->status();
+        $reason = $response->reason();
+
+        $context = [
+            'user_id' => Auth::id(),
+            'http_status' => $status,
+            'reason' => $reason,
+        ];
+
+        if ($status === 401) {
+            Log::warning('KiosAPI 401: invalid or missing API key', $context);
+        } elseif ($status === 403) {
+            Log::warning('KiosAPI 403: API access denied', $context);
+        } elseif ($status === 400) {
+            Log::warning('KiosAPI 400: invalid request/model/payload', $context);
+        } elseif ($status === 404) {
+            Log::warning('KiosAPI 404: wrong API endpoint', $context);
+        } elseif ($status === 429) {
+            Log::warning('KiosAPI 429: rate limit or quota exceeded', $context);
+        } elseif ($status >= 500) {
+            Log::error('KiosAPI 5xx: provider/server error', $context);
+        } else {
+            Log::error('KiosAPI unexpected HTTP status', $context);
+        }
+    }
+
+    /**
+     * Build all financial context for the system prompt in 3 queries:
+     * one conditional aggregate across every period, one category
+     * breakdown for the current month, and the 20 most recent transactions.
+     * Period boundaries mirror ReportingService::getFilteredQuery so the
+     * resulting figures are identical to the previous implementation.
+     *
+     * @return array{allTime: array, thisMonth: array, monthCategories: array, lastMonth: array, thisWeek: array, thisYear: array, recent: \Illuminate\Support\Collection, lastMonthDate: \Carbon\Carbon}
+     */
+    private function buildFinancialContext(int $userId, Carbon $now): array
+    {
+        $monthStart = $now->copy()->startOfMonth()->format('Y-m-d');
+        $monthEnd = $now->copy()->endOfMonth()->format('Y-m-d');
+        $lastMonthDate = $now->copy()->subMonth();
+        $lastStart = $lastMonthDate->copy()->startOfMonth()->format('Y-m-d');
+        $lastEnd = $lastMonthDate->copy()->endOfMonth()->format('Y-m-d');
+        $weekStart = $now->copy()->subDays(6)->format('Y-m-d');
+        $yearStart = $now->copy()->startOfYear()->format('Y-m-d');
+        $yearEnd = $now->copy()->endOfYear()->format('Y-m-d');
+
+        $row = Transaction::where('user_id', $userId)
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS all_income")
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS all_expense")
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS month_income", [$monthStart, $monthEnd])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS month_expense", [$monthStart, $monthEnd])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS last_income", [$lastStart, $lastEnd])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS last_expense", [$lastStart, $lastEnd])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' AND transaction_date >= ? THEN amount ELSE 0 END), 0) AS week_income", [$weekStart])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' AND transaction_date >= ? THEN amount ELSE 0 END), 0) AS week_expense", [$weekStart])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'income' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS year_income", [$yearStart, $yearEnd])
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'expense' AND transaction_date BETWEEN ? AND ? THEN amount ELSE 0 END), 0) AS year_expense", [$yearStart, $yearEnd])
+            ->first();
+
+        $stats = static function (float $income, float $expense): array {
+            return [
+                'totalIncome' => $income,
+                'totalExpense' => $expense,
+                'totalBalance' => $income - $expense,
+            ];
+        };
+
+        $reportingService = new ReportingService();
+        $monthCategories = $reportingService->getCategoryBreakdown(
+            $reportingService->getFilteredQuery(['period' => 'this_month'])
+        );
+
+        $recent = Transaction::where('user_id', $userId)
+            ->orderBy('transaction_date', 'desc')
+            ->limit(20)
+            ->get(['title', 'amount', 'type', 'category', 'transaction_date']);
+
+        return [
+            'allTime' => $stats((float) $row->all_income, (float) $row->all_expense),
+            'thisMonth' => $stats((float) $row->month_income, (float) $row->month_expense),
+            'monthCategories' => $monthCategories,
+            'lastMonth' => $stats((float) $row->last_income, (float) $row->last_expense),
+            'thisWeek' => $stats((float) $row->week_income, (float) $row->week_expense),
+            'thisYear' => $stats((float) $row->year_income, (float) $row->year_expense),
+            'recent' => $recent,
+            'lastMonthDate' => $lastMonthDate,
+        ];
     }
 
     private function formatCategoryBreakdown(array $categories): string

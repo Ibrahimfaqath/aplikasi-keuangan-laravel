@@ -645,5 +645,9 @@
 
     @include('components.export-modal')
 
+@auth
+@include('components.ai-chat')
+@endauth
+
 </body>
 </html>
