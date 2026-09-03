@@ -42,7 +42,7 @@ class AiController extends Controller
         }
 
         $user = Auth::user();
-        
+
         $transactions = Transaction::where('user_id', $user->id)
             ->orderBy('transaction_date', 'desc')
             ->limit(20)
@@ -91,7 +91,7 @@ ATURAN PENTING:
             if ($response->successful()) {
                 $data = $response->json();
                 $reply = $data['choices'][0]['message']['content'] ?? null;
-                
+
                 [$reply, $transaction] = $this->extractTransaction($reply ?? '');
             }
         } catch (\Throwable $e) {
@@ -105,7 +105,7 @@ ATURAN PENTING:
         // Simpan ke session untuk riwayat
         Session::push('ai_messages', ['role' => 'user', 'text' => $request->message]);
         Session::push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
-        
+
         $history = array_slice(Session::get('ai_messages', []), -100);
         Session::put('ai_messages', $history);
 
@@ -120,10 +120,13 @@ ATURAN PENTING:
         $request->validate([
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1',
-            'type' => 'required|in:income,expense',
-            'category' => 'required|string|max:50',
+            'type' => ['required', Rule::in(['income', 'expense'])],
+            'category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'transaction_date' => 'required|date',
         ]);
+
+        // ... create
+
 
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
@@ -136,9 +139,9 @@ ATURAN PENTING:
         ]);
 
         $successMsg = "✅ Transaksi berhasil disimpan!\n📝 {$transaction->title}\n💰 Rp " . number_format($transaction->amount, 0, ',', '.') . "\n📂 {$transaction->category}";
-        
+
         Session::push('ai_messages', [
-            'role' => 'assistant', 
+            'role' => 'assistant',
             'text' => $successMsg,
         ]);
 
@@ -152,7 +155,7 @@ ATURAN PENTING:
     public function cancelTransaction(Request $request)
     {
         Session::push('ai_messages', [
-            'role' => 'assistant', 
+            'role' => 'assistant',
             'text' => '❌ Transaksi dibatalkan. Ketik ulang jika ingin mencatat lagi ya!',
         ]);
 

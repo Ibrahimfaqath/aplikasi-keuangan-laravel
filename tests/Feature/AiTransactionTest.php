@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AiTransactionTest extends TestCase
+class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionTest
 {
     use RefreshDatabase;
 
@@ -102,6 +102,6 @@ class AiTransactionTest extends TestCase
             ],
         ]);
 
-        $response->assertStatus(401); // guest via JSON -> 401
+        $response->assertStatus(401);
     }
 }
