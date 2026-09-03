@@ -13,6 +13,21 @@ class AiFinancialTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['services.kiosapi.key' => 'test-kiosapi-key']);
+        config(['services.kiosapi.url' => 'https://kiosapi.com/v1/chat/completions']);
+        config(['services.kiosapi.model' => 'deepseek-v4-flash']);
+        Http::fake([
+            'https://kiosapi.com/v1/chat/completions' => Http::response([
+                'choices' => [
+                    ['message' => ['content' => 'Ini adalah balasan dari AI.']],
+                ],
+            ], 200),
+        ]);
+    }
+
     private function createMockTransactionResponse(array $data = [])
     {
         return [
@@ -155,10 +170,22 @@ class AiFinancialTest extends TestCase
 
         $response->assertOk();
 
-        // Saldo seharusnya 7.500.000 - 2.000.000 = 5.500.000
-        // Data ini ada di system prompt yang dikirim ke AI
-        // Test akan pass jika tidak ada error
-        $this->assertTrue(true);
+        // Saldo seharusnya 7.500.000 - 2.000.000 = 5.500.000.
+        // Verifikasi angka nyata tersebut benar-benar dikirim ke AI.
+        $this->assertNotEmpty($response->json('reply'));
+        Http::assertSent(function ($sent) {
+            $prompt = $sent->data()['messages'][0]['content'] ?? '';
+            return str_contains($prompt, '7.500.000')
+                && str_contains($prompt, '2.000.000')
+                && str_contains($prompt, '5.500.000');
+        });
+        // Data user lain tidak boleh bocor ke prompt: transaksi terakhir
+        // milik user ini harus tercantum, dan tidak ada data asing.
+        Http::assertSent(function ($sent) {
+            $prompt = $sent->data()['messages'][0]['content'] ?? '';
+            return str_contains($prompt, 'Sewa')
+                && str_contains($prompt, 'TRANSAKSI TERAKHIR');
+        });
     }
 
     public function test_zero_previous_period_handled_gracefully(): void
@@ -181,8 +208,67 @@ class AiFinancialTest extends TestCase
 
         $response->assertOk();
 
-        // System prompt harus handle bulan lalu dengan nilai 0
-        // Tidak boleh division by zero
-        $this->assertTrue(true);
+        // Periode kosong (bulan lalu = 0) harus terkirim tanpa error.
+        $this->assertNotEmpty($response->json('reply'));
+        Http::assertSent(function ($sent) {
+            $prompt = $sent->data()['messages'][0]['content'] ?? '';
+            return str_contains($prompt, 'DATA BULAN LALU')
+                && str_contains($prompt, 'Rp 0');
+        });
+    }
+
+    public function test_context_aggregates_match_database_truth(): void
+    {
+        $user = User::factory()->create();
+        $now = Carbon::now();
+
+        $seed = function (string $title, float $amount, string $type, string $category, string $date) use ($user) {
+            Transaction::create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'amount' => $amount,
+                'type' => $type,
+                'category' => $category,
+                'transaction_date' => $date,
+            ]);
+        };
+
+        $seed('Gaji bulan ini', 1000000, 'income', 'Gaji', $now->format('Y-m-d'));
+        $seed('Makan bulan ini', 200000, 'expense', 'Makanan & Minuman', $now->format('Y-m-d'));
+        $seed('Gaji bulan lalu', 500000, 'income', 'Gaji', $now->copy()->subMonth()->day(15)->format('Y-m-d'));
+        $seed('Belanja bulan lalu', 100000, 'expense', 'Belanja', $now->copy()->subMonth()->day(15)->format('Y-m-d'));
+        $seed('Bonus lama', 2000000, 'income', 'Bonus', $now->copy()->subDays(40)->format('Y-m-d'));
+
+        $response = $this->actingAs($user)
+            ->postJson('/ai/chat', ['message' => 'Berapa saldo saya?']);
+        $response->assertOk();
+
+        // Expected figures computed straight from the database.
+        $monthStart = $now->copy()->startOfMonth()->format('Y-m-d');
+        $monthEnd = $now->copy()->endOfMonth()->format('Y-m-d');
+        $lastStart = $now->copy()->subMonth()->startOfMonth()->format('Y-m-d');
+        $lastEnd = $now->copy()->subMonth()->endOfMonth()->format('Y-m-d');
+
+        $sum = fn (string $type, ?string $from = null, ?string $to = null) => (float) Transaction::where('user_id', $user->id)
+            ->where('type', $type)
+            ->when($from, fn ($q) => $q->whereDate('transaction_date', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('transaction_date', '<=', $to))
+            ->sum('amount');
+
+        $fmt = fn (float $v) => number_format($v, 0, ',', '.');
+
+        $monthIncome = $sum('income', $monthStart, $monthEnd);
+        $monthExpense = $sum('expense', $monthStart, $monthEnd);
+        $lastIncome = $sum('income', $lastStart, $lastEnd);
+        $allIncome = $sum('income');
+        $allExpense = $sum('expense');
+
+        Http::assertSent(function ($sent) use ($fmt, $monthIncome, $monthExpense, $lastIncome, $allIncome, $allExpense) {
+            $prompt = $sent->data()['messages'][0]['content'] ?? '';
+            return str_contains($prompt, $fmt($monthIncome))
+                && str_contains($prompt, $fmt($monthExpense))
+                && str_contains($prompt, $fmt($lastIncome))
+                && str_contains($prompt, $fmt($allIncome - $allExpense));
+        });
     }
 }

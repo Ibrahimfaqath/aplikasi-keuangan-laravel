@@ -4,7 +4,7 @@
 
 <div x-data="aiChatWidget()" 
      x-init="initWidget()"
-     class="fixed bottom-6 right-6 z-50"
+     class="fixed bottom-24 md:bottom-6 right-6 z-50"
      x-cloak>
     
     <!-- Tombol Floating -->
@@ -100,20 +100,30 @@
         <div x-show="showConfirm" 
              x-transition
              class="px-4 py-3 border-t border-blue-200 dark:border-navy-700 bg-blue-50 dark:bg-navy-800/60">
-            <p class="text-xs font-semibold text-slate-900 dark:text-white mb-2">📋 Konfirmasi Transaksi</p>
+            <p class="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-blue-600 dark:text-navy-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Konfirmasi Transaksi
+            </p>
             <div class="space-y-0.5 text-xs text-slate-600 dark:text-white/80">
                 <p><span class="font-medium">Judul:</span> <span x-text="pendingTransaction?.title"></span></p>
                 <p><span class="font-medium">Jumlah:</span> <span x-text="'Rp ' + formatNumber(pendingTransaction?.amount)"></span></p>
                 <p><span class="font-medium">Jenis:</span> <span x-text="pendingTransaction?.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span></p>
             </div>
-            <div class="flex gap-2 mt-2">
-                <button @click="confirmTransaction()" 
-                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition">
-                    ✅ Simpan
+            <div class="flex flex-wrap gap-2 mt-2">
+                <button @click="confirmTransaction()"
+                        type="button"
+                        :disabled="confirming"
+                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/60">
+                    <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <svg x-show="confirming" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
                 </button>
-                <button @click="cancelTransaction()" 
-                        class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg transition">
-                    ❌ Batal
+                <button @click="cancelTransaction()"
+                        type="button"
+                        :disabled="confirming"
+                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 dark:bg-navy-800 dark:hover:bg-navy-700 text-slate-700 dark:text-white/85 border border-slate-200 dark:border-navy-700 text-xs font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/60">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <span>Batal</span>
                 </button>
             </div>
         </div>
@@ -141,6 +151,7 @@ function aiChatWidget() {
         isOpen: false,
         input: '',
         loading: false,
+        confirming: false,
         messages: @json($messages),
         pendingTransaction: null,
         showConfirm: false,
@@ -212,6 +223,8 @@ function aiChatWidget() {
 
                 if (data.reply) {
                     this.addMessage('assistant', data.reply);
+                } else if (data.message) {
+                    this.addMessage('assistant', '❌ ' + data.message);
                 }
 
                 if (data.transaction) {
@@ -228,9 +241,14 @@ function aiChatWidget() {
         },
 
         async confirmTransaction() {
-            if (!this.pendingTransaction) return;
+            if (!this.pendingTransaction || this.confirming) return;
+            this.confirming = true;
 
             try {
+                const payload = {
+                    ...this.pendingTransaction,
+                    transaction_date: this.pendingTransaction.transaction_date ?? this.pendingTransaction.date,
+                };
                 const response = await fetch('{{ route("ai.confirm") }}', {
                     method: 'POST',
                     headers: {
@@ -238,20 +256,29 @@ function aiChatWidget() {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify(this.pendingTransaction),
+                    body: JSON.stringify(payload),
                 });
 
-                const data = await response.json();
+                let data = null;
+                try { data = await response.json(); } catch (e) { data = null; }
 
-                if (data.success) {
+                if (response.ok && data && data.success) {
                     this.addMessage('assistant', '✅ ' + data.message);
                     this.pendingTransaction = null;
                     this.showConfirm = false;
+                } else {
+                    const msg = (data && (data.message
+                        || (data.errors ? Object.values(data.errors).flat().join(' ') : null)))
+                        || 'Gagal menyimpan transaksi. Coba lagi ya!';
+                    // Keep the candidate visible so the user can retry or cancel.
+                    this.addMessage('assistant', '❌ ' + msg);
                 }
 
             } catch (error) {
-                this.addMessage('assistant', '❌ Gagal menyimpan transaksi.');
+                this.addMessage('assistant', '❌ Gagal menyimpan transaksi. Periksa koneksi lalu coba lagi ya!');
             }
+
+            this.confirming = false;
         },
 
         async cancelTransaction() {

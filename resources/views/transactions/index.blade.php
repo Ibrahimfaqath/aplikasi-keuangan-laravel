@@ -83,7 +83,7 @@
     </style>
 </head>
 
-<body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased flex flex-col">
+<body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased flex flex-col pb-20 md:pb-0">
 
     <script>
         function dashboardApp() {
@@ -939,6 +939,10 @@
     </script>
 
     @include('components.export-modal')
+
+@auth
+@include('components.ai-chat')
+@endauth
 
     </body>
 </html>

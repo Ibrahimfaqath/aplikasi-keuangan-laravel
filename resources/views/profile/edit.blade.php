@@ -36,7 +36,7 @@
     </style>
 </head>
 
-<body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased flex flex-col">
+<body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased flex flex-col pb-20 md:pb-0">
 
     <x-navbar />
 
@@ -103,10 +103,6 @@
                     @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail())
                         <p class="text-xs text-amber-600 dark:text-amber-400 mt-2">
                             Email belum terverifikasi.
-                            <form id="send-verification" method="post" action="{{ route('verification.send') }}" class="inline">
-                                @csrf
-                                <button type="submit" class="underline font-bold hover:text-amber-700">Kirim ulang</button>
-                            </form>
                         </p>
                     @endif
                 </div>
@@ -118,6 +114,12 @@
                     @endif
                 </div>
             </form>
+            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail())
+            <form id="send-verification" method="post" action="{{ route('verification.send') }}" class="px-6 pb-6">
+                @csrf
+                <button type="submit" class="text-xs font-bold text-amber-600 dark:text-amber-400 underline hover:text-amber-700">Kirim ulang email verifikasi</button>
+            </form>
+            @endif
         </div>
 
         <!-- Form: Ubah Password -->
@@ -253,6 +255,10 @@
 
     <!-- Export Laporan (PDF/Excel/Print) -->
     @include('components.export-modal')
+
+@auth
+@include('components.ai-chat')
+@endauth
 
 </body>
 </html>
