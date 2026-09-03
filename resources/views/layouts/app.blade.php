@@ -1,62 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="DompetKu — aplikasi keuangan pribadi: catat pemasukan, pengeluaran, dan atur anggaran bulanan.">
-    <meta name="theme-color" content="#0A1128">
-    <link rel="canonical" href="{{ url()->current() }}">
-
-    <!-- Branding / Icons -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
-    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="DompetKu">
-    <meta property="og:title" content="{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}">
-    <meta property="og:description" content="Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.">
-    <meta property="og:url" content="{{ url()->current() }}">
-
-    <title>{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}</title>
-
-    <!-- Kunci Warna Canvas Browser (Mencegah Flash Putih Saat Reload) -->
-    <script>
-        (function() {
-            var savedTheme = localStorage.getItem('theme');
-            var isDark = savedTheme !== 'light';
-
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.style.backgroundColor = '#0A1128';
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.documentElement.style.backgroundColor = '#f8fafc';
-            }
-        })();
-    </script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @stack('head')
-</head>
-
-<!-- min-h-[100dvh] untuk mengatasi bug ukuran layar di mobile browser -->
-<body class="bg-slate-50 text-slate-900 dark:bg-navy-950 dark:text-white min-h-[100dvh] antialiased flex flex-col selection:bg-blue-500 selection:text-white">
-
-    <!-- NAVBAR (Komponen Navigasi Utama & Bottom Bar Mobile) -->
-    <x-navbar />
-
-    <!-- MAIN CONTENT AREA -->
-    <!-- pb-40 (padding-bottom: 160px) memastikan konten terbawah 100% bersih dari bottom navbar mobile -->
-    <main class="flex-1 w-full pb-40 md:pb-12">
-        {{ $slot }}
-    </main>
-
-    <!-- Modal Export Laporan -->
-    @include('components.export-modal')
-
-    @stack('scripts')
-</body>
-</html>
+<!-- AI Chat Widget - Global Floating -->
+@auth
+<div style="position:fixed;bottom:100px;right:20px;z-index:9999;">
+    <a href="{{ route('ai.index') }}" 
+       style="display:flex;align-items:center;justify-content:center;width:60px;height:60px;background:#2563eb;color:white;border-radius:50%;box-shadow:0 10px 25px rgba(37,99,235,0.3);text-decoration:none;font-size:14px;font-weight:bold;">
+        AI
+    </a>
+</div>
+@endauth
