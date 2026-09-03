@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use App\Models\Transaction;
 use App\Services\ReportingService;
+use App\Services\TransactionParser;
+use Illuminate\Support\Facades\Log;
 
 class AiController extends Controller
 {
@@ -155,7 +157,12 @@ Kategori valid: " . self::CATEGORIES_HINT;
                 [$reply, $transaction] = $this->extractTransaction($reply ?? '');
             }
         } catch (\Throwable $e) {
-            $reply = null;
+            Log::error('AI chat error', [
+                'message' => $request->message,
+                'error_type' => get_class($e),
+                'user_id' => Auth::id(),
+            ]);
+            $reply = 'Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!';
         }
 
         if ($reply === null) {
@@ -165,6 +172,11 @@ Kategori valid: " . self::CATEGORIES_HINT;
         // Simpan ke session untuk riwayat
         Session::push('ai_messages', ['role' => 'user', 'text' => $request->message]);
         Session::push('ai_messages', ['role' => 'assistant', 'text' => $reply]);
+        
+        // Store pending transaction in session if AI detected transaction intent
+        if ($transaction) {
+            Session::put('pending_transaction', $transaction);
+        }
         
         $history = array_slice(Session::get('ai_messages', []), -100);
         Session::put('ai_messages', $history);
@@ -177,6 +189,21 @@ Kategori valid: " . self::CATEGORIES_HINT;
 
     public function confirmTransaction(Request $request)
     {
+        // Verify there's a pending transaction candidate from AI flow
+        $pendingTransaction = Session::get('pending_transaction');
+        
+        if (!$pendingTransaction) {
+            Log::warning('AI confirm attempted without pending candidate', [
+                'user_id' => Auth::id(),
+                'request_data' => $request->all(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi konfirmasi telah berakhir. Ketik ulang transaksi jika ingin mencatat ya!',
+            ], 400);
+        }
+
+        // Validate that the pending candidate has required fields
         $request->validate([
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1',
@@ -184,6 +211,13 @@ Kategori valid: " . self::CATEGORIES_HINT;
             'category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'transaction_date' => 'required|date',
         ]);
+
+        // Make sure the pending transaction data is consistent with the request
+        $pendingTransaction['title'] = trim($request->title);
+        $pendingTransaction['amount'] = (float) $request->amount;
+        $pendingTransaction['type'] = $request->type;
+        $pendingTransaction['category'] = $request->category;
+        $pendingTransaction['transaction_date'] = Carbon::parse($request->transaction_date)->format('Y-m-d');
 
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
@@ -194,6 +228,9 @@ Kategori valid: " . self::CATEGORIES_HINT;
             'transaction_date' => Carbon::parse($request->transaction_date)->format('Y-m-d'),
             'image' => null,
         ]);
+
+        // Clear pending transaction after successful creation
+        Session::forget('pending_transaction');
 
         $successMsg = "✅ Transaksi berhasil disimpan!\n📝 {$transaction->title}\n💰 Rp " . number_format($transaction->amount, 0, ',', '.') . "\n📂 {$transaction->category}";
         
@@ -211,6 +248,9 @@ Kategori valid: " . self::CATEGORIES_HINT;
 
     public function cancelTransaction(Request $request)
     {
+        // Clear pending transaction from session
+        Session::forget('pending_transaction');
+
         Session::push('ai_messages', [
             'role' => 'assistant', 
             'text' => '❌ Transaksi dibatalkan. Ketik ulang jika ingin mencatat lagi ya!',
@@ -297,19 +337,6 @@ Kategori valid: " . self::CATEGORIES_HINT;
 
     private function isTransactionRequest(string $message): bool
     {
-        $keywords = ['catat', 'catatkan', 'input', 'tambah', 'rekam', 'beli', 'bayar', 'jajan', 'makan', 'minum', 'isi', 'top up', 'gaji', 'bonus', 'transfer'];
-        $lower = mb_strtolower($message);
-        
-        // Cek apakah ada kata kunci transaksi
-        foreach ($keywords as $kw) {
-            if (str_contains($lower, $kw)) {
-                // Cek juga apakah ada nominal (angka atau kata angka)
-                if (preg_match('/\d{3,}/', $message) || preg_match('/\b(ribu|juta|miliar|rb|k)\b/', $lower)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
+        return TransactionParser::fromText($message) !== null;
     }
 }
