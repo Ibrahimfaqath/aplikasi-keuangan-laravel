@@ -6,7 +6,7 @@ use App\Models\Transaction;
 
 /**
  * Parser lokal (fallback) untuk mendeteksi niat transaksi dari teks chat
- * biasa berbahasa Indonesia — dipakai bila Gemini tidak mengembalikan
+ * biasa berbahasa Indonesia — dipakai bila AI tidak mengembalikan
  * blok JSON transaksi, supaya fitur "input transaksi lewat AI" selalu
  * berfungsi cepat dan tepat.
  */
@@ -66,7 +66,7 @@ class TransactionParser
         $type = self::detectType($text);
         if ($type === null) {
             // Ada nominal tapi tidak ada kata kunci tegas (mis. "uang 50 ribu") —
-            // biarkan Gemini yang memutuskan, hindari salah tangkap.
+            // biarkan AI yang memutuskan, hindari salah tangkap.
             // KECUALI pesan berisi kata perintah mencatat ("catat ...",
             // "input ...", "tambah ...") — itu jelas niat transaksi, default pengeluaran.
             if (!self::hasRecordIntent($text)) {

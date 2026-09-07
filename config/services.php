@@ -35,10 +35,4 @@ return [
         ),
     ],
 
-    'deepseek' => [
-        'key' => env('DEEPSEEK_API_KEY'),
-        'url' => env('DEEPSEEK_API_URL', 'https://kiosapi.com/v1/chat/completions'),
-        'model' => env('DEEPSEEK_API_MODEL', 'deepseek-chat'),
-    ],
-
 ];

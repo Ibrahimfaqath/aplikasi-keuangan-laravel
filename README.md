@@ -107,7 +107,10 @@ Intinya: arahkan document root ke `public/`, buat `.env` produksi baru (jangan u
 
 ## Roadmap
 
+- [x] Rate-limit `/ai/chat` (throttle 30/menit + pesan 429 ramah Indonesia)
+- [x] Validasi `storeTransactions` (cek kategori vs tipe + simpan atomik)
+- [x] Export Excel scope per-user eksplisit + enkripsi session
 - [ ] Soft-delete transaksi + riwayat aktivitas
-- [ ] Rate-limit `/ai/chat` + retry/circuit-breaker
+- [ ] Retry/circuit-breaker AI + timeout lebih pendek
 - [ ] Kategori custom per user
 - [ ] CI: Pint + PHPUnit + build check
