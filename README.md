@@ -1,59 +1,113 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DompetKu — Aplikasi Keuangan Pribadi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk mencatat pemasukan & pengeluaran, mengatur anggaran bulanan, melihat grafik tren, export laporan PDF/Excel, dan bertanya ke asisten AI.
 
-## About Laravel
+Dibangun dengan **Laravel 13 + Breeze + Tailwind CSS + Alpine.js + Chart.js + Vite**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Transaksi CRUD** — judul, kategori, nominal (support format `Rp 1.500.000`), tipe income/expense, tanggal, upload bukti (JPEG/PNG, otomatis dioptimasi)
+- **Dashboard** — total saldo, pemasukan, pengeluaran, grafik tren (minggu/bulan/tahun), donat per kategori, transaksi terakhir
+- **Filter & Pencarian** — cari judul, filter tipe/kategori/periode, pagination
+- **Anggaran Bulanan** — set batas belanja, progress bar, sisa/hari, peringatan over-budget
+- **Export Laporan** — PDF (DomPDF) & Excel (Maatwebsite), mengikuti filter aktif
+- **AI Assistant (DompetKu AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible)
+- **Voice Input** — parser lokal Bahasa Indonesia (`25 ribu`, `5 juta`, `Rp 25.000`, bahkan `dua puluh lima ribu`) tanpa perlu API
+- **UI Profesional** — dark/light mode, privacy toggle saldo, skeleton loading, responsif mobile, SEO meta + PWA manifest
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+- Backend: PHP 8.3, Laravel 13, Eloquent ORM
+- Frontend: Blade, Tailwind CSS 3, Alpine.js, Chart.js 4, Vite
+- Auth: Laravel Breeze (Blade)
+- Laporan: `barryvdh/laravel-dompdf`, `maatwebsite/excel`
+- AI: `KiosAPI` (`deepseek-v4-flash`, OpenAI-compatible) + fallback parser lokal `App\Services\TransactionParser`
+- Database: SQLite (development) / MySQL (production cPanel)
+- Testing: PHPUnit 12 (`tests/Feature`, `tests/Unit`)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Cara Jalan di Lokal
 
 ```bash
-composer require laravel/boost --dev
+# 1. Install dependency
+composer install
+npm install
 
-php artisan boost:install
+# 2. Siapkan .env
+cp .env.example .env
+php artisan key:generate
+
+# 3. Migrasi database (default SQLite)
+php artisan migrate
+
+# 4. Jalanin dev server + vite (atau: composer dev)
+php artisan serve
+npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Atau sekali jalan:
 
-## Contributing
+```bash
+composer setup   # install + key + migrate + build
+composer dev     # serve + queue + pail + vite
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Buka: `http://localhost:8000`
 
-## Code of Conduct
+## Konfigurasi .env Penting
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```ini
+APP_NAME="DompetKu"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost
 
-## Security Vulnerabilities
+DB_CONNECTION=sqlite
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# AI Assistant (wajib isi biar chat AI jalan, daftar di kiosapi.com)
+KIOSAPI_API_KEY=
+KIOSAPI_BASE_URL=https://kiosapi.com/v1/chat/completions
+KIOSAPI_MODEL=deepseek-v4-flash
+```
 
-## License
+Tanpa `KIOSAPI_API_KEY`, chat AI akan balas pesan ramah `belum dikonfigurasi` — aplikasi tetap jalan normal.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# aplikasi-keuangan-laravel
+## Testing
+
+```bash
+php artisan test
+# atau
+composer test
+```
+
+Test mencakup: auth, transaksi (scope per-user), budget, parser voice, AI chat/confirm/cancel.
+
+## Struktur Penting
+
+```
+app/Http/Controllers/  -> TransactionController, BudgetController, AiController
+app/Services/          -> ReportingService, FinancialContextBuilder, AiAssistantService, TransactionParser, AmountFormatter
+app/Models/            -> Transaction, Budget, User
+routes/web.php         -> landing, transactions resource, budgets, ai, profile
+resources/views/       -> transactions/index, ai/index, landing, layouts
+database/migrations/   -> users, transactions, budgets + index optimasi
+```
+
+## Deploy ke cPanel
+
+Lihat panduan lengkap: [`DEPLOY-CPANEL.md`](DEPLOY-CPANEL.md)
+
+Intinya: arahkan document root ke `public/`, buat `.env` produksi baru (jangan upload `.env` lokal), jalankan `migrate --force` + `storage:link` + `optimize`.
+
+## Catatan Keamanan
+
+- Semua data transaksi di-scope per `user_id` — user tidak bisa akses data user lain
+- Konfirmasi AI wajib cocok field-for-field dengan kandidat server (anti tembak API langsung)
+- Upload hanya `jpeg,png,jpg` max 20MB, disimpan di `storage/app/public/receipts`
+- Jangan pernah commit `.env` asli ke git (sudah di-`.gitignore`)
+
+## Roadmap
+
+- [ ] Soft-delete transaksi + riwayat aktivitas
+- [ ] Rate-limit `/ai/chat` + retry/circuit-breaker
+- [ ] Kategori custom per user
+- [ ] CI: Pint + PHPUnit + build check

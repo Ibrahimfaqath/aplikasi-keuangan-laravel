@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "dompetku/keuangan-pribadi",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "DompetKu — aplikasi keuangan pribadi (Laravel): transaksi, anggaran, laporan PDF/Excel, asisten AI.",
+    "keywords": ["laravel", "keuangan", "dompetku", "finance", "ai"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
