@@ -7,6 +7,7 @@ use App\Services\AiAssistantService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -177,27 +178,43 @@ class AiController extends Controller
 
     public function storeTransactions(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'items' => 'required|array|min:1|max:30',
             'items.*.title' => 'required|string|max:255',
-            'items.*.amount' => 'required|numeric|min:1',
+            'items.*.amount' => 'required|numeric|min:1|max:999999999999.99',
             'items.*.type' => 'required|in:income,expense',
             'items.*.category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
             'items.*.transaction_date' => 'required|date',
         ]);
 
-        $created = [];
-        foreach ($request->items as $item) {
-            $created[] = Transaction::create([
-                'user_id' => Auth::id(),
-                'title' => trim($item['title']),
-                'category' => $item['category'],
-                'amount' => (float) $item['amount'],
-                'type' => $item['type'],
-                'transaction_date' => Carbon::parse($item['transaction_date'])->format('Y-m-d'),
-                'image' => null,
-            ]);
+        // Kategori harus sesuai jenisnya (sama seperti confirmTransaction).
+        // Contoh: expense tidak boleh pakai kategori "Gaji".
+        foreach ($validated['items'] as $index => $item) {
+            if (! in_array($item['category'], Transaction::categoriesFor($item['type']), true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Item ke-".($index + 1)." kategorinya tidak sesuai dengan jenis transaksi. Periksa lagi ya!",
+                ], 422);
+            }
         }
+
+        // Simpan atomik: kalau 1 item gagal, semua dibatalkan (tidak ada data setengah jadi).
+        $created = DB::transaction(function () use ($validated) {
+            $rows = [];
+            foreach ($validated['items'] as $item) {
+                $rows[] = Transaction::create([
+                    'user_id' => Auth::id(),
+                    'title' => trim($item['title']),
+                    'category' => $item['category'],
+                    'amount' => (float) $item['amount'],
+                    'type' => $item['type'],
+                    'transaction_date' => Carbon::parse($item['transaction_date'])->format('Y-m-d'),
+                    'image' => null,
+                ]);
+            }
+
+            return $rows;
+        });
 
         return response()->json([
             'success' => true,
