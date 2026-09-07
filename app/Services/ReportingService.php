@@ -116,7 +116,7 @@ class ReportingService
      * Dipakai di line chart dashboard dengan toggle Minggu / Bulan / Tahun.
      *
      * @param  string  $period  'week' | 'month' | 'year'
-     * @return array{labels: string[], income: float[], expense: float[]}
+     * @return array{labels: string[], income: float[], expense: float[], ranges: string[]}
      */
     public function getTrendSeries(string $period = 'week'): array
     {
@@ -162,8 +162,52 @@ class ReportingService
                 $income[]  = $map[$key]['income'] ?? 0.0;
                 $expense[] = $map[$key]['expense'] ?? 0.0;
             }
+        } elseif ($period === 'month') {
+            // Bulan: agregasi PER MINGGU (Senin sebagai awal minggu).
+            // Rentang 30 hari → dikelompokkan jadi Minggu 1..N (maks 6 bucket),
+            // dengan range tanggal aktual per bucket untuk tooltip.
+            $days      = 30;
+            $startDate = $today->copy()->subDays($days - 1);
+
+            // 1 query: GROUP BY date, type (tetap per hari, dikelompokkan di PHP)
+            $rows = Transaction::where('user_id', $userId)
+                ->where('transaction_date', '>=', $startDate)
+                ->selectRaw('DATE(transaction_date) as d, type, SUM(amount) as total')
+                ->groupByRaw('DATE(transaction_date), type')
+                ->get();
+
+            $map = [];
+            foreach ($rows as $row) {
+                $map[$row->d][$row->type] = (float) $row->total;
+            }
+
+            $labels = $income = $expense = $ranges = [];
+            $weekNo = 0;
+            $cursor = $startDate->copy()->startOfWeek(Carbon::MONDAY);
+            while ($cursor->lte($today)) {
+                $bucketStart = $cursor->copy()->lt($startDate) ? $startDate->copy() : $cursor->copy();
+                $weekEnd     = $cursor->copy()->addDays(6);
+                $bucketEnd   = $weekEnd->gt($today) ? $today->copy() : $weekEnd->copy();
+
+                $sumInc = $sumExp = 0.0;
+                $d = $bucketStart->copy();
+                while ($d->lte($bucketEnd)) {
+                    $key = $d->format('Y-m-d');
+                    $sumInc += $map[$key]['income'] ?? 0.0;
+                    $sumExp += $map[$key]['expense'] ?? 0.0;
+                    $d->addDay();
+                }
+
+                $weekNo++;
+                $labels[]  = 'Minggu ' . $weekNo;
+                $ranges[]  = $bucketStart->locale('id')->translatedFormat('d M') . ' – ' . $bucketEnd->locale('id')->translatedFormat('d M');
+                $income[]  = round($sumInc, 0);
+                $expense[] = round($sumExp, 0);
+
+                $cursor->addWeek();
+            }
         } else {
-            $days = $period === 'month' ? 30 : 7;
+            $days = 7;
             $startDate = $today->copy()->subDays($days - 1);
 
             // 1 query: GROUP BY date, type
@@ -182,12 +226,12 @@ class ReportingService
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = $today->copy()->subDays($i);
                 $key  = $date->format('Y-m-d');
-                $labels[]  = $period === 'month' ? $date->format('d M') : $shortDays[$date->dayOfWeek];
+                $labels[]  = $shortDays[$date->dayOfWeek];
                 $income[]  = $map[$key]['income'] ?? 0.0;
                 $expense[] = $map[$key]['expense'] ?? 0.0;
             }
         }
 
-        return ['labels' => $labels, 'income' => $income, 'expense' => $expense];
+        return ['labels' => $labels, 'income' => $income, 'expense' => $expense, 'ranges' => $ranges ?? []];
     }
 }

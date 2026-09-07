@@ -61,8 +61,18 @@ window.setTheme = function (mode) {
     applyTheme();
 };
 
+// Toggle langsung Light <-> Dark untuk [data-theme-toggle] (tanpa dropdown).
+window.toggleTheme = function () {
+    window.setTheme(effectiveDark(getSavedTheme()) ? 'light' : 'dark');
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
+
+    // Tombol theme toggle satu klik (navbar, sidebar, profile/edit).
+    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+        btn.addEventListener('click', () => window.toggleTheme());
+    });
 
     // -----------------------------------------------------------------
     // PRIVACY MANAGEMENT (vanilla, berlaku di semua halaman)

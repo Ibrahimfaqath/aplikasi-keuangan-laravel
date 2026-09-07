@@ -96,9 +96,9 @@
                 categoryExpenses: @json($categoryExpenses ?? []),
                 @php
                     $trendDataJson = json_encode($trendData ?? [
-                        'week'  => ['labels' => [], 'income' => [], 'expense' => []],
-                        'month' => ['labels' => [], 'income' => [], 'expense' => []],
-                        'year'  => ['labels' => [], 'income' => [], 'expense' => []],
+                        'week'  => ['labels' => [], 'income' => [], 'expense' => [], 'ranges' => []],
+                        'month' => ['labels' => [], 'income' => [], 'expense' => [], 'ranges' => []],
+                        'year'  => ['labels' => [], 'income' => [], 'expense' => [], 'ranges' => []],
                     ]);
                 @endphp
                 trendData: {!! $trendDataJson !!},
@@ -144,7 +144,7 @@
                     const textColor = isDark ? '#A3A3A3' : '#737373';
                     const gridColor = isDark ? '#262626' : '#E5E5E5';
 
-                    const series = this.trendData[this.trendPeriod] ?? { labels: [], income: [], expense: [] };
+                    const series = this.trendData[this.trendPeriod] ?? { labels: [], income: [], expense: [], ranges: [] };
 
                     // Semantic restrained: income = green, expense = red (muted, profesional)
                     const incomeColor = isDark ? '#4ADE80' : '#16A34A';
@@ -189,6 +189,12 @@
                                 legend: { display: false },
                                 tooltip: {
                                     callbacks: {
+                                        title: (items) => {
+                                            const idx = items[0]?.dataIndex;
+                                            const label = (series.labels ?? [])[idx] ?? '';
+                                            const range = (series.ranges ?? [])[idx];
+                                            return range ? label + ' · ' + range : label;
+                                        },
                                         label: (ctx) => ' ' + ctx.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(ctx.parsed.y),
                                     }
                                 }
@@ -316,17 +322,14 @@
                 </button>
             </div>
 
-            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target cursor-pointer inline-block transition-opacity active:opacity-70"
-                 data-privacy-toggle
-                 title="Ketuk untuk sembunyikan/tampilkan saldo"
+            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
                  x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
             <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0 cursor-pointer group"
-                     data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0">
                     <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -334,14 +337,13 @@
                     </span>
                     <div class="min-w-0 flex-1">
                         <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-green-600 dark:text-green-400 leading-tight break-all sm:break-words privacy-target transition-opacity group-active:opacity-70"
+                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-green-600 dark:text-green-400 leading-tight break-all sm:break-words privacy-target"
                            x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                            x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0 cursor-pointer group"
-                     data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0">
                     <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
@@ -349,7 +351,7 @@
                     </span>
                     <div class="min-w-0 flex-1">
                         <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-red-600 dark:text-red-400 leading-tight break-all sm:break-words privacy-target transition-opacity group-active:opacity-70"
+                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-red-600 dark:text-red-400 leading-tight break-all sm:break-words privacy-target"
                            x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                            x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
                     </div>
@@ -400,9 +402,7 @@
                         <p class="text-[11px] font-semibold uppercase tracking-wider {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
                             {{ $isOver ? '⚠ Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target cursor-pointer transition-opacity active:opacity-70 inline-block"
-                           data-privacy-toggle
-                           title="Ketuk untuk sembunyikan/tampilkan saldo"
+                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
                            data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
                             {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
                         </p>
@@ -418,17 +418,17 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <div class="min-w-0">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Batas</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
                     </div>
-                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <div class="min-w-0">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Terpakai</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
                     </div>
-                    <div class="min-w-0 cursor-pointer group" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <div class="min-w-0">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target transition-opacity group-active:opacity-70" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
                     </div>
                 </div>
 
@@ -553,9 +553,7 @@
                             <p class="font-semibold text-sm text-neutral-900 dark:text-neutral-50 truncate">{{ $item->title ?? $item->nama ?? $item->kategori }}</p>
                             <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ $item->category ?? 'Lainnya' }} · {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}</p>
                         </div>
-                        <p class="font-extrabold text-sm whitespace-nowrap privacy-target cursor-pointer {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                           data-privacy-toggle
-                           title="Ketuk untuk sembunyikan/tampilkan"
+                        <p class="font-extrabold text-sm whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                            data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                             {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                         </p>
@@ -763,9 +761,7 @@
                                         {{ $item->category ?? 'Lainnya' }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right font-extrabold whitespace-nowrap privacy-target cursor-pointer {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                                    data-privacy-toggle
-                                    title="Ketuk untuk sembunyikan/tampilkan"
+                                <td class="py-4 px-6 text-right font-extrabold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                     data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </td>
@@ -847,9 +843,7 @@
                             </div>
 
                             <div class="flex-shrink-0 flex flex-col items-end gap-1">
-                                <p class="font-extrabold text-sm sm:text-base whitespace-nowrap privacy-target cursor-pointer {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                                   data-privacy-toggle
-                                   title="Ketuk untuk sembunyikan/tampilkan"
+                                <p class="font-extrabold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                    data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </p>
@@ -938,7 +932,7 @@
                     @csrf
 
                     @if($monthlyExpense > 0)
-                    <div class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] rounded-xl cursor-pointer" data-privacy-toggle title="Ketuk untuk sembunyikan/tampilkan">
+                    <div class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] rounded-xl">
                         <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran bulan ini</span>
                         <span class="text-sm font-bold text-neutral-900 dark:text-neutral-50 privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span>
                     </div>
