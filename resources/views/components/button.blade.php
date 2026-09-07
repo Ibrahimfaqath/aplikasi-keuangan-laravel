@@ -1,17 +1,20 @@
 @props([
-    'variant' => 'primary', // primary, secondary, danger, ghost
+    'variant' => 'primary', // primary, secondary, danger, ghost, success
     'type' => 'button',
     'href' => null
 ])
 
 @php
-    $baseClasses = "inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer select-none";
-    
+    $baseClasses = "inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#0A0A0A] disabled:opacity-50 cursor-pointer select-none";
+
     $variants = [
-        'primary'   => "bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white active:bg-blue-800 text-white shadow-sm focus:ring-blue-500 dark:focus:ring-offset-navy-950",
-        'secondary' => "bg-white dark:bg-navy-900 hover:bg-slate-50 dark:hover:bg-navy-800/80 text-slate-700 dark:text-white/90 border border-slate-200 dark:border-navy-800 shadow-sm focus:ring-slate-400",
-        'danger'    => "bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/60 focus:ring-rose-500",
-        'ghost'     => "bg-transparent hover:bg-slate-100 dark:hover:bg-navy-800 text-slate-600 dark:text-white/70 focus:ring-slate-400"
+        'primary'   => "bg-neutral-900 hover:bg-neutral-800 active:bg-black text-white shadow-sm focus:ring-neutral-900 dark:focus:ring-neutral-400",
+        'secondary' => "bg-white dark:bg-[#171717] hover:bg-neutral-50 dark:hover:bg-[#262626] text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-[#333333] shadow-sm focus:ring-neutral-400",
+        // Destructive tetap beda via bobot + border tebal + icon (monochrome, tanpa merah mencolok)
+        'danger'    => "bg-white dark:bg-transparent hover:bg-neutral-900 dark:hover:bg-neutral-100 hover:text-white dark:hover:text-neutral-900 text-neutral-900 dark:text-neutral-100 border-2 border-neutral-900 dark:border-neutral-100 focus:ring-neutral-900 dark:focus:ring-neutral-400",
+        'ghost'     => "bg-transparent hover:bg-neutral-100 dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-300 focus:ring-neutral-400",
+        // Success: HANYA untuk aksi dengan semantic success yang jelas (bukan default)
+        'success'   => "bg-green-600 hover:bg-green-700 active:bg-green-800 text-white shadow-sm focus:ring-green-600 dark:focus:ring-green-500",
     ];
 
     $classes = $baseClasses . ' ' . ($variants[$variant] ?? $variants['primary']);

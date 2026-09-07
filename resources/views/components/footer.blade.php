@@ -1,9 +1,9 @@
-<footer class="border-t border-slate-200/80 dark:border-navy-800/80 mt-auto pb-20 md:pb-0">
+<footer class="border-t border-neutral-200 dark:border-[#333333] mt-auto pb-20 md:pb-0 bg-white dark:bg-[#0A0A0A]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p class="text-xs text-slate-400 dark:text-white/50">
-            © {{ date('Y') }} <span class="font-semibold text-slate-500 dark:text-white/70">DompetKu</span> — Aplikasi Keuangan Pribadi
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+            © {{ date('Y') }} <span class="font-semibold text-neutral-900 dark:text-neutral-100">DompetKu</span> — Aplikasi Keuangan Pribadi
         </p>
-        <p class="text-xs text-slate-400 dark:text-white/50">
+        <p class="text-xs text-neutral-400 dark:text-neutral-500">
             Catat, pantau, dan kendalikan keuanganmu dengan mudah.
         </p>
     </div>
