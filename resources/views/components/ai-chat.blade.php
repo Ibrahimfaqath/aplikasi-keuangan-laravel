@@ -221,6 +221,12 @@ function aiChatWidget() {
 
                 const data = await response.json();
 
+                // Kena batas kecepatan (429) — backend sudah kasih pesan Indonesia yang ramah.
+                if (response.status === 429) {
+                    this.addMessage('assistant', data.reply || data.message || 'Sabar ya, terlalu cepat! Tunggu sebentar baru coba lagi ⏳');
+                    return;
+                }
+
                 if (data.reply) {
                     this.addMessage('assistant', data.reply);
                 } else if (data.message) {

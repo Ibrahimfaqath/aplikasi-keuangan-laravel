@@ -190,6 +190,12 @@
 
                     const data = await res.json();
 
+                    // Kena batas kecepatan (429) — backend sudah kasih pesan Indonesia yang ramah.
+                    if (res.status === 429) {
+                        this.addMessage('assistant', data.reply || data.message || 'Sabar ya, terlalu cepat! Tunggu sebentar baru coba lagi ⏳');
+                        return;
+                    }
+
                     // Tampilkan balasan AI
                     if (data.reply) {
                         this.addMessage('assistant', data.reply);
