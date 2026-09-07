@@ -17,21 +17,34 @@ class ReportingService
      */
     public function getFilteredQuery(array $filters, ?int $userId = null)
     {
-        $query = Transaction::where('user_id', $userId ?? request()->user()?->id);
+        $userId = $userId ?? request()->user()?->id;
 
-        if (! empty($filters['search'])) {
-            $query->where('title', 'like', '%'.$filters['search'].'%');
+        // Tanpa user yang jelas, jangan bocorkan data: kembalikan query kosong.
+        if (! $userId) {
+            return Transaction::whereRaw('1 = 0');
         }
 
-        if (! empty($filters['type'])) {
+        $query = Transaction::where('user_id', $userId);
+
+        if (! empty($filters['search'])) {
+            // Escape wildcard LIKE agar "%" / "_" user tidak jadi full-scan liar.
+            $search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], (string) $filters['search']);
+            $query->where('title', 'like', '%'.$search.'%');
+        }
+
+        if (! empty($filters['type']) && in_array($filters['type'], ['income', 'expense'], true)) {
             $query->where('type', $filters['type']);
         }
 
-        if (! empty($filters['category'])) {
+        if (! empty($filters['category']) && in_array($filters['category'], Transaction::allCategories(), true)) {
             $query->where('category', $filters['category']);
         }
 
+        $allowedPeriods = ['today', 'yesterday', '7_days', '30_days', 'this_month', 'last_month', 'this_year', 'custom', 'all'];
         $period = $filters['period'] ?? 'all';
+        if (! in_array($period, $allowedPeriods, true)) {
+            $period = 'all';
+        }
         $today = Carbon::today();
 
         switch ($period) {
@@ -61,10 +74,20 @@ class ReportingService
                 break;
             case 'custom':
                 if (! empty($filters['start_date'])) {
-                    $query->whereDate('transaction_date', '>=', $filters['start_date']);
+                    try {
+                        $start = Carbon::parse($filters['start_date'])->format('Y-m-d');
+                        $query->whereDate('transaction_date', '>=', $start);
+                    } catch (\Throwable $e) {
+                        // Abaikan tanggal invalid, jangan 500.
+                    }
                 }
                 if (! empty($filters['end_date'])) {
-                    $query->whereDate('transaction_date', '<=', $filters['end_date']);
+                    try {
+                        $end = Carbon::parse($filters['end_date'])->format('Y-m-d');
+                        $query->whereDate('transaction_date', '<=', $end);
+                    } catch (\Throwable $e) {
+                        // Abaikan tanggal invalid, jangan 500.
+                    }
                 }
                 break;
         }
