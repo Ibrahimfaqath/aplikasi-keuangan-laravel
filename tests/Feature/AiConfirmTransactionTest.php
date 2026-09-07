@@ -221,7 +221,7 @@ class AiConfirmTransactionTest extends TestCase
         config(['services.kiosapi.model' => 'deepseek-v4-flash']);
 
         $content = 'Baik, ini ringkasannya. Mohon konfirmasi ya!'
-            . "\n<<<JSON\n" . json_encode($candidate) . "\nJSON>>>";
+            ."\n<<<JSON\n".json_encode($candidate)."\nJSON>>>";
 
         Http::fake([
             'https://kiosapi.com/v1/chat/completions' => Http::response([

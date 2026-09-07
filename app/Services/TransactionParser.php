@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Transaction;
-
 /**
  * Parser lokal (fallback) untuk mendeteksi niat transaksi dari teks chat
  * biasa berbahasa Indonesia — dipakai bila AI tidak mengembalikan
@@ -31,19 +29,19 @@ class TransactionParser
 
     /** Pemetaan kata kunci → kategori (dicocokkan pada teks lengkap). */
     private const CATEGORY_KEYWORDS = [
-        'Makanan & Minuman'    => ['makan', 'nasi', 'kopi', 'minum', 'ngopi', 'goreng', 'ayam', 'mie', 'sate', 'bakso', 'warteg', 'restoran', 'kafe', 'jajan', 'camilan', 'snack', 'buah', 'sarapan', 'makanan'],
-        'Transportasi'         => ['bensin', 'pertalite', 'solar', 'ojek', 'grab', 'gojek', 'maxim', 'tol', 'parkir', 'bbm', 'kendaraan', 'angkut', 'transport'],
-        'Tagihan & Utilitas'   => ['listrik', 'air', 'pulsa', 'token', 'wifi', 'internet', 'bpjs', 'pajak', 'telepon', 'telp', 'tagihan', 'iuran'],
-        'Belanja'              => ['belanja', 'alfamart', 'indomaret', 'minimarket', 'supermarket', 'swalayan', 'pasar', 'kebutuhan'],
-        'Hiburan'              => ['nonton', 'film', 'bioskop', 'game', 'netflix', 'spotify', 'konser', 'liburan', 'hiburan'],
-        'Kesehatan'            => ['obat', 'dokter', 'klinik', 'apotik', 'apotek', 'berobat', 'vitamin', 'rumah sakit', 'kesehatan'],
-        'Pendidikan'           => ['buku', 'kursus', 'sekolah', 'kuliah', 'spp', 'les', 'seminar', 'pelatihan', 'pendidikan'],
-        'Keluarga'             => ['keluarga', 'anak', 'ibu', 'ayah', 'orang tua', 'adik', 'adek', 'kakak', 'rumah tangga'],
-        'Gaji'                 => ['gaji', 'upah', 'honor'],
-        'Bonus'                => ['bonus', 'thr'],
-        'Bisnis'               => ['bisnis', 'jualan', 'dagang', 'usaha', 'toko'],
-        'Investasi'            => ['investasi', 'saham', 'reksadana', 'dividen', 'bunga', 'emas'],
-        'Hadiah'               => ['hadiah', 'kado'],
+        'Makanan & Minuman' => ['makan', 'nasi', 'kopi', 'minum', 'ngopi', 'goreng', 'ayam', 'mie', 'sate', 'bakso', 'warteg', 'restoran', 'kafe', 'jajan', 'camilan', 'snack', 'buah', 'sarapan', 'makanan'],
+        'Transportasi' => ['bensin', 'pertalite', 'solar', 'ojek', 'grab', 'gojek', 'maxim', 'tol', 'parkir', 'bbm', 'kendaraan', 'angkut', 'transport'],
+        'Tagihan & Utilitas' => ['listrik', 'air', 'pulsa', 'token', 'wifi', 'internet', 'bpjs', 'pajak', 'telepon', 'telp', 'tagihan', 'iuran'],
+        'Belanja' => ['belanja', 'alfamart', 'indomaret', 'minimarket', 'supermarket', 'swalayan', 'pasar', 'kebutuhan'],
+        'Hiburan' => ['nonton', 'film', 'bioskop', 'game', 'netflix', 'spotify', 'konser', 'liburan', 'hiburan'],
+        'Kesehatan' => ['obat', 'dokter', 'klinik', 'apotik', 'apotek', 'berobat', 'vitamin', 'rumah sakit', 'kesehatan'],
+        'Pendidikan' => ['buku', 'kursus', 'sekolah', 'kuliah', 'spp', 'les', 'seminar', 'pelatihan', 'pendidikan'],
+        'Keluarga' => ['keluarga', 'anak', 'ibu', 'ayah', 'orang tua', 'adik', 'adek', 'kakak', 'rumah tangga'],
+        'Gaji' => ['gaji', 'upah', 'honor'],
+        'Bonus' => ['bonus', 'thr'],
+        'Bisnis' => ['bisnis', 'jualan', 'dagang', 'usaha', 'toko'],
+        'Investasi' => ['investasi', 'saham', 'reksadana', 'dividen', 'bunga', 'emas'],
+        'Hadiah' => ['hadiah', 'kado'],
     ];
 
     /**
@@ -69,7 +67,7 @@ class TransactionParser
             // biarkan AI yang memutuskan, hindari salah tangkap.
             // KECUALI pesan berisi kata perintah mencatat ("catat ...",
             // "input ...", "tambah ...") — itu jelas niat transaksi, default pengeluaran.
-            if (!self::hasRecordIntent($text)) {
+            if (! self::hasRecordIntent($text)) {
                 return null;
             }
             $type = 'expense';
@@ -83,10 +81,10 @@ class TransactionParser
         }
 
         return [
-            'title'            => mb_substr($title, 0, 255),
-            'amount'           => $amount,
-            'type'             => $type,
-            'category'         => $category,
+            'title' => mb_substr($title, 0, 255),
+            'amount' => $amount,
+            'type' => $type,
+            'category' => $category,
             'transaction_date' => now()->format('Y-m-d'),
         ];
     }
@@ -105,10 +103,11 @@ class TransactionParser
             $num = (float) str_replace(',', '.', $m[1]);
             $multiplier = match ($m[2]) {
                 'ribu', 'rb', 'k' => 1000,
-                'juta', 'jt'      => 1_000_000,
-                'miliar'          => 1_000_000_000,
-                default           => 1000,
+                'juta', 'jt' => 1_000_000,
+                'miliar' => 1_000_000_000,
+                default => 1000,
             };
+
             return [round($num * $multiplier, 2), $m[0]];
         }
 
@@ -126,7 +125,7 @@ class TransactionParser
         //   "dua puluh lima ribu", "seratus ribu", "lima juta"
         // Chrome sering mengubah angka jadi kata saat diketik via suara.
         $numWord = '(?:nol|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh|sebelas|belas|puluh|ratus|ribu|juta|miliar|seratus|seribu|sejuta)';
-        if (preg_match('/\b' . $numWord . '(?:\s+' . $numWord . ')*\b/u', $text, $m)) {
+        if (preg_match('/\b'.$numWord.'(?:\s+'.$numWord.')*\b/u', $text, $m)) {
             // Hanya terima jika ada kata skala uang (ribu/juta/miliar) —
             // hindari salah tangkap kata unit tunggal ("satu kopi", "dua buku").
             if (preg_match('/\b(?:ribu|juta|miliar)\b/u', $m[0])) {
@@ -159,13 +158,13 @@ class TransactionParser
             'seratus' => 100, 'seribu' => 1000, 'sejuta' => 1_000_000,
         ];
         $scale = [
-            'ribu'   => 1_000,
-            'juta'   => 1_000_000,
+            'ribu' => 1_000,
+            'juta' => 1_000_000,
             'miliar' => 1_000_000_000,
         ];
 
         $words = preg_split('/\s+/u', trim(mb_strtolower($phrase))) ?: [];
-        if (!$words) {
+        if (! $words) {
             return null;
         }
 
@@ -175,6 +174,7 @@ class TransactionParser
         foreach ($words as $word) {
             if (isset($small[$word])) {
                 $stack[] = $small[$word];
+
                 continue;
             }
             if ($word === 'belas') {
@@ -183,6 +183,7 @@ class TransactionParser
                     return null;
                 }
                 $stack[] = $last + 10;   // 11-19
+
                 continue;
             }
             if ($word === 'puluh') {
@@ -191,6 +192,7 @@ class TransactionParser
                     return null;
                 }
                 $stack[] = $last * 10;   // 20-90
+
                 continue;
             }
             if ($word === 'ratus') {
@@ -199,6 +201,7 @@ class TransactionParser
                     return null;
                 }
                 $stack[] = $last * 100;  // 100-900
+
                 continue;
             }
             if (isset($scale[$word])) {
@@ -208,8 +211,10 @@ class TransactionParser
                 }
                 $total += $value * $scale[$word];
                 $stack = [];
+
                 continue;
             }
+
             // kata asing di tengah frasa — hentikan parsing
             return null;
         }
@@ -227,11 +232,13 @@ class TransactionParser
     {
         $s = str_replace('.', '', $s);       // 25.000 -> 25000
         $s = str_replace(',', '.', $s);      // 25,5 -> 25.5
+
         return round(max(0, (float) $s), 2);
     }
 
     /**
      * Tentukan jenis transaksi dari kata kunci.
+     *
      * @return 'income'|'expense'|null
      */
     private static function detectType(string $text): ?string
@@ -239,15 +246,16 @@ class TransactionParser
         // Kata kunci multi-kata ("transfer masuk") harus dicek lebih dulu
         // supaya tidak kalah oleh kata kunci tunggal yang lebih pendek.
         foreach (self::INCOME_KEYWORDS as $kw) {
-            if (preg_match('/\b' . preg_quote($kw, '/') . '/u', $text)) {
+            if (preg_match('/\b'.preg_quote($kw, '/').'/u', $text)) {
                 return 'income';
             }
         }
         foreach (self::EXPENSE_KEYWORDS as $kw) {
-            if (preg_match('/\b' . preg_quote($kw, '/') . '/u', $text)) {
+            if (preg_match('/\b'.preg_quote($kw, '/').'/u', $text)) {
                 return 'expense';
             }
         }
+
         return null;
     }
 
@@ -262,10 +270,11 @@ class TransactionParser
     private static function hasRecordIntent(string $text): bool
     {
         foreach (self::RECORD_INTENT as $kw) {
-            if (preg_match('/\b' . preg_quote($kw, '/') . '/u', $text)) {
+            if (preg_match('/\b'.preg_quote($kw, '/').'/u', $text)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -278,11 +287,12 @@ class TransactionParser
     {
         foreach (self::CATEGORY_KEYWORDS as $category => $keywords) {
             foreach ($keywords as $kw) {
-                if (preg_match('/\b' . preg_quote($kw, '/') . '/u', $text)) {
+                if (preg_match('/\b'.preg_quote($kw, '/').'/u', $text)) {
                     return $category;
                 }
             }
         }
+
         return 'Lainnya';
     }
 
@@ -311,7 +321,7 @@ class TransactionParser
         // ("transfer masuk", "kurang lebih") terhapus utuh sebelum kata tunggalnya.
         usort($words, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
         foreach ($words as $word) {
-            $text = trim(preg_replace('/\b' . preg_quote($word, '/') . '\b/u', ' ', $text));
+            $text = trim(preg_replace('/\b'.preg_quote($word, '/').'\b/u', ' ', $text));
         }
 
         $title = trim(preg_replace('/\s+/', ' ', $text));

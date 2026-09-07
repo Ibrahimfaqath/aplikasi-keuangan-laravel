@@ -16,8 +16,7 @@ use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
-
-// bedanya sama update password apa?
+    // bedanya sama update password apa?
     /**
      * Display the password reset view.
      */

@@ -8,8 +8,7 @@ use Illuminate\Http\Request;
 
 class EmailVerificationNotificationController extends Controller
 {
-
-// kepake nggak?
+    // kepake nggak?
     /**
      * Send a new email verification notification.
      */

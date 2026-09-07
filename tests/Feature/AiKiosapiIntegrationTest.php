@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -61,6 +62,7 @@ class AiKiosapiIntegrationTest extends TestCase
 
         Http::assertSent(function ($request) {
             $body = $request->data();
+
             return $request->url() === 'https://kiosapi.com/v1/chat/completions'
                 && $request->hasHeader('Authorization', 'Bearer test-kiosapi-key')
                 && $request->hasHeader('Accept', 'application/json')
@@ -184,7 +186,7 @@ class AiKiosapiIntegrationTest extends TestCase
     {
         Http::fake([
             'https://kiosapi.com/v1/chat/completions' => function () {
-                throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
+                throw new ConnectionException('Connection refused');
             },
         ]);
 
@@ -206,9 +208,9 @@ class AiKiosapiIntegrationTest extends TestCase
     public function test_transaction_intent_with_json_block_still_goes_to_confirm_flow(): void
     {
         $json = "Catat makan siang 25 ribu.\n"
-            . "<<<JSON\n"
-            . '{"intent":"transaction","title":"Makan Siang","amount":25000,"type":"expense","category":"Makanan & Minuman","date":"' . Carbon::now()->format('Y-m-d') . "\"}\n"
-            . "JSON>>>";
+            ."<<<JSON\n"
+            .'{"intent":"transaction","title":"Makan Siang","amount":25000,"type":"expense","category":"Makanan & Minuman","date":"'.Carbon::now()->format('Y-m-d')."\"}\n"
+            .'JSON>>>';
         $this->mockResponse($json);
 
         $user = User::factory()->create();

@@ -24,9 +24,9 @@ class BudgetFeatureTest extends TestCase
         $now = Carbon::now();
         $this->assertDatabaseHas('budgets', [
             'user_id' => $user->id,
-            'month'   => $now->month,
-            'year'    => $now->year,
-            'amount'  => 5000000,
+            'month' => $now->month,
+            'year' => $now->year,
+            'amount' => 5000000,
         ]);
     }
 
@@ -53,7 +53,7 @@ class BudgetFeatureTest extends TestCase
 
         $this->assertDatabaseHas('budgets', [
             'user_id' => $user->id,
-            'amount'  => 1500000,
+            'amount' => 1500000,
         ]);
 
         $this->actingAs($user)
@@ -62,7 +62,7 @@ class BudgetFeatureTest extends TestCase
 
         $this->assertDatabaseHas('budgets', [
             'user_id' => $user->id,
-            'amount'  => 2500000,
+            'amount' => 2500000,
         ]);
     }
 

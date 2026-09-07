@@ -34,10 +34,10 @@ class AiFinancialTest extends TestCase
             'choices' => [
                 [
                     'message' => [
-                        'content' => $data['content'] ?? 'Ini adalah balasan dari AI.'
-                    ]
-                ]
-            ]
+                        'content' => $data['content'] ?? 'Ini adalah balasan dari AI.',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -175,6 +175,7 @@ class AiFinancialTest extends TestCase
         $this->assertNotEmpty($response->json('reply'));
         Http::assertSent(function ($sent) {
             $prompt = $sent->data()['messages'][0]['content'] ?? '';
+
             return str_contains($prompt, '7.500.000')
                 && str_contains($prompt, '2.000.000')
                 && str_contains($prompt, '5.500.000');
@@ -183,6 +184,7 @@ class AiFinancialTest extends TestCase
         // milik user ini harus tercantum, dan tidak ada data asing.
         Http::assertSent(function ($sent) {
             $prompt = $sent->data()['messages'][0]['content'] ?? '';
+
             return str_contains($prompt, 'Sewa')
                 && str_contains($prompt, 'TRANSAKSI TERAKHIR');
         });
@@ -212,6 +214,7 @@ class AiFinancialTest extends TestCase
         $this->assertNotEmpty($response->json('reply'));
         Http::assertSent(function ($sent) {
             $prompt = $sent->data()['messages'][0]['content'] ?? '';
+
             return str_contains($prompt, 'DATA BULAN LALU')
                 && str_contains($prompt, 'Rp 0');
         });
@@ -265,6 +268,7 @@ class AiFinancialTest extends TestCase
 
         Http::assertSent(function ($sent) use ($fmt, $monthIncome, $monthExpense, $lastIncome, $allIncome, $allExpense) {
             $prompt = $sent->data()['messages'][0]['content'] ?? '';
+
             return str_contains($prompt, $fmt($monthIncome))
                 && str_contains($prompt, $fmt($monthExpense))
                 && str_contains($prompt, $fmt($lastIncome))

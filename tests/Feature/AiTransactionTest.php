@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,10 +18,10 @@ class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionT
         $response = $this->actingAs($user)->postJson('/ai/transactions', [
             'items' => [
                 [
-                    'title'            => 'Nasi Goreng',
-                    'amount'           => 25000,
-                    'type'             => 'expense',
-                    'category'         => 'Makanan & Minuman',
+                    'title' => 'Nasi Goreng',
+                    'amount' => 25000,
+                    'type' => 'expense',
+                    'category' => 'Makanan & Minuman',
                     'transaction_date' => Carbon::now()->format('Y-m-d'),
                 ],
             ],
@@ -31,10 +30,10 @@ class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionT
         $response->assertOk()->assertJson(['success' => true, 'count' => 1]);
 
         $this->assertDatabaseHas('transactions', [
-            'user_id'  => $user->id,
-            'title'    => 'Nasi Goreng',
-            'amount'   => 25000,
-            'type'     => 'expense',
+            'user_id' => $user->id,
+            'title' => 'Nasi Goreng',
+            'amount' => 25000,
+            'type' => 'expense',
             'category' => 'Makanan & Minuman',
         ]);
     }
@@ -46,17 +45,17 @@ class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionT
         $response = $this->actingAs($user)->postJson('/ai/transactions', [
             'items' => [
                 [
-                    'title'            => 'Indomie',
-                    'amount'           => 3500,
-                    'type'             => 'expense',
-                    'category'         => 'Makanan & Minuman',
+                    'title' => 'Indomie',
+                    'amount' => 3500,
+                    'type' => 'expense',
+                    'category' => 'Makanan & Minuman',
                     'transaction_date' => Carbon::now()->format('Y-m-d'),
                 ],
                 [
-                    'title'            => 'Telur 1kg',
-                    'amount'           => 28000,
-                    'type'             => 'expense',
-                    'category'         => 'Belanja',
+                    'title' => 'Telur 1kg',
+                    'amount' => 28000,
+                    'type' => 'expense',
+                    'category' => 'Belanja',
                     'transaction_date' => Carbon::now()->format('Y-m-d'),
                 ],
             ],
@@ -75,10 +74,10 @@ class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionT
         $response = $this->actingAs($user)->postJson('/ai/transactions', [
             'items' => [
                 [
-                    'title'            => 'Transaksi Aneh',
-                    'amount'           => 1000,
-                    'type'             => 'expense',
-                    'category'         => 'Kategori Tidak Ada',
+                    'title' => 'Transaksi Aneh',
+                    'amount' => 1000,
+                    'type' => 'expense',
+                    'category' => 'Kategori Tidak Ada',
                     'transaction_date' => Carbon::now()->format('Y-m-d'),
                 ],
             ],
@@ -93,10 +92,10 @@ class AiTransactionTest extends TestCase  // ← Nama class HARUS AiTransactionT
         $response = $this->postJson('/ai/transactions', [
             'items' => [
                 [
-                    'title'            => 'Nasi Goreng',
-                    'amount'           => 25000,
-                    'type'             => 'expense',
-                    'category'         => 'Makanan & Minuman',
+                    'title' => 'Nasi Goreng',
+                    'amount' => 25000,
+                    'type' => 'expense',
+                    'category' => 'Makanan & Minuman',
                     'transaction_date' => Carbon::now()->format('Y-m-d'),
                 ],
             ],

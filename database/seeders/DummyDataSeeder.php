@@ -34,8 +34,8 @@ class DummyDataSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => self::TARGET_EMAIL],
             [
-                'name'              => 'Ibrahim Faqath',
-                'password'          => Hash::make(self::DUMMY_PASSWORD),
+                'name' => 'Ibrahim Faqath',
+                'password' => Hash::make(self::DUMMY_PASSWORD),
                 'email_verified_at' => Carbon::now(),
             ]
         );
@@ -44,7 +44,7 @@ class DummyDataSeeder extends Seeder
         $this->seedBudgets($user);
 
         $transactionCount = Transaction::where('user_id', $user->id)->count();
-        $budgetCount      = Budget::where('user_id', $user->id)->count();
+        $budgetCount = Budget::where('user_id', $user->id)->count();
 
         $this->command?->info(sprintf(
             'Dummy data siap untuk %s (%d transaksi, %d budget).',
@@ -63,11 +63,11 @@ class DummyDataSeeder extends Seeder
 
             Transaction::firstOrCreate(
                 [
-                    'user_id'          => $user->id,
-                    'title'            => $title,
-                    'type'             => $type,
-                    'category'         => $category,
-                    'amount'           => $amount,
+                    'user_id' => $user->id,
+                    'title' => $title,
+                    'type' => $type,
+                    'category' => $category,
+                    'amount' => $amount,
                     'transaction_date' => $date,
                 ],
                 [
@@ -84,8 +84,8 @@ class DummyDataSeeder extends Seeder
         Budget::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'month'   => $now->month,
-                'year'    => $now->year,
+                'month' => $now->month,
+                'year' => $now->year,
             ],
             ['amount' => 3500000]
         );
@@ -95,8 +95,8 @@ class DummyDataSeeder extends Seeder
         Budget::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'month'   => $previous->month,
-                'year'    => $previous->year,
+                'month' => $previous->month,
+                'year' => $previous->year,
             ],
             ['amount' => 6000000]
         );

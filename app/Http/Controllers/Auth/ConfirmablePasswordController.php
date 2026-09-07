@@ -11,8 +11,7 @@ use Illuminate\View\View;
 
 class ConfirmablePasswordController extends Controller
 {
-
-// dipake ngak?
+    // dipake ngak?
     /**
      * Show the confirm password view.
      */
