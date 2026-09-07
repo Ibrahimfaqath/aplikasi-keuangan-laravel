@@ -107,9 +107,10 @@ class AiController extends Controller
 
         // The request must match the pending candidate field-for-field.
         // This prevents the frontend from sending arbitrary transaction data.
+        // Amount pakai toleransi 1 sen agar tidak false-negative karena presisi float.
         $matches =
             trim($validated['title']) === $pending['title']
-            && (float) $validated['amount'] === (float) $pending['amount']
+            && abs((float) $validated['amount'] - (float) $pending['amount']) < 0.01
             && $validated['type'] === $pending['type']
             && $validated['category'] === $pending['category']
             && Carbon::parse($validated['transaction_date'])->format('Y-m-d') === $pending['transaction_date'];
@@ -166,16 +167,6 @@ class AiController extends Controller
         ]);
     }
 
-    public function ocr(Request $request)
-    {
-        return response()->json(['error' => 'Fitur scan struk saat ini dinonaktifkan. Silakan gunakan Voice atau Chat AI.'], 400);
-    }
-
-    public function ocrItems(Request $request)
-    {
-        return response()->json(['error' => 'Fitur scan struk saat ini dinonaktifkan.'], 400);
-    }
-
     public function storeTransactions(Request $request)
     {
         $validated = $request->validate([
@@ -193,7 +184,7 @@ class AiController extends Controller
             if (! in_array($item['category'], Transaction::categoriesFor($item['type']), true)) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Item ke-".($index + 1)." kategorinya tidak sesuai dengan jenis transaksi. Periksa lagi ya!",
+                    'message' => 'Item ke-'.($index + 1).' kategorinya tidak sesuai dengan jenis transaksi. Periksa lagi ya!',
                 ], 422);
             }
         }
