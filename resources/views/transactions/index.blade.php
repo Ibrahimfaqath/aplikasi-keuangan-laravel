@@ -662,7 +662,6 @@
                                 </td>
                                 <td class="py-4 px-6"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
                                 <td class="py-4 px-6"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-6"><div class="h-6 w-20 bg-neutral-200 dark:bg-[#333333] rounded-full animate-shimmer"></div></td>
                                 <td class="py-4 px-6 text-right"><div class="h-4 w-28 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex items-center justify-center gap-1">
@@ -679,14 +678,13 @@
 
             <div x-show="!isLoading">
                 <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full min-w-[720px] text-left border-collapse">
+                    <table class="w-full min-w-[620px] text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333] text-neutral-500 dark:text-neutral-400 text-xs font-semibold uppercase tracking-wider">
                                 <th class="py-3.5 px-6">Tanggal</th>
                                 <th class="py-3.5 px-6">Bukti</th>
                                 <th class="py-3.5 px-6">Keterangan</th>
                                 <th class="py-3.5 px-6">Kategori</th>
-                                <th class="py-3.5 px-6">Jenis</th>
                                 <th class="py-3.5 px-6 text-right">Nominal</th>
                                 <th class="py-3.5 px-6 text-center no-print">Aksi</th>
                             </tr>
@@ -765,17 +763,6 @@
                                         {{ $item->category ?? 'Lainnya' }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6">
-                                    @if(($item->type ?? 'income') == 'income')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20">
-                                        <span class="font-mono">+</span> Pemasukan
-                                    </span>
-                                    @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
-                                        <span class="font-mono">−</span> Pengeluaran
-                                    </span>
-                                    @endif
-                                </td>
                                 <td class="py-4 px-6 text-right font-extrabold whitespace-nowrap privacy-target cursor-pointer {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                     data-privacy-toggle
                                     title="Ketuk untuk sembunyikan/tampilkan"
@@ -798,7 +785,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="py-16 text-center">
+                                <td colspan="6" class="py-16 text-center">
                                     <div class="w-12 h-12 mx-auto mb-3 bg-neutral-100 dark:bg-[#262626] text-neutral-500 dark:text-neutral-400 rounded-xl flex items-center justify-center">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
