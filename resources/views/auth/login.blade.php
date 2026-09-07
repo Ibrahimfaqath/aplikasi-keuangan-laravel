@@ -27,20 +27,20 @@
         <!-- Remember Me & Forgot Password -->
         <div class="flex items-center justify-between mt-5">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 dark:border-navy-700 dark:bg-navy-800 text-blue-600 dark:text-navy-300 shadow-sm focus:ring-blue-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-white/80">{{ __('Ingat saya') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-neutral-300 dark:border-[#333333] dark:bg-[#262626] text-neutral-900 shadow-sm focus:ring-neutral-900 dark:focus:ring-neutral-100" name="remember">
+                <span class="ms-2 text-sm text-neutral-600 dark:text-neutral-300">{{ __('Ingat saya') }}</span>
             </label>
 
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-navy-950 focus:ring-blue-500" href="{{ route('password.request') }}">
+                <a class="underline text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#171717] focus:ring-neutral-900" href="{{ route('password.request') }}">
                     {{ __('Lupa kata sandi?') }}
                 </a>
             @endif
         </div>
 
         <!-- Action Buttons: Link Register & Tombol Login -->
-        <div class="flex items-center justify-between mt-6 pt-5 border-t border-gray-100 dark:border-navy-800">
-            <a class="text-sm font-medium text-blue-600 dark:text-navy-300 hover:text-blue-800 dark:hover:text-navy-200 underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-navy-950 focus:ring-blue-500" href="{{ route('register') }}">
+        <div class="flex items-center justify-between mt-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+            <a class="text-sm font-medium text-neutral-900 dark:text-neutral-100 hover:text-black dark:hover:text-white underline rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-[#171717] focus:ring-neutral-900" href="{{ route('register') }}">
                 Belum punya akun? Daftar
             </a>
 
