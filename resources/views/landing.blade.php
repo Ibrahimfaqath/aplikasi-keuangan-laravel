@@ -47,24 +47,47 @@
 <body class="font-sans text-neutral-900 dark:text-neutral-100 antialiased">
     <div class="min-h-screen flex flex-col bg-neutral-50 dark:bg-[#0A0A0A]">
 
+        <!-- Top bar -->
+        <header class="w-full border-b border-neutral-200 dark:border-[#222222] bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur">
+            <div class="mx-auto max-w-5xl px-6 py-3 flex items-center justify-between gap-3">
+                <a href="{{ url('/') }}" class="flex items-center gap-2.5">
+                    <x-application-logo class="w-8 h-8" />
+                    <span class="text-sm font-bold tracking-tight text-neutral-900 dark:text-neutral-50">DompetKu</span>
+                </a>
+                <nav class="flex items-center gap-2" aria-label="Navigasi utama">
+                    <a href="{{ route('login') }}"
+                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:text-white dark:hover:bg-[#1a1a1a] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        Masuk
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="inline-flex items-center px-4 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0A0A0A]">
+                        Daftar Gratis
+                    </a>
+                </nav>
+            </div>
+        </header>
+
         <!-- Hero Section -->
-        <main class="flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-20 sm:pt-24 sm:pb-28">
+        <main class="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-16 sm:pt-16 sm:pb-20">
 
             <!-- Logo + Brand -->
-            <div class="flex flex-col items-center gap-4 mb-10">
+            <div class="flex flex-col items-center gap-4 mb-8">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-white dark:bg-[#171717] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333333] shadow-sm">
+                    Gratis • Aman • Asisten AI
+                </span>
                 <x-application-logo class="w-20 h-20 shadow-sm" />
                 <div class="text-center">
-                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
+                    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
                         DompetKu
                     </h1>
-                    <p class="mt-2 text-base sm:text-lg text-neutral-500 dark:text-neutral-400 max-w-md">
+                    <p class="mt-3 text-base sm:text-lg text-neutral-500 dark:text-neutral-400 max-w-xl">
                         Kelola keuangan pribadi dengan mudah, aman, dan cerdas.
                     </p>
                 </div>
             </div>
 
             <!-- CTA Buttons -->
-            <div class="flex items-center gap-3 mb-16">
+            <div class="flex flex-wrap items-center justify-center gap-3 mb-3">
                 <a href="{{ route('login') }}"
                    class="inline-flex items-center px-6 py-3 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white font-semibold text-sm shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:ring-offset-2 dark:focus:ring-offset-[#0A0A0A]">
                     Masuk
@@ -74,46 +97,49 @@
                     Daftar Gratis
                 </a>
             </div>
+            <p class="mb-12 text-xs text-neutral-500 dark:text-neutral-400">
+                Gratis digunakan • Datamu hanya bisa diakses akunmu sendiri
+            </p>
 
             <!-- Feature Highlights -->
-            <div class="w-full max-w-lg space-y-4">
+            <div class="w-full max-w-xl space-y-4">
 
                 <!-- Feature 1: Pencatatan -->
-                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm">
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm transition-shadow hover:shadow-md">
                     <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659 1.171-1.671.288.459A8.25 8.25 0 0 1 18 10.5a8.25 8.25 0 0 1-5.885 7.898.75.75 0 0 0-.393.112l-.234.176a.75.75 0 0 1-.99-.19l-.54-.705a.75.75 0 0 0-.27-.346M12 6a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z" />
                         </svg>
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Pencatatan Instan</h3>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Catat pemasukan & pengeluaran dalam hitungan detik. Lihat ringkasan harian, mingguan, dan bulanan.</p>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">Catat pemasukan & pengeluaran dalam hitungan detik. Lihat ringkasan harian, mingguan, dan bulanan.</p>
                     </div>
                 </div>
 
                 <!-- Feature 2: AI -->
-                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm">
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm transition-shadow hover:shadow-md">
                     <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-neutral-100 dark:bg-[#262626] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#333333] flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456Z" />
                         </svg>
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Asisten AI</h3>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Scan struk belanja otomatis dengan OCR & tanya data keuangannya kapan saja lewat chat.</p>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">Catat lewat chat atau suara Bahasa Indonesia, lalu tanya ringkasan keuanganmu kapan saja.</p>
                     </div>
                 </div>
 
                 <!-- Feature 3: Anggaran & Laporan -->
-                <div class="flex items-start gap-4 p-4 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm">
+                <div class="flex items-start gap-4 p-5 rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] shadow-sm transition-shadow hover:shadow-md">
                     <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-neutral-100 dark:bg-[#262626] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#333333] flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                         </svg>
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Anggaran & Laporan</h3>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Atur batas anggaran bulanan dan export laporan ke PDF atau Excel kapan saja.</p>
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">Atur batas anggaran bulanan dan export laporan ke PDF atau Excel kapan saja.</p>
                     </div>
                 </div>
 
