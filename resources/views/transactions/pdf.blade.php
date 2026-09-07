@@ -4,129 +4,129 @@
     <meta charset="UTF-8">
     <title>Laporan Keuangan - DompetKu</title>
     <style>
-        @page { 
+        @page {
             margin: 25px 30px 20px 30px;
         }
-        body { 
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-            font-size: 10px; 
-            color: #1e293b; 
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            color: #111111;
             line-height: 1.6;
             background: #ffffff;
         }
-        
-        /* Corporate Header */
-        .header-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px; 
-            border-bottom: 3px solid #001F54; 
+
+        /* Corporate Header — monochrome */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #111111;
             padding-bottom: 12px;
         }
-        .company-logo { 
-            font-size: 18px; 
-            font-weight: 800; 
-            color: #001F54; 
+        .company-logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #111111;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
         .company-logo small {
             font-size: 10px;
             font-weight: 400;
-            color: #64748b;
+            color: #737373;
             letter-spacing: 0;
             text-transform: none;
         }
-        .report-title { 
-            text-align: right; 
-            font-size: 14px; 
-            font-weight: 700; 
-            color: #0f172a; 
+        .report-title {
+            text-align: right;
+            font-size: 14px;
+            font-weight: 700;
+            color: #111111;
             text-transform: uppercase;
         }
-        .report-meta { 
-            text-align: right; 
-            font-size: 8px; 
-            color: #64748b; 
+        .report-meta {
+            text-align: right;
+            font-size: 8px;
+            color: #737373;
             margin-top: 2px;
         }
 
         /* Summary Grid */
-        .summary-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px; 
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .summary-card { 
-            padding: 8px 10px; 
-            border: 1px solid #e2e8f0; 
-            background-color: #f8fafc; 
-            border-radius: 6px; 
-            text-align: center; 
+        .summary-card {
+            padding: 8px 10px;
+            border: 1px solid #E5E5E5;
+            background-color: #F5F5F5;
+            border-radius: 6px;
+            text-align: center;
         }
-        .summary-label { 
-            font-size: 7px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: #64748b; 
+        .summary-label {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #737373;
             letter-spacing: 0.5px;
         }
-        .summary-value { 
-            font-size: 13px; 
-            font-weight: 800; 
-            margin-top: 2px; 
+        .summary-value {
+            font-size: 13px;
+            font-weight: 800;
+            margin-top: 2px;
+            color: #111111;
         }
-        .income { color: #059669; }
-        .expense { color: #dc2626; }
-        .balance { color: #001F54; }
 
         /* Main Data Table */
-        .data-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px; 
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .data-table th { 
-            background-color: #f1f5f9; 
-            color: #475569; 
-            font-size: 7.5px; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            padding: 6px 8px; 
-            border-bottom: 2px solid #cbd5e1; 
-            text-align: left; 
+        .data-table th {
+            background-color: #F5F5F5;
+            color: #525252;
+            font-size: 7.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 6px 8px;
+            border-bottom: 2px solid #D4D4D4;
+            text-align: left;
             letter-spacing: 0.5px;
         }
-        .data-table td { 
-            padding: 6px 8px; 
-            border-bottom: 1px solid #f1f5f9; 
-            font-size: 9px; 
+        .data-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #F5F5F5;
+            font-size: 9px;
         }
         .data-table tr:nth-child(even) td {
-            background-color: #fafbfc;
+            background-color: #FAFAFA;
         }
         .data-table .total-row td {
-            background-color: #f1f5f9 !important;
+            background-color: #F5F5F5 !important;
             font-weight: 700;
-            border-top: 2px solid #cbd5e1;
+            border-top: 2px solid #111111;
         }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
 
-        /* Status Badge */
+        /* Status Badge — monochrome dengan label + border */
         .badge-income {
-            color: #059669;
-            font-weight: 600;
-            background: #ecfdf5;
+            color: #111111;
+            font-weight: 700;
+            background: #FFFFFF;
+            border: 1px solid #111111;
             padding: 1px 8px;
             border-radius: 10px;
             font-size: 7px;
             text-transform: uppercase;
         }
         .badge-expense {
-            color: #dc2626;
+            color: #525252;
             font-weight: 600;
-            background: #fef2f2;
+            background: #F5F5F5;
+            border: 1px solid #D4D4D4;
             padding: 1px 8px;
             border-radius: 10px;
             font-size: 7px;
@@ -134,19 +134,19 @@
         }
 
         /* Footer */
-        .footer { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            font-size: 7px; 
-            color: #94a3b8; 
-            border-top: 1px solid #e2e8f0; 
-            padding-top: 6px; 
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 7px;
+            color: #A3A3A3;
+            border-top: 1px solid #E5E5E5;
+            padding-top: 6px;
             background: #ffffff;
         }
-        .page-number:after { 
-            content: counter(page); 
+        .page-number:after {
+            content: counter(page);
         }
 
         /* Print Watermark */
@@ -157,18 +157,18 @@
             transform: translate(-50%, -50%) rotate(-30deg);
             font-size: 80px;
             font-weight: 900;
-            color: #f1f5f9;
-            opacity: 0.4;
+            color: #F5F5F5;
+            opacity: 0.6;
             pointer-events: none;
             z-index: 0;
         }
 
         .note {
             font-size: 8px;
-            color: #94a3b8;
+            color: #A3A3A3;
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid #F5F5F5;
             font-style: italic;
         }
     </style>
@@ -185,7 +185,7 @@
                 <div class="company-logo">
                     DompetKu <small>• Manajemen Keuangan</small>
                 </div>
-                <div style="font-size: 8px; color: #64748b; margin-top: 2px;">
+                <div style="font-size: 8px; color: #737373; margin-top: 2px;">
                     Laporan Rekapitulasi Keuangan Resmi
                 </div>
             </td>
@@ -207,21 +207,21 @@
             <td width="32%">
                 <div class="summary-card">
                     <div class="summary-label">Total Pemasukan</div>
-                    <div class="summary-value income">Rp {{ number_format($totalIncome ?? 0, 0, ',', '.') }}</div>
+                    <div class="summary-value">+ Rp {{ number_format($totalIncome ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>
             <td width="2%"></td>
             <td width="32%">
                 <div class="summary-card">
                     <div class="summary-label">Total Pengeluaran</div>
-                    <div class="summary-value expense">Rp {{ number_format($totalExpense ?? 0, 0, ',', '.') }}</div>
+                    <div class="summary-value">− Rp {{ number_format($totalExpense ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>
             <td width="2%"></td>
             <td width="32%">
                 <div class="summary-card">
                     <div class="summary-label">Sisa Saldo Bersih</div>
-                    <div class="summary-value balance">Rp {{ number_format($totalBalance ?? 0, 0, ',', '.') }}</div>
+                    <div class="summary-value">Rp {{ number_format($totalBalance ?? 0, 0, ',', '.') }}</div>
                 </div>
             </td>
         </tr>
@@ -253,13 +253,13 @@
                         <span class="badge-expense">Pengeluaran</span>
                     @endif
                 </td>
-                <td class="text-right {{ $item->type == 'income' ? 'income' : 'expense' }}">
-                    Rp {{ number_format($item->amount, 0, ',', '.') }}
+                <td class="text-right">
+                    {{ $item->type == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount, 0, ',', '.') }}
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="text-center" style="padding: 30px; color: #94a3b8; font-size: 11px;">
+                <td colspan="6" class="text-center" style="padding: 30px; color: #A3A3A3; font-size: 11px;">
                     Tidak ada data transaksi yang ditemukan.
                 </td>
             </tr>
@@ -286,7 +286,7 @@
                 <td>
                     • Laporan ini dihasilkan secara otomatis oleh sistem DompetKu.
                 </td>
-                <td style="text-align: right; font-weight: 600; color: #001F54;">
+                <td style="text-align: right; font-weight: 600; color: #111111;">
                     Periode: {{ $period ?? 'Semua Waktu' }}
                 </td>
             </tr>
@@ -294,7 +294,7 @@
                 <td>
                     • Data transaksi mencakup seluruh pemasukan dan pengeluaran yang tercatat.
                 </td>
-                <td style="text-align: right; color: #94a3b8;">
+                <td style="text-align: right; color: #A3A3A3;">
                     Total Transaksi: {{ $transactions->count() ?? 0 }}
                 </td>
             </tr>
@@ -307,7 +307,7 @@
             <tr>
                 <td>© {{ date('Y') }} DompetKu. Hak Cipta Dilindungi.</td>
                 <td style="text-align: right;">
-                    Halaman <span class="page-number"></span> | 
+                    Halaman <span class="page-number"></span> |
                     Dicetak: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}
                 </td>
             </tr>

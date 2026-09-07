@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-white dark:bg-navy-950">
+<html lang="id" class="h-full bg-neutral-50 dark:bg-[#0A0A0A]">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="Tambahkan transaksi pemasukan atau pengeluaran dengan bukti foto di DompetKu.">
-    <meta name="theme-color" content="#0A1128">
+    <meta name="theme-color" content="#0A0A0A">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
@@ -19,14 +19,14 @@
     <meta property="og:title" content="Tambah Transaksi - DompetKu">
     <meta property="og:url" content="{{ url()->current() }}">
     <title>Tambah Transaksi - DompetKu</title>
-    
+
     <script>
         (function initTheme() {
             try {
                 const savedTheme = localStorage.getItem('theme');
                 const isDark = savedTheme !== 'light';
                 if (isDark) document.documentElement.classList.add('dark');
-                document.documentElement.style.backgroundColor = isDark ? '#0A1128' : '#f8fafc';
+                document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
             } catch (e) {
                 document.documentElement.classList.remove('dark');
             }
@@ -43,63 +43,84 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: right 0.75rem center;
             background-repeat: no-repeat;
             background-size: 1.25em 1.25em;
             padding-right: 2.5rem !important;
         }
         .dark .select-field {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23A3A3A3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         }
         .date-field {
+            position: relative;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23737373' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
             background-position: right 0.75rem center;
             background-repeat: no-repeat;
             background-size: 1.15em 1.15em;
             padding-right: 2.5rem !important;
         }
         .dark .date-field {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23A3A3A3' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
+        }
+        /* Satu ikon saja: indikator bawaan browser dibuat transparan
+           tetapi tetap mencakup area klik kanan agar date picker native jalan */
+        .date-field::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 2.75rem;
+            height: 100%;
+            cursor: pointer;
         }
         .btn-upload.active {
-            background-color: #2563eb !important;
-            border-color: #2563eb !important;
+            background-color: #111111 !important;
+            border-color: #111111 !important;
             color: #ffffff !important;
         }
         .dark .btn-upload.active {
-            background-color: #3b63b8 !important;
-            border-color: #3b63b8 !important;
-            color: #ffffff !important;
+            background-color: #FAFAFA !important;
+            border-color: #FAFAFA !important;
+            color: #0A0A0A !important;
         }
         .cat-chip.active {
-            background-color: var(--cat-color, #2563eb) !important;
-            border-color: var(--cat-color, #2563eb) !important;
+            background-color: #111111 !important;
+            border-color: #111111 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 12px color-mix(in srgb, var(--cat-color, #2563eb) 30%, transparent);
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+        }
+        .dark .cat-chip.active {
+            background-color: #FAFAFA !important;
+            border-color: #FAFAFA !important;
+            color: #0A0A0A !important;
         }
         .cat-chip.active > span:first-child {
             background-color: rgba(255, 255, 255, 0.16) !important;
             color: #ffffff !important;
         }
-        .cat-row::-webkit-scrollbar { display: none; }
-        .cat-row { scrollbar-width: none; }
+        .dark .cat-chip.active > span:first-child {
+            background-color: rgba(0, 0, 0, 0.08) !important;
+            color: #0A0A0A !important;
+        }
     </style>
 </head>
 
-<body class="min-h-full bg-white dark:bg-navy-950 text-slate-900 dark:text-white font-sans antialiased">
+<body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">
+
+    <x-sidebar title="Tambah Transaksi" />
 
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-         class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-navy-900 rounded-2xl shadow-xl border border-slate-100 dark:border-navy-800">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl">
+         class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-[#171717] rounded-2xl shadow-sm border border-neutral-200 dark:border-[#333333]">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 rounded-xl">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
         </div>
-        <div class="ml-3 text-xs font-semibold text-slate-700 dark:text-white/90">{{ session('success') }}</div>
-        <button @click="show = false" class="ml-auto p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg">
+        <div class="ml-3 text-xs font-semibold text-neutral-700 dark:text-neutral-200">{{ session('success') }}</div>
+        <button @click="show = false" class="ml-auto p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
     </div>
@@ -109,71 +130,70 @@
 
         <div class="relative flex items-center justify-center mb-6">
             <a href="{{ route('transactions.index') }}" aria-label="Kembali ke daftar transaksi"
-               class="absolute left-0 flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-600 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 flex items-center justify-center transition">
+               class="absolute left-0 flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 flex items-center justify-center transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Tambah Transaksi</h1>
+            <div class="text-center">
+                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Tambah Transaksi</h1>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Catat pemasukan atau pengeluaran baru</p>
+            </div>
         </div>
 
         <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             <div class="space-y-2">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                     Jenis Transaksi
                 </label>
-                
-                <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 dark:bg-navy-800/80 rounded-xl border border-slate-200/60 dark:border-navy-700/60">
-                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-emerald-700 dark:has-[:checked]:text-emerald-400 has-[:checked]:shadow-sm has-[:checked]:border-emerald-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
+
+                <div class="grid grid-cols-2 gap-3 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]">
+                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all border border-transparent has-[:checked]:bg-green-50 dark:has-[:checked]:bg-green-500/10 has-[:checked]:text-neutral-900 dark:has-[:checked]:text-white has-[:checked]:shadow-sm has-[:checked]:border-green-600 dark:has-[:checked]:border-green-500/50 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">
                         <input type="radio" name="type" value="income" class="sr-only" {{ old('type', 'income') == 'income' ? 'checked' : '' }} required>
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
+                        <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold">+</span>
                         <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
                     </label>
 
-                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-900 has-[:checked]:text-rose-700 dark:has-[:checked]:text-rose-400 has-[:checked]:shadow-sm has-[:checked]:border-rose-200/80 text-slate-500 dark:text-white/70 hover:text-slate-800 dark:hover:text-white/80">
+                    <label class="relative flex items-center justify-center gap-2 py-3 px-4 rounded-lg cursor-pointer transition-all border border-transparent has-[:checked]:bg-red-50 dark:has-[:checked]:bg-red-500/10 has-[:checked]:text-neutral-900 dark:has-[:checked]:text-white has-[:checked]:shadow-sm has-[:checked]:border-red-600 dark:has-[:checked]:border-red-500/50 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100">
                         <input type="radio" name="type" value="expense" class="sr-only" {{ old('type') == 'expense' ? 'checked' : '' }} required>
-                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                        </svg>
+                        <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold">−</span>
                         <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
                     </label>
                 </div>
                 @error('type')
-                    <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                    <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         {{ $message }}
                     </p>
                 @enderror
             </div>
 
-            <main class="bg-white dark:bg-navy-900 rounded-2xl border border-slate-200/80 dark:border-navy-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
+            <main class="bg-white dark:bg-[#171717] rounded-2xl border border-neutral-200 dark:border-[#333333] shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
 
                 <div class="space-y-2">
-                    <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                    <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                         Nominal Transaksi
                     </label>
                     <div class="relative rounded-xl shadow-sm">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-white/50 font-bold text-base sm:text-lg">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500 font-bold text-base sm:text-lg">
                             Rp
                         </div>
-                        <input 
-                            type="number" 
-                            name="amount" 
+                        <input
+                            type="number"
+                            name="amount"
                             id="amount"
-                            value="{{ old('amount') }}" 
-                            placeholder="0" 
-                            required 
+                            value="{{ old('amount') }}"
+                            placeholder="0"
+                            required
                             min="1"
                             step="any"
-                            class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-200 dark:border-navy-700/80 rounded-xl text-slate-900 dark:text-white font-extrabold text-base sm:text-lg placeholder-slate-300 dark:placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-navy-800 transition @error('amount') border-rose-400 bg-rose-50/20 @enderror"
+                            class="w-full pl-12 pr-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-neutral-900 dark:text-neutral-50 font-extrabold text-base sm:text-lg placeholder-neutral-300 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
                         >
                     </div>
                     @error('amount')
-                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                        <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             {{ $message }}
                         </p>
@@ -182,19 +202,19 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        <label for="transaction_date" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                        <label for="transaction_date" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                             Tanggal
                         </label>
-                        <input 
-                            type="date" 
-                            name="transaction_date" 
+                        <input
+                            type="date"
+                            name="transaction_date"
                             id="transaction_date"
-                            value="{{ old('transaction_date', date('Y-m-d')) }}" 
-                            required 
-                            class="date-field w-full px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-200 dark:border-navy-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white/90 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-navy-800 transition @error('transaction_date') border-rose-400 bg-rose-50/20 @enderror"
+                            value="{{ old('transaction_date', date('Y-m-d')) }}"
+                            required
+                            class="date-field w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('transaction_date') border-red-400 @enderror"
                         >
                         @error('transaction_date')
-                            <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                            <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 {{ $message }}
                             </p>
@@ -202,20 +222,20 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label for="title" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                        <label for="title" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                             Keterangan / Judul
                         </label>
-                        <input 
-                            type="text" 
-                            name="title" 
+                        <input
+                            type="text"
+                            name="title"
                             id="title"
-                            value="{{ old('title') }}" 
-                            placeholder="Contoh: Gaji Bulanan, Beli Kopi" 
-                            required 
-                            class="w-full px-4 py-3 bg-slate-50 dark:bg-navy-800/60 border border-slate-200 dark:border-navy-700/80 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white/90 placeholder-slate-400 dark:placeholder-white/40 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-navy-800 transition @error('title') border-rose-400 bg-rose-50/20 @enderror"
+                            value="{{ old('title') }}"
+                            placeholder="Contoh: Gaji Bulanan, Beli Kopi"
+                            required
+                            class="w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('title') border-red-400 @enderror"
                         >
                         @error('title')
-                            <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                            <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 {{ $message }}
                             </p>
@@ -224,7 +244,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
+                    <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                         Kategori
                     </label>
                     <input type="hidden" name="category" id="category" value="{{ old('category', '') }}">
@@ -247,62 +267,30 @@
                             'Keluarga' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
                         ];
 
-                        $catColors = [
-                            'Gaji' => '#10b981', 'Bonus' => '#f59e0b', 'Bisnis' => '#2563eb',
-                            'Investasi' => '#6366f1', 'Hadiah' => '#ec4899', 'Lainnya' => '#6b7280',
-                            'Makanan & Minuman' => '#f97316', 'Transportasi' => '#64748b',
-                            'Tagihan & Utilitas' => '#eab308', 'Belanja' => '#a855f7',
-                            'Hiburan' => '#f43f5e', 'Kesehatan' => '#ef4444',
-                            'Pendidikan' => '#06b6d4', 'Keluarga' => '#14b8a6',
-                        ];
-
-                        $chipBtn = function ($cat, $rowMode) use ($catIcons, $catColors) {
+                        $chipBtn = function ($cat) use ($catIcons) {
                             $selected = old('category', '') == $cat;
-                            $color = $catColors[$cat] ?? '#6b7280';
-                            $width = $rowMode ? ' w-24 flex-shrink-0' : '';
                             $active = $selected ? ' active' : '';
                             return '<button type="button" data-category="' . e($cat) . '"' .
-                                ' style="--cat-color: ' . $color . '"' .
-                                ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-slate-50 dark:bg-navy-800/60 border-slate-200 dark:border-navy-700/80 text-slate-700 dark:text-white/80 hover:border-slate-300 dark:hover:border-navy-600' . $width . $active . '">' .
-                                '<span class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-navy-700/60 flex items-center justify-center transition">' .
+                                ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-neutral-50 dark:bg-[#262626]/60 border-neutral-200 dark:border-[#333333] text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
+                                '<span class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-[#333333] flex items-center justify-center transition">' .
                                 '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                                 '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
                         };
                     @endphp
 
-                    <div id="cat-income" class="space-y-1.5">
-                        <div id="cat-income-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
+                    <div id="cat-income">
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat) !!}@endforeach
                         </div>
-                        <div id="cat-income-grid" class="cat-grid hidden grid grid-cols-3 sm:grid-cols-4 gap-2">
-                            @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat, false) !!}@endforeach
-                        </div>
-                        <button type="button" id="toggle-cat-income"
-                                class="cat-toggle inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-navy-300 hover:text-blue-700 dark:hover:text-navy-200 transition">
-                            <span class="cat-toggle-label">Tampilkan semua</span>
-                            <svg class="cat-toggle-icon w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
                     </div>
 
-                    <div id="cat-expense" class="space-y-1.5">
-                        <div id="cat-expense-row" class="cat-row flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat, true) !!}@endforeach
+                    <div id="cat-expense">
+                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat) !!}@endforeach
                         </div>
-                        <div id="cat-expense-grid" class="cat-grid hidden grid grid-cols-3 sm:grid-cols-4 gap-2">
-                            @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat, false) !!}@endforeach
-                        </div>
-                        <button type="button" id="toggle-cat-expense"
-                                class="cat-toggle inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-navy-300 hover:text-blue-700 dark:hover:text-navy-200 transition">
-                            <span class="cat-toggle-label">Tampilkan semua</span>
-                            <svg class="cat-toggle-icon w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
                     </div>
                     @error('category')
-                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                        <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             {{ $message }}
                         </p>
@@ -311,18 +299,18 @@
 
                 <!-- Web Speech API Input Suara (Lokal Bawaan Browser) -->
                 <div x-data="voiceInput()" class="space-y-2">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
-                        Input Cepat via Suara <span class="text-slate-400 font-normal lowercase">(Bawaan Browser)</span>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+                        Input Cepat via Suara <span class="text-neutral-400 font-normal lowercase">(Bawaan Browser)</span>
                     </label>
                     <button type="button" @click="toggleVoice()"
-                            :class="recording ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-300 dark:border-rose-800' : 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-white/70 border-slate-200 dark:border-navy-700'"
+                            :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border-neutral-200 dark:border-[#333333]'"
                             class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
                         </svg>
                         <span x-text="recording ? 'Merekam... Ucapkan transaksi (mis: Beli nasi goreng 25 ribu)' : 'Mulai Catat dengan Suara'" x-cloak>Mulai Catat dengan Suara</span>
                     </button>
-                    <p x-show="voiceResult" x-cloak class="text-xs text-blue-600 dark:text-navy-300 font-semibold flex items-center gap-1">
+                    <p x-show="voiceResult" x-cloak class="text-xs text-neutral-900 dark:text-neutral-100 font-semibold flex items-center gap-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                         Terdengar: <span x-text="voiceResult"></span>
                     </p>
@@ -407,23 +395,23 @@
 
                 <!-- Upload Gambar -->
                 <div class="space-y-2">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-white/70">
-                        Upload Bukti Transaksi <span class="text-slate-400 font-normal lowercase">(opsional)</span>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+                        Upload Bukti Transaksi <span class="text-neutral-400 font-normal lowercase">(opsional)</span>
                     </label>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" 
+                        <button type="button"
                                 id="btnGallery"
-                                class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-navy-800 hover:bg-slate-200 dark:hover:bg-navy-700 text-slate-600 dark:text-white/70 rounded-lg border border-slate-200 dark:border-navy-700 font-medium text-sm transition">
+                                class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl border border-neutral-200 dark:border-[#333333] font-medium text-sm transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Galeri
                         </button>
-                        
-                        <button type="button" 
+
+                        <button type="button"
                                 id="btnCamera"
-                                class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 dark:bg-navy-800 hover:bg-slate-200 dark:hover:bg-navy-700 text-slate-600 dark:text-white/70 rounded-lg border border-slate-200 dark:border-navy-700 font-medium text-sm transition">
+                                class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl border border-neutral-200 dark:border-[#333333] font-medium text-sm transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -434,39 +422,39 @@
 
                     <input type="file" name="image" id="fileInput" accept="image/*" class="hidden">
 
-                    <div id="dropZone" 
-                         class="relative border-2 border-dashed border-slate-200 dark:border-navy-800 hover:border-blue-400 dark:hover:border-blue-500 rounded-xl p-6 text-center bg-slate-50/50 dark:bg-navy-800/40 hover:bg-slate-50 dark:hover:bg-navy-800/50 transition cursor-pointer hidden md:block">
+                    <div id="dropZone"
+                         class="relative border-2 border-dashed border-neutral-300 dark:border-[#333333] hover:border-neutral-900 dark:hover:border-neutral-100 rounded-xl p-6 text-center bg-neutral-50 dark:bg-[#262626]/40 hover:bg-neutral-100 dark:hover:bg-[#262626] transition cursor-pointer hidden md:block">
 
                         <div id="uploadPlaceholder" class="space-y-2">
-                            <div class="w-12 h-12 mx-auto bg-blue-50 dark:bg-navy-400/10 text-blue-500 dark:text-navy-300 rounded-xl flex items-center justify-center">
+                            <div class="w-12 h-12 mx-auto bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-xl flex items-center justify-center">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <p class="text-xs font-semibold text-slate-700 dark:text-white/80">
-                                <span class="text-blue-600 dark:text-navy-300">Klik</span> atau tarik gambar ke sini
+                            <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                                <span class="text-neutral-900 dark:text-white font-bold">Klik</span> atau tarik gambar ke sini
                             </p>
-                            <p class="text-xs text-slate-400 dark:text-white/50">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
+                            <p class="text-xs text-neutral-400 dark:text-neutral-500">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
                         </div>
                     </div>
 
                     <div id="previewContainer" class="hidden">
-                        <div class="relative overflow-hidden rounded-xl border border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900">
+                        <div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717]">
                             <img id="imagePreview" src="#" alt="Preview bukti transaksi"
-                                 class="w-full max-h-80 object-contain bg-slate-50 dark:bg-navy-950">
-                            <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-slate-100 dark:border-navy-800">
+                                 class="w-full max-h-80 object-contain bg-neutral-50 dark:bg-[#0A0A0A]">
+                            <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-neutral-200 dark:border-[#333333]">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
                                     <div class="min-w-0">
-                                        <p id="fileName" class="text-xs font-bold text-slate-800 dark:text-white/90 truncate"></p>
-                                        <p id="fileSize" class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold"></p>
+                                        <p id="fileName" class="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate"></p>
+                                        <p id="fileSize" class="text-xs text-neutral-500 dark:text-neutral-400 font-semibold"></p>
                                     </div>
                                 </div>
                                 <button type="button"
                                         id="removeFileBtn"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition flex-shrink-0">
+                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-[#333333] hover:bg-neutral-900 hover:text-white dark:hover:bg-neutral-100 dark:hover:text-neutral-900 rounded-lg transition flex-shrink-0">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -477,18 +465,18 @@
                     </div>
 
                     @error('image')
-                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1 font-medium">
+                        <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             {{ $message }}
                         </p>
                     @enderror
                 </div>
 
-                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-slate-200/80 dark:border-navy-800">
-                    <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-navy-900 text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-navy-800 border border-slate-200 dark:border-navy-800 rounded-xl text-xs sm:text-sm font-semibold transition">
+                <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-neutral-200 dark:border-[#333333]">
+                    <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm font-semibold transition">
                         Batal
                     </a>
-                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-navy-600 dark:hover:bg-navy-500 dark:text-white text-white rounded-xl text-xs sm:text-sm font-semibold shadow-md shadow-blue-600/20 transition">
+                    <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -582,24 +570,6 @@
             });
         });
 
-        document.querySelectorAll('.cat-toggle').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const group = this.id.replace('toggle-cat-', '');
-                const row = document.getElementById('cat-' + group + '-row');
-                const grid = document.getElementById('cat-' + group + '-grid');
-                const expanded = !grid.classList.contains('hidden');
-                if (expanded) {
-                    grid.classList.add('hidden');
-                    row.classList.remove('hidden');
-                } else {
-                    row.classList.add('hidden');
-                    grid.classList.remove('hidden');
-                }
-                this.querySelector('.cat-toggle-label').textContent = expanded ? 'Tampilkan semua' : 'Tampilkan sedikit';
-                this.querySelector('.cat-toggle-icon').classList.toggle('-rotate-180', !expanded);
-            });
-        });
-
         function syncCategoryGroups() {
             const isIncome = document.querySelector('input[name="type"]:checked')?.value === 'income';
             if (catIncome) catIncome.style.display = isIncome ? '' : 'none';
@@ -618,17 +588,17 @@
 
         dropZone.addEventListener('dragover', function(e) {
             e.preventDefault();
-            this.classList.add('border-blue-400', 'bg-blue-50/20', 'dark:bg-navy-400/10');
+            this.classList.add('border-neutral-900', 'bg-neutral-100');
         });
 
         dropZone.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            this.classList.remove('border-blue-400', 'bg-blue-50/20', 'dark:bg-navy-400/10');
+            this.classList.remove('border-neutral-900', 'bg-neutral-100');
         });
 
         dropZone.addEventListener('drop', function(e) {
             e.preventDefault();
-            this.classList.remove('border-blue-400', 'bg-blue-50/20', 'dark:bg-navy-400/10');
+            this.classList.remove('border-neutral-900', 'bg-neutral-100');
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 const file = files[0];
