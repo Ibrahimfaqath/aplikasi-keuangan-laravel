@@ -3,12 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-    /* Warna seleksi teks mengikuti brand (biru untuk terang, navy untuk gelap) */
+    /* Seleksi teks monochrome */
     ::selection {
-        background-color: rgb(37 99 235 / 0.25);
+        background-color: rgb(23 23 23 / 0.12);
     }
     .dark ::selection {
-        background-color: rgb(59 99 184 / 0.3);
+        background-color: rgb(255 255 255 / 0.18);
+    }
+
+    /* Cegah flash: base background mengikuti spec */
+    html {
+        background-color: #FAFAFA;
+    }
+    html.dark {
+        background-color: #0A0A0A;
     }
 
     /* Sembunyikan elemen Alpine sebelum diinisialisasi (mencegah flash) */
@@ -39,23 +47,25 @@
         }
     }
 
+    /* Skeleton monochrome — light */
     .animate-shimmer {
         background: linear-gradient(
             90deg,
-            rgba(229, 231, 235, 0.8) 25%,
-            rgba(243, 244, 246, 0.9) 37%,
-            rgba(229, 231, 235, 0.8) 63%
+            rgba(229, 229, 229, 0.9) 25%,
+            rgba(245, 245, 245, 0.95) 37%,
+            rgba(229, 229, 229, 0.9) 63%
         );
         background-size: 200% 100%;
         animation: skeleton-shimmer 1.4s infinite ease-in-out;
     }
 
+    /* Skeleton monochrome — dark (#171717 / #262626) */
     .dark .animate-shimmer {
         background: linear-gradient(
             90deg,
-            rgba(16, 29, 60, 0.9) 25%,
-            rgba(21, 38, 73, 0.95) 37%,
-            rgba(16, 29, 60, 0.9) 63%
+            rgba(23, 23, 23, 0.95) 25%,
+            rgba(38, 38, 38, 0.95) 37%,
+            rgba(23, 23, 23, 0.95) 63%
         );
         background-size: 200% 100%;
         animation: skeleton-shimmer 1.4s infinite ease-in-out;
@@ -69,4 +79,71 @@
     .animate-bounce {
         animation: bounce 0.6s infinite;
     }
+}
+
+/* ==========================================================
+   APP SHELL — fixed sidebar offset + collapse (desktop lg+)
+   Sidebar: 264px expanded / 76px collapsed (persist localStorage).
+   Halaman authenticated memakai class `app-shell-content` pada body.
+   ========================================================== */
+@media (min-width: 1024px) {
+    .app-shell-content {
+        padding-left: 256px;
+        transition: padding-left 0.2s ease;
+    }
+    html.sb-collapsed .app-shell-content {
+        padding-left: 76px;
+    }
+    html.sb-collapsed .sb-aside {
+        width: 76px;
+    }
+    html.sb-collapsed .sb-label,
+    html.sb-collapsed .sb-section-label,
+    html.sb-collapsed .sb-brand-text,
+    html.sb-collapsed .sb-user-meta {
+        display: none !important;
+    }
+    html.sb-collapsed .sb-link {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    html.sb-collapsed .sb-brand-row,
+    html.sb-collapsed .sb-profile-card {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .sb-ico-expand {
+        display: none !important;
+    }
+    html.sb-collapsed .sb-ico-expand {
+        display: block !important;
+    }
+    html.sb-collapsed .sb-ico-collapse {
+        display: none !important;
+    }
+}
+
+/* Scrollbar ramping untuk nav sidebar */
+.sb-nav::-webkit-scrollbar {
+    width: 6px;
+}
+.sb-nav::-webkit-scrollbar-thumb {
+    background: #D4D4D4;
+    border-radius: 999px;
+}
+.dark .sb-nav::-webkit-scrollbar-thumb {
+    background: #333333;
+}
+
+/* Active state untuk opsi tema tersegmentasi (disinkron via JS) */
+.theme-opt-active {
+    background: #FFFFFF;
+    color: #171717;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+.dark .theme-opt-active {
+    background: #0A0A0A;
+    color: #FAFAFA;
 }
