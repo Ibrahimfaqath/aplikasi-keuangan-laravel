@@ -2,63 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Transaction;
-use App\Models\Budget;
 use App\Exports\TransactionsExport;
+use App\Http\Requests\StoreTransactionRequest;
+use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Budget;
+use App\Models\Transaction;
 use App\Services\ReportingService;
 use App\Services\TransactionParser;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $reportingService = new ReportingService();
+        $reportingService = new ReportingService;
 
         $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
-        $query = $reportingService->getFilteredQuery($filters);
+        $query = $reportingService->getFilteredQuery($filters, Auth::id());
         $stats = $reportingService->getStatistics($query);
         $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
         $trendData = [
-            'week'  => $reportingService->getTrendSeries('week'),
-            'month' => $reportingService->getTrendSeries('month'),
-            'year'  => $reportingService->getTrendSeries('year'),
+            'week' => $reportingService->getTrendSeries('week', Auth::id()),
+            'month' => $reportingService->getTrendSeries('month', Auth::id()),
+            'year' => $reportingService->getTrendSeries('year', Auth::id()),
         ];
 
         $transactions = $query->orderBy('transaction_date', 'desc')
-                              ->latest()
-                              ->paginate(10)
-                              ->withQueryString();
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         $now = Carbon::now();
 
         $budget = Budget::where('user_id', Auth::id())
-                        ->where('month', $now->month)
-                        ->where('year', $now->year)
-                        ->first();
+            ->where('month', $now->month)
+            ->where('year', $now->year)
+            ->first();
 
         $monthlyExpense = Transaction::where('user_id', Auth::id())
-                        ->where('type', 'expense')
-                        ->whereMonth('transaction_date', $now->month)
-                        ->whereYear('transaction_date', $now->year)
-                        ->sum('amount');
+            ->where('type', 'expense')
+            ->whereMonth('transaction_date', $now->month)
+            ->whereYear('transaction_date', $now->year)
+            ->sum('amount');
 
         return view('transactions.index', array_merge([
-            'transactions'     => $transactions,
-            'filters'          => $filters,
-            'budget'           => $budget,
-            'monthlyExpense'   => $monthlyExpense,
+            'transactions' => $transactions,
+            'filters' => $filters,
+            'budget' => $budget,
+            'monthlyExpense' => $monthlyExpense,
             'categoryExpenses' => $categoryExpenses,
-            'trendData'        => $trendData,
+            'trendData' => $trendData,
         ], $stats));
     }
 
@@ -77,29 +78,30 @@ class TransactionController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $reportingService = new ReportingService();
+        $reportingService = new ReportingService;
 
         $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
-        $query = $reportingService->getFilteredQuery($filters);
+        $query = $reportingService->getFilteredQuery($filters, Auth::id());
         $stats = $reportingService->getStatistics($query);
-        
+
         $transactions = $query->orderBy('transaction_date', 'desc')->get();
 
         $pdf = Pdf::loadView('transactions.pdf', array_merge([
             'transactions' => $transactions,
-            'filters'      => $filters,
-            'printedAt'    => Carbon::now()->isoFormat('D MMMM YYYY, HH:mm') . ' WIB',
-            'user'         => Auth::user()
+            'filters' => $filters,
+            'printedAt' => Carbon::now()->isoFormat('D MMMM YYYY, HH:mm').' WIB',
+            'user' => Auth::user(),
         ], $stats))->setPaper('a4', 'portrait');
 
-        return $pdf->download('Laporan_Keuangan_' . Carbon::now()->format('Ymd_His') . '.pdf');
+        return $pdf->download('Laporan_Keuangan_'.Carbon::now()->format('Ymd_His').'.pdf');
     }
 
     public function exportExcel(Request $request)
     {
         $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
-        return Excel::download(new TransactionsExport($filters), 'Laporan_Keuangan_' . Carbon::now()->format('Ymd_His') . '.xlsx');
+
+        return Excel::download(new TransactionsExport($filters), 'Laporan_Keuangan_'.Carbon::now()->format('Ymd_His').'.xlsx');
     }
 
     public function create()
@@ -107,20 +109,9 @@ class TransactionController extends Controller
         return view('transactions.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreTransactionRequest $request)
     {
-        if ($request->has('amount')) {
-            $request->merge(['amount' => $this->normalizeAmount($request->input('amount'))]);
-        }
-
-        $request->validate([
-            'title'            => 'required|string|max:255',
-            'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
-            'amount'           => 'required|numeric|min:1|max:999999999999.99',
-            'type'             => 'required|in:income,expense',
-            'transaction_date' => 'required|date',
-            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
-        ]);
+        $validated = $request->validated();
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -128,13 +119,13 @@ class TransactionController extends Controller
         }
 
         Transaction::create([
-            'user_id'          => Auth::id(),
-            'title'            => $request->title,
-            'category'         => $request->category,
-            'amount'           => $request->amount,
-            'type'             => $request->type,
-            'transaction_date' => $request->transaction_date,
-            'image'            => $imagePath,
+            'user_id' => Auth::id(),
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'amount' => $validated['amount'],
+            'type' => $validated['type'],
+            'transaction_date' => $validated['transaction_date'],
+            'image' => $imagePath,
         ]);
 
         return redirect('/transactions')->with('success', 'Transaksi berhasil ditambahkan!');
@@ -143,23 +134,13 @@ class TransactionController extends Controller
     public function edit(string $id)
     {
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
+
         return view('transactions.edit', compact('transaction'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(UpdateTransactionRequest $request, string $id)
     {
-        if ($request->has('amount')) {
-            $request->merge(['amount' => $this->normalizeAmount($request->input('amount'))]);
-        }
-
-        $request->validate([
-            'title'            => 'required|string|max:255',
-            'category'         => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
-            'amount'           => 'required|numeric|min:1|max:999999999999.99',
-            'type'             => 'required|in:income,expense',
-            'transaction_date' => 'required|date',
-            'image'            => 'nullable|image|mimes:jpeg,png,jpg|max:20480',
-        ]);
+        $validated = $request->validated();
 
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
         $imagePath = $transaction->image;
@@ -172,12 +153,12 @@ class TransactionController extends Controller
         }
 
         $transaction->update([
-            'title'            => $request->title,
-            'category'         => $request->category,
-            'amount'           => $request->amount,
-            'type'             => $request->type,
-            'transaction_date' => $request->transaction_date,
-            'image'            => $imagePath,
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'amount' => $validated['amount'],
+            'type' => $validated['type'],
+            'transaction_date' => $validated['transaction_date'],
+            'image' => $imagePath,
         ]);
 
         return redirect('/transactions')->with('success', 'Transaksi berhasil diperbarui!');
@@ -204,6 +185,7 @@ class TransactionController extends Controller
             $optimizedPath = $this->optimizeImage(Storage::disk('public')->path($path));
             if ($optimizedPath !== null && $optimizedPath !== $path) {
                 Storage::disk('public')->delete($path);
+
                 return $optimizedPath;
             }
         } catch (\Throwable $e) {
@@ -215,33 +197,33 @@ class TransactionController extends Controller
 
     private function optimizeImage(string $fullPath): ?string
     {
-        if (!extension_loaded('gd')) {
+        if (! extension_loaded('gd')) {
             return null;
         }
 
         $info = @getimagesize($fullPath);
-        if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) {
+        if (! $info || ! in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG], true)) {
             return null;
         }
 
         [$width, $height] = $info;
         $source = $info[2] === IMAGETYPE_JPEG ? @imagecreatefromjpeg($fullPath) : @imagecreatefrompng($fullPath);
-        if (!$source) {
+        if (! $source) {
             return null;
         }
 
         if (function_exists('exif_read_data')) {
-            $exif  = @exif_read_data($fullPath);
+            $exif = @exif_read_data($fullPath);
             $angle = [3 => 180, 6 => -90, 8 => 90][$exif['Orientation'] ?? 0] ?? null;
             if ($angle !== null) {
                 $source = imagerotate($source, $angle, 0);
-                $width  = imagesx($source);
+                $width = imagesx($source);
                 $height = imagesy($source);
             }
         }
 
         $maxDim = 1280;
-        $scale  = min(1, $maxDim / max($width, $height));
+        $scale = min(1, $maxDim / max($width, $height));
         if ($scale < 1) {
             $canvas = imagecreatetruecolor((int) round($width * $scale), (int) round($height * $scale));
             imagecopyresampled($canvas, $source, 0, 0, 0, 0, (int) round($width * $scale), (int) round($height * $scale), $width, $height);
@@ -249,30 +231,18 @@ class TransactionController extends Controller
             $source = $canvas;
         }
 
-        $dir     = dirname($fullPath);
-        $newName = pathinfo($fullPath, PATHINFO_FILENAME) . '-' . time() . '.jpg';
-        $newFull = $dir . '/' . $newName;
+        $dir = dirname($fullPath);
+        $newName = pathinfo($fullPath, PATHINFO_FILENAME).'-'.time().'.jpg';
+        $newFull = $dir.'/'.$newName;
         imagejpeg($source, $newFull, 80);
         imagedestroy($source);
 
-        if (!file_exists($newFull) || filesize($newFull) >= filesize($fullPath)) {
+        if (! file_exists($newFull) || filesize($newFull) >= filesize($fullPath)) {
             @unlink($newFull);
+
             return null;
         }
 
-        return 'receipts/' . $newName;
-    }
-
-    private function normalizeAmount(mixed $value): float
-    {
-        $s = preg_replace('/[^0-9.,]/', '', (string) $value);
-        if (str_contains($s, ',')) {
-            $s = str_replace('.', '', $s);
-            $s = str_replace(',', '.', $s);
-        } else {
-            $s = str_replace('.', '', $s);
-        }
-
-        return round((float) $s, 2);
+        return 'receipts/'.$newName;
     }
 }

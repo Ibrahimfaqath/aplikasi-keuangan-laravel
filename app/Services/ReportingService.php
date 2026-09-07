@@ -4,34 +4,35 @@ namespace App\Services;
 
 use App\Models\Transaction;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ReportingService
 {
     /**
-     * Membuat query transaksi milik user yang sedang login, difilter sesuai parameter.
+     * Membuat query transaksi milik user yang diberikan, difilter sesuai parameter.
      *
      * @param  array  $filters  search, type, period, start_date, end_date
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function getFilteredQuery(array $filters)
+    public function getFilteredQuery(array $filters, ?int $userId = null)
     {
-        $query = Transaction::where('user_id', Auth::id());
+        $query = Transaction::where('user_id', $userId ?? request()->user()?->id);
 
-        if (!empty($filters['search'])) {
-            $query->where('title', 'like', '%' . $filters['search'] . '%');
+        if (! empty($filters['search'])) {
+            $query->where('title', 'like', '%'.$filters['search'].'%');
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['category'])) {
+        if (! empty($filters['category'])) {
             $query->where('category', $filters['category']);
         }
 
         $period = $filters['period'] ?? 'all';
-        $today  = Carbon::today();
+        $today = Carbon::today();
 
         switch ($period) {
             case 'today':
@@ -48,21 +49,21 @@ class ReportingService
                 break;
             case 'this_month':
                 $query->whereMonth('transaction_date', $today->month)
-                      ->whereYear('transaction_date', $today->year);
+                    ->whereYear('transaction_date', $today->year);
                 break;
             case 'last_month':
                 $lastMonth = $today->copy()->subMonth();
                 $query->whereMonth('transaction_date', $lastMonth->month)
-                      ->whereYear('transaction_date', $lastMonth->year);
+                    ->whereYear('transaction_date', $lastMonth->year);
                 break;
             case 'this_year':
                 $query->whereYear('transaction_date', $today->year);
                 break;
             case 'custom':
-                if (!empty($filters['start_date'])) {
+                if (! empty($filters['start_date'])) {
                     $query->whereDate('transaction_date', '>=', $filters['start_date']);
                 }
-                if (!empty($filters['end_date'])) {
+                if (! empty($filters['end_date'])) {
                     $query->whereDate('transaction_date', '<=', $filters['end_date']);
                 }
                 break;
@@ -74,16 +75,16 @@ class ReportingService
     /**
      * Menghitung total saldo, pemasukan, dan pengeluaran dari sebuah query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @return array{totalIncome: float, totalExpense: float, totalBalance: float}
      */
     public function getStatistics($query)
     {
-        $totalIncome  = (clone $query)->where('type', 'income')->sum('amount');
+        $totalIncome = (clone $query)->where('type', 'income')->sum('amount');
         $totalExpense = (clone $query)->where('type', 'expense')->sum('amount');
 
         return [
-            'totalIncome'  => $totalIncome,
+            'totalIncome' => $totalIncome,
             'totalExpense' => $totalExpense,
             'totalBalance' => $totalIncome - $totalExpense,
         ];
@@ -93,8 +94,8 @@ class ReportingService
      * Rincian pengeluaran per kategori (untuk grafik donat).
      * Mengikuti filter aktif yang sama dengan tabel transaksi.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return array<string, float>  contoh: ['Makanan & Minuman' => 150000, ...]
+     * @param  Builder  $query
+     * @return array<string, float> contoh: ['Makanan & Minuman' => 150000, ...]
      */
     public function getCategoryBreakdown($query)
     {
@@ -118,21 +119,21 @@ class ReportingService
      * @param  string  $period  'week' | 'month' | 'year'
      * @return array{labels: string[], income: float[], expense: float[], ranges: string[]}
      */
-    public function getTrendSeries(string $period = 'week'): array
+    public function getTrendSeries(string $period = 'week', ?int $userId = null): array
     {
-        $today  = Carbon::today();
-        $userId = Auth::id();
+        $today = Carbon::today();
+        $userId = $userId ?? request()->user()?->id;
 
         // Nama hari pendek sesuai dayOfWeek Carbon (0=Minggu .. 6=Sabtu)
         $shortDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
         if ($period === 'year') {
             $startDate = $today->copy()->subMonthsNoOverflow(11)->startOfMonth();
-            $endDate   = $today->copy()->endOfMonth();
+            $endDate = $today->copy()->endOfMonth();
 
             // 1 query: GROUP BY year, month, type
             // Gunakan YEAR()/MONTH() agar kompatibel MySQL & SQLite
-            $driver = \Illuminate\Support\Facades\DB::getDriverName();
+            $driver = DB::getDriverName();
             if ($driver === 'sqlite') {
                 $yExpr = "strftime('%Y', transaction_date)";
                 $mExpr = "strftime('%m', transaction_date)";
@@ -150,23 +151,23 @@ class ReportingService
             // Bangun map: 'YYYY-MM' => ['income' => x, 'expense' => y]
             $map = [];
             foreach ($rows as $row) {
-                $key = str_pad((string) $row->y, 4, '0', STR_PAD_LEFT) . '-' . str_pad((string) $row->m, 2, '0', STR_PAD_LEFT);
+                $key = str_pad((string) $row->y, 4, '0', STR_PAD_LEFT).'-'.str_pad((string) $row->m, 2, '0', STR_PAD_LEFT);
                 $map[$key][$row->type] = (float) $row->total;
             }
 
             $labels = $income = $expense = [];
             for ($i = 11; $i >= 0; $i--) {
                 $date = $today->copy()->subMonthsNoOverflow($i);
-                $key  = $date->format('Y-m');
-                $labels[]  = $date->locale('id')->isoFormat('MMM');
-                $income[]  = $map[$key]['income'] ?? 0.0;
+                $key = $date->format('Y-m');
+                $labels[] = $date->locale('id')->isoFormat('MMM');
+                $income[] = $map[$key]['income'] ?? 0.0;
                 $expense[] = $map[$key]['expense'] ?? 0.0;
             }
         } elseif ($period === 'month') {
             // Bulan: agregasi PER MINGGU (Senin sebagai awal minggu).
             // Rentang 30 hari → dikelompokkan jadi Minggu 1..N (maks 6 bucket),
             // dengan range tanggal aktual per bucket untuk tooltip.
-            $days      = 30;
+            $days = 30;
             $startDate = $today->copy()->subDays($days - 1);
 
             // 1 query: GROUP BY date, type (tetap per hari, dikelompokkan di PHP)
@@ -186,8 +187,8 @@ class ReportingService
             $cursor = $startDate->copy()->startOfWeek(Carbon::MONDAY);
             while ($cursor->lte($today)) {
                 $bucketStart = $cursor->copy()->lt($startDate) ? $startDate->copy() : $cursor->copy();
-                $weekEnd     = $cursor->copy()->addDays(6);
-                $bucketEnd   = $weekEnd->gt($today) ? $today->copy() : $weekEnd->copy();
+                $weekEnd = $cursor->copy()->addDays(6);
+                $bucketEnd = $weekEnd->gt($today) ? $today->copy() : $weekEnd->copy();
 
                 $sumInc = $sumExp = 0.0;
                 $d = $bucketStart->copy();
@@ -199,9 +200,9 @@ class ReportingService
                 }
 
                 $weekNo++;
-                $labels[]  = 'Minggu ' . $weekNo;
-                $ranges[]  = $bucketStart->locale('id')->translatedFormat('d M') . ' – ' . $bucketEnd->locale('id')->translatedFormat('d M');
-                $income[]  = round($sumInc, 0);
+                $labels[] = 'Minggu '.$weekNo;
+                $ranges[] = $bucketStart->locale('id')->translatedFormat('d M').' – '.$bucketEnd->locale('id')->translatedFormat('d M');
+                $income[] = round($sumInc, 0);
                 $expense[] = round($sumExp, 0);
 
                 $cursor->addWeek();
@@ -225,9 +226,9 @@ class ReportingService
             $labels = $income = $expense = [];
             for ($i = $days - 1; $i >= 0; $i--) {
                 $date = $today->copy()->subDays($i);
-                $key  = $date->format('Y-m-d');
-                $labels[]  = $shortDays[$date->dayOfWeek];
-                $income[]  = $map[$key]['income'] ?? 0.0;
+                $key = $date->format('Y-m-d');
+                $labels[] = $shortDays[$date->dayOfWeek];
+                $income[] = $map[$key]['income'] ?? 0.0;
                 $expense[] = $map[$key]['expense'] ?? 0.0;
             }
         }
