@@ -15,15 +15,20 @@ class TransactionsExport implements FromQuery, WithHeadings, WithMapping, WithSt
 {
     protected array $filters;
 
-    public function __construct(array $filters)
+    protected ?int $userId;
+
+    public function __construct(array $filters, ?int $userId = null)
     {
         $this->filters = $filters;
+        $this->userId = $userId;
     }
 
     public function query()
     {
         $reportingService = new ReportingService();
-        return $reportingService->getFilteredQuery($this->filters)->orderBy('transaction_date', 'desc');
+
+        // userId eksplisit — jangan ngandelin request() di dalam job/queue.
+        return $reportingService->getFilteredQuery($this->filters, $this->userId ?? request()->user()?->id)->orderBy('transaction_date', 'desc');
     }
 
     public function headings(): array

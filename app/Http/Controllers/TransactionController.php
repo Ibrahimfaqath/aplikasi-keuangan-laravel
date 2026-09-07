@@ -101,7 +101,7 @@ class TransactionController extends Controller
     {
         $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
-        return Excel::download(new TransactionsExport($filters), 'Laporan_Keuangan_'.Carbon::now()->format('Ymd_His').'.xlsx');
+        return Excel::download(new TransactionsExport($filters, Auth::id()), 'Laporan_Keuangan_'.Carbon::now()->format('Ymd_His').'.xlsx');
     }
 
     public function create()
