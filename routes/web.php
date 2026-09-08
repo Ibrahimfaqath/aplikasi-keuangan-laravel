@@ -22,7 +22,8 @@ Route::get('/dashboard', fn () => redirect(Auth::check() ? route('transactions.i
 // 3. Route terproteksi Auth
 Route::middleware('auth')->group(function () {
     // Export Laporan + parser suara: dibatasi juga agar tidak bisa di-spam.
-    Route::middleware('throttle:30,1')->group(function () {
+    // Limiter "exports" = 30/menit per-user (lihat AppServiceProvider).
+    Route::middleware('throttle:exports')->group(function () {
         Route::get('/transactions/export-pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export-pdf');
         Route::get('/transactions/export-excel', [TransactionController::class, 'exportExcel'])->name('transactions.export-excel');
         Route::post('/transactions/parse-voice', [TransactionController::class, 'parseVoice'])->name('transactions.parse-voice');
@@ -44,8 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ai/history', [AiController::class, 'clear'])->name('ai.clear');
 
     // Route AI yang mahal (panggil API luar / tulis DB) — dibatasi 30x/menit per user
-    // biar tidak bisa di-spam dan jebol kuota. Lebih dari itu Laravel balas 429.
-    Route::middleware('throttle:30,1')->group(function () {
+    // (limiter "ai", lihat AppServiceProvider) biar tidak bisa di-spam dan
+    // jebol kuota. Lebih dari itu Laravel balas 429.
+    Route::middleware('throttle:ai')->group(function () {
         Route::post('/ai/chat', [AiController::class, 'chat'])->name('ai.chat');
         Route::post('/ai/confirm', [AiController::class, 'confirmTransaction'])->name('ai.confirm');
         Route::post('/ai/cancel', [AiController::class, 'cancelTransaction'])->name('ai.cancel');
