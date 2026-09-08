@@ -1,0 +1,77 @@
+name: Deploy to cPanel
+
+# Jalan OTOMATIS setelah workflow "CI" selesai di branch main,
+# dan hanya lanjut kalau CI hijau. Bisa juga dijalankan manual
+# dari tab Actions -> Deploy to cPanel -> Run workflow.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Pengaman utama: kalau CI merah, job ini tidak jalan sama sekali.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, sqlite3, pdo_sqlite, gd, fileinfo, zip
+          coverage: none
+
+      # vendor/ tidak masuk git (lihat .gitignore), jadi install di sini.
+      # --no-dev karena ini untuk server produksi (cPanel tidak ada composer).
+      - name: Install PHP dependencies (production)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # public/build tidak masuk git, jadi build di sini agar ikut terkirim.
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
+      # SIMULASI dulu (dry-run): hanya melapor file apa yang AKAN dikirim,
+      # tidak mengirim beneran. Setelah path + daftar file terverifikasi benar
+      # di log Actions, ubah dry-run jadi "false".
+      - name: Deploy via FTPS (dry-run)
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          protocol: ftps
+          # Sertifikat FTPS hosting bersama umumnya self-signed.
+          # "loose" = tetap terenkripsi, tapi tidak menolak cert non-publik.
+          security: loose
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_PATH }}/
+          dry-run: true
+          exclude: |
+            **/.git/**
+            **/.github/**
+            **/node_modules/**
+            **/.env
+            **/.env.*
+            **/storage/**
+            **/database/*.sqlite
+            **/tests/**
+            **/*.log
+            .phpunit.result.cache
+            # File khusus server, JANGAN timpa (lihat DEPLOY-CPANEL.md):
+            # - AppServiceProvider versi server ada kustom cPanel
+            app/Providers/AppServiceProvider.php
+            # - .htaccess docroot versi server (ModSecurity off + cache)
+            public/.htaccess
