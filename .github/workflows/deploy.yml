@@ -18,17 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup PHP 8.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.3"
-          extensions: mbstring, sqlite3, pdo_sqlite, gd, fileinfo, zip
-          coverage: none
-
-      # vendor/ tidak masuk git (lihat .gitignore), jadi install di sini.
-      # --no-dev karena ini untuk server produksi (cPanel tidak ada composer).
-      - name: Install PHP dependencies (production)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      # composer install TIDAK perlu di sini karena vendor/ di-exclude
+      # (sudah ada di server dari ZIP manual). Biar deploy 1-2 menit.
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -61,6 +52,7 @@ jobs:
             **/.git/**
             **/.github/**
             **/node_modules/**
+            **/vendor/**
             **/.env
             **/.env.*
             **/storage/**
@@ -68,6 +60,9 @@ jobs:
             **/tests/**
             **/*.log
             .phpunit.result.cache
+            # vendor/ sudah ada di server dari ZIP manual (11rb file, 122MB).
+            # Jangan kirim tiap deploy biar 1-2 menit. Update vendor hanya
+            # manual via Terminal saat composer.lock berubah.
             # File khusus server, JANGAN timpa (lihat DEPLOY-CPANEL.md):
             # - AppServiceProvider versi server ada kustom cPanel
             app/Providers/AppServiceProvider.php
