@@ -42,10 +42,8 @@ jobs:
           npm ci
           npm run build
 
-      # SIMULASI dulu (dry-run): hanya melapor file apa yang AKAN dikirim,
-      # tidak mengirim beneran. Setelah path + daftar file terverifikasi benar
-      # di log Actions, ubah dry-run jadi "false".
-      - name: Deploy via FTPS (dry-run)
+      # Deploy beneran ke cPanel via FTPS (dry-run sudah lulus verifikasi).
+      - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_HOST }}
@@ -58,7 +56,7 @@ jobs:
           security: loose
           local-dir: ./
           server-dir: ${{ secrets.FTP_PATH }}/
-          dry-run: true
+          dry-run: false
           exclude: |
             **/.git/**
             **/.github/**
