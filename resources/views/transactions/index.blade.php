@@ -797,19 +797,10 @@
                 <div class="block md:hidden divide-y divide-neutral-100 dark:divide-[#262626]">
                     @forelse ($items as $item)
                     <div class="p-4" x-data="{ open: false }">
-                        <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center text-xs">
                             <span class="text-neutral-400 font-medium">
                                 {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                             </span>
-                            @if(($item->type ?? 'income') == 'income')
-                            <span class="font-semibold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider bg-green-50 text-green-700 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20">
-                                + Pemasukan
-                            </span>
-                            @else
-                            <span class="font-semibold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
-                                − Pengeluaran
-                            </span>
-                            @endif
                         </div>
 
                         <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="tx-actions-{{ $item->id }}"
