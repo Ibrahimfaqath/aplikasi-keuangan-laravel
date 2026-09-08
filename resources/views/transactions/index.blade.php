@@ -329,30 +329,32 @@
 
             <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-center gap-2 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-3 sm:px-4 py-2.5 sm:py-3 min-w-0 overflow-hidden">
+                    <span class="flex-shrink-0 w-7 h-7 sm:w-10 sm:h-10 rounded-xl bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                     </span>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-green-600 dark:text-green-400 leading-tight break-all sm:break-words privacy-target"
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pemasukan</p>
+                        <p class="mt-0.5 text-[13px] sm:text-base md:text-lg font-bold text-green-600 dark:text-green-400 leading-5 sm:leading-tight whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
                            x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                           x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                            x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2.5 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-2.5 sm:px-4 py-2.5 sm:py-3 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-center gap-2 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-3 sm:px-4 py-2.5 sm:py-3 min-w-0 overflow-hidden">
+                    <span class="flex-shrink-0 w-7 h-7 sm:w-10 sm:h-10 rounded-xl bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                         </svg>
                     </span>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-base md:text-lg font-bold text-red-600 dark:text-red-400 leading-tight break-all sm:break-words privacy-target"
+                    <div class="min-w-0 flex-1 overflow-hidden">
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pengeluaran</p>
+                        <p class="mt-0.5 text-[13px] sm:text-base md:text-lg font-bold text-red-600 dark:text-red-400 leading-5 sm:leading-tight whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
                            x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                           x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                            x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
                     </div>
                 </div>
