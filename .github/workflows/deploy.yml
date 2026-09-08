@@ -46,7 +46,7 @@ jobs:
       # tidak mengirim beneran. Setelah path + daftar file terverifikasi benar
       # di log Actions, ubah dry-run jadi "false".
       - name: Deploy via FTPS (dry-run)
-        uses: SamKirkland/FTP-Deploy-Action@v4
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
