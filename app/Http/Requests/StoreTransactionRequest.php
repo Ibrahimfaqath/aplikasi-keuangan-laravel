@@ -7,6 +7,7 @@ use App\Services\AmountFormatter;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreTransactionRequest extends FormRequest
 {
@@ -37,5 +38,43 @@ class StoreTransactionRequest extends FormRequest
                 'amount' => app(AmountFormatter::class)->normalize($this->input('amount')),
             ]);
         }
+    }
+
+    /**
+     * Kategori harus sesuai jenisnya (mis. expense tidak boleh pakai "Gaji").
+     * Pengecekan dasar (in-list) tetap di rules(); di sini hanya cek konsistensi
+     * pasangan type + category agar pesan error-nya spesifik.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $type = $this->input('type');
+            $category = $this->input('category');
+
+            if (! in_array($type, ['income', 'expense'], true)) {
+                return;
+            }
+
+            if (! is_string($category) || ! in_array($category, Transaction::allCategories(), true)) {
+                return;
+            }
+
+            if (! in_array($category, Transaction::categoriesFor($type), true)) {
+                $validator->errors()->add(
+                    'category',
+                    'Kategori tidak sesuai dengan jenis transaksi. Periksa lagi ya!'
+                );
+            }
+        });
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'category.in' => 'Kategori tidak valid. Pilih dari daftar yang tersedia.',
+        ];
     }
 }
