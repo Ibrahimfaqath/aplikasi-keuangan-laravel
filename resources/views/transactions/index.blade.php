@@ -115,20 +115,64 @@
                         this.initCategoryChart();
                     });
 
-                    setTimeout(() => {
+                    // Perf: tanpa delay buatan 500ms. Render secepatnya setelah
+                    // Alpine ready, tapi tunggu window.Chart (Vite module async).
+                    this.$nextTick(() => {
+                        this.initChartsWhenReady(0);
+                    });
+                },
+
+                initChartsWhenReady(attempt) {
+                    if (typeof window.Chart !== 'undefined') {
                         this.isLoading = false;
                         this.$nextTick(() => {
-                            setTimeout(() => {
-                                this.initTrendChart();
-                                this.initCategoryChart();
-                            }, 100);
+                            this.initTrendChart();
+                            this.initCategoryChart();
                         });
-                    }, 500);
+                        return;
+                    }
+                    // Fallback: setelah ~5 detik tampilkan konten walau grafik gagal load,
+                    // agar halaman tidak terjebak di skeleton.
+                    if (attempt >= 50) {
+                        this.isLoading = false;
+                        return;
+                    }
+                    setTimeout(() => this.initChartsWhenReady((attempt || 0) + 1), 100);
                 },
 
                 setTrendPeriod(period) {
                     this.trendPeriod = period;
-                    this.initTrendChart();
+                    const cached = this.trendData ? this.trendData[period] : null;
+                    if (cached && Array.isArray(cached.labels) && cached.labels.length > 0) {
+                        this.initTrendChart();
+                        return;
+                    }
+                    // Lazy-load: 'month' & 'year' hanya di-fetch saat tab diklik.
+                    // 'week' sudah tersedia dari server saat load awal.
+                    fetch('/transactions/trend?period=' + encodeURIComponent(period), {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    })
+                        .then((r) => {
+                            if (!r.ok) throw new Error('trend failed: ' + r.status);
+                            return r.json();
+                        })
+                        .then((data) => {
+                            if (data && Array.isArray(data.labels) && Array.isArray(data.income) && Array.isArray(data.expense)) {
+                                this.trendData[period] = {
+                                    labels: data.labels,
+                                    income: data.income,
+                                    expense: data.expense,
+                                    ranges: Array.isArray(data.ranges) ? data.ranges : [],
+                                };
+                            }
+                        })
+                        .catch(() => {
+                            // Biarkan series kosong — chart tampil kosong, halaman tetap jalan.
+                            // Tidak boleh melempar error ke user.
+                        })
+                        .finally(() => {
+                            this.initTrendChart();
+                        });
                 },
 
                 initTrendChart() {
@@ -290,7 +334,7 @@
     <div class="flex-1 w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <div x-show="isLoading"
-             class="relative overflow-hidden p-4 sm:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+             class="max-w-3xl relative overflow-hidden p-4 sm:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
             <div class="relative space-y-4">
                 <div class="h-3 w-16 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
                 <div class="h-12 sm:h-14 w-full max-w-xs bg-neutral-200 dark:bg-[#262626] rounded-xl animate-shimmer"></div>
@@ -302,7 +346,7 @@
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+                 class="max-w-3xl relative overflow-hidden p-4 sm:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
 
             <div class="relative flex items-center justify-between">
                 <div>
@@ -310,16 +354,23 @@
                     <p class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">Seluruh pemasukan dikurangi pengeluaran</p>
                 </div>
 
-                <button type="button" data-privacy-toggle
-                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 transition"
-                        aria-label="Sembunyikan atau tampilkan saldo">
-                    <svg data-eye-open class="w-[18px] h-[18px] block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                    </svg>
-                    <svg data-eye-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2 shrink-0 no-print">
+                    <a href="{{ route('transactions.create') }}"
+                       class="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-black dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Tambah
+                    </a>
+                    <button type="button" data-privacy-toggle
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 transition"
+                            aria-label="Sembunyikan atau tampilkan saldo">
+                        <svg data-eye-open class="w-[18px] h-[18px] block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                        </svg>
+                        <svg data-eye-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
@@ -574,45 +625,41 @@
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
+                    <label for="filterSearch" class="sr-only">Cari transaksi</label>
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..."
+                    <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." autocomplete="off"
                            class="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="type" class="select-field w-full px-3 py-2 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100">
-                        <option value="">Semua Tipe</option>
-                        <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>Pemasukan</option>
-                        <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>Pengeluaran</option>
-                    </select>
+                    <x-custom-select name="type" id="filterType" label="Filter berdasarkan tipe transaksi"
+                        :options="['' => 'Semua Tipe', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran']"
+                        :selected="request('type', '')" />
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="category" class="select-field w-full px-3 py-2 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100">
-                        <option value="">Semua Kategori</option>
-                        @foreach (\App\Models\Transaction::allCategories() as $cat)
-                            <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                        @endforeach
-                    </select>
+                    @php
+                        $categoryFilterOptions = ['' => 'Semua Kategori'];
+                        foreach (\App\Models\Transaction::allCategories() as $cat) { $categoryFilterOptions[$cat] = $cat; }
+                    @endphp
+                    <x-custom-select name="category" id="filterCategory" label="Filter berdasarkan kategori"
+                        :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" />
                 </div>
 
                 <div class="lg:col-span-2">
-                    <select name="period" class="select-field w-full px-3 py-2 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100">
-                        <option value="all">Semua Waktu</option>
-                        <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hari Ini</option>
-                        <option value="7_days" {{ request('period') == '7_days' ? 'selected' : '' }}>7 Hari Terakhir</option>
-                        <option value="this_month" {{ request('period') == 'this_month' ? 'selected' : '' }}>Bulan Ini</option>
-                    </select>
+                    <x-custom-select name="period" id="filterPeriod" label="Filter berdasarkan periode waktu"
+                        :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
+                        :selected="request('period', 'all')" />
                 </div>
 
                 <div class="lg:col-span-2 flex gap-2">
-                    <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
                         Filter
                     </button>
                     @if(request('search') || request('type') || request('category') || request('period'))
-                        <a href="{{ route('transactions.index') }}" title="Reset filter" class="inline-flex items-center justify-center w-9 h-9 bg-white dark:bg-[#262626] text-neutral-500 dark:text-neutral-400 border border-neutral-300 dark:border-[#333333] rounded-xl text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] hover:text-neutral-900 transition">
+                        <a href="{{ route('transactions.index') }}" title="Reset filter" aria-label="Reset semua filter" class="inline-flex items-center justify-center h-[38px] w-[38px] sm:h-[42px] sm:w-[42px] shrink-0 bg-white dark:bg-[#262626] text-neutral-500 dark:text-neutral-400 border border-neutral-300 dark:border-[#333333] rounded-xl text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] hover:text-neutral-900 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </a>
                     @endif
@@ -640,18 +687,18 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333]">
-                                <th class="py-3.5 px-6"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-6 text-right"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></th>
-                                <th class="py-3.5 px-6 text-center"><div class="h-4 w-12 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer mx-auto"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
+                                <th class="py-3.5 px-4 text-right"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></th>
+                                <th class="py-3.5 px-4 text-center"><div class="h-4 w-12 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer mx-auto"></div></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-neutral-200 dark:divide-[#333333]">
                             @for ($i = 0; $i < 5; $i++)
                             <tr>
-                                <td class="py-4 px-6">
+                                <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 bg-neutral-200 dark:bg-[#333333] rounded-xl animate-shimmer"></div>
                                         <div class="space-y-2">
@@ -660,10 +707,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-6"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-6"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-6 text-right"><div class="h-4 w-28 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></td>
-                                <td class="py-4 px-6 text-center">
+                                <td class="py-4 px-4"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
+                                <td class="py-4 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 w-28 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></td>
+                                <td class="py-4 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1">
                                         <div class="h-8 w-8 bg-neutral-200 dark:bg-[#333333] rounded-lg animate-shimmer"></div>
                                         <div class="h-8 w-8 bg-neutral-200 dark:bg-[#333333] rounded-lg animate-shimmer"></div>
@@ -678,15 +725,15 @@
 
             <div x-show="!isLoading">
                 <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full min-w-[620px] text-left border-collapse">
+                    <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333] text-neutral-500 dark:text-neutral-400 text-xs font-semibold uppercase tracking-wider">
-                                <th class="py-3.5 px-6">Tanggal</th>
-                                <th class="py-3.5 px-6">Bukti</th>
-                                <th class="py-3.5 px-6">Keterangan</th>
-                                <th class="py-3.5 px-6">Kategori</th>
-                                <th class="py-3.5 px-6 text-right">Nominal</th>
-                                <th class="py-3.5 px-6 text-center no-print">Aksi</th>
+                                <th class="py-3.5 px-4">Tanggal</th>
+                                <th class="py-3.5 px-4">Bukti</th>
+                                <th class="py-3.5 px-4">Keterangan</th>
+                                <th class="py-3.5 px-4">Kategori</th>
+                                <th class="py-3.5 px-4 text-right">Nominal</th>
+                                <th class="py-3.5 px-4 text-center no-print">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-neutral-100 dark:divide-[#262626] text-xs sm:text-sm">
@@ -730,17 +777,12 @@
                             @endphp
                             @forelse ($items as $item)
                             <tr class="hover:bg-neutral-50 dark:hover:bg-[#262626]/50 transition">
-                                <td class="py-4 px-6 font-medium text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
+                                <td class="py-4 px-4 font-medium text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                                 </td>
-                                <td class="py-4 px-6">
-                                    @php
-                                        $cv = $catVisuals[$item->category ?? ''] ?? $defaultCat;
-                                        $hasImg = !empty($item->image);
-                                        $pill = $pillFor($item->category ?? '');
-                                    @endphp
+                                <td class="py-4 px-4">
                                     <div class="relative w-8 h-8">
-                                        @if($hasImg)
+                                        @if(!empty($item->image))
                                         <a href="{{ asset('storage/' . $item->image) }}" target="_blank">
                                             <img src="{{ asset('storage/' . $item->image) }}"
                                                  loading="lazy"
@@ -748,26 +790,35 @@
                                                  alt="Bukti">
                                         </a>
                                         @else
-                                        <div class="w-8 h-8 {{ $pill }} border rounded-lg flex items-center justify-center"
-                                             title="{{ $item->category ?? 'Lainnya' }}">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $cv['path'] !!}</svg>
+                                        {{-- Placeholder netral: kolom Bukti hanya bicara soal struk,
+                                             identitas kategori sudah diwakili pill Kategori. --}}
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-neutral-200 dark:border-[#333333] text-neutral-300 dark:text-neutral-600"
+                                             title="Tidak ada bukti">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
                                         </div>
                                         @endif
                                     </div>
                                 </td>
-                                <td class="py-4 px-6 font-semibold text-neutral-900 dark:text-neutral-50">
-                                    {{ $item->title ?? $item->nama ?? $item->kategori }}
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-200 dark:border-[#333333]">
-                                        {{ $item->category ?? 'Lainnya' }}
+                                <td class="py-4 px-4 font-semibold text-neutral-900 dark:text-neutral-50">
+                                    <span class="block max-w-[150px] truncate lg:max-w-[170px] xl:max-w-[240px]" title="{{ $item->title ?? $item->nama ?? $item->kategori }}">
+                                        {{ $item->title ?? $item->nama ?? $item->kategori }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right font-extrabold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                                <td class="py-4 px-4 whitespace-nowrap">
+                                    @php
+                                        $catName = $item->category ?? 'Lainnya';
+                                        $catIcon = $catVisuals[$catName] ?? $defaultCat;
+                                    @endphp
+                                    <span class="inline-flex max-w-[140px] items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold xl:max-w-[180px] {{ $pillFor($catName) }}" title="{{ $catName }}">
+                                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $catIcon['path'] !!}</svg>
+                                        <span class="truncate">{{ $catName }}</span>
+                                    </span>
+                                </td>
+                                <td class="py-4 px-4 text-right font-extrabold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                     data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </td>
-                                <td class="py-4 px-6 text-center no-print">
+                                <td class="py-4 px-4 text-center no-print">
                                     <div class="inline-flex items-center gap-1">
                                         <a href="{{ route('transactions.edit', $item->id) }}" class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-lg transition" title="Edit">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>

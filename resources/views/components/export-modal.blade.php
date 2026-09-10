@@ -50,18 +50,10 @@
 
                 <!-- Quick Period Filter -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Periode Laporan</label>
-                    <select name="period" id="modalPeriod" onchange="toggleCustomDates(this.value)" class="select-field w-full px-3 py-2 bg-neutral-50 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100">
-                        <option value="all">Semua Transaksi</option>
-                        <option value="today">Hari Ini</option>
-                        <option value="yesterday">Kemarin</option>
-                        <option value="7_days">7 Hari Terakhir</option>
-                        <option value="30_days">30 Hari Terakhir</option>
-                        <option value="this_month">Bulan Ini</option>
-                        <option value="last_month">Bulan Lalu</option>
-                        <option value="this_year">Tahun Ini</option>
-                        <option value="custom">Rentang Tanggal Khusus</option>
-                    </select>
+                    <label for="modalPeriod" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Periode Laporan</label>
+                    <x-custom-select name="period" id="modalPeriod" label="Periode laporan" hide-label
+                        :options="['all' => 'Semua Transaksi', 'today' => 'Hari Ini', 'yesterday' => 'Kemarin', '7_days' => '7 Hari Terakhir', '30_days' => '30 Hari Terakhir', 'this_month' => 'Bulan Ini', 'last_month' => 'Bulan Lalu', 'this_year' => 'Tahun Ini', 'custom' => 'Rentang Tanggal Khusus']"
+                        selected="all" onchange="toggleCustomDates" />
                 </div>
 
                 <!-- Custom Range Inputs -->
@@ -78,12 +70,10 @@
 
                 <!-- Filter Tipe Transaksi -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Tipe Transaksi</label>
-                    <select name="type" class="select-field w-full px-3 py-2 bg-neutral-50 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100">
-                        <option value="">Semua Tipe (Pemasukan & Pengeluaran)</option>
-                        <option value="income">Hanya Pemasukan</option>
-                        <option value="expense">Hanya Pengeluaran</option>
-                    </select>
+                    <label for="modalType" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Tipe Transaksi</label>
+                    <x-custom-select name="type" id="modalType" label="Tipe transaksi" hide-label
+                        :options="['' => 'Semua Tipe (Pemasukan & Pengeluaran)', 'income' => 'Hanya Pemasukan', 'expense' => 'Hanya Pengeluaran']"
+                        selected="" />
                 </div>
 
                 <!-- Submit Button with Loading State -->

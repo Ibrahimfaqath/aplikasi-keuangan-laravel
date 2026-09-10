@@ -14,6 +14,125 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 
 // -----------------------------------------------------------------
+// CUSTOM SELECT (Alpine data factory untuk <x-custom-select>).
+// Pengganti <select> native agar daftar pilihan bisa di-style penuh,
+// tetap ramah keyboard + screen reader (roles listbox/option).
+// Dipakai via x-data="customSelect({options, selected, ...})".
+// -----------------------------------------------------------------
+window.customSelect = function (config) {
+    const list = Object.entries(config.options || {}).map(([value, label]) => ({
+        value: String(value),
+        label: String(label),
+    }));
+
+    return {
+        open: false,
+        value: String(config.selected ?? ''),
+        filter: '',
+        activeIndex: -1,
+        dropUp: false,
+        searchable: !!config.searchable,
+        onchange: config.onchange || '',
+        options: list,
+        typeBuffer: '',
+        typeTimer: null,
+
+        get selectedLabel() {
+            const found = this.options.find((o) => o.value === this.value);
+            return found ? found.label : 'Pilih…';
+        },
+        get filtered() {
+            const q = this.filter.trim().toLowerCase();
+            if (!q) return this.options;
+            return this.options.filter((o) => o.label.toLowerCase().includes(q));
+        },
+
+        toggle() {
+            if (this.open) this.close();
+            else this.openPanel();
+        },
+        openPanel() {
+            this.open = true;
+            this.filter = '';
+            const idx = this.options.findIndex((o) => o.value === this.value);
+            this.activeIndex = idx >= 0 ? idx : 0;
+            this.$nextTick(() => {
+                // Auto-flip: buka ke atas bila ruang bawah tidak cukup
+                // (mis. dropdown di dalam modal dekat bawah layar).
+                try {
+                    const r = this.$refs.trigger.getBoundingClientRect();
+                    const need = Math.min(224, this.filtered.length * 46 + 16);
+                    this.dropUp = window.innerHeight - r.bottom < need && r.top > need;
+                } catch (e) {
+                    this.dropUp = false;
+                }
+                if (this.searchable && this.$refs.search) this.$refs.search.focus();
+                this.scrollActiveIntoView();
+            });
+        },
+        close(refocus) {
+            this.open = false;
+            this.filter = '';
+            this.activeIndex = -1;
+            if (refocus && this.$refs.trigger) this.$refs.trigger.focus();
+        },
+        choose(opt) {
+            if (!opt) return;
+            this.value = opt.value;
+            this.close(true);
+            // Hook opsional: nama fungsi global, mis. "toggleCustomDates" di modal export.
+            if (this.onchange && typeof window[this.onchange] === 'function') {
+                window[this.onchange](this.value);
+            }
+        },
+        move(dir) {
+            if (!this.open) {
+                this.openPanel();
+                return;
+            }
+            const n = this.filtered.length;
+            if (!n) return;
+            this.activeIndex = (((this.activeIndex + dir) % n) + n) % n;
+            this.scrollActiveIntoView();
+        },
+        chooseActive() {
+            const list = this.filtered;
+            if (!list.length) return;
+            if (this.activeIndex < 0 || this.activeIndex >= list.length) this.activeIndex = 0;
+            this.choose(list[this.activeIndex]);
+        },
+        scrollActiveIntoView() {
+            this.$nextTick(() => {
+                try {
+                    const el = this.$refs.list?.querySelector('[data-index="' + this.activeIndex + '"]');
+                    if (el && typeof el.scrollIntoView === 'function') {
+                        el.scrollIntoView({ block: 'nearest' });
+                    }
+                } catch (e) {}
+            });
+        },
+        // Type-ahead untuk dropdown non-searchable: ketik huruf untuk lompat ke opsi.
+        typeAhead(e) {
+            const key = e && e.key ? e.key : '';
+            if (key.length !== 1 || key === ' ') return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            if (this.searchable && document.activeElement === this.$refs.search) return;
+            if (!this.open) this.openPanel();
+            this.typeBuffer = (this.typeBuffer + key).toLowerCase().slice(-12);
+            clearTimeout(this.typeTimer);
+            this.typeTimer = setTimeout(() => {
+                this.typeBuffer = '';
+            }, 600);
+            const idx = this.filtered.findIndex((o) => o.label.toLowerCase().startsWith(this.typeBuffer));
+            if (idx >= 0) {
+                this.activeIndex = idx;
+                this.scrollActiveIntoView();
+            }
+        },
+    };
+};
+
+// -----------------------------------------------------------------
 // THEME CORE (vanilla, berlaku di semua halaman)
 // -----------------------------------------------------------------
 function getSavedTheme() {
