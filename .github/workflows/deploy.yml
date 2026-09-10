@@ -77,42 +77,40 @@ jobs:
             # - .htaccess docroot versi server (ModSecurity off + cache)
             public/.htaccess
 
-      # Full otomatis: habis FTP langsung jalankan artisan via SSH.
-      # Untuk sekarang dibuat opsional (tidak menggagalkan deploy)
-      # karena SSH hosting belum aktif. Aktifkan lagi nanti kalau SSH sudah bisa.
-      - name: Post-deploy via SSH
-        if: ${{ secrets.SSH_HOST != '' }}
-        continue-on-error: true
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            cd ${{ secrets.FTP_PATH }}
-            echo "--- php version ---"
-            (php -v || /opt/cpanel/ea-php83/root/usr/bin/php -v) | head -5
-            # Pakai php 8.3 cPanel kalau php default masih 7.x/8.1
-            if php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
-              PHP_BIN=php
-            else
-              PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php
-            fi
-            echo "PHP_BIN=$PHP_BIN"
-            $PHP_BIN -v | head -2
-            # Vendor selalu sinkron otomatis (nol manual saat composer.lock berubah)
-            if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-            else
-              $PHP_BIN ~/composer.phar install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-            fi
-            $PHP_BIN artisan migrate --force
-            # storage:link gagal kalau link sudah ada, jangan gagalkan deploy
-            $PHP_BIN artisan storage:link || true
-            $PHP_BIN artisan optimize:clear
-            $PHP_BIN artisan optimize
-            chmod -R 775 storage bootstrap/cache || true
-            echo "post-deploy OK"
+      # SSH post-deploy dimatikan dulu (hosting belum aktif).
+      # Nanti aktifkan lagi kalau SSH sudah bisa.
+      # - name: Post-deploy via SSH
+      #   continue-on-error: true
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     password: ${{ secrets.SSH_PASSWORD }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     script: |
+      #       set -e
+      #       cd ${{ secrets.FTP_PATH }}
+      #       echo "--- php version ---"
+      #       (php -v || /opt/cpanel/ea-php83/root/usr/bin/php -v) | head -5
+      #       # Pakai php 8.3 cPanel kalau php default masih 7.x/8.1
+      #       if php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
+      #         PHP_BIN=php
+      #       else
+      #         PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php
+      #       fi
+      #       echo "PHP_BIN=$PHP_BIN"
+      #       $PHP_BIN -v | head -2
+      #       # Vendor selalu sinkron otomatis (nol manual saat composer.lock berubah)
+      #       if command -v composer >/dev/null 2>&1; then
+      #         composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      #       else
+      #         $PHP_BIN ~/composer.phar install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      #       fi
+      #       $PHP_BIN artisan migrate --force
+      #       # storage:link gagal kalau link sudah ada, jangan gagalkan deploy
+      #       $PHP_BIN artisan storage:link || true
+      #       $PHP_BIN artisan optimize:clear
+      #       $PHP_BIN artisan optimize
+      #       chmod -R 775 storage bootstrap/cache || true
+      #       echo "post-deploy OK"
