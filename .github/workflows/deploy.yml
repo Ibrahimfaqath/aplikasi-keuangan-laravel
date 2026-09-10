@@ -17,9 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # workflow_run checkout main terbaru secara default,
+          # kunci ke commit yang lolos CI biar tidak deploy yang belum dites.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       # composer install TIDAK perlu di sini karena vendor/ di-exclude
-      # (sudah ada di server dari ZIP manual). Biar deploy 1-2 menit.
+      # (di-install di server via SSH biar selalu sinkron dengan composer.lock).
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -32,6 +36,9 @@ jobs:
         run: |
           npm ci
           npm run build
+          echo "--- verify build ---"
+          ls -lh public/build public/build/assets
+          cat public/build/manifest.json
 
       # Deploy beneran ke cPanel via FTPS (dry-run sudah lulus verifikasi).
       - name: Deploy via FTPS
@@ -48,6 +55,7 @@ jobs:
           local-dir: ./
           server-dir: ${{ secrets.FTP_PATH }}/
           dry-run: false
+          log-level: verbose
           exclude: |
             **/.git/**
             **/.github/**
@@ -59,12 +67,49 @@ jobs:
             **/database/*.sqlite
             **/tests/**
             **/*.log
+            **/public/hot
             .phpunit.result.cache
-            # vendor/ sudah ada di server dari ZIP manual (11rb file, 122MB).
-            # Jangan kirim tiap deploy biar 1-2 menit. Update vendor hanya
-            # manual via Terminal saat composer.lock berubah.
+            # vendor/ di-install ulang di server via SSH (selalu sinkron
+            # dengan composer.lock, tidak perlu upload 11rb file tiap deploy).
             # File khusus server, JANGAN timpa (lihat DEPLOY-CPANEL.md):
             # - AppServiceProvider versi server ada kustom cPanel
             app/Providers/AppServiceProvider.php
             # - .htaccess docroot versi server (ModSecurity off + cache)
             public/.htaccess
+
+      # Full otomatis: habis FTP langsung jalankan artisan via SSH.
+      # Tidak perlu buka cPanel Terminal lagi.
+      - name: Post-deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ${{ secrets.FTP_PATH }}
+            echo "--- php version ---"
+            (php -v || /opt/cpanel/ea-php83/root/usr/bin/php -v) | head -5
+            # Pakai php 8.3 cPanel kalau php default masih 7.x/8.1
+            if php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
+              PHP_BIN=php
+            else
+              PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php
+            fi
+            echo "PHP_BIN=$PHP_BIN"
+            $PHP_BIN -v | head -2
+            # Vendor selalu sinkron otomatis (nol manual saat composer.lock berubah)
+            if command -v composer >/dev/null 2>&1; then
+              composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+            else
+              $PHP_BIN ~/composer.phar install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+            fi
+            $PHP_BIN artisan migrate --force
+            # storage:link gagal kalau link sudah ada, jangan gagalkan deploy
+            $PHP_BIN artisan storage:link || true
+            $PHP_BIN artisan optimize:clear
+            $PHP_BIN artisan optimize
+            chmod -R 775 storage bootstrap/cache || true
+            echo "post-deploy OK"
