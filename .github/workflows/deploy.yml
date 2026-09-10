@@ -78,8 +78,11 @@ jobs:
             public/.htaccess
 
       # Full otomatis: habis FTP langsung jalankan artisan via SSH.
-      # Tidak perlu buka cPanel Terminal lagi.
+      # Untuk sekarang dibuat opsional (tidak menggagalkan deploy)
+      # karena SSH hosting belum aktif. Aktifkan lagi nanti kalau SSH sudah bisa.
       - name: Post-deploy via SSH
+        if: ${{ secrets.SSH_HOST != '' }}
+        continue-on-error: true
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
