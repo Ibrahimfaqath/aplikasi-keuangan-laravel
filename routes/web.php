@@ -29,6 +29,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/transactions/parse-voice', [TransactionController::class, 'parseVoice'])->name('transactions.parse-voice');
     });
 
+    // Tren dashboard lazy-load (1 query ringan per klik tab).
+    // Ditaruh SEBELUM resource agar tidak tertelan route resource.
+    // Sengaja tanpa throttle "exports" agar klik tab grafik tidak memakan kuota export.
+    Route::get('/transactions/trend', [TransactionController::class, 'trend'])->name('transactions.trend');
+
     // CRUD Utama Transaksi (tanpa show yang tidak ada controller-nya)
     Route::resource('transactions', TransactionController::class)->except(['show']);
 

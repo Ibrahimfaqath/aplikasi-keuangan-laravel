@@ -61,16 +61,26 @@ class ReportingService
                 $query->whereDate('transaction_date', '>=', $today->copy()->subDays(29));
                 break;
             case 'this_month':
-                $query->whereMonth('transaction_date', $today->month)
-                    ->whereYear('transaction_date', $today->year);
+                // Perf: whereBetween memakai index range, sedangkan whereMonth()/
+                // whereYear() membungkus kolom dengan fungsi SQL sehingga index
+                // (user_id, transaction_date) tidak terpakai. Hasil identik (DATE).
+                $query->whereBetween('transaction_date', [
+                    $today->copy()->startOfMonth()->format('Y-m-d'),
+                    $today->copy()->endOfMonth()->format('Y-m-d'),
+                ]);
                 break;
             case 'last_month':
                 $lastMonth = $today->copy()->subMonth();
-                $query->whereMonth('transaction_date', $lastMonth->month)
-                    ->whereYear('transaction_date', $lastMonth->year);
+                $query->whereBetween('transaction_date', [
+                    $lastMonth->copy()->startOfMonth()->format('Y-m-d'),
+                    $lastMonth->copy()->endOfMonth()->format('Y-m-d'),
+                ]);
                 break;
             case 'this_year':
-                $query->whereYear('transaction_date', $today->year);
+                $query->whereBetween('transaction_date', [
+                    $today->copy()->startOfYear()->format('Y-m-d'),
+                    $today->copy()->endOfYear()->format('Y-m-d'),
+                ]);
                 break;
             case 'custom':
                 if (! empty($filters['start_date'])) {

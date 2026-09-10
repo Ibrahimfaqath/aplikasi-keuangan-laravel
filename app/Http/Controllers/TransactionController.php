@@ -19,6 +19,18 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
+    public function trend(Request $request)
+    {
+        $validated = $request->validate([
+            'period' => 'nullable|in:week,month,year',
+        ]);
+
+        $period = $validated['period'] ?? 'week';
+        $reportingService = new ReportingService;
+
+        return response()->json($reportingService->getTrendSeries($period, Auth::id()));
+    }
+
     public function index(Request $request)
     {
         $reportingService = new ReportingService;
@@ -29,10 +41,14 @@ class TransactionController extends Controller
         $stats = $reportingService->getStatistics($query);
         $categoryExpenses = $reportingService->getCategoryBreakdown($query);
 
+        // Perf: hanya hitung tren 'week' saat load awal (1 query).
+        // 'month' & 'year' dimuat lazy via /transactions/trend saat user klik tab.
+        // Struktur tetap sama agar Blade/JS lama tidak rusak.
+        $emptySeries = ['labels' => [], 'income' => [], 'expense' => [], 'ranges' => []];
         $trendData = [
             'week' => $reportingService->getTrendSeries('week', Auth::id()),
-            'month' => $reportingService->getTrendSeries('month', Auth::id()),
-            'year' => $reportingService->getTrendSeries('year', Auth::id()),
+            'month' => $emptySeries,
+            'year' => $emptySeries,
         ];
 
         $transactions = $query->orderBy('transaction_date', 'desc')
@@ -47,10 +63,14 @@ class TransactionController extends Controller
             ->where('year', $now->year)
             ->first();
 
+        // Perf: whereBetween memakai index (user_id, type, transaction_date),
+        // sedangkan whereMonth()/whereYear() membungkus kolom dengan fungsi SQL
+        // sehingga index tidak terpakai. Hasilnya identik untuk kolom DATE.
+        $monthStart = $now->copy()->startOfMonth()->format('Y-m-d');
+        $monthEnd = $now->copy()->endOfMonth()->format('Y-m-d');
         $monthlyExpense = Transaction::where('user_id', Auth::id())
             ->where('type', 'expense')
-            ->whereMonth('transaction_date', $now->month)
-            ->whereYear('transaction_date', $now->year)
+            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
             ->sum('amount');
 
         return view('transactions.index', array_merge([
