@@ -94,33 +94,22 @@ jobs:
       # (/finance.almahir.cloud/build) karena itulah folder yang dilayani web
       # per <link href="/build/assets/...">. Manifest Laravel di
       # /laravel_finance/public/build hanya untuk resolve — file sebenarnya
-      # dibaca dari docroot. delete-remote true agar file hash lama ikut dibersihkan.
-      - name: Mirror build assets ke docroot
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftps
-          security: loose
-          local-dir: public/build
-          server-dir: /finance.almahir.cloud/build
-          dry-run: false
-          log-level: standard
-
-      # SSH blokir (port 22/2222), jadi cache Laravel dibersihkan lewat FTP
-      # supaya Blade/config baru langsung ter-compile ulang. Tanpa ini,
-      # storage/framework/views/bootstrap-cache lama bisa menahan versi lama.
-      - name: Bersihkan cache Laravel via FTP (SSH tidak tersedia)
+      # Build -> docroot dengan SATU koneksi lftp, lalu bersihkan cache Laravel.
+      # (Sebelumnya mirror build pakai action FTP kedua yang gagal ~1 detik —
+      # diduga salah satu kebijakan batas koneksi hosting. lftp satu sesi
+      # terbukti paling andal.) cache dibersihkan agar Blade/config baru
+      # langsung ter-compile ulang karena SSH port 22/2222 diblokir hosting.
+      - name: Mirror build ke docroot + bersihkan cache Laravel (satu koneksi)
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q lftp
           lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+            set xfer:clobber on; \
+            mirror -R --delete --no-perms --parallel=2 $(pwd)/public/build /finance.almahir.cloud/build; \
             cd /laravel_finance/storage/framework/views; mrm -f *.php; \
             cd /laravel_finance/bootstrap/cache; mrm -f config.php routes-*.php events.php packages.php services.php; \
             bye" \
-            ftp://${{ secrets.FTP_HOST }} || echo "WARN: bersihkan cache gagal, lakukan manual via File Manager"
+            ftp://${{ secrets.FTP_HOST }} || echo "WARN: mirror/cache gagal via FTP, lakukan manual via File Manager"
 
       # Post-deploy via SSH: opsional untuk sekarang karena port 22 & 2222
       # connection refused dari laptop maupun GitHub (firewall hosting blokir).
