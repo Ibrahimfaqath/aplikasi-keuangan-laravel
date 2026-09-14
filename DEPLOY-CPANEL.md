@@ -144,6 +144,18 @@ php artisan optimize
 
 > **Kalau ada migration baru** (file baru di `database/migrations/`), tambahkan juga `php artisan migrate --force`.
 
+## Cara Memverifikasi Deploy Otomatis (GitHub Actions)
+
+Kalau perubahan di repo ter-push tapi tidak tampil di live, cek dulu apakah `FTP_PATH` benar:
+
+1. **Penanda unik di file ini**: baris berikut hanya ada di repo, bukan di server. Kalau setelah deploy otomatis penanda ini ADA di `/laravel_finance/DEPLOY-CPANEL.md`, berarti `FTP_PATH` sudah benar (mendarat di `/laravel_finance`).
+
+   `VERIFIKASI-FTP_PATH-2026-09-14`
+
+2. **Cek tanpa login**: buka tab **Actions** → run "Deploy to cPanel" terbaru → semua step harus hijau, termasuk *"Mirror build ke docroot + bersihkan cache Laravel (satu koneksi)"*.
+3. **Cek mtime**: File Manager → `/laravel_finance/config/services.php` — mtime-nya harus mengikuti waktu run terakhir dan berisi teks `langchain`.
+4. Kalau semuanya sudah, cukup **Re-run** workflow/`push` berikutnya akan otomatis menyinkronkan kode ke live.
+
 ## Alternatif: Deployment via Git
 
 Kalau cPanel-mu punya fitur **Git Version Control**:
