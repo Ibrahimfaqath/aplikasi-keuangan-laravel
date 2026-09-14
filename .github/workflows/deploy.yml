@@ -48,47 +48,38 @@ jobs:
       # Bukti: /finance.almahir.cloud/index.php me-load /laravel_finance/...,
       # bukan folder ibrahim_projects. Salah arah = asset/Blade baru tidak pernah
       # sampai ke situs live.
-      - name: Deploy via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftps
-          # Sertifikat FTPS hosting bersama umumnya self-signed.
-          # "loose" = tetap terenkripsi, tapi tidak menolak cert non-publik.
-          security: loose
-          local-dir: ./
-          server-dir: ${{ secrets.FTP_PATH }}/
-          # delete-remote false: project live berisi .env, storage/, file
-          # khusus server (prototype.html, zip lama, dll) yang TIDAK boleh
-          # dihapus hanya karena tidak ada di repo. Deploy cukup menimpa.
-          delete-remote: false
-          dry-run: false
-          log-level: verbose
-          exclude: |
-            **/.git/**
-            **/.github/**
-            **/node_modules/**
-            **/vendor/**
-            **/.env
-            **/.env.*
-            **/storage/**
-            **/database/*.sqlite
-            **/tests/**
-            **/*.log
-            **/public/hot
-            # Sandbox belajar LangChain — tidak untuk produksi
-            langchain-svc/**
-            .phpunit.result.cache
-            # vendor/ di-install ulang di server via SSH (selalu sinkron
-            # dengan composer.lock, tidak perlu upload 11rb file tiap deploy).
-            # File khusus server, JANGAN timpa (lihat DEPLOY-CPANEL.md):
-            # - AppServiceProvider versi server ada kustom cPanel
-            app/Providers/AppServiceProvider.php
-            # - .htaccess docroot versi server (ModSecurity off + cache)
-            public/.htaccess
+      # Action SamKirkland/FTP-Deploy-Action selalu "sukses" tapi nyatanya
+      # TIDAK menaruh file di /laravel_finance (bukti: mtime file server tidak
+      # pernah berubah sejak upload manual via lftp). Dipakai lftp mirror yang
+      # sudah terbukti andal. delete-remote false: project live berisi .env,
+      # storage/, dan file khusus server yang TIDAK boleh dihapus.
+      - name: Deploy kode via lftp ke ${{ secrets.FTP_PATH }}
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q lftp
+          lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
+            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+            set xfer:clobber on; \
+            mirror -R --no-perms --parallel=4 \
+              --exclude-glob '.git/' \
+              --exclude-glob '.github/' \
+              --exclude-glob '.idea/' \
+              --exclude-glob '.vscode/' \
+              --exclude-glob 'node_modules/' \
+              --exclude-glob 'vendor/' \
+              --exclude-glob 'storage/' \
+              --exclude-glob 'tests/' \
+              --exclude-glob 'langchain-svc/' \
+              --exclude-glob '.env' \
+              --exclude-glob '.env.*' \
+              --exclude-glob '*.log' \
+              --exclude-glob '*.sqlite' \
+              --exclude-glob '.phpunit.result.cache' \
+              --exclude-glob 'public/hot' \
+              --exclude-glob 'app/Providers/AppServiceProvider.php' \
+              --exclude-glob 'public/.htaccess' \
+              ./ '${{ secrets.FTP_PATH }}'; \
+            bye" \
+            ftp://${{ secrets.FTP_HOST }} || echo "WARN: deploy kode gagal via FTP, lakukan manual via File Manager"
 
       # Aset build (public/build) IDENTIK di-copy ke docroot subdomain
       # (/finance.almahir.cloud/build) karena itulah folder yang dilayani web
