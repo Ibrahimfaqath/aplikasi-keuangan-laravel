@@ -58,31 +58,37 @@ jobs:
           TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
           echo "Target deploy: $TARGET"
           echo "Catatan: hardcoded default /laravel_finance (dibuktikan dari index.php docroot)"
-          sudo apt-get update -q && sudo apt-get install -y -q lftp
+          sudo apt-get update -q >/dev/null && sudo apt-get install -y -q lftp >/dev/null
+          {
+            lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
+              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+              set xfer:clobber on; set mirror:parallel-transfer-count 2; set net:timeout 30; \
+              mirror -R --no-perms --parallel=4 \
+                --exclude-glob '.git/' \
+                --exclude-glob '.github/' \
+                --exclude-glob '.idea/' \
+                --exclude-glob '.vscode/' \
+                --exclude-glob 'node_modules/' \
+                --exclude-glob 'vendor/' \
+                --exclude-glob 'storage/' \
+                --exclude-glob 'tests/' \
+                --exclude-glob 'langchain-svc/' \
+                --exclude-glob '.env' \
+                --exclude-glob '.env.*' \
+                --exclude-glob '*.log' \
+                --exclude-glob '*.sqlite' \
+                --exclude-glob '.phpunit.result.cache' \
+                --exclude-glob 'public/hot' \
+                --exclude-glob 'app/Providers/AppServiceProvider.php' \
+                --exclude-glob 'public/.htaccess' \
+                ./ $TARGET; \
+              bye" \
+              ftp://${{ secrets.FTP_HOST }}
+          } > /tmp/gh-lftp.log 2>&1 || echo "WARN: deploy kode gagal via FTP (lihat _gh-lftp.log di docroot)"
+          echo "lftp exit berhasil dicatat, upload log diagnostik:"
           lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set xfer:clobber on; \
-            mirror -R --no-perms --parallel=4 \
-              --exclude-glob '.git/' \
-              --exclude-glob '.github/' \
-              --exclude-glob '.idea/' \
-              --exclude-glob '.vscode/' \
-              --exclude-glob 'node_modules/' \
-              --exclude-glob 'vendor/' \
-              --exclude-glob 'storage/' \
-              --exclude-glob 'tests/' \
-              --exclude-glob 'langchain-svc/' \
-              --exclude-glob '.env' \
-              --exclude-glob '.env.*' \
-              --exclude-glob '*.log' \
-              --exclude-glob '*.sqlite' \
-              --exclude-glob '.phpunit.result.cache' \
-              --exclude-glob 'public/hot' \
-              --exclude-glob 'app/Providers/AppServiceProvider.php' \
-              --exclude-glob 'public/.htaccess' \
-              ./ $TARGET; \
-            bye" \
-            ftp://${{ secrets.FTP_HOST }} || echo "WARN: deploy kode gagal via FTP, lakukan manual via File Manager"
+            -e "set ssl:verify-certificate no; put -O /finance.almahir.cloud /tmp/gh-lftp.log; bye" \
+            ftp://${{ secrets.FTP_HOST }} || echo "WARN: log tidak terupload"
 
       # Aset build (public/build) IDENTIK di-copy ke docroot subdomain
       # (/finance.almahir.cloud/build) karena itulah folder yang dilayani web
