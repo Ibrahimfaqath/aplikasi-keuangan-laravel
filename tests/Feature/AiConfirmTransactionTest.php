@@ -445,4 +445,67 @@ class AiConfirmTransactionTest extends TestCase
             'title' => 'Gaji',
         ]);
     }
+
+    public function test_langchain_branch_is_used_when_langchain_url_is_configured(): void
+    {
+        // Regression test: the LangChain service endpoint must be called at
+        // <base>/chat and its {reply, transaction} JSON parsed normally.
+        Http::preventStrayRequests();
+        Http::fake([
+            'http://127.0.0.1:8787/*' => Http::response([
+                'reply' => 'Siap! Sudah saya catat belanja bensin Rp 50.000 ya.',
+                'transaction' => [
+                    'title' => 'Beli Bensin',
+                    'amount' => 50000,
+                    'type' => 'expense',
+                    'category' => 'Transportasi',
+                    'transaction_date' => Carbon::now()->format('Y-m-d'),
+                ],
+            ], 200),
+        ]);
+
+        config(['services.langchain.url' => 'http://127.0.0.1:8787']);
+
+        $user = User::factory()->create();
+
+        $chat = $this->actingAs($user)
+            ->postJson('/ai/chat', ['message' => 'beli bensin 50 ribu']);
+
+        $chat->assertOk();
+        $candidate = $chat->json('transaction');
+        $this->assertNotNull($candidate);
+        $this->assertArrayHasKey('transaction_date', $candidate);
+        $this->assertEquals('Beli Bensin', $candidate['title']);
+        $this->assertEquals('Transportasi', $candidate['category']);
+
+        $this->assertSame(
+            'http://127.0.0.1:8787/chat',
+            Http::recorded()[0][0]->url()
+        );
+
+        $pending = Session::get('pending_transaction');
+        $this->assertIsArray($pending);
+        $this->assertEquals(50000, $pending['amount']);
+    }
+
+    public function test_langchain_branch_falls_back_gracefully_on_service_error(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake([
+            'http://127.0.0.1:8787/*' => Http::response([
+                'error' => 'Gagal menghubungi AI',
+            ], 502),
+        ]);
+
+        config(['services.langchain.url' => 'http://127.0.0.1:8787']);
+
+        $user = User::factory()->create();
+
+        $chat = $this->actingAs($user)
+            ->postJson('/ai/chat', ['message' => 'beli bensin 50 ribu']);
+
+        $chat->assertOk();
+        $this->assertNull($chat->json('transaction'));
+        $this->assertStringContainsString('sibuk', $chat->json('reply'));
+    }
 }

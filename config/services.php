@@ -35,4 +35,11 @@ return [
         ),
     ],
 
+    // Service LangChain (opsional). Kalau diisi, AiAssistantService memakai
+    // rantai LangChain di langchain-svc/server.js. Kosongkan untuk balik ke
+    // jalur lama (KiosAPI langsung). Aman untuk produksi karena default null.
+    'langchain' => [
+        'url' => env('LANGCHAIN_SERVICE_URL'),
+    ],
+
 ];

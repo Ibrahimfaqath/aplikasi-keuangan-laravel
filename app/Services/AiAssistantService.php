@@ -23,9 +23,9 @@ class AiAssistantService
     public function chat(string $message, int $userId, Carbon $now): array
     {
         $chatStarted = microtime(true);
-        $apiKey = config('services.kiosapi.key');
+        $langchainUrl = config('services.langchain.url');
 
-        if (blank($apiKey)) {
+        if (blank($langchainUrl) && blank(config('services.kiosapi.key'))) {
             Log::warning('KIOSAPI_API_KEY is not configured', [
                 'user_id' => $userId,
             ]);
@@ -48,6 +48,48 @@ class AiAssistantService
 
         $systemPrompt = $this->buildSystemPrompt($message, $now, $ctx);
 
+        // Dua jalur: LangChain bila service dikonfigurasi, selain itu KiosAPI
+        // langsung (perilaku lama). Situs live aman karena default null.
+        if (blank($langchainUrl)) {
+            [$reply, $transaction, $timing['api_ms'], $timing['parse_ms']] =
+                $this->attemptViaKiosApi($systemPrompt, $message, $userId);
+        } else {
+            [$reply, $transaction, $timing['api_ms']] =
+                $this->attemptViaLangChain($langchainUrl, $systemPrompt, $message, $userId);
+            $timing['parse_ms'] = null;
+        }
+
+        if ($reply === null) {
+            $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
+        }
+
+        $timing['total_ms'] = (int) round((microtime(true) - $chatStarted) * 1000);
+
+        // Safe timing breakdown (debug level): never logs keys, headers,
+        // financial figures, or message content.
+        Log::debug('AI chat timing', array_merge([
+            'user_id' => $userId,
+            'prompt_chars' => strlen($systemPrompt),
+            'has_transaction' => $transaction !== null,
+            'source' => blank($langchainUrl) ? 'kiosapi' : 'langchain',
+        ], $timing));
+
+        return [
+            'reply' => $reply,
+            'transaction' => $transaction,
+            'timing' => $timing,
+            'unconfigured' => false,
+        ];
+    }
+
+    /**
+     * Jalur langsung ke KiosAPI (OpenAI-compatible). Ini perilaku lama dan
+     * dipakai sebagai fallback bila LANGCHAIN_SERVICE_URL tidak di-set.
+     *
+     * @return array{0: ?string, 1: ?array, 2: ?int, 3: ?int} [reply, transaction, api_ms, parse_ms]
+     */
+    private function attemptViaKiosApi(string $systemPrompt, string $message, int $userId): array
+    {
         $apiMs = null;
         $parseMs = null;
         $reply = null;
@@ -55,7 +97,7 @@ class AiAssistantService
 
         try {
             $apiStarted = microtime(true);
-            $response = Http::withToken($apiKey)
+            $response = Http::withToken(config('services.kiosapi.key'))
                 ->acceptJson()
                 ->timeout(60)
                 ->post(config('services.kiosapi.url'), [
@@ -66,7 +108,7 @@ class AiAssistantService
                     ],
                     'temperature' => 0.7,
                 ]);
-            $timing['api_ms'] = (int) round((microtime(true) - $apiStarted) * 1000);
+            $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
 
             if ($response->successful()) {
                 $parseStarted = microtime(true);
@@ -81,7 +123,7 @@ class AiAssistantService
                 } else {
                     [$reply, $transaction] = $this->extractTransaction($content);
                 }
-                $timing['parse_ms'] = (int) round((microtime(true) - $parseStarted) * 1000);
+                $parseMs = (int) round((microtime(true) - $parseStarted) * 1000);
             } else {
                 $this->logApiError($response);
                 $reply = 'Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!';
@@ -102,26 +144,75 @@ class AiAssistantService
             $reply = 'Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!';
         }
 
-        if ($reply === null) {
-            $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
+        return [$reply, $transaction, $apiMs, $parseMs];
+    }
+
+    /**
+     * Jalur LangChain: memanggil service langchain-svc/server.js yang sudah
+     * mengembalikan JSON terstruktur {reply, transaction} via rantai LangChain
+     * (PromptTemplate -> ChatOpenAI/KiosAPI -> JsonOutputParser).
+     *
+     * @return array{0: ?string, 1: ?array, 2: ?int} [reply, transaction, api_ms]
+     */
+    private function attemptViaLangChain(string $url, string $systemPrompt, string $message, int $userId): array
+    {
+        $apiMs = null;
+
+        try {
+            $apiStarted = microtime(true);
+            $endpoint = str_ends_with($url, '/chat') ? $url : rtrim($url, '/').'/chat';
+
+            $response = Http::acceptJson()
+                ->timeout(90)
+                ->post($endpoint, [
+                    'system' => $systemPrompt,
+                    'message' => $message,
+                ]);
+            $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
+
+            if (! $response->successful()) {
+                $this->logApiError($response);
+
+                return ['Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!', null, $apiMs];
+            }
+
+            $data = $response->json();
+            if (! is_array($data)) {
+                Log::error('LangChain returned malformed response', [
+                    'user_id' => $userId,
+                    'http_status' => $response->status(),
+                    'body_sample' => mb_substr($response->body(), 0, 500),
+                ]);
+
+                return ['Maaf, asisten sedang mengalami masalah. Coba lagi ya!', null, $apiMs];
+            }
+
+            $reply = trim((string) ($data['reply'] ?? ''));
+            $candidate = $data['transaction'] ?? null;
+            $transaction = is_array($candidate) ? $this->normalizeCandidate($candidate) : null;
+
+            if ($reply === '') {
+                $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
+            }
+
+            return [$reply, $transaction, $apiMs];
+        } catch (ConnectionException $e) {
+            Log::error('LangChain connection error', [
+                'user_id' => $userId,
+                'error_type' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+
+            return ['Maaf, koneksi ke asisten terputus. Periksa koneksi internetmu ya!', null, $apiMs];
+        } catch (\Throwable $e) {
+            Log::error('LangChain request exception', [
+                'user_id' => $userId,
+                'error_type' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+
+            return ['Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!', null, $apiMs];
         }
-
-        $timing['total_ms'] = (int) round((microtime(true) - $chatStarted) * 1000);
-
-        // Safe timing breakdown (debug level): never logs keys, headers,
-        // financial figures, or message content.
-        Log::debug('AI chat timing', array_merge([
-            'user_id' => $userId,
-            'prompt_chars' => strlen($systemPrompt),
-            'has_transaction' => $transaction !== null,
-        ], $timing));
-
-        return [
-            'reply' => $reply,
-            'transaction' => $transaction,
-            'timing' => $timing,
-            'unconfigured' => false,
-        ];
     }
 
     /**

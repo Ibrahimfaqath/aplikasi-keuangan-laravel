@@ -34,3 +34,8 @@ Thumbs.db
 
 # File tool AI eksternal
 .aider*
+
+# Sandbox belajar LangChain (tidak untuk deploy/produksi)
+/langchain-svc/node_modules
+/langchain-svc/.env
+/langchain-svc/server.log
