@@ -40,7 +40,14 @@ jobs:
           ls -lh public/build public/build/assets
           cat public/build/manifest.json
 
-      # Deploy beneran ke cPanel via FTPS (dry-run sudah lulus verifikasi).
+      # Deploy beneran ke cPanel via FTPS.
+      #
+      # PENTING: FTP_PATH di GitHub Secrets harus menunjuk ke project yang
+      # BENAR-BENAR dipakai subdomain, yaitu "/laravel_finance" (bukan
+      # "/home3/almahir/ibrahim_projects" — itu copy lama yang tidak dipakai).
+      # Bukti: /finance.almahir.cloud/index.php me-load /laravel_finance/...,
+      # bukan folder ibrahim_projects. Salah arah = asset/Blade baru tidak pernah
+      # sampai ke situs live.
       - name: Deploy via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -54,6 +61,10 @@ jobs:
           security: loose
           local-dir: ./
           server-dir: ${{ secrets.FTP_PATH }}/
+          # delete-remote false: project live berisi .env, storage/, file
+          # khusus server (prototype.html, zip lama, dll) yang TIDAK boleh
+          # dihapus hanya karena tidak ada di repo. Deploy cukup menimpa.
+          delete-remote: false
           dry-run: false
           log-level: verbose
           exclude: |
@@ -68,6 +79,8 @@ jobs:
             **/tests/**
             **/*.log
             **/public/hot
+            # Sandbox belajar LangChain — tidak untuk produksi
+            langchain-svc/**
             .phpunit.result.cache
             # vendor/ di-install ulang di server via SSH (selalu sinkron
             # dengan composer.lock, tidak perlu upload 11rb file tiap deploy).
@@ -76,6 +89,38 @@ jobs:
             app/Providers/AppServiceProvider.php
             # - .htaccess docroot versi server (ModSecurity off + cache)
             public/.htaccess
+
+      # Aset build (public/build) IDENTIK di-copy ke docroot subdomain
+      # (/finance.almahir.cloud/build) karena itulah folder yang dilayani web
+      # per <link href="/build/assets/...">. Manifest Laravel di
+      # /laravel_finance/public/build hanya untuk resolve — file sebenarnya
+      # dibaca dari docroot. delete-remote true agar file hash lama ikut dibersihkan.
+      - name: Mirror build assets ke docroot
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          protocol: ftps
+          security: loose
+          local-dir: public/build
+          server-dir: /finance.almahir.cloud/build
+          dry-run: false
+          log-level: standard
+
+      # SSH blokir (port 22/2222), jadi cache Laravel dibersihkan lewat FTP
+      # supaya Blade/config baru langsung ter-compile ulang. Tanpa ini,
+      # storage/framework/views/bootstrap-cache lama bisa menahan versi lama.
+      - name: Bersihkan cache Laravel via FTP (SSH tidak tersedia)
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q lftp
+          lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
+            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+            cd /laravel_finance/storage/framework/views; mrm -f *.php; \
+            cd /laravel_finance/bootstrap/cache; mrm -f config.php routes-*.php events.php packages.php services.php; \
+            bye" \
+            ftp://${{ secrets.FTP_HOST }} || echo "WARN: bersihkan cache gagal, lakukan manual via File Manager"
 
       # Post-deploy via SSH: opsional untuk sekarang karena port 22 & 2222
       # connection refused dari laptop maupun GitHub (firewall hosting blokir).

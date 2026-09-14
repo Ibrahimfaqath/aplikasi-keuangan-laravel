@@ -4,5 +4,5 @@
 # Jangan ubah DEPLOYPATH kecuali paham: harus sama persis dengan FTP_PATH di GitHub Secrets.
 deployment:
   tasks:
-    - export DEPLOYPATH=/home3/almahir/ibrahim_projects/laravel_finance
+    - export DEPLOYPATH=/laravel_finance
     - /bin/cp -R * $DEPLOYPATH

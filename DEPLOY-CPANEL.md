@@ -107,6 +107,12 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 
 ## Catatan Penting
 
+- **Lokasi live yang BENAR (jangan tertukar):**
+  - `/finance.almahir.cloud/` = docroot subdomain (front controller + listen ke Laravel), berisi `build/` (aset yang dilayani `<link href="/build/...">`) dan `storage/` (bukti transaksi).
+  - `/laravel_finance/` = root project Laravel yang dipakai (folder dengan `.env`, `vendor/`, `storage/`).
+  - Bukti: `index.php` docroot me-load `/laravel_finance/vendor/autoload.php` dan `/laravel_finance/bootstrap/app.php`.
+  - ⚠️ `/home3/almahir/ibrahim_projects/laravel_finance` adalah **copy lama yang tidak dipakai** subdomain — jangan deploy ke sana. GitHub secret **`FTP_PATH` harus di-set ke `/laravel_finance`** (bukan folder ibrahim_projects). Kalau salah arah, perubahan kode/CSS tidak akan pernah tampil di situs live.
+  - Aset build hasil `npm run build` harus di-upload ke **dua tempat**: `/laravel_finance/public/build/` (untuk resolve manifest) dan `/finance.almahir.cloud/build/` (yang benar-benar dilayani web). Workflow deploy saat ini sudah otomatis melakukan ini.
 - **Data lama**: kalau ada transaksi di database lokal, ekspor dari localhost (mysqldump / phpMyAdmin) lalu import ke database cPanel — jangan mulai dari migrasi kosong.
 - **JANGAN timpa `app/Providers/AppServiceProvider.php` di server** — file itu punya kustomisasi khusus cPanel (`usePublicPath` ke folder docroot subdomain + arah disk `public` ke `keuangan.almahir.cloud/storage`). Versi lokal TIDAK punya kustomisasi ini; kalau ketimpa, upload bukti transaksi akan 404.
 - **`.htaccess` di docroot subdomain** (bukan `public/.htaccess`) sudah berisi optimasi: kompresi Brotli/gzip, cache browser 1 tahun untuk aset build, dan header keamanan. Jangan timpa dengan versi default.
