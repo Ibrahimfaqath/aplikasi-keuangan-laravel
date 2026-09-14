@@ -1,4 +1,7 @@
 ---
+# CATATAN: file ini HANYA dipakai kalau deploy via "cPanel Git Version Control".
+# Kalau deploy via GitHub Actions FTPS (deploy.yml), file ini DIABAIKAN.
+# Jangan ubah DEPLOYPATH kecuali paham: harus sama persis dengan FTP_PATH di GitHub Secrets.
 deployment:
   tasks:
     - export DEPLOYPATH=/home3/almahir/ibrahim_projects/laravel_finance
