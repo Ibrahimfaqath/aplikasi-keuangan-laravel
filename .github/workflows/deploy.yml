@@ -77,9 +77,12 @@ jobs:
             # - .htaccess docroot versi server (ModSecurity off + cache)
             public/.htaccess
 
-      # Post-deploy via SSH: WAJIB agar style baru tampil.
-      # Tanpa ini, Laravel menyajikan view/cache lama walau file baru sudah naik via FTP.
+      # Post-deploy via SSH: opsional untuk sekarang karena port 22 & 2222
+      # connection refused dari laptop maupun GitHub (firewall hosting blokir).
+      # FTP tetap jalan. Cache dibersihkan manual via File Manager (lihat DEPLOY-CPANEL.md).
+      # Aktifkan lagi (hapus continue-on-error) kalau CS sudah buka SSH.
       - name: Post-deploy via SSH
+        continue-on-error: true
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
