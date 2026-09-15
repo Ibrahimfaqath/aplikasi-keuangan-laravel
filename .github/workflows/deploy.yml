@@ -78,6 +78,7 @@ jobs:
               --exclude-glob 'public/hot' \
               --exclude-glob 'public/storage' \
               --exclude-glob 'public/.htaccess' \
+              --exclude-glob 'public/build/' \
               ./ $TARGET; \
             bye" \
             ftp://${{ secrets.FTP_HOST }} || echo "WARN: deploy kode gagal via FTP, lakukan manual via File Manager"
@@ -86,18 +87,25 @@ jobs:
       # (/finance.almahir.cloud/build) karena itulah folder yang dilayani web
       # per <link href="/build/assets/...">. Manifest Laravel di
       # /laravel_finance/public/build hanya untuk resolve — file sebenarnya
-      # Build -> docroot dengan SATU koneksi lftp, lalu bersihkan cache Laravel.
+      # DUA lokasi disinkron dari build yang SAMA (public/build hasil step
+      # "Build frontend assets") dalam SATU koneksi lftp agar manifest docroot
+      # dan project SELALU identik di tiap rilis. --delete memastikan file
+      # hash lama dari rilis sebelumnya ikut terhapus (mencegah manifest
+      # mismatch yang bikin CSS 404). public/build di-exclude dari step
+      # "Deploy kode" di atas supaya tidak ada duplikasi/transfer parsial.
       # (Sebelumnya mirror build pakai action FTP kedua yang gagal ~1 detik —
       # diduga salah satu kebijakan batas koneksi hosting. lftp satu sesi
       # terbukti paling andal.) cache dibersihkan agar Blade/config baru
       # langsung ter-compile ulang karena SSH port 22/2222 diblokir hosting.
-      - name: Mirror build ke docroot + bersihkan cache Laravel (satu koneksi)
+      - name: Mirror build ke docroot + project + bersihkan cache Laravel (satu koneksi)
         run: |
+          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
           sudo apt-get update -q && sudo apt-get install -y -q lftp
           lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set xfer:clobber on; \
             mirror -R --delete --no-perms --parallel=2 $(pwd)/public/build /finance.almahir.cloud/build; \
+            mirror -R --delete --no-perms --parallel=2 $(pwd)/public/build $TARGET/public/build; \
             cd /laravel_finance/storage/framework/views; mrm -f *.php; \
             cd /laravel_finance/bootstrap/cache; mrm -f config.php routes-*.php events.php packages.php services.php; \
             bye" \
