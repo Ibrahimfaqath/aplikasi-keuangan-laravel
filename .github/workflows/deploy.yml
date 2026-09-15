@@ -334,63 +334,51 @@ jobs:
           echo "WARN: prune gagal 3x — hanya menyisakan file lama tak dipakai."
           exit 0
 
-      # DIAGNOSTIK (debug, NON-FATAL): pantau struktur project server.
-      # Detail dicetak ke LOG GITHUB (terbaca pemilik repo) DAN dicoba
-      # di-publish ke docroot utk dibaca publik. Hapus langkah ini nanti.
-      - name: Diagnostik struktur server (print ke log + publish)
+      # DIAGNOSTIK-PEMETAAN (debug, NON-FATAL): petakan hubungan FTP <-> docroot
+      # dengan menulis file penanda lalu probe lewat URL publik; hasil di-publish
+      # ke /_deploy_diag.txt. Hapus langkah ini setelah root-cause bersih.
+      - name: Diagnostik pemetaan docroot vs FTP + probe (non-fatal)
         run: |
           set -uo pipefail
           FTP_USER="${{ secrets.FTP_USER }}"
           FTP_PASS="${{ secrets.FTP_PASSWORD }}"
           FTP_HOST="${{ secrets.FTP_HOST }}"
           TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
+          SITE="https://finance.almahir.cloud"
 
-          md5_of() { md5sum < "$1" | cut -d' ' -f1; }
-          MD5_LOCAL_LOGIN=$(md5_of "$GITHUB_WORKSPACE/resources/views/auth/login.blade.php")
-
-          lftp_once() {
-            timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-              set net:timeout 45; set net:max-retries 2; $1" \
-              ftp://$FTP_HOST 2>&1 || true
-          }
-
-          GETLOG=""
-          GETLOG="$(lftp_once "get \"$TARGET/resources/views/auth/login.blade.php\" -o /tmp/r_login; bye")"
-          if [ -s /tmp/r_login ]; then
-            MD5_REMOTE_LOGIN=$(md5_of /tmp/r_login)
-            SIZE_REMOTE_LOGIN=$(wc -c < /tmp/r_login)
-          else
-            MD5_REMOTE_LOGIN="GET_FAIL"; SIZE_REMOTE_LOGIN="-1"
-          fi
-
-          ROOT_LISTING="$(lftp_once "cls -la /; bye")"
-          TARGET_LISTING="$(lftp_once "cls -la $TARGET; bye")"
-          VIEWS_LISTING="$(lftp_once "cls -la $TARGET/resources/views/auth/; bye")"
+          echo "marker-root" > /tmp/mark_root.txt
+          echo "marker-build" > /tmp/mark_build.txt
+          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+            set net:timeout 45; set net:max-retries 2; \
+            put /tmp/mark_root.txt -o /finance.almahir.cloud/mark_root.txt; \
+            put /tmp/mark_build.txt -o /finance.almahir.cloud/build/_pm.txt; bye" 2>&1 || true
 
           {
-            echo "=== DIAGNOSTIK SERVER ==="
-            echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "md5_local_login=$MD5_LOCAL_LOGIN"
-            echo "md5_remote_login=${MD5_REMOTE_LOGIN:-?}"
-            echo "size_remote_login=${SIZE_REMOTE_LOGIN:-?}"
-            echo "--- get login.blade.php log ---"
-            echo "$GETLOG"
-            echo "--- FTP ROOT (cls -la /) ---"
-            echo "$ROOT_LISTING"
-            echo "--- $TARGET (cls -la) ---"
-            echo "$TARGET_LISTING"
-            echo "--- $TARGET/resources/views/auth/ ---"
-            echo "$VIEWS_LISTING"
-            echo "=== END DIAGNOSTIK ==="
+            echo "=== PROBE WEB: petakan docroot ==="
+            for u in \
+              "$SITE/mark_root.txt" \
+              "$SITE/build/_pm.txt" \
+              "$SITE/build/manifest.json" \
+              "$SITE/laravel_finance/public/build/manifest.json" \
+              "$SITE/finance.almahir.cloud/mark_root.txt" ; do
+              echo "--- $u"
+              curl -s -o /tmp/probe.out -w "[HTTP %{http_code}]\n" "$u"; cat /tmp/probe.out; echo
+            done
+            echo "=== END PROBE WEB ==="
+            echo "=== FTP cls -la dir kunci ==="
+            timeout 60 lftp -u "$FTP_USER","$FTP_PASS" \
+              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+              set net:timeout 45; set net:max-retries 2; \
+              cls -la /finance.almahir.cloud; cls -la $TARGET; cls -la /; bye" 2>&1 || true
+            echo "=== END FTP cls ==="
           } | tee /tmp/diag.txt
 
-          # coba publish (beberapa kandidat lokasi)
-          for DEST in "/finance.almahir.cloud/_deploy_diag.txt" "/$TARGET/_deploy_diag.txt" "/_deploy_diag.txt"; do
-            lftp_once "put /tmp/diag.txt -o $DEST; bye" >/dev/null \
-              && echo "publish OK: $DEST"
-          done
-          echo "(langkah diagnostik selesai)"
+          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+            set net:timeout 45; set net:max-retries 2; \
+            put /tmp/diag.txt -o /finance.almahir.cloud/_deploy_diag.txt; bye" 2>&1 || echo "(publish diag gagal)"
+          echo "(langkah diagnosa selesai)"
 
       # Gate terakhir: cek KONDISI NYATA (bukan opini flag retry).
       # 1) Manifest docroot & project == manifest build lokal (CSS tidak 404).
