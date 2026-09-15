@@ -64,6 +64,13 @@ jobs:
       #   merah, sehingga mirror build tetap berjalan dan CSS 404 selalu pulih.
       # - Semua mirror build pakai --parallel=2 (bukti: yang --parallel=4 cepat
       #   gagal, diduga kebijakan batas koneksi hosting).
+      # - PENTING: file hasil actions/checkout mtime-nya = waktu COMMIT, yang
+      #   bisa lebih TUA dari mtime file di server (hasil upload rilis lama).
+      #   lftp mirror -R membandingkan mtime => file yang BERUBAH di-skip
+      #   diam-diam (dulu hanya build ter-upload karena nama hash selalu baru).
+      #   Solusi: --ignore-time agar SEMUA file tetap ter-overwrite tiap rilis.
+      #   Verifikasi pakai file Blade baru (login.blade.php), bukan tailwind
+      #   (yang sudah sama duluan sehingga tidak mendeteksi mirror gagal).
       - name: Deploy kode via lftp ke project live (jangan blokir heal)
         run: |
           set -uo pipefail
@@ -77,12 +84,12 @@ jobs:
           # selamanya (lftp default net:timeout=0 = tunggu tanpa batas).
           mirror_kode() {
             for i in 1 2 3; do
-              echo "== deploy kode, percobaan $i =="
+              echo "== deploy kode (--ignore-time), percobaan $i =="
               if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
                 -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
                 set xfer:clobber on; \
                 set net:timeout 45; set net:max-retries 3; \
-                mirror -R --no-perms --parallel=2 \
+                mirror -R --ignore-time --no-perms --parallel=2 \
                   --exclude-glob '.git/' \
                   --exclude-glob '.github/' \
                   --exclude-glob '.idea/' \
@@ -121,17 +128,29 @@ jobs:
             echo "CODE_FAIL=1" >> "$GITHUB_ENV"
           fi
 
-          # Verifikasi file penanda Bila mirror sukses: tailwind.config.js harus
-          # identik di server. (Kalau gagal catch di langkah verifikasi akhir.)
-          if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; set net:max-retries 2; \
-            get \"$TARGET/tailwind.config.js\" -o /tmp/remote_tailwind.config.js; bye" \
-            ftp://$FTP_HOST && [ "$(cat /tmp/remote_tailwind.config.js 2>/dev/null | md5sum | cut -d' ' -f1)" = \
-              "$(md5sum "$GITHUB_WORKSPACE/tailwind.config.js" | cut -d' ' -f1)" ]; then
-            echo "OK: tailwind.config.js server == repo."
-          else
-            echo "WARN: tailwind.config.js di server berbeda (ditangani di verifikasi akhir)."
+          # Verifikasi file penanda blade yang BERUBAH (bukan tailwind yang
+          # sudah sama duluan). Bila berbeda berarti mirror tidak benar-benar
+          # meng-upload views -> tandai CODE_FAIL agar gate akhir merah.
+          fetch_ok=0
+          for i in 1 2 3; do
+            if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+              set net:timeout 45; set net:max-retries 2; \
+              get \"$TARGET/resources/views/auth/login.blade.php\" -o /tmp/remote_login.blade.php; bye" \
+              ftp://$FTP_HOST \
+              && [ "$(md5sum < /tmp/remote_login.blade.php 2>/dev/null | cut -d' ' -f1)" = \
+                   "$(md5sum < "$GITHUB_WORKSPACE/resources/views/auth/login.blade.php" | cut -d' ' -f1)" ]; then
+              echo "OK: login.blade.php di server == repo ($i)."
+              fetch_ok=1
+              break
+            fi
+            echo "cek login.blade.php belum sinkron (percobaan $i), ulang mirror..."
+            mirror_kode || true
+            sleep 10
+          done
+          if [ "$fetch_ok" != "1" ]; then
+            echo "WARN: login.blade.php di server != repo (view belum sinkron)."
+            echo "CODE_FAIL=1" >> "$GITHUB_ENV"
           fi
 
       - name: Mirror build -> project (--delete) + verify
@@ -321,11 +340,18 @@ jobs:
 
           fetch_manifest() {
             local REMOTE="$1" OUT="$2"
-            timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-              set net:timeout 45; set net:max-retries 2; \
-              get \"$REMOTE\" -o \"$OUT\"; bye" \
-              ftp://$FTP_HOST
+            for i in 1 2 3; do
+              if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+                set net:timeout 45; set net:max-retries 2; \
+                get \"$REMOTE\" -o \"$OUT\"; bye" \
+                ftp://$FTP_HOST; then
+                return 0
+              fi
+              echo "get $REMOTE gagal (percobaan $i), coba lagi..."
+              sleep 10
+            done
+            return 1
           }
 
           if fetch_manifest "/laravel_finance/public/build/manifest.json" /tmp/final_project.json && cmp -s "$LOCAL" /tmp/final_project.json; then
