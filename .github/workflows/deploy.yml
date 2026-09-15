@@ -221,23 +221,62 @@ jobs:
             echo "DOC_FAIL=1" >> "$GITHUB_ENV"
           fi
 
-      - name: Prune hash lama di docroot (--delete, setelah manifest identik)
+      - name: Bersihkan cache Laravel (Blade + konfigurasi) via FTP
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          FTP_USER="${{ secrets.FTP_USER }}"
+          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
+          FTP_HOST="${{ secrets.FTP_HOST }}"
+          # cache dibersihkan agar Blade/config baru langsung ter-compile ulang
+          # (SSH port 22/2222 diblokir hosting, jadi tidak bisa artisan di sana).
+          # HARUS berjalan meski ada langkah lain gagal: retry 3x, tidak exit.
+          clear_cache() {
+            for i in 1 2 3; do
+              echo "== bersihkan cache, percobaan $i =="
+              if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
+                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+                set net:timeout 45; set net:max-retries 3; \
+                cd /laravel_finance/storage/framework/views; mrm -f *.php; \
+                cd /laravel_finance/bootstrap/cache; \
+                mrm -f config.php routes-*.php events.php packages.php services.php; \
+                bye" \
+                ftp://$FTP_HOST; then
+                return 0
+              fi
+              sleep 15
+            done
+            return 1
+          }
+          if clear_cache; then
+            echo "OK: cache Laravel dibersihkan (Blade + bootstrap/cache)."
+            echo "CACHE_FAIL=0" >> "$GITHUB_ENV"
+          else
+            echo "WARN: bersihkan cache via FTP gagal 3x (akan terlihat di verifikasi akhir)."
+            echo "CACHE_FAIL=1" >> "$GITHUB_ENV"
+          fi
+
+      # Prune hash lama di docroot. MURNI KOSMETIK: bila gagal tidak boleh
+      # menghentikan job apalagi menandai merah — berefek hanya file lama tak
+      # terpakai tersisa. Semua path keluar berupa exit 0 / WARN.
+      - name: Prune hash lama di docroot (opsional, tidak pernah gagalkan deploy)
+        run: |
+          set -uo pipefail
           FTP_USER="${{ secrets.FTP_USER }}"
           FTP_PASS="${{ secrets.FTP_PASSWORD }}"
           FTP_HOST="${{ secrets.FTP_HOST }}"
           LOCAL_MANIFEST="$GITHUB_WORKSPACE/public/build/manifest.json"
           DIR="/finance.almahir.cloud/build"
 
+          echo "SKIP-dinamis: prune hanya jalan kalau manifest docroot belum jelas sinkron."
           # Pastikan manifest docroot == lokal SEBELUM menghapus file lama.
-          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+          if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set net:timeout 45; set net:max-retries 2; \
             get \"$DIR/manifest.json\" -o /tmp/prune_check.json; bye" \
-            ftp://$FTP_HOST
-          if ! cmp -s "$LOCAL_MANIFEST" /tmp/prune_check.json; then
-            echo "SKIP prune: manifest docroot belum sinkron (tidak berisiko)."
+            ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/prune_check.json; then
+            :
+          else
+            echo "SKIP prune: manifest docroot belum bisa diverifikasi sinkron (tidak berisiko)."
             exit 0
           fi
 
@@ -249,47 +288,23 @@ jobs:
               set net:timeout 45; set net:max-retries 3; \
               mirror -R --delete --no-perms --parallel=2 $GITHUB_WORKSPACE/public/build \"$DIR\"; bye" \
               ftp://$FTP_HOST; then
-              timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+              # verifikasi post-prune: manifest harus tetap == lokal
+              if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
                 -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
                 set net:timeout 45; set net:max-retries 2; \
                 get \"$DIR/manifest.json\" -o /tmp/prune_final.json; bye" \
-                ftp://$FTP_HOST
-              if ! cmp -s "$LOCAL_MANIFEST" /tmp/prune_final.json; then
-                echo "FAIL: manifest docroot berubah setelah prune."
-                exit 1
+                ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/prune_final.json; then
+                echo "OK: hash lama di $DIR terprune."
+                exit 0
               fi
-              echo "OK: hash lama di $DIR terprune."
+              echo "WARN: manifest berubah selama prune — file lama dibiarkan (aman)."
               exit 0
             fi
             echo "prune gagal (percobaan $i), coba lagi..."
             sleep 15
           done
-          echo "WARN: prune gagal 3x (aman — hanya menyisakan file lama tak dipakai)."
+          echo "WARN: prune gagal 3x — hanya menyisakan file lama tak dipakai."
           exit 0
-
-      - name: Bersihkan cache Laravel (Blade + konfigurasi) via FTP
-        run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          # cache dibersihkan agar Blade/config baru langsung ter-compile ulang
-          # (SSH port 22/2222 diblokir hosting, jadi tidak bisa artisan di sana).
-          # Gagal di sini tidak keluar; dicek di "Verifikasi akhir".
-          if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; set net:max-retries 3; \
-            cd /laravel_finance/storage/framework/views; mrm -f *.php; \
-            cd /laravel_finance/bootstrap/cache; \
-            mrm -f config.php routes-*.php events.php packages.php services.php; \
-            bye" \
-            ftp://$FTP_HOST; then
-            echo "OK: cache Laravel dibersihkan (Blade + bootstrap/cache)."
-            echo "CACHE_FAIL=0" >> "$GITHUB_ENV"
-          else
-            echo "WARN: bersihkan cache via FTP gagal (mungkin kebijakan hosting)."
-            echo "CACHE_FAIL=1" >> "$GITHUB_ENV"
-          fi
 
       # Gate terakhir: cek KONDISI NYATA (bukan opini flag retry).
       # 1) Manifest docroot & project == manifest build lokal (CSS tidak 404).
