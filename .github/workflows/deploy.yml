@@ -42,12 +42,10 @@ jobs:
 
       # Deploy beneran ke cPanel via FTPS.
       #
-      # PENTING: FTP_PATH di GitHub Secrets harus menunjuk ke project yang
-      # BENAR-BENAR dipakai subdomain, yaitu "/laravel_finance" (bukan
-      # "/home3/almahir/ibrahim_projects" — itu copy lama yang tidak dipakai).
-      # Bukti: /finance.almahir.cloud/index.php me-load /laravel_finance/...,
-      # bukan folder ibrahim_projects. Salah arah = asset/Blade baru tidak pernah
-      # sampai ke situs live.
+      # FTP root akun ini = /home3/almahir/ibrahim_projects, sehingga project
+      # live yang dipakai subdomain = /laravel_finance (relatif FTP root).
+      # Bukti: /finance.almahir.cloud/index.php me-load ../laravel_finance/...
+      # Salah arah = asset/Blade baru tidak pernah sampai ke situs live.
       # Action SamKirkland/FTP-Deploy-Action selalu "sukses" tapi nyatanya
       # TIDAK menaruh file di /laravel_finance (bukti: mtime file server tidak
       # pernah berubah sejak upload manual via lftp). Dipakai lftp mirror yang
@@ -79,7 +77,6 @@ jobs:
               --exclude-glob '.phpunit.result.cache' \
               --exclude-glob 'public/hot' \
               --exclude-glob 'public/storage' \
-              --exclude-glob 'app/Providers/AppServiceProvider.php' \
               --exclude-glob 'public/.htaccess' \
               ./ $TARGET; \
             bye" \

@@ -52,17 +52,19 @@ File `.env` **tidak** ikut di-zip (sengaja — demi keamanan, kunci & kredensial
 ```ini
 APP_NAME="DompetKu"
 APP_ENV=production
-APP_KEY=            # diisi dengan perintah key:generate (langkah 6)
+APP_KEY=base64:...   # WAJIB beda dari kunci lokal — generate pakai `php artisan key:generate --show`
 APP_DEBUG=false
-APP_URL=https://domain-kamu.com
+APP_URL=https://finance.almahir.cloud
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=dompetku_db
-DB_USERNAME=dompetku_user
+DB_DATABASE=almahir_keuangan
+DB_USERNAME=almahir_user
 DB_PASSWORD=password_database_kamu
 ```
+
+> `APP_DEBUG=false` wajib di produksi. Key harus unik per environment.
 
 ## 6. Jalankan Perintah Terminal
 
@@ -108,17 +110,19 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 ## Catatan Penting
 
 - **Lokasi live yang BENAR (jangan tertukar):**
-  - `/finance.almahir.cloud/` = docroot subdomain (front controller + listen ke Laravel), berisi `build/` (aset yang dilayani `<link href="/build/...">`) dan `storage/` (bukti transaksi).
-  - `/laravel_finance/` = root project Laravel yang dipakai (folder dengan `.env`, `vendor/`, `storage/`).
-  - Bukti: `index.php` docroot me-load `/laravel_finance/vendor/autoload.php` dan `/laravel_finance/bootstrap/app.php`.
-  - ⚠️ `/home3/almahir/ibrahim_projects/laravel_finance` adalah **copy lama yang tidak dipakai** subdomain — jangan deploy ke sana. GitHub secret **`FTP_PATH` harus di-set ke `/laravel_finance`** (bukan folder ibrahim_projects). Kalau salah arah, perubahan kode/CSS tidak akan pernah tampil di situs live.
-  - Aset build hasil `npm run build` harus di-upload ke **dua tempat**: `/laravel_finance/public/build/` (untuk resolve manifest) dan `/finance.almahir.cloud/build/` (yang benar-benar dilayani web). Workflow deploy saat ini sudah otomatis melakukan ini.
-- **Data lama**: kalau ada transaksi di database lokal, ekspor dari localhost (mysqldump / phpMyAdmin) lalu import ke database cPanel — jangan mulai dari migrasi kosong.
-- **JANGAN timpa `app/Providers/AppServiceProvider.php` di server** — file itu punya kustomisasi khusus cPanel (`usePublicPath` ke folder docroot subdomain + arah disk `public` ke `keuangan.almahir.cloud/storage`). Versi lokal TIDAK punya kustomisasi ini; kalau ketimpa, upload bukti transaksi akan 404.
-- **`.htaccess` di docroot subdomain** (bukan `public/.htaccess`) sudah berisi optimasi: kompresi Brotli/gzip, cache browser 1 tahun untuk aset build, dan header keamanan. Jangan timpa dengan versi default.
-- **`.htaccess` juga mematikan ModSecurity** (`SecRuleEngine Off`) untuk subdomain ini — WAF hosting memblokir `POST /register` (406) sehingga user baru tidak bisa daftar. `.env` & file sensitif berada di luar docroot (`laravel-keuangan/`), jadi tidak terekspos. Kalau blok ModSecurity ini dihapus saat update, registrasi akan diblokir lagi.
-- **HTTPS**: pastikan SSL aktif; kalau `.htaccess` default tidak memaksa HTTPS, gunakan URL `https://...` langsung.
-- **Update berikutnya**: cukup upload ulang folder `app/`, `routes/`, `resources/`, `public/build` (dan `composer.lock` jika ada perubahan dependency), lalu jalankan `php artisan optimize:clear` lalu `php artisan optimize`.
+  - FTP root akun ini = `/home3/almahir/ibrahim_projects` (jail FTP).
+  - `/home3/almahir/ibrahim_projects/finance.almahir.cloud/` = **docroot subdomain** (front controller + listen ke Laravel). Berisi `build/` (aset yang dilayani `<link href="/build/...">`) dan `storage/` (bukti transaksi).
+  - `/home3/almahir/ibrahim_projects/laravel_finance/` = **root project Laravel** yang dipakai (`.env`, `vendor/`, `storage/`).
+  - Bukti: `index.php` docroot me-load `../laravel_finance/vendor/autoload.php` dan `../laravel_finance/bootstrap/app.php`.
+  - Di FTP, path relatifnya adalah `/finance.almahir.cloud` dan `/laravel_finance`.
+  - ⚠️ Folder `home3/almahir/ibrahim_projects/` di dalam FTP root adalah **copy lama / sampah deploy** dan tidak dipakai subdomain. Jangan deploy ke sana.
+- **Upload bukti transaksi**: disk `public` diarahkan langsung ke folder docroot `/finance.almahir.cloud/storage` lewat `app/Providers/AppServiceProvider.php` (aktif hanya saat `APP_ENV=production`). Jadi `storage:link` **tidak diperlukan** dan tidak akan melayani upload. Pastikan folder `/finance.almahir.cloud/storage` bisa ditulis web server.
+- **`app/Providers/AppServiceProvider.php` kini ikut di-deploy** (tidak lagi di-exclude di `deploy.yml`) — isinya aman untuk lokal maupun produksi karena konfigurasi storage docroot hanya aktif ketika `APP_ENV=production`.
+- **`APP_DEBUG=false`** di produksi. `APP_KEY` produksi harus **berbeda dari lokal** (jangan pakai key yang sama dengan `.env` development).
+- **Aset build** hasil `npm run build` harus identik di dua tempat: `/laravel_finance/public/build/` (untuk resolve manifest) dan `/finance.almahir.cloud/build/` (yang dilayani web). Workflow deploy meng-upload keduanya (docroot pakai `--delete`).
+- **`.htaccess`** yang dipakai web ada di docroot subdomain (`/finance.almahir.cloud/.htaccess`) dan berisi handler PHP cPanel `ea-php83`.
+- **HTTPS**: pastikan SSL aktif; gunakan URL `https://finance.almahir.cloud` langsung.
+- **Update berikutnya**: cukup upload ulang folder `app/`, `routes/`, `resources/`, `public/build` (dan `composer.lock` jika ada perubahan dependency), lalu jalankan `php artisan optimize:clear` lalu `php artisan optimize` (atau hapus manual `bootstrap/cache/*.php` + `storage/framework/views/*.php` lewat File Manager bila SSH tidak tersedia).
 - **Jangan pernah meng-upload `.env` dari localhost** ke server — selalu buat yang baru.
 
 ## Cara Update Aplikasi (Tanpa Upload Ulang Penuh)
