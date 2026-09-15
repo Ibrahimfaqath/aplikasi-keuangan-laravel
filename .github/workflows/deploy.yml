@@ -40,6 +40,15 @@ jobs:
           ls -lh public/build public/build/assets
           cat public/build/manifest.json
 
+      # WAJIB: runner GitHub selalu set-up fresh, lftp TIDAK ada bawaan.
+      # Tanpa ini semua step FTP di bawah diam-diam no-op
+      # ("timeout: failed to run command 'lftp'"), dan yang tampil hijau
+      # hanya efek penjagaan if/||.
+      - name: Setup lftp
+        run: |
+          sudo apt-get update -q >/dev/null && sudo apt-get install -y -q lftp >/dev/null
+          lftp --version | head -1
+
       # Deploy beneran ke cPanel via FTPS.
       #
       # FTP root akun ini = /home3/almahir/ibrahim_projects, sehingga project
