@@ -57,9 +57,12 @@ jobs:
           echo "Target deploy: $TARGET"
           echo "Catatan: hardcoded default /laravel_finance (dibuktikan dari index.php docroot)"
           sudo apt-get update -q >/dev/null && sudo apt-get install -y -q lftp >/dev/null
-          lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
+          # timeout 300: mencegah sambungan data FTP yang macet mengunci runner
+          # selamanya (lftp default net:timeout=0 = tunggu tanpa batas).
+          timeout 300 lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set xfer:clobber on; \
+            set net:timeout 45; set net:max-retries 2; \
             mirror -R --no-perms --parallel=4 \
               --exclude-glob '.git/' \
               --exclude-glob '.github/' \
@@ -101,9 +104,10 @@ jobs:
         run: |
           TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
           sudo apt-get update -q && sudo apt-get install -y -q lftp
-          lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
+          timeout 300 lftp -u "${{ secrets.FTP_USER }}","${{ secrets.FTP_PASSWORD }}" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set xfer:clobber on; \
+            set net:timeout 45; set net:max-retries 2; \
             mirror -R --delete --no-perms --parallel=2 $(pwd)/public/build /finance.almahir.cloud/build; \
             mirror -R --delete --no-perms --parallel=2 $(pwd)/public/build $TARGET/public/build; \
             cd /laravel_finance/storage/framework/views; mrm -f *.php; \
