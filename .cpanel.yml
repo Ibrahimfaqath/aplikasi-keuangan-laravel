@@ -1,8 +1,11 @@
 ---
-# CATATAN: file ini HANYA dipakai kalau deploy via "cPanel Git Version Control".
+# CATATAN: file ini dipakai kalau deploy via "cPanel Git Version Control".
 # Kalau deploy via GitHub Actions FTPS (deploy.yml), file ini DIABAIKAN.
 # Jangan ubah DEPLOYPATH kecuali paham: harus sama persis dengan FTP_PATH di GitHub Secrets.
 deployment:
   tasks:
     - export DEPLOYPATH=/laravel_finance
     - /bin/cp -R * $DEPLOYPATH
+    # Bersihkan cache compiled views & config agar kode baru langsung tampil.
+    - /bin/rm -f $DEPLOYPATH/storage/framework/views/*.php
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/config.php $DEPLOYPATH/bootstrap/cache/routes-*.php $DEPLOYPATH/bootstrap/cache/events.php $DEPLOYPATH/bootstrap/cache/packages.php $DEPLOYPATH/bootstrap/cache/services.php

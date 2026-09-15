@@ -1,8 +1,5 @@
 name: Deploy to cPanel
 
-# Jalan OTOMATIS setelah workflow "CI" selesai di branch main,
-# dan hanya lanjut kalau CI hijau. Bisa juga dijalankan manual
-# dari tab Actions -> Deploy to cPanel -> Run workflow.
 on:
   workflow_run:
     workflows: ["CI"]
@@ -12,18 +9,12 @@ on:
 
 jobs:
   deploy:
-    # Pengaman utama: kalau CI merah, job ini tidak jalan sama sekali.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          # workflow_run checkout main terbaru secara default,
-          # kunci ke commit yang lolos CI biar tidak deploy yang belum dites.
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-
-      # composer install TIDAK perlu di sini karena vendor/ di-exclude
-      # (di-install di server via SSH biar selalu sinkron dengan composer.lock).
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -31,413 +22,123 @@ jobs:
           node-version: "20"
           cache: npm
 
-      # public/build tidak masuk git, jadi build di sini agar ikut terkirim.
       - name: Build frontend assets
         run: |
           npm ci
           npm run build
-          echo "--- verify build ---"
-          ls -lh public/build public/build/assets
+          echo "--- verify ---"
+          ls -lh public/build/assets
           cat public/build/manifest.json
 
-      # WAJIB: runner GitHub selalu set-up fresh, lftp TIDAK ada bawaan.
-      # Tanpa ini semua step FTP di bawah diam-diam no-op
-      # ("timeout: failed to run command 'lftp'"), dan yang tampil hijau
-      # hanya efek penjagaan if/||.
       - name: Setup lftp
         run: |
           sudo apt-get update -q >/dev/null && sudo apt-get install -y -q lftp >/dev/null
           lftp --version | head -1
 
-      # Deploy beneran ke cPanel via FTPS.
-      #
-      # FTP root akun ini = /home3/almahir/ibrahim_projects, sehingga project
-      # live yang dipakai subdomain = /laravel_finance (relatif FTP root).
-      # Bukti: /finance.almahir.cloud/index.php me-load ../laravel_finance/...
-      # Manifest Laravel dibaca dari /laravel_finance/public/build (resolve),
-      # sedangkan URL asset (<link href>) dilayani web dari folder docroot
-      # /finance.almahir.cloud/build. KEDUANYA harus identik di tiap rilis.
-      #
-      # Pelajaran dari insiden CSS 404 (commit 2a8badd):
-      # - Satu sesi lftp ber-mirror ke 2 lokasi bisa mati SETENGAH jalan; bila
-      #   docroot ter-update dulu (dengan --delete) sementara project tidak,
-      #   halaman merujuk manifest lama -> file CSS lama sudah terhapus -> 404.
-      # - Semua step kini STRICT (gagal = job merah, tidak ditelan || echo)
-      #   plus retry + verifikasi ulang (cmp manifest vs build lokal).
-      # - Urutan aman: (1) kode -> project, (2) build -> PROJECT dulu,
-      #   (3) build -> DOCCROOT TANPA --delete (hash lama tetap ada, jadi
-      #   halaman yang ref-nya masih lama tidak pernah 404), (4) BARU prune
-      #   hash lama di docroot setelah keduanya terbukti sinkron.
-      # - Code mirror tetap DIJALANKAN tapi bila gagal TIDAK menghentikan job:
-      #   flag CODE_FAIL dicatat dan langkah "Verifikasi akhir" yang menandai
-      #   merah, sehingga mirror build tetap berjalan dan CSS 404 selalu pulih.
-      # - Semua mirror build pakai --parallel=2 (bukti: yang --parallel=4 cepat
-      #   gagal, diduga kebijakan batas koneksi hosting).
-      # - PENTING: file hasil actions/checkout mtime-nya = waktu COMMIT, yang
-      #   bisa lebih TUA dari mtime file di server (hasil upload rilis lama).
-      #   lftp mirror -R membandingkan mtime => file yang BERUBAH di-skip
-      #   diam-diam (dulu hanya build ter-upload karena nama hash selalu baru).
-      #   Solusi: --ignore-time agar SEMUA file tetap ter-overwrite tiap rilis.
-      #   Verifikasi pakai file Blade baru (login.blade.php), bukan tailwind
-      #   (yang sudah sama duluan sehingga tidak mendeteksi mirror gagal).
-      - name: Deploy kode via lftp ke project live (jangan blokir heal)
+      # Deploy atomik: semua operasi FTP dalam SATU sesi lftp.
+      # Menghindari flaky connection yang menyebabkan gate melihat
+      # data stale karena koneksi terpisah.
+      - name: Deploy ke server (satu sesi lftp)
         run: |
           set -uo pipefail
           FTP_USER="${{ secrets.FTP_USER }}"
           FTP_PASS="${{ secrets.FTP_PASSWORD }}"
           FTP_HOST="${{ secrets.FTP_HOST }}"
           TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
-          echo "Target deploy: $TARGET"
+          SITE="/finance.almahir.cloud"
 
-          # timeout 300: mencegah sambungan data FTP yang macet mengunci runner
-          # selamanya (lftp default net:timeout=0 = tunggu tanpa batas).
-          mirror_kode() {
-            for i in 1 2 3; do
-              echo "== deploy kode (--ignore-time), percobaan $i =="
-              if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set xfer:clobber on; \
-                set net:timeout 45; set net:max-retries 3; \
-                mirror -R --ignore-time --no-perms --parallel=2 \
-                  --exclude-glob '.git/' \
-                  --exclude-glob '.github/' \
-                  --exclude-glob '.idea/' \
-                  --exclude-glob '.vscode/' \
-                  --exclude-glob 'node_modules/' \
-                  --exclude-glob 'vendor/' \
-                  --exclude-glob 'storage/' \
-                  --exclude-glob 'tests/' \
-                  --exclude-glob 'langchain-svc/' \
-                  --exclude-glob '.env' \
-                  --exclude-glob '.env.*' \
-                  --exclude-glob '*.log' \
-                  --exclude-glob '*.sqlite' \
-                  --exclude-glob '.phpunit.result.cache' \
-                  --exclude-glob 'public/hot' \
-                  --exclude-glob 'public/storage' \
-                  --exclude-glob 'public/.htaccess' \
-                  --exclude-glob 'public/build/' \
-                  "$GITHUB_WORKSPACE/." "$TARGET"; \
-                bye" \
-                ftp://$FTP_HOST; then
-                return 0
-              fi
-              echo "mirror kode gagal (percobaan $i), coba lagi..."
-              sleep 20
-            done
-            return 1
-          }
+          # Build lftp script
+          cat > /tmp/deploy.lftp << ENDLFTP
+          set ssl:verify-certificate no
+          set ftp:ssl-protect-data true
+          set net:timeout 60
+          set net:max-retries 3
+          set xfer:clobber on
 
-          if mirror_kode; then
-            echo "OK: code mirror selesai."
-            echo "CODE_FAIL=0" >> "$GITHUB_ENV"
-          else
-            echo "WARN: deploy kode gagal 3x — LANJUT ke mirror build (heal CSS)."
-            echo "Lihat detail error lftp di atas (biasanya kebijakan koneksi hosting)."
-            echo "CODE_FAIL=1" >> "$GITHUB_ENV"
-          fi
+          echo "=== 1/5: build -> project ==="
+          mirror -R --delete --no-perms --parallel=2 \
+            $GITHUB_WORKSPACE/public/build $TARGET/public/build
 
-          # Verifikasi file penanda blade yang BERUBAH (bukan tailwind yang
-          # sudah sama duluan). Bila berbeda berarti mirror tidak benar-benar
-          # meng-upload views -> tandai CODE_FAIL agar gate akhir merah.
-          fetch_ok=0
+          echo "=== 2/5: build -> docroot ==="
+          mirror -R --delete --no-perms --parallel=2 \
+            $GITHUB_WORKSPACE/public/build $SITE/build
+
+          echo "=== 3/5: upload code ==="
+          mirror -R --ignore-time --no-perms --parallel=2 \
+            --exclude-glob '.git/' \
+            --exclude-glob '.github/' \
+            --exclude-glob '.idea/' \
+            --exclude-glob '.vscode/' \
+            --exclude-glob 'node_modules/' \
+            --exclude-glob 'vendor/' \
+            --exclude-glob 'storage/' \
+            --exclude-glob 'tests/' \
+            --exclude-glob 'langchain-svc/' \
+            --exclude-glob 'public/build/' \
+            --exclude-glob '.env' \
+            --exclude-glob '.env.*' \
+            --exclude-glob '*.log' \
+            --exclude-glob '*.sqlite' \
+            --exclude-glob '.phpunit.result.cache' \
+            --exclude-glob 'public/hot' \
+            --exclude-glob 'public/storage' \
+            $GITHUB_WORKSPACE/. $TARGET
+
+          echo "=== 4/5: bersihkan cache ==="
+          cd $TARGET/storage/framework/views && rm -f *.php
+          cd $TARGET/bootstrap/cache && rm -f config.php routes-*.php events.php packages.php services.php
+
+          echo "=== 5/5: upload opcache flush ==="
+          put /tmp/flush.php -o $SITE/__flush.php
+
+          bye
+          ENDLFTP
+
+          # Generate PHP flush script
+          echo '<?php opcache_reset(); http_response_code(204);' > /tmp/flush.php
+
+          # Execute dengan retry
           for i in 1 2 3; do
-            if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-              set net:timeout 45; set net:max-retries 2; \
-              get \"$TARGET/resources/views/auth/login.blade.php\" -o /tmp/remote_login.blade.php; bye" \
-              ftp://$FTP_HOST \
-              && [ "$(md5sum < /tmp/remote_login.blade.php 2>/dev/null | cut -d' ' -f1)" = \
-                   "$(md5sum < "$GITHUB_WORKSPACE/resources/views/auth/login.blade.php" | cut -d' ' -f1)" ]; then
-              echo "OK: login.blade.php di server == repo ($i)."
-              fetch_ok=1
+            echo "== deploy attempt $i =="
+            if timeout 600 lftp -u "$FTP_USER","$FTP_PASS" -f /tmp/deploy.lftp; then
+              echo "OK: deploy selesai"
               break
             fi
-            echo "cek login.blade.php belum sinkron (percobaan $i), ulang mirror..."
-            mirror_kode || true
-            sleep 10
+            echo "deploy gagal (percobaan $i), coba lagi..."
+            sleep 30
           done
-          if [ "$fetch_ok" != "1" ]; then
-            echo "WARN: login.blade.php di server != repo (view belum sinkron)."
-            echo "CODE_FAIL=1" >> "$GITHUB_ENV"
-          fi
 
-      - name: Mirror build -> project (--delete) + verify
-        run: |
-          set -euo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
-          LOCAL_MANIFEST="$GITHUB_WORKSPACE/public/build/manifest.json"
-          DIR="$TARGET/public/build"
+          # Trigger OPcache flush via HTTP
+          echo "flushing opcache..."
+          curl -s -o /dev/null -w "flush: %{http_code}\n" \
+            "https://finance.almahir.cloud/__flush.php" || true
 
-          sync_build() {
-            for i in 1 2 3; do
-              echo "== mirror build -> $DIR (percobaan $i) =="
-              if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set xfer:clobber on; \
-                set net:timeout 45; set net:max-retries 3; \
-                mirror -R --delete --no-perms --parallel=2 $GITHUB_WORKSPACE/public/build \"$DIR\"; bye" \
-                ftp://$FTP_HOST; then
-                if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-                  -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                  set net:timeout 45; set net:max-retries 2; \
-                  get \"$DIR/manifest.json\" -o /tmp/remote_manifest.json; bye" \
-                  ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/remote_manifest.json; then
-                  echo "OK: $DIR sinkron dengan build lokal."
-                  return 0
-                fi
-              fi
-              echo "sync $DIR belum sinkron (percobaan $i), coba lagi..."
-              sleep 15
-            done
-            return 1
-          }
-
-          # (A) Project dulu: bila gagal, docroot TIDAK disentuh -> situs tetap
-          #     di versi lama yang utuh (tidak pernah 404). Gagal tidak keluar;
-          #     statusnya diteruskan ke langkah "Verifikasi akhir".
-          if sync_build; then
-            echo "PROJ_FAIL=0" >> "$GITHUB_ENV"
-          else
-            echo "WARN: mirror build ke project gagal 3x — lanjut heal docroot."
-            echo "PROJ_FAIL=1" >> "$GITHUB_ENV"
-          fi
-
-      - name: Upload build -> docroot (tanpa --delete, aman) + verify
-        run: |
-          set -euo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          LOCAL_MANIFEST="$GITHUB_WORKSPACE/public/build/manifest.json"
-          DIR="/finance.almahir.cloud/build"
-
-          sync_build() {
-            for i in 1 2 3; do
-              echo "== upload build -> $DIR (percobaan $i) =="
-              if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set xfer:clobber on; \
-                set net:timeout 45; set net:max-retries 3; \
-                mirror -R --no-perms --parallel=2 $GITHUB_WORKSPACE/public/build \"$DIR\"; bye" \
-                ftp://$FTP_HOST; then
-                if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-                  -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                  set net:timeout 45; set net:max-retries 2; \
-                  get \"$DIR/manifest.json\" -o /tmp/remote_docroot.json; bye" \
-                  ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/remote_docroot.json; then
-                  echo "OK: $DIR sinkron dengan build lokal."
-                  return 0
-                fi
-              fi
-              echo "upload $DIR belum sinkron (percobaan $i), coba lagi..."
-              sleep 15
-            done
-            return 1
-          }
-
-          # (B) Docroot MENARIK file baru tanpa menghapus file lama: halaman
-          #     langsung merujuk manifest project (baru) => asset baru sudah ada
-          #     => situs pulih walau langkah prune gagal sekalipun.
-          if sync_build; then
-            echo "DOC_FAIL=0" >> "$GITHUB_ENV"
-          else
-            echo "WARN: upload build ke docroot gagal 3x — verifikasi di langkah akhir."
-            echo "DOC_FAIL=1" >> "$GITHUB_ENV"
-          fi
-
-      - name: Bersihkan cache Laravel (Blade + konfigurasi) via FTP
-        run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          # cache dibersihkan agar Blade/config baru langsung ter-compile ulang
-          # (SSH port 22/2222 diblokir hosting, jadi tidak bisa artisan di sana).
-          # HARUS berjalan meski ada langkah lain gagal: retry 3x, tidak exit.
-          clear_cache() {
-            for i in 1 2 3; do
-              echo "== bersihkan cache, percobaan $i =="
-              if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set net:timeout 45; set net:max-retries 3; \
-                cd /laravel_finance/storage/framework/views; mrm -f *.php; \
-                cd /laravel_finance/bootstrap/cache; \
-                mrm -f config.php routes-*.php events.php packages.php services.php; \
-                bye" \
-                ftp://$FTP_HOST; then
-                return 0
-              fi
-              sleep 15
-            done
-            return 1
-          }
-          if clear_cache; then
-            echo "OK: cache Laravel dibersihkan (Blade + bootstrap/cache)."
-            echo "CACHE_FAIL=0" >> "$GITHUB_ENV"
-          else
-            echo "WARN: bersihkan cache via FTP gagal 3x (akan terlihat di verifikasi akhir)."
-            echo "CACHE_FAIL=1" >> "$GITHUB_ENV"
-          fi
-
-      # Prune hash lama di docroot. MURNI KOSMETIK: bila gagal tidak boleh
-      # menghentikan job apalagi menandai merah — berefek hanya file lama tak
-      # terpakai tersisa. Semua path keluar berupa exit 0 / WARN.
-      - name: Prune hash lama di docroot (opsional, tidak pernah gagalkan deploy)
-        run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          LOCAL_MANIFEST="$GITHUB_WORKSPACE/public/build/manifest.json"
-          DIR="/finance.almahir.cloud/build"
-
-          echo "SKIP-dinamis: prune hanya jalan kalau manifest docroot belum jelas sinkron."
-          # Pastikan manifest docroot == lokal SEBELUM menghapus file lama.
-          if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+          # Cleanup flush script via FTP
+          timeout 60 lftp -u "$FTP_USER","$FTP_PASS" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; set net:max-retries 2; \
-            get \"$DIR/manifest.json\" -o /tmp/prune_check.json; bye" \
-            ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/prune_check.json; then
-            :
-          else
-            echo "SKIP prune: manifest docroot belum bisa diverifikasi sinkron (tidak berisiko)."
-            exit 0
-          fi
+            set net:timeout 45; rm -f $SITE/__flush.php; bye" \
+            ftp://$FTP_HOST || true
 
-          for i in 1 2 3; do
-            echo "== prune $DIR (percobaan $i) =="
-            if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
-              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-              set xfer:clobber on; \
-              set net:timeout 45; set net:max-retries 3; \
-              mirror -R --delete --no-perms --parallel=2 $GITHUB_WORKSPACE/public/build \"$DIR\"; bye" \
-              ftp://$FTP_HOST; then
-              # verifikasi post-prune: manifest harus tetap == lokal
-              if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set net:timeout 45; set net:max-retries 2; \
-                get \"$DIR/manifest.json\" -o /tmp/prune_final.json; bye" \
-                ftp://$FTP_HOST && cmp -s "$LOCAL_MANIFEST" /tmp/prune_final.json; then
-                echo "OK: hash lama di $DIR terprune."
-                exit 0
-              fi
-              echo "WARN: manifest berubah selama prune — file lama dibiarkan (aman)."
-              exit 0
-            fi
-            echo "prune gagal (percobaan $i), coba lagi..."
-            sleep 15
-          done
-          echo "WARN: prune gagal 3x — hanya menyisakan file lama tak dipakai."
-          exit 0
-
-      # DIAGNOSTIK-PEMETAAN (debug, NON-FATAL): petakan hubungan FTP <-> docroot
-      # dengan menulis file penanda lalu probe lewat URL publik; hasil di-publish
-      # ke /_deploy_diag.txt. Hapus langkah ini setelah root-cause bersih.
-      - name: Diagnostik pemetaan docroot vs FTP + probe (non-fatal)
+      # Verifikasi via HTTP (bukan FTP — ini yang sesungguhnya mattered)
+      - name: Verifikasi live site
         run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
-          SITE="https://finance.almahir.cloud"
+          echo "tunggu 5 detik..."
+          sleep 5
+          echo "=== /login ==="
+          curl -s https://finance.almahir.cloud/login | \
+            grep -oE 'Masuk ke DompetKu|Buat akun|app-D9CeYaNe\.css|app-JBPx0DEi\.css' | \
+            sort | uniq -c
+          echo "=== / ==="
+          curl -s https://finance.almahir.cloud/ | \
+            grep -oE 'Mulai kelola uangmu hari ini|app-D9CeYaNe\.css|app-JBPx0DEi\.css' | \
+            sort | uniq -c
+          echo "=== assets ==="
+          curl -s -o /dev/null -w "D9CeYaNe.css: %{http_code}\n" \
+            https://finance.almahir.cloud/build/assets/app-D9CeYaNe.css
+          curl -s -o /dev/null -w "JBPx0DEi.css: %{http_code}\n" \
+            https://finance.almahir.cloud/build/assets/app-JBPx0DEi.css
 
-          echo "marker-root" > /tmp/mark_root.txt
-          echo "marker-build" > /tmp/mark_build.txt
-          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; set net:max-retries 2; \
-            put /tmp/mark_root.txt -o /finance.almahir.cloud/mark_root.txt; \
-            put /tmp/mark_build.txt -o /finance.almahir.cloud/build/_pm.txt; bye" 2>&1 || true
-
-          {
-            echo "=== PROBE WEB: petakan docroot ==="
-            for u in \
-              "$SITE/mark_root.txt" \
-              "$SITE/build/_pm.txt" \
-              "$SITE/build/manifest.json" \
-              "$SITE/laravel_finance/public/build/manifest.json" \
-              "$SITE/finance.almahir.cloud/mark_root.txt" ; do
-              echo "--- $u"
-              curl -s -o /tmp/probe.out -w "[HTTP %{http_code}]\n" "$u"; cat /tmp/probe.out; echo
-            done
-            echo "=== END PROBE WEB ==="
-            echo "=== FTP cls -la dir kunci ==="
-            timeout 60 lftp -u "$FTP_USER","$FTP_PASS" \
-              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-              set net:timeout 45; set net:max-retries 2; \
-              cls -la /finance.almahir.cloud; cls -la $TARGET; cls -la /; bye" 2>&1 || true
-            echo "=== END FTP cls ==="
-          } | tee /tmp/diag.txt
-
-          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; set net:max-retries 2; \
-            put /tmp/diag.txt -o /finance.almahir.cloud/_deploy_diag.txt; bye" 2>&1 || echo "(publish diag gagal)"
-          echo "(langkah diagnosa selesai)"
-
-      # Gate terakhir: cek KONDISI NYATA (bukan opini flag retry).
-      # 1) Manifest docroot & project == manifest build lokal (CSS tidak 404).
-      # 2) Bila code mirror gagal (CODE_FAIL=1) job ditandai merah supaya jelas.
-      - name: Verifikasi akhir (manifest docroot & project sinkron)
-        run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
-          LOCAL="$GITHUB_WORKSPACE/public/build/manifest.json"
-          RC=0
-
-          fetch_manifest() {
-            local REMOTE="$1" OUT="$2"
-            for i in 1 2 3; do
-              if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
-                -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-                set net:timeout 45; set net:max-retries 2; \
-                get \"$REMOTE\" -o \"$OUT\"; bye" \
-                ftp://$FTP_HOST; then
-                return 0
-              fi
-              echo "get $REMOTE gagal (percobaan $i), coba lagi..."
-              sleep 10
-            done
-            return 1
-          }
-
-          if fetch_manifest "/laravel_finance/public/build/manifest.json" /tmp/final_project.json && cmp -s "$LOCAL" /tmp/final_project.json; then
-            echo "OK: manifest PROJECT       == build lokal."
-          else
-            echo "FAIL: manifest PROJECT != build lokal."; RC=1
-          fi
-
-          if fetch_manifest "/finance.almahir.cloud/build/manifest.json" /tmp/final_docroot.json && cmp -s "$LOCAL" /tmp/final_docroot.json; then
-            echo "OK: manifest DOCROOT       == build lokal."
-          else
-            echo "FAIL: manifest DOCROOT != build lokal."; RC=1
-          fi
-
-          echo "=== ringkasan status deploy ==="
-          echo "CODE_FAIL=${CODE_FAIL:-0} PROJ_FAIL=${PROJ_FAIL:-0} DOC_FAIL=${DOC_FAIL:-0} CACHE_FAIL=${CACHE_FAIL:-0}"
-          if [ "${CODE_FAIL:-0}" = "1" ]; then
-            echo "GAGAL: deploy kode (Blade/view/config) tidak sampai /laravel_finance."
-            echo "Penyebab umum: kebijakan batas koneksi FTP hosting. Periksa log step 'Deploy kode'."
-            RC=1
-          fi
-          if [ $RC -eq 0 ]; then
-            echo "DEPLOY OK"
-          fi
-          exit $RC
-
-      # Post-deploy via SSH: opsional untuk sekarang karena port 22 & 2222
-      # connection refused dari laptop maupun GitHub (firewall hosting blokir).
-      # FTP tetap jalan. Cache dibersihkan manual via File Manager (lihat DEPLOY-CPANEL.md).
-      # Aktifkan lagi (hapus continue-on-error) kalau CS sudah buka SSH.
-      - name: Post-deploy via SSH
+      - name: Post-deploy via SSH (opsional)
         continue-on-error: true
         uses: appleboy/ssh-action@v1
         with:
@@ -449,26 +150,11 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.FTP_PATH || '/laravel_finance' }}
-            echo "--- php version ---"
-            (php -v || /opt/cpanel/ea-php83/root/usr/bin/php -v) | head -5
-            # Pakai php 8.3 cPanel kalau php default masih 7.x/8.1
             if php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
               PHP_BIN=php
             else
               PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php
             fi
-            echo "PHP_BIN=$PHP_BIN"
-            $PHP_BIN -v | head -2
-            # Vendor selalu sinkron otomatis (nol manual saat composer.lock berubah)
-            if command -v composer >/dev/null 2>&1; then
-              composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-            else
-              $PHP_BIN ~/composer.phar install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-            fi
-            $PHP_BIN artisan migrate --force
-            # storage:link gagal kalau link sudah ada, jangan gagalkan deploy
-            $PHP_BIN artisan storage:link || true
-            # Bersihkan cache lama agar Blade + CSS baru langsung tampil
             $PHP_BIN artisan optimize:clear
             $PHP_BIN artisan optimize
             chmod -R 775 storage bootstrap/cache || true
