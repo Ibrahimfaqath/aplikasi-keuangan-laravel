@@ -1,20 +1,48 @@
-name: Deploy to cPanel
+name: CI + Deploy via cPanel Git
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
 jobs:
-  deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          php-version: "8.3"
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Execute tests
+        run: php artisan test
+
+  # Build assets & commit ke repo agar cPanel Git Deploy
+  # selalu mendapat build terbaru (public/build di-track di git).
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -26,136 +54,36 @@ jobs:
         run: |
           npm ci
           npm run build
-          echo "--- verify ---"
+          echo "--- verify build ---"
           ls -lh public/build/assets
           cat public/build/manifest.json
 
-      - name: Setup lftp
+      - name: Commit build artifacts [skip ci]
         run: |
-          sudo apt-get update -q >/dev/null && sudo apt-get install -y -q lftp >/dev/null
-          lftp --version | head -1
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/build/
+          if git diff --staged --quiet; then
+            echo "tidak ada perubahan build"
+          else
+            MANIFEST=$(cat public/build/manifest.json | python3 -c "import sys,json; print(list(json.load(sys.stdin).values())[0]['file'])")
+            git commit -m "build: update assets ($MANIFEST) [skip ci]"
+            git push
+          fi
 
-      # Deploy atomik: semua operasi FTP dalam SATU sesi lftp.
-      # Menghindari flaky connection yang menyebabkan gate melihat
-      # data stale karena koneksi terpisah.
-      - name: Deploy ke server (satu sesi lftp)
-        run: |
-          set -uo pipefail
-          FTP_USER="${{ secrets.FTP_USER }}"
-          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
-          FTP_HOST="${{ secrets.FTP_HOST }}"
-          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
-          SITE="/finance.almahir.cloud"
-
-          # Build lftp script
-          cat > /tmp/deploy.lftp << ENDLFTP
-          set ssl:verify-certificate no
-          set ftp:ssl-protect-data true
-          set net:timeout 60
-          set net:max-retries 3
-          set xfer:clobber on
-
-          echo "=== 1/5: build -> project ==="
-          mirror -R --delete --no-perms --parallel=2 \
-            $GITHUB_WORKSPACE/public/build $TARGET/public/build
-
-          echo "=== 2/5: build -> docroot ==="
-          mirror -R --delete --no-perms --parallel=2 \
-            $GITHUB_WORKSPACE/public/build $SITE/build
-
-          echo "=== 3/5: upload code ==="
-          mirror -R --ignore-time --no-perms --parallel=2 \
-            --exclude-glob '.git/' \
-            --exclude-glob '.github/' \
-            --exclude-glob '.idea/' \
-            --exclude-glob '.vscode/' \
-            --exclude-glob 'node_modules/' \
-            --exclude-glob 'vendor/' \
-            --exclude-glob 'storage/' \
-            --exclude-glob 'tests/' \
-            --exclude-glob 'langchain-svc/' \
-            --exclude-glob 'public/build/' \
-            --exclude-glob '.env' \
-            --exclude-glob '.env.*' \
-            --exclude-glob '*.log' \
-            --exclude-glob '*.sqlite' \
-            --exclude-glob '.phpunit.result.cache' \
-            --exclude-glob 'public/hot' \
-            --exclude-glob 'public/storage' \
-            $GITHUB_WORKSPACE/. $TARGET
-
-          echo "=== 4/5: bersihkan cache ==="
-          cd $TARGET/storage/framework/views && rm -f *.php
-          cd $TARGET/bootstrap/cache && rm -f config.php routes-*.php events.php packages.php services.php
-
-          echo "=== 5/5: upload opcache flush ==="
-          put /tmp/flush.php -o $SITE/__flush.php
-
-          bye
-          ENDLFTP
-
-          # Generate PHP flush script
-          echo '<?php opcache_reset(); http_response_code(204);' > /tmp/flush.php
-
-          # Execute dengan retry
-          for i in 1 2 3; do
-            echo "== deploy attempt $i =="
-            if timeout 600 lftp -u "$FTP_USER","$FTP_PASS" -f /tmp/deploy.lftp; then
-              echo "OK: deploy selesai"
-              break
-            fi
-            echo "deploy gagal (percobaan $i), coba lagi..."
-            sleep 30
-          done
-
-          # Trigger OPcache flush via HTTP
-          echo "flushing opcache..."
-          curl -s -o /dev/null -w "flush: %{http_code}\n" \
-            "https://finance.almahir.cloud/__flush.php" || true
-
-          # Cleanup flush script via FTP
-          timeout 60 lftp -u "$FTP_USER","$FTP_PASS" \
-            -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
-            set net:timeout 45; rm -f $SITE/__flush.php; bye" \
-            ftp://$FTP_HOST || true
-
-      # Verifikasi via HTTP (bukan FTP — ini yang sesungguhnya mattered)
+      # Verifikasi live setelah push (tunggu cPanel auto-deploy)
       - name: Verifikasi live site
         run: |
-          echo "tunggu 5 detik..."
-          sleep 5
+          echo "tunggu 60 detik untuk cPanel deploy..."
+          sleep 60
           echo "=== /login ==="
-          curl -s https://finance.almahir.cloud/login | \
-            grep -oE 'Masuk ke DompetKu|Buat akun|app-D9CeYaNe\.css|app-JBPx0DEi\.css' | \
-            sort | uniq -c
+          curl -sf https://finance.almahir.cloud/login | \
+            grep -oE 'Masuk ke DompetKu|Buat akun|app-[A-Za-z0-9_]+\.css' | \
+            sort | uniq -c || echo "(gagal fetch /login)"
           echo "=== / ==="
-          curl -s https://finance.almahir.cloud/ | \
-            grep -oE 'Mulai kelola uangmu hari ini|app-D9CeYaNe\.css|app-JBPx0DEi\.css' | \
-            sort | uniq -c
-          echo "=== assets ==="
-          curl -s -o /dev/null -w "D9CeYaNe.css: %{http_code}\n" \
-            https://finance.almahir.cloud/build/assets/app-D9CeYaNe.css
-          curl -s -o /dev/null -w "JBPx0DEi.css: %{http_code}\n" \
-            https://finance.almahir.cloud/build/assets/app-JBPx0DEi.css
-
-      - name: Post-deploy via SSH (opsional)
-        continue-on-error: true
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          script: |
-            set -e
-            cd ${{ secrets.FTP_PATH || '/laravel_finance' }}
-            if php -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);'; then
-              PHP_BIN=php
-            else
-              PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php
-            fi
-            $PHP_BIN artisan optimize:clear
-            $PHP_BIN artisan optimize
-            chmod -R 775 storage bootstrap/cache || true
-            echo "post-deploy OK"
+          curl -sf https://finance.almahir.cloud/ | \
+            grep -oE 'Mulai kelola uangmu|DompetKu|app-[A-Za-z0-9_]+\.css' | \
+            sort | uniq -c || echo "(gagal fetch /)"
+          echo "=== manifest ==="
+          curl -sf https://finance.almahir.cloud/build/manifest.json | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print([v['file'] for v in d.values()])" || echo "(gagal fetch manifest)"

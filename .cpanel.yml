@@ -1,11 +1,30 @@
 ---
-# CATATAN: file ini dipakai kalau deploy via "cPanel Git Version Control".
-# Kalau deploy via GitHub Actions FTPS (deploy.yml), file ini DIABAIKAN.
-# Jangan ubah DEPLOYPATH kecuali paham: harus sama persis dengan FTP_PATH di GitHub Secrets.
+# cPanel Git Version Control deploy hook.
+# Dijalankan otomatis saat user klik "Deploy" di cPanel
+# atau saat auto-deploy aktif.
+#
+# Semua task dijalankan dari repo checkout directory.
+# DEPLOYPATH harus sesuai dengan FTP_PATH di GitHub Secrets.
 deployment:
   tasks:
     - export DEPLOYPATH=/laravel_finance
+
+    # 1) Copy semua file dari repo ke app directory
     - /bin/cp -R * $DEPLOYPATH
-    # Bersihkan cache compiled views & config agar kode baru langsung tampil.
+
+    # 2) Pastikan .env ada (jangan timpa yang sudah ada)
+    - /bin/test -f $DEPLOYPATH/.env || /bin/cp .env.example $DEPLOYPATH/.env
+
+    # 3) Bersihkan compiled views (Blade) agar view baru langsung ter-compile
     - /bin/rm -f $DEPLOYPATH/storage/framework/views/*.php
-    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/config.php $DEPLOYPATH/bootstrap/cache/routes-*.php $DEPLOYPATH/bootstrap/cache/events.php $DEPLOYPATH/bootstrap/cache/packages.php $DEPLOYPATH/bootstrap/cache/services.php
+
+    # 4) Bersihkan config/routes/events cache
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/config.php
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/routes-*.php
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/events.php
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/packages.php
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/services.php
+
+    # 5) Ensure proper permissions
+    - /bin/chmod -R 775 $DEPLOYPATH/storage || /bin/true
+    - /bin/chmod -R 775 $DEPLOYPATH/bootstrap/cache || /bin/true
