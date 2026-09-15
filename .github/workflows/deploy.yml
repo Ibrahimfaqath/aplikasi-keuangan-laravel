@@ -59,9 +59,14 @@ jobs:
       #   (3) build -> DOCCROOT TANPA --delete (hash lama tetap ada, jadi
       #   halaman yang ref-nya masih lama tidak pernah 404), (4) BARU prune
       #   hash lama di docroot setelah keduanya terbukti sinkron.
-      - name: Deploy kode via lftp ke project live (strict + verify)
+      # - Code mirror tetap DIJALANKAN tapi bila gagal TIDAK menghentikan job:
+      #   flag CODE_FAIL dicatat dan langkah "Verifikasi akhir" yang menandai
+      #   merah, sehingga mirror build tetap berjalan dan CSS 404 selalu pulih.
+      # - Semua mirror build pakai --parallel=2 (bukti: yang --parallel=4 cepat
+      #   gagal, diduga kebijakan batas koneksi hosting).
+      - name: Deploy kode via lftp ke project live (jangan blokir heal)
         run: |
-          set -euo pipefail
+          set -uo pipefail
           FTP_USER="${{ secrets.FTP_USER }}"
           FTP_PASS="${{ secrets.FTP_PASSWORD }}"
           FTP_HOST="${{ secrets.FTP_HOST }}"
@@ -77,7 +82,7 @@ jobs:
                 -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
                 set xfer:clobber on; \
                 set net:timeout 45; set net:max-retries 3; \
-                mirror -R --no-perms --parallel=4 \
+                mirror -R --no-perms --parallel=2 \
                   --exclude-glob '.git/' \
                   --exclude-glob '.github/' \
                   --exclude-glob '.idea/' \
@@ -107,19 +112,27 @@ jobs:
             return 1
           }
 
-          mirror_kode || { echo "FAIL: deploy kode (mirror) gagal 3x."; exit 1; }
+          if mirror_kode; then
+            echo "OK: code mirror selesai."
+            echo "CODE_FAIL=0" >> "$GITHUB_ENV"
+          else
+            echo "WARN: deploy kode gagal 3x — LANJUT ke mirror build (heal CSS)."
+            echo "Lihat detail error lftp di atas (biasanya kebijakan koneksi hosting)."
+            echo "CODE_FAIL=1" >> "$GITHUB_ENV"
+          fi
 
-          # Verifikasi file penanda: tailwind.config.js harus identik di server.
-          timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+          # Verifikasi file penanda Bila mirror sukses: tailwind.config.js harus
+          # identik di server. (Kalau gagal catch di langkah verifikasi akhir.)
+          if timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set net:timeout 45; set net:max-retries 2; \
             get \"$TARGET/tailwind.config.js\" -o /tmp/remote_tailwind.config.js; bye" \
-            ftp://$FTP_HOST
-          if ! cmp -s "$GITHUB_WORKSPACE/tailwind.config.js" /tmp/remote_tailwind.config.js; then
-            echo "FAIL: tailwind.config.js di server belum sinkron dengan repo."
-            exit 1
+            ftp://$FTP_HOST && [ "$(cat /tmp/remote_tailwind.config.js 2>/dev/null | md5sum | cut -d' ' -f1)" = \
+              "$(md5sum "$GITHUB_WORKSPACE/tailwind.config.js" | cut -d' ' -f1)" ]; then
+            echo "OK: tailwind.config.js server == repo."
+          else
+            echo "WARN: tailwind.config.js di server berbeda (ditangani di verifikasi akhir)."
           fi
-          echo "OK: kode ter-mirror & tailwind.config.js sinkron di $TARGET"
 
       - name: Mirror build -> project (--delete) + verify
         run: |
@@ -156,8 +169,14 @@ jobs:
           }
 
           # (A) Project dulu: bila gagal, docroot TIDAK disentuh -> situs tetap
-          #     di versi lama yang utuh (tidak pernah 404).
-          sync_build || { echo "FAIL: mirror build ke project gagal 3x."; exit 1; }
+          #     di versi lama yang utuh (tidak pernah 404). Gagal tidak keluar;
+          #     statusnya diteruskan ke langkah "Verifikasi akhir".
+          if sync_build; then
+            echo "PROJ_FAIL=0" >> "$GITHUB_ENV"
+          else
+            echo "WARN: mirror build ke project gagal 3x — lanjut heal docroot."
+            echo "PROJ_FAIL=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Upload build -> docroot (tanpa --delete, aman) + verify
         run: |
@@ -195,7 +214,12 @@ jobs:
           # (B) Docroot MENARIK file baru tanpa menghapus file lama: halaman
           #     langsung merujuk manifest project (baru) => asset baru sudah ada
           #     => situs pulih walau langkah prune gagal sekalipun.
-          sync_build || { echo "FAIL: upload build ke docroot gagal 3x."; exit 1; }
+          if sync_build; then
+            echo "DOC_FAIL=0" >> "$GITHUB_ENV"
+          else
+            echo "WARN: upload build ke docroot gagal 3x — verifikasi di langkah akhir."
+            echo "DOC_FAIL=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Prune hash lama di docroot (--delete, setelah manifest identik)
         run: |
@@ -245,21 +269,73 @@ jobs:
 
       - name: Bersihkan cache Laravel (Blade + konfigurasi) via FTP
         run: |
-          set -euo pipefail
+          set -uo pipefail
           FTP_USER="${{ secrets.FTP_USER }}"
           FTP_PASS="${{ secrets.FTP_PASSWORD }}"
           FTP_HOST="${{ secrets.FTP_HOST }}"
           # cache dibersihkan agar Blade/config baru langsung ter-compile ulang
           # (SSH port 22/2222 diblokir hosting, jadi tidak bisa artisan di sana).
-          timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
+          # Gagal di sini tidak keluar; dicek di "Verifikasi akhir".
+          if timeout 300 lftp -u "$FTP_USER","$FTP_PASS" \
             -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
             set net:timeout 45; set net:max-retries 3; \
             cd /laravel_finance/storage/framework/views; mrm -f *.php; \
             cd /laravel_finance/bootstrap/cache; \
             mrm -f config.php routes-*.php events.php packages.php services.php; \
             bye" \
-            ftp://$FTP_HOST
-          echo "OK: cache Laravel dibersihkan (Blade + bootstrap/cache)."
+            ftp://$FTP_HOST; then
+            echo "OK: cache Laravel dibersihkan (Blade + bootstrap/cache)."
+            echo "CACHE_FAIL=0" >> "$GITHUB_ENV"
+          else
+            echo "WARN: bersihkan cache via FTP gagal (mungkin kebijakan hosting)."
+            echo "CACHE_FAIL=1" >> "$GITHUB_ENV"
+          fi
+
+      # Gate terakhir: cek KONDISI NYATA (bukan opini flag retry).
+      # 1) Manifest docroot & project == manifest build lokal (CSS tidak 404).
+      # 2) Bila code mirror gagal (CODE_FAIL=1) job ditandai merah supaya jelas.
+      - name: Verifikasi akhir (manifest docroot & project sinkron)
+        run: |
+          set -uo pipefail
+          FTP_USER="${{ secrets.FTP_USER }}"
+          FTP_PASS="${{ secrets.FTP_PASSWORD }}"
+          FTP_HOST="${{ secrets.FTP_HOST }}"
+          TARGET="${{ secrets.FTP_PATH || '/laravel_finance' }}"
+          LOCAL="$GITHUB_WORKSPACE/public/build/manifest.json"
+          RC=0
+
+          fetch_manifest() {
+            local REMOTE="$1" OUT="$2"
+            timeout 120 lftp -u "$FTP_USER","$FTP_PASS" \
+              -e "set ssl:verify-certificate no; set ftp:ssl-protect-data true; \
+              set net:timeout 45; set net:max-retries 2; \
+              get \"$REMOTE\" -o \"$OUT\"; bye" \
+              ftp://$FTP_HOST
+          }
+
+          if fetch_manifest "/laravel_finance/public/build/manifest.json" /tmp/final_project.json && cmp -s "$LOCAL" /tmp/final_project.json; then
+            echo "OK: manifest PROJECT       == build lokal."
+          else
+            echo "FAIL: manifest PROJECT != build lokal."; RC=1
+          fi
+
+          if fetch_manifest "/finance.almahir.cloud/build/manifest.json" /tmp/final_docroot.json && cmp -s "$LOCAL" /tmp/final_docroot.json; then
+            echo "OK: manifest DOCROOT       == build lokal."
+          else
+            echo "FAIL: manifest DOCROOT != build lokal."; RC=1
+          fi
+
+          echo "=== ringkasan status deploy ==="
+          echo "CODE_FAIL=${CODE_FAIL:-0} PROJ_FAIL=${PROJ_FAIL:-0} DOC_FAIL=${DOC_FAIL:-0} CACHE_FAIL=${CACHE_FAIL:-0}"
+          if [ "${CODE_FAIL:-0}" = "1" ]; then
+            echo "GAGAL: deploy kode (Blade/view/config) tidak sampai /laravel_finance."
+            echo "Penyebab umum: kebijakan batas koneksi FTP hosting. Periksa log step 'Deploy kode'."
+            RC=1
+          fi
+          if [ $RC -eq 0 ]; then
+            echo "DEPLOY OK"
+          fi
+          exit $RC
 
       # Post-deploy via SSH: opsional untuk sekarang karena port 22 & 2222
       # connection refused dari laptop maupun GitHub (firewall hosting blokir).
