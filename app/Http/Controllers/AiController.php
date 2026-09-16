@@ -39,7 +39,9 @@ class AiController extends Controller
         ]);
 
         $userId = Auth::id();
-        $result = $this->assistant->chat($request->message, (int) $userId, Carbon::now());
+        // Ambil memory SEBELUM pesan baru disimpan: 20 pesan terakhir dari session.
+        $history = array_slice(Session::get('ai_messages', []), -20);
+        $result = $this->assistant->chat($request->message, (int) $userId, Carbon::now(), $history);
 
         $transaction = $result['transaction'];
 

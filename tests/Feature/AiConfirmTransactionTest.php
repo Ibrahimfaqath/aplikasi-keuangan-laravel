@@ -14,6 +14,15 @@ class AiConfirmTransactionTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Default: paksa jalur KiosAPI agar test tidak terpengaruh .env lokal.
+        // Test khusus LangChain meng-override ini secara eksplisit.
+        config(['services.langchain.url' => null]);
+        config(['services.langchain.token' => null]);
+    }
+
     public function test_transaction_is_created_on_confirmation(): void
     {
         $user = User::factory()->create();

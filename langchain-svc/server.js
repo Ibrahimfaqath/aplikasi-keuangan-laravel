@@ -1,48 +1,113 @@
 // ============================================================
-// BELAJAR LANGCHAIN — Langkah 3: Jadikan service HTTP
+// DompetKu — LangChain Service (Express + LangChain.js)
 //
-// LangChain yang tadi (parse.js) kita angkat jadi layanan kecil
-// yang bisa dipanggil aplikasi Laravel via HTTP.
+// POST /chat    { "system": "...", "message": "...", "history": [{role, content}] }
+//               -> { "reply": "...", "transaction": {...} | null, "timing_ms": N,
+//                    "usage": {input_tokens, output_tokens, total_tokens} | null,
+//                    "prompt_version": "v1.1.0", "model": "..." }
+// GET  /health  -> { "status": "ok", "model": "...", "prompt_version": "...", "tracing": bool }
 //
-//    POST /chat    { "system": "...", "message": "..." }
-//                  -> { "reply": "...", "transaction": {...} | null }
-//    GET  /health  -> { "status": "ok" }
+// Keamanan berlapis (jangan andalkan satu lapis saja):
+//   1. Bind 127.0.0.1 — hanya bisa diakses dari server itu sendiri.
+//   2. Internal token (opsional tapi SANGAT disarankan):
+//      set LANGCHAIN_INTERNAL_TOKEN di sini DAN di Laravel
+//      (.env: LANGCHAIN_SERVICE_TOKEN=...). Laravel mengirim
+//      header `x-internal-token`, service menolak bila tidak cocok.
+//   3. Rate-limit 30/menit per IP (selaras throttle:ai di Laravel).
+//   4. Validasi panjang input agar tidak jebol token/DoS.
 //
-// Jalanin:   node --env-file=.env server.js
+// Jalanin:   npm start   ( = node --env-file=.env server.js )
+// Dev:       npm run dev
+// Test:      npm test
 // ============================================================
 
+import crypto from "node:crypto";
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { ChatOpenAI } from "@langchain/openai";
-import { PromptTemplate } from "@langchain/core/prompts";
+import {
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+    MessagesPlaceholder,
+} from "@langchain/core/prompts";
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import { extractJson } from "./lib/extractJson.js";
+import { sanitizeAiOutput } from "./lib/validate.js";
+import { extractUsage } from "./lib/usage.js";
+import { normalizeHistory } from "./lib/history.js";
 
+// --- VALIDASI ENV (fail-fast, jangan jalan setengah jadi) ------------------
 const apiKey = process.env.KIOSAPI_API_KEY;
 if (!apiKey) {
-    console.error("File .env kurang KIOSAPI_API_KEY");
+    console.error("[langchain-svc] FATAL: .env kurang KIOSAPI_API_KEY");
     process.exit(1);
 }
 
-const PORT = Number(process.env.PORT || 8787);
+const MODEL = process.env.KIOSAPI_MODEL || "agnes-2.5-flash";
+const PORT_RAW = Number(process.env.PORT || 8787);
+if (!Number.isInteger(PORT_RAW) || PORT_RAW < 1 || PORT_RAW > 65535) {
+    console.error(`[langchain-svc] FATAL: PORT tidak valid: ${process.env.PORT}`);
+    process.exit(1);
+}
+const PORT = PORT_RAW;
+
+// Token internal antar-service. Bila kosong -> mode DEV (boleh tanpa auth,
+// tapi log warning keras agar tidak lupa di production).
+const INTERNAL_TOKEN = process.env.LANGCHAIN_INTERNAL_TOKEN || "";
+if (!INTERNAL_TOKEN) {
+    console.warn(
+        "[langchain-svc] WARNING: LANGCHAIN_INTERNAL_TOKEN kosong — /chat terbuka untuk siapa saja di localhost. " +
+            "Set token ini di production dan di Laravel (LANGCHAIN_SERVICE_TOKEN)."
+    );
+}
+
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 60_000);
+const MAX_SYSTEM_CHARS = 20_000; // system prompt Laravel (20 transaksi terakhir) muat lega
+const MAX_MESSAGE_CHARS = 2000; // selaras validasi AiController: message max:2000
+
+// Versi prompt — naikkan tiap ubah template di bawah agar log & debug bisa
+// membedakan output prompt lama vs baru. Gratis, tanpa service tambahan.
+const PROMPT_VERSION = process.env.PROMPT_VERSION || "v1.1.0";
+
+// LangSmith tracing (opsional, ada free-tier). Aktif bila env berikut di-set:
+//   LANGCHAIN_TRACING_V2=true, LANGCHAIN_API_KEY=..., LANGCHAIN_PROJECT=...
+// LangChain.js membaca env ini otomatis — tidak perlu kode tambahan.
+// Kami hanya mendeteksi & melapor di /health agar mudah cek.
+const TRACING_ENABLED = process.env.LANGCHAIN_TRACING_V2 === "true";
+
 const CATEGORIES_HINT =
     "Gaji, Bonus, Bisnis, Investasi, Hadiah, Lainnya, Makanan & Minuman, " +
     "Transportasi, Tagihan & Utilitas, Belanja, Hiburan, Kesehatan, Pendidikan, Keluarga";
 
-// --- MODEL --------------------------------------------------------------
-// deepseek-v4-flash adalah model "reasoning": dia berbelit dulu (chain of
-// thought) baru menjawab. Karena itu alokasi token dibuat besar, supaya
-// jawaban JSON tidak terpotong.
+// --- MODEL ----------------------------------------------------------------
+// deepseek-v4-flash adalah model "reasoning": dia berpikir panjang dulu
+// baru menjawab, makanya maxTokens dibuat besar agar JSON tidak terpotong.
 const model = new ChatOpenAI({
     apiKey,
-    model: process.env.KIOSAPI_MODEL || "deepseek-v4-flash",
-    temperature: 0,
+    model: MODEL,
+    temperature: 0, // deterministik — penting untuk data keuangan
     maxTokens: 4096,
+    timeout: AI_TIMEOUT_MS,
+    maxRetries: 0, // retry diatur manual di bawah agar instruksi ikut berubah
     configuration: { baseURL: "https://kiosapi.com/v1" },
 });
 
-// --- CETAKAN ------------------------------------------------------------
-const template = PromptTemplate.fromTemplate(`
-{system}
+// --- CETAKAN + MEMORY -----------------------------------------------------
+// ChatPromptTemplate = versi chat dari PromptTemplate.
+// Bedanya: mendukung riwayat multi-turn via MessagesPlaceholder("history").
+// Urutan yang benar (standar LangChain):
+//   1. System (aturan + data keuangan + format JSON)
+//   2. History (10 pertukaran terakhir, disuntik sebagai Human/AIMessage)
+//   3. Human (pesan terbaru user)
+const prompt = ChatPromptTemplate.fromMessages([
+    SystemMessagePromptTemplate.fromTemplate(`{system}
 
-Pesan user: {message}
+Kamu punya MEMORI percakapan di bawah (bila ada). Gunakan untuk menjawab
+pertanyaan lanjutan seperti "berapa tadi?", "yang itu kapan?", "tambahin lagi".
+Jangan mengarang: bila tidak ada di memori maupun data, katakan jujur.
 
 Sekarang BALAS. Keluarkan HANYA satu objek JSON dengan dua kunci:
 {{
@@ -56,88 +121,155 @@ Sekarang BALAS. Keluarkan HANYA satu objek JSON dengan dua kunci:
   }}
 }}
 
-Jangan sertakan teks lain di luar objek JSON tersebut.
-`);
+Jangan sertakan teks lain di luar objek JSON tersebut.{instructions}`),
+    new MessagesPlaceholder("history"),
+    HumanMessagePromptTemplate.fromTemplate("{message}"),
+]);
 
-// Toleransi: model reasoning kadang membungkus jawaban dalam ```json ... ```
-// atau menyisipkan teks. Kita cari objek JSON sebaik mungkin.
-function extractJson(text) {
-    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    const candidate = fenced ? fenced[1] : text.match(/\{[\s\S]*\}/)?.[0];
+// Satu "percobaan": render prompt (system+history+message) -> panggil model -> cari JSON -> sanitasi.
+// Mengembalikan { data, usage } agar observability (token) tidak hilang saat retry.
+// sanitizeAiOutput memastikan transaction invalid menjadi null (tetap balas chat),
+// dan reply kosong dianggap gagal sehingga memicu retry.
+async function cobaSekali(payload, historyMessages, signal) {
+    const rendered = await prompt.invoke({ ...payload, history: historyMessages });
+    const res = await model.invoke(rendered, { signal });
 
-    if (!candidate) return null;
-
-    try {
-        const obj = JSON.parse(candidate);
-        return obj && typeof obj.reply === "string" ? obj : null;
-    } catch {
-        return null;
-    }
+    const text = Array.isArray(res.content)
+        ? res.content.map((c) => (typeof c === "string" ? c : (c.text ?? ""))).join("")
+        : String(res.content ?? "");
+    return { data: sanitizeAiOutput(extractJson(text)), usage: extractUsage(res) };
 }
 
-// Satu "percobaan": render prompt -> panggil model -> cari JSON.
-async function cobaSekali(payload) {
-    const rendered = await template.invoke(payload);
-    const res = await model.invoke(rendered);
+// Retry 2x: percobaan ke-2 diberi instruksi tegas agar model reasoning
+// memotong chain-of-thought dan langsung mengeluarkan JSON.
+// History diubah ke HumanMessage/AIMessage di sini (batas sudah di normalizeHistory).
+// Mengembalikan { data, usage } — usage diambil dari percobaan yang berhasil.
+async function chat(payload, rawHistory, signal) {
+    const historyMessages = (rawHistory || []).map((h) =>
+        h.role === "user" ? new HumanMessage(h.content) : new AIMessage(h.content)
+    );
 
-    const text = Array.isArray(res.content) ? res.content.map((c) => c.text ?? "").join("") : String(res.content ?? "");
-    return extractJson(text);
-}
+    const attempts = [
+        { instructions: "" },
+        {
+            instructions:
+                " PENTING: langsung keluarkan HANYA JSON valid tanpa penjelasan, tanpa markdown, tanpa teks tambahan.",
+        },
+    ];
 
-// Dengan retry: percobaan ke-2 diberi instruksi ekstra agar model
-// memotong jawaban panjang (cara jitu menangani model reasoning).
-async function chat(payload) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-        const hasil = await cobaSekali({
-            ...payload,
-            instructions: attempt === 2 ? " Persingkat jawaban." : "",
-        });
-
-        if (hasil) return hasil;
-
-        console.log(`[retry-${attempt}] model tidak mengembalikan JSON valid`);
+    for (let i = 0; i < attempts.length; i++) {
+        const { data, usage } = await cobaSekali({ ...payload, ...attempts[i] }, historyMessages, signal);
+        if (data) return { data, usage };
+        console.log(`[retry-${i + 1}] model tidak mengembalikan JSON valid`);
     }
 
     throw new Error("model tidak mengembalikan JSON yang valid setelah 2 percobaan");
 }
 
-// --- LAYANAN HTTP --------------------------------------------------------
+// --- APP ------------------------------------------------------------------
 const app = express();
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(helmet());
+app.use(cors({ origin: false })); // tidak perlu browser cross-origin; Laravel memanggil server-to-server
+app.use(express.json({ limit: "32kb" })); // system prompt besar tapi tetap dibatasi
 
-app.get("/health", (_req, res) => {
-    res.json({ status: "ok" });
+// Rate-limit selaras Laravel throttle:ai (30/menit per user).
+const chatLimiter = rateLimit({
+    windowMs: 60_000,
+    limit: 30,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: { error: "Terlalu banyak permintaan. Coba lagi dalam semenit ya!" },
 });
 
-app.post("/chat", async (req, res) => {
-    const { system, message } = req.body || {};
+// Auth internal: bandingkan token dengan timingSafeEqual agar tahan timing-attack.
+function requireInternalToken(req, res, next) {
+    if (!INTERNAL_TOKEN) return next(); // mode DEV
+    const got = req.header("x-internal-token") || "";
+    const a = Buffer.from(got);
+    const b = Buffer.from(INTERNAL_TOKEN);
+    const ok = a.length === b.length && a.length > 0 && crypto.timingSafeEqual(a, b);
+    if (!ok) return res.status(401).json({ error: "Unauthorized (internal token tidak valid)" });
+    return next();
+}
+
+app.get("/health", (_req, res) => {
+    res.json({ status: "ok", model: MODEL, prompt_version: PROMPT_VERSION, tracing: TRACING_ENABLED });
+});
+
+app.post("/chat", chatLimiter, requireInternalToken, async (req, res) => {
+    const { system, message, history } = req.body || {};
 
     if (typeof system !== "string" || system.trim() === "") {
-        return res.status(400).json({ error: "body harus berisi 'system' (string)" });
+        return res.status(400).json({ error: "body harus berisi 'system' (string tak-kosong)" });
     }
     if (typeof message !== "string" || message.trim() === "") {
-        return res.status(400).json({ error: "body harus berisi 'message' (string)" });
+        return res.status(400).json({ error: "body harus berisi 'message' (string tak-kosong)" });
+    }
+    // History opsional (memory). Selalu dinormalisasi: maks 20 item, buang role asing.
+    const cleanHistory = normalizeHistory(history);
+    if (system.length > MAX_SYSTEM_CHARS) {
+        return res
+            .status(413)
+            .json({ error: `system terlalu panjang (maks ${MAX_SYSTEM_CHARS} karakter)` });
+    }
+    if (message.length > MAX_MESSAGE_CHARS) {
+        return res
+            .status(413)
+            .json({ error: `message terlalu panjang (maks ${MAX_MESSAGE_CHARS} karakter)` });
     }
 
     const mulai = performance.now();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
     try {
-        const hasil = await chat({ system, message, categories: CATEGORIES_HINT });
+        const { data: hasil, usage } = await chat(
+            { system: system.trim(), message: message.trim(), categories: CATEGORIES_HINT },
+            cleanHistory,
+            controller.signal
+        );
+
+        const timing_ms = Math.round(performance.now() - mulai);
+        // Observability gratis: log token + timing TANPA isi pesan / data keuangan.
+        console.log(
+            `[chat] prompt=${PROMPT_VERSION} timing_ms=${timing_ms} ` +
+                `tokens=${usage ? `${usage.input_tokens}/${usage.output_tokens}/${usage.total_tokens}` : "n/a"} ` +
+                `has_transaction=${hasil.transaction ? "1" : "0"}`
+        );
 
         return res.json({
             reply: hasil.reply ?? "Maaf, tidak ada balasan dari asisten.",
             transaction: hasil.transaction ?? null,
-            timing_ms: Math.round(performance.now() - mulai),
+            timing_ms,
+            usage: usage ?? null,
+            prompt_version: PROMPT_VERSION,
+            model: MODEL,
         });
     } catch (err) {
-        console.error("Gagal memproses chat:", err.message || err);
+        // Jangan bocorkan detail internal ke client; log penuh di server saja.
+        console.error("Gagal memproses chat:", err?.message || err);
+        const isAbort = err?.name === "AbortError";
         return res.status(502).json({
             error: "Gagal menghubungi AI",
-            detail: err.message || String(err),
+            detail: isAbort ? `timeout setelah ${AI_TIMEOUT_MS}ms` : "provider tidak mengembalikan JSON valid",
         });
+    } finally {
+        clearTimeout(timer);
     }
 });
 
-app.listen(PORT, "127.0.0.1", () => {
-    console.log("Service LangChain aktif di http://127.0.0.1:" + PORT);
+const server = app.listen(PORT, "127.0.0.1", () => {
+    console.log(
+        `Service LangChain aktif di http://127.0.0.1:${PORT} (model=${MODEL} prompt=${PROMPT_VERSION} tracing=${TRACING_ENABLED ? "on" : "off"})`
+    );
 });
+
+// Graceful shutdown: selesaikan request berjalan sebelum mati (penting di systemd/PM2/Docker).
+function shutdown(signal) {
+    console.log(`[${signal}] menutup service...`);
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(1), 10_000).unref();
+}
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

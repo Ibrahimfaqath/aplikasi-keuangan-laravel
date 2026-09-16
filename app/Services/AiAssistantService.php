@@ -18,9 +18,10 @@ class AiAssistantService
      * Bangun system prompt berisi data keuangan nyata user, lalu panggil API,
      * dan ekstrak balasan + kandidat transaksi (bila ada).
      *
+     * @param  array<int, array{role: string, content?: string, text?: string}>  $history  riwayat chat (memory), opsional
      * @return array{reply: string, transaction: ?array, timing: array{context_ms: int, api_ms: ?int, parse_ms: ?int}, unconfigured: bool}
      */
-    public function chat(string $message, int $userId, Carbon $now): array
+    public function chat(string $message, int $userId, Carbon $now, array $history = []): array
     {
         $chatStarted = microtime(true);
         $langchainUrl = config('services.langchain.url');
@@ -47,15 +48,16 @@ class AiAssistantService
         $timing['context_ms'] = (int) round((microtime(true) - $contextStarted) * 1000);
 
         $systemPrompt = $this->buildSystemPrompt($message, $now, $ctx);
+        $cleanHistory = $this->sanitizeHistory($history);
 
         // Dua jalur: LangChain bila service dikonfigurasi, selain itu KiosAPI
         // langsung (perilaku lama). Situs live aman karena default null.
         if (blank($langchainUrl)) {
             [$reply, $transaction, $timing['api_ms'], $timing['parse_ms']] =
-                $this->attemptViaKiosApi($systemPrompt, $message, $userId);
+                $this->attemptViaKiosApi($systemPrompt, $message, $userId, $cleanHistory);
         } else {
             [$reply, $transaction, $timing['api_ms']] =
-                $this->attemptViaLangChain($langchainUrl, $systemPrompt, $message, $userId);
+                $this->attemptViaLangChain($langchainUrl, $systemPrompt, $message, $userId, $cleanHistory);
             $timing['parse_ms'] = null;
         }
 
@@ -72,6 +74,7 @@ class AiAssistantService
             'prompt_chars' => strlen($systemPrompt),
             'has_transaction' => $transaction !== null,
             'source' => blank($langchainUrl) ? 'kiosapi' : 'langchain',
+            'history_items' => count($cleanHistory),
         ], $timing));
 
         return [
@@ -88,7 +91,7 @@ class AiAssistantService
      *
      * @return array{0: ?string, 1: ?array, 2: ?int, 3: ?int} [reply, transaction, api_ms, parse_ms]
      */
-    private function attemptViaKiosApi(string $systemPrompt, string $message, int $userId): array
+    private function attemptViaKiosApi(string $systemPrompt, string $message, int $userId, array $history = []): array
     {
         $apiMs = null;
         $parseMs = null;
@@ -97,16 +100,20 @@ class AiAssistantService
 
         try {
             $apiStarted = microtime(true);
+            $messages = array_merge(
+                [['role' => 'system', 'content' => $systemPrompt]],
+                $history,
+                [['role' => 'user', 'content' => $message]]
+            );
             $response = Http::withToken(config('services.kiosapi.key'))
                 ->acceptJson()
                 ->timeout(60)
                 ->post(config('services.kiosapi.url'), [
                     'model' => config('services.kiosapi.model'),
-                    'messages' => [
-                        ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user', 'content' => $message],
-                    ],
-                    'temperature' => 0.7,
+                    'messages' => $messages,
+                    // 0 = deterministik. Penting untuk data keuangan agar angka
+                    // tidak "kreatif", selaras dengan temperature: 0 di langchain-svc.
+                    'temperature' => 0,
                 ]);
             $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
 
@@ -154,7 +161,7 @@ class AiAssistantService
      *
      * @return array{0: ?string, 1: ?array, 2: ?int} [reply, transaction, api_ms]
      */
-    private function attemptViaLangChain(string $url, string $systemPrompt, string $message, int $userId): array
+    private function attemptViaLangChain(string $url, string $systemPrompt, string $message, int $userId, array $history = []): array
     {
         $apiMs = null;
 
@@ -162,12 +169,17 @@ class AiAssistantService
             $apiStarted = microtime(true);
             $endpoint = str_ends_with($url, '/chat') ? $url : rtrim($url, '/').'/chat';
 
-            $response = Http::acceptJson()
-                ->timeout(90)
-                ->post($endpoint, [
-                    'system' => $systemPrompt,
-                    'message' => $message,
-                ]);
+            $pending = Http::acceptJson()->timeout(90);
+            $token = (string) config('services.langchain.token', '');
+            if ($token !== '') {
+                $pending = $pending->withHeader('x-internal-token', $token);
+            }
+
+            $response = $pending->post($endpoint, [
+                'system' => $systemPrompt,
+                'message' => $message,
+                'history' => $history,
+            ]);
             $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
 
             if (! $response->successful()) {
@@ -195,6 +207,27 @@ class AiAssistantService
                 $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
             }
 
+            // Observability gratis (tanpa PII): catat token usage + versi prompt
+            // bila service mengirimnya. Field tambahan diabaikan bila tidak ada
+            // (backward-compatible dengan service versi lama).
+            $usage = $data['usage'] ?? null;
+            $usageLog = null;
+            if (is_array($usage)) {
+                $in = (int) ($usage['input_tokens'] ?? 0);
+                $out = (int) ($usage['output_tokens'] ?? 0);
+                $total = (int) ($usage['total_tokens'] ?? ($in + $out));
+                if ($in >= 0 && $out >= 0 && $total >= 0 && ($in + $out + $total) > 0) {
+                    $usageLog = ['input' => $in, 'output' => $out, 'total' => $total];
+                }
+            }
+            Log::debug('LangChain usage', [
+                'user_id' => $userId,
+                'usage' => $usageLog,
+                'prompt_version' => is_string($data['prompt_version'] ?? null) ? $data['prompt_version'] : null,
+                'model' => is_string($data['model'] ?? null) ? $data['model'] : null,
+                'has_transaction' => $transaction !== null,
+            ]);
+
             return [$reply, $transaction, $apiMs];
         } catch (ConnectionException $e) {
             Log::error('LangChain connection error', [
@@ -216,6 +249,40 @@ class AiAssistantService
     }
 
     /**
+     * Bersihkan riwayat chat (memory) sebelum dikirim ke AI.
+     * - Hanya role user/assistant (buang system agar tidak bisa di-inject).
+     * - Terima alias 'text' dari session Laravel maupun 'content' dari API.
+     * - Maks 20 pesan terakhir, tiap pesan max 2000 karakter (hemat token).
+     *
+     * @param  array<int, mixed>  $history
+     * @return array<int, array{role: string, content: string}>
+     */
+    private function sanitizeHistory(array $history): array
+    {
+        $clean = [];
+        foreach ($history as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+            $role = $item['role'] ?? null;
+            if ($role !== 'user' && $role !== 'assistant') {
+                continue;
+            }
+            $content = $item['content'] ?? $item['text'] ?? '';
+            if (! is_string($content)) {
+                continue;
+            }
+            $content = trim($content);
+            if ($content === '') {
+                continue;
+            }
+            $clean[] = ['role' => $role, 'content' => mb_substr($content, 0, 2000)];
+        }
+
+        return array_values(array_slice($clean, -20));
+    }
+
+    /**
      * Normalize kandidat transaksi dari AI ke bentuk kanonik server:
      * {title, amount, type, category, transaction_date}.
      *
@@ -234,7 +301,7 @@ class AiAssistantService
         $category = trim((string) ($candidate['category'] ?? ''));
         $date = $candidate['transaction_date'] ?? $candidate['date'] ?? null;
 
-        if ($title === '' || $amount < 1) {
+        if ($title === '' || $amount < 1 || $amount > 999999999999.99) {
             return null;
         }
 

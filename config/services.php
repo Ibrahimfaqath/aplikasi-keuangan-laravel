@@ -31,15 +31,17 @@ return [
         ),
         'model' => env(
             'KIOSAPI_MODEL',
-            'deepseek-v4-flash'
+            'agnes-2.5-flash'
         ),
     ],
 
     // Service LangChain (opsional). Kalau diisi, AiAssistantService memakai
     // rantai LangChain di langchain-svc/server.js. Kosongkan untuk balik ke
     // jalur lama (KiosAPI langsung). Aman untuk produksi karena default null.
+    // Samakan 'token' dengan LANGCHAIN_INTERNAL_TOKEN di langchain-svc/.env.
     'langchain' => [
         'url' => env('LANGCHAIN_SERVICE_URL'),
+        'token' => env('LANGCHAIN_SERVICE_TOKEN'),
     ],
 
 ];

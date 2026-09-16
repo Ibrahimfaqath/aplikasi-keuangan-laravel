@@ -42,7 +42,7 @@ Keluarkan HANYA JSON dengan bentuk:
 // ------------------------------------------------------------
 const model = new ChatOpenAI({
     apiKey,
-    model: process.env.KIOSAPI_MODEL || "deepseek-v4-flash",
+    model: process.env.KIOSAPI_MODEL || "agnes-2.5-flash",
     temperature: 0,
     maxTokens: 1024,
     configuration: {

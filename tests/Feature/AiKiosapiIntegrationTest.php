@@ -21,6 +21,10 @@ class AiKiosapiIntegrationTest extends TestCase
         config(['services.kiosapi.key' => 'test-kiosapi-key']);
         config(['services.kiosapi.url' => 'https://kiosapi.com/v1/chat/completions']);
         config(['services.kiosapi.model' => 'deepseek-v4-flash']);
+        // Paksa jalur KiosAPI langsung. Tanpa ini, .env lokal yang berisi
+        // LANGCHAIN_SERVICE_URL akan membelokkan test ke service LangChain.
+        config(['services.langchain.url' => null]);
+        config(['services.langchain.token' => null]);
     }
 
     private function mockResponse(string $content, int $status = 200): void
@@ -67,7 +71,7 @@ class AiKiosapiIntegrationTest extends TestCase
                 && $request->hasHeader('Authorization', 'Bearer test-kiosapi-key')
                 && $request->hasHeader('Accept', 'application/json')
                 && $body['model'] === 'deepseek-v4-flash'
-                && $body['temperature'] === 0.7
+                && $body['temperature'] === 0
                 && count($body['messages']) === 2;
         });
     }
