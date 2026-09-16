@@ -334,19 +334,19 @@
     <div class="flex-1 w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <div x-show="isLoading"
-             class="max-w-3xl relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+             class="relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
             <div class="relative space-y-4">
-                <div class="h-3 w-16 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
                 <div class="h-12 sm:h-14 w-full max-w-xs bg-neutral-200 dark:bg-[#262626] rounded-xl animate-shimmer"></div>
-                <div class="pt-4 border-t border-neutral-200 dark:border-[#333333] grid grid-cols-2 gap-2 sm:gap-3">
-                    <div class="h-16 rounded-xl bg-neutral-100 dark:bg-[#262626] animate-shimmer"></div>
-                    <div class="h-16 rounded-xl bg-neutral-100 dark:bg-[#262626] animate-shimmer"></div>
+                <div class="pt-4 border-t border-neutral-200 dark:border-[#333333] grid grid-cols-2 divide-x divide-neutral-200 dark:divide-[#333333]">
+                    <div class="h-9 rounded-lg bg-neutral-100 dark:bg-[#262626] animate-shimmer pr-4"></div>
+                    <div class="h-9 rounded-lg bg-neutral-100 dark:bg-[#262626] animate-shimmer pl-4"></div>
                 </div>
             </div>
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="max-w-3xl relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+                 class="relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
 
             <div class="relative flex items-center justify-between">
                 <div>
@@ -373,37 +373,37 @@
                 </div>
             </div>
 
-            <div class="relative mt-1.5 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
+            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight tabular-nums break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
                  x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                  x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
             </div>
 
-            <div class="relative grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
+            <div class="relative grid grid-cols-2 divide-x divide-neutral-200 dark:divide-[#333333] mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="flex items-center gap-2 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-3 py-2.5 min-w-0 overflow-hidden">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
+                <div class="flex items-center gap-2.5 sm:gap-3 pr-3 sm:pr-4 min-w-0">
+                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
                         <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
                     </span>
-                    <div class="min-w-0 flex-1 overflow-hidden">
-                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-base font-bold text-green-600 dark:text-green-400 leading-5 sm:leading-tight whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
+                    <div class="min-w-0">
+                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pemasukan</p>
+                        <p class="mt-0.5 text-sm sm:text-base font-bold text-green-600 dark:text-green-400 leading-5 whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
                            x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                            x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                            x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-3 rounded-xl bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] px-3 py-2.5 min-w-0 overflow-hidden">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
+                <div class="flex items-center gap-2.5 sm:gap-3 pl-3 sm:pl-4 min-w-0">
+                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
                         <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                         </svg>
                     </span>
-                    <div class="min-w-0 flex-1 overflow-hidden">
-                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-base font-bold text-red-600 dark:text-red-400 leading-5 sm:leading-tight whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
+                    <div class="min-w-0">
+                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pengeluaran</p>
+                        <p class="mt-0.5 text-sm sm:text-base font-bold text-red-600 dark:text-red-400 leading-5 whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
                            x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                            x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                            x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
@@ -416,7 +416,7 @@
         <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
 
         <!-- BUDGET CARD -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-6 shadow-sm">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 rounded-xl flex-shrink-0">
@@ -453,20 +453,20 @@
                 <div class="flex items-end justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-[11px] font-semibold uppercase tracking-wider {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
-                            {{ $isOver ? '⚠ Melebihi anggaran' : 'Sisa anggaran' }}
+                            {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
+                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
                            data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
                             {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
                         </p>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">{{ $percentage }}%</p>
-                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">terpakai</p>
+                        <p class="text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums text-neutral-900 dark:text-neutral-50">{{ $percentage }}%</p>
+                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-neutral-400 dark:text-neutral-500">terpakai</p>
                     </div>
                 </div>
 
-                <div class="mt-4 w-full h-2.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
+                <div class="mt-3 w-full h-2.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
@@ -486,7 +486,7 @@
                 </div>
 
                 @if($isOver)
-                <p class="mt-4 flex items-start gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2">
+                <p class="mt-3 flex items-start gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2">
                     <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     <span>Pengeluaran sudah melewati batas bulan ini. Pertimbangkan untuk menyesuaikan anggaranmu.</span>
                 </p>
@@ -510,8 +510,8 @@
         </section>
 
         <!-- CHART TREN -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
@@ -556,8 +556,8 @@
         <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
 
         <!-- EXPENSE BY CATEGORY (half width) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-6 shadow-sm overflow-hidden">
-            <div class="mb-6">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+            <div class="mb-4">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
             </div>
@@ -586,7 +586,7 @@
 
         <!-- RECENT TRANSACTIONS (compact, half width) -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex flex-col">
-            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-neutral-200 dark:border-[#333333]">
+            <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">5 aktivitas terbaru</p>
@@ -600,7 +600,7 @@
             <div class="divide-y divide-neutral-100 dark:divide-[#262626]">
                 @forelse ($transactions ?? [] as $item)
                     @if ($loop->index >= 5) @break @endif
-                    <div class="flex items-center gap-3 px-4 sm:px-6 py-3 hover:bg-neutral-50 dark:hover:bg-[#262626]/50 transition">
+                    <div class="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-neutral-50 dark:hover:bg-[#262626]/50 transition">
                         <span class="w-2.5 h-2.5 rounded-full shrink-0 {{ ($item->type ?? 'income') == 'income' ? 'bg-green-600' : 'bg-red-600' }}"></span>
                         <div class="flex-1 min-w-0">
                             <p class="font-semibold text-sm text-neutral-900 dark:text-neutral-50 truncate">{{ $item->title ?? $item->nama ?? $item->kategori }}</p>
@@ -622,7 +622,7 @@
         </div>
 
         <!-- FILTER -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 shadow-sm no-print">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
@@ -670,7 +670,7 @@
         <!-- TABLE TRANSACTIONS -->
         <section id="riwayat" class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden">
 
-            <div class="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-neutral-200 dark:border-[#333333]">
+            <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
                     <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Riwayat Transaksi</h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
