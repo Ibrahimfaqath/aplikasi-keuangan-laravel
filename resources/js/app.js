@@ -1,13 +1,14 @@
 /**
- * APP.JS - Entry global DompetKu
+ * APP.JS - Entry global dompetku
  *
  * 1. Membundle Alpine.js (tidak lagi dari CDN) agar lebih cepat & konsisten.
  * 2. Theme core: mode Light / Dark (disimpan di localStorage 'theme').
  *    Default tetap dark (perilaku lama) bila belum ada pilihan tersimpan.
  *    Setiap perubahan disiarkan lewat event 'theme-changed' (dipakai grafik).
  * 3. Privacy mode: mask/unmask angka finansial (.privacy-target, .balance-text)
- *    lewat tombol [data-privacy-toggle]; ikon lock per tombol lewat
- *    [data-eye-open] (terbuka = terlihat) / [data-eye-closed] (terkunci).
+ *    lewat tombol [data-privacy-toggle]; ikon MATA per tombol lewat
+ *    [data-eye-open] (muncul saat saldo TERLIHAT) / [data-eye-closed]
+ *    (muncul saat saldo TERSEMBUNYI). Label teks sinkron via [data-privacy-label].
  */
 import Alpine from 'alpinejs';
 
@@ -195,53 +196,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // -----------------------------------------------------------------
     // PRIVACY MANAGEMENT (vanilla, berlaku di semua halaman)
-    //    Mendukung beberapa tombol [data-privacy-toggle]; ikon gembok per
-    //    tombol lewat [data-eye-open] / [data-eye-closed].
+    //    Mendukung beberapa tombol [data-privacy-toggle]; ikon per tombol
+    //    lewat [data-eye-open] (muncul saat saldo TERLIHAT = ikon mata)
+    //    dan [data-eye-closed] (muncul saat saldo TERSEMBUNYI = ikon
+    //    mata-tutup). Label teks sinkron lewat [data-privacy-label].
     //    Elemen saldo yang di-mask:
-    //    - .balance-text  (data-value)  -> dashboard (layouts.app)
-    //    - .privacy-target (data-amount) -> halaman transaksi (Alpine)
+    //    - .balance-text   (data-value)   -> dashboard (layouts.app)
+    //    - .privacy-target (data-amount)  -> halaman transaksi (Alpine)
     // -----------------------------------------------------------------
-    const privacyButtons = document.querySelectorAll('[data-privacy-toggle]');
+    function getPrivacyState() {
+        try {
+            return localStorage.getItem('privacy_mode') === 'enabled';
+        } catch (e) {
+            return false;
+        }
+    }
 
-    let isPrivate = false;
-    try {
-        isPrivate = localStorage.getItem('privacy_mode') === 'enabled';
-    } catch (e) {}
+    function syncPrivacyButton(btn, isPrivate) {
+        const eyeOpen = btn.querySelector('[data-eye-open]');
+        const eyeClosed = btn.querySelector('[data-eye-closed]');
+        eyeOpen?.classList.toggle('hidden', isPrivate);
+        eyeOpen?.classList.toggle('block', !isPrivate);
+        eyeClosed?.classList.toggle('hidden', !isPrivate);
+        eyeClosed?.classList.toggle('block', isPrivate);
+        const label = btn.querySelector('[data-privacy-label]');
+        if (label) label.textContent = isPrivate ? 'Tampilkan Saldo' : 'Sembunyikan Saldo';
+        btn.setAttribute('aria-label', isPrivate ? 'Tampilkan saldo' : 'Sembunyikan saldo');
+        btn.setAttribute('title', isPrivate ? 'Tampilkan saldo' : 'Sembunyikan saldo');
+    }
 
     function renderPrivacyUI() {
+        const isPrivate = getPrivacyState();
         document.querySelectorAll('.balance-text').forEach((el) => {
             const realVal = el.getAttribute('data-value') || 'Rp 0';
             el.textContent = isPrivate ? '••••••••' : realVal;
         });
-
         document.querySelectorAll('.privacy-target').forEach((el) => {
             const realVal = el.getAttribute('data-amount') || 'Rp 0';
             el.textContent = isPrivate ? '••••••••' : realVal;
         });
-
-        privacyButtons.forEach((btn) => {
-            const eyeOpen = btn.querySelector('[data-eye-open]');
-            const eyeClosed = btn.querySelector('[data-eye-closed]');
-            eyeOpen?.classList.toggle('hidden', isPrivate);
-            eyeOpen?.classList.toggle('block', !isPrivate);
-            eyeClosed?.classList.toggle('hidden', !isPrivate);
-            eyeClosed?.classList.toggle('block', isPrivate);
-            // Tombol murni ikon (tanpa teks, mis. di hero balance) memakai
-            // aria-label dinamis; baris berlabel memakai teksnya sendiri.
-            try {
-                if (btn.textContent.trim().length === 0) {
-                    btn.setAttribute('aria-label', isPrivate ? 'Show balance' : 'Hide balance');
-                    btn.setAttribute('title', isPrivate ? 'Show balance' : 'Hide balance');
-                }
-            } catch (e) {}
-        });
+        document.querySelectorAll('[data-privacy-toggle]').forEach((btn) => syncPrivacyButton(btn, isPrivate));
     }
 
+    // Ikon langsung disinkronkan saat modul dieksekusi (deferred => DOM sudah
+    // terurai) agar tombol privasi tidak pernah menampilkan ikon yang salah.
     renderPrivacyUI();
 
-    privacyButtons.forEach((btn) => {
+    document.querySelectorAll('[data-privacy-toggle]').forEach((btn) => {
         btn.addEventListener('click', () => {
-            isPrivate = !isPrivate;
+            const isPrivate = !getPrivacyState();
             try {
                 localStorage.setItem('privacy_mode', isPrivate ? 'enabled' : 'disabled');
             } catch (e) {}

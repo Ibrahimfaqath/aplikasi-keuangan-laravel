@@ -1,5 +1,5 @@
 <x-guest-layout
-    :title="'Masuk ke DompetKu'"
+    :title="'Masuk ke dompetku'"
     :subtitle="'Lacak pemasukan dan pengeluaranmu dengan mudah.'"
     >
     <x-slot:icon>

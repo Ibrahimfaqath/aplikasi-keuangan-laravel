@@ -1,6 +1,6 @@
 {
-    "name": "DompetKu — Aplikasi Keuangan Pribadi",
-    "short_name": "DompetKu",
+    "name": "dompetku — Aplikasi Keuangan Pribadi",
+    "short_name": "dompetku",
     "description": "Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.",
     "lang": "id",
     "start_url": "/",

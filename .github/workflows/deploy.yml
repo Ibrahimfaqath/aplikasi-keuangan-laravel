@@ -78,11 +78,11 @@ jobs:
           sleep 60
           echo "=== /login ==="
           curl -sf https://finance.almahir.cloud/login | \
-            grep -oE 'Masuk ke DompetKu|Buat akun|app-[A-Za-z0-9_]+\.css' | \
+            grep -oE 'Masuk ke dompetku|Buat akun|app-[A-Za-z0-9_]+\.css' | \
             sort | uniq -c || echo "(gagal fetch /login)"
           echo "=== / ==="
           curl -sf https://finance.almahir.cloud/ | \
-            grep -oE 'Mulai kelola uangmu|DompetKu|app-[A-Za-z0-9_]+\.css' | \
+            grep -oE 'Mulai kelola uangmu|dompetku|app-[A-Za-z0-9_]+\.css' | \
             sort | uniq -c || echo "(gagal fetch /)"
           echo "=== manifest ==="
           curl -sf https://finance.almahir.cloud/build/manifest.json | \

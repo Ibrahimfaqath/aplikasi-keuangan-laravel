@@ -1,4 +1,4 @@
-# DompetKu — Aplikasi Keuangan Pribadi
+# dompetku — Aplikasi Keuangan Pribadi
 
 Aplikasi web untuk mencatat pemasukan & pengeluaran, mengatur anggaran bulanan, melihat grafik tren, export laporan PDF/Excel, dan bertanya ke asisten AI.
 
@@ -11,7 +11,7 @@ Dibangun dengan **Laravel 13 + Breeze + Tailwind CSS + Alpine.js + Chart.js + Vi
 - **Filter & Pencarian** — cari judul, filter tipe/kategori/periode, pagination
 - **Anggaran Bulanan** — set batas belanja, progress bar, sisa/hari, peringatan over-budget
 - **Export Laporan** — PDF (DomPDF) & Excel (Maatwebsite), mengikuti filter aktif
-- **AI Assistant (DompetKu AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible)
+- **AI Assistant (dompetku AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible)
 - **Voice Input** — parser lokal Bahasa Indonesia (`25 ribu`, `5 juta`, `Rp 25.000`, bahkan `dua puluh lima ribu`) tanpa perlu API
 - **UI Profesional** — dark/light mode, privacy toggle saldo, skeleton loading, responsif mobile, SEO meta + PWA manifest
 

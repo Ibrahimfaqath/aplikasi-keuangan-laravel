@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="DompetKu — aplikasi pencatatan keuangan pribadi. Kelola pemasukan, pengeluaran, dan anggaran bulanan dengan mudah dan aman.">
+        <meta name="description" content="dompetku — aplikasi pencatatan keuangan pribadi. Kelola pemasukan, pengeluaran, dan anggaran bulanan dengan mudah dan aman.">
         <meta name="theme-color" content="#0A0A0A">
         <link rel="canonical" href="{{ url()->current() }}">
 
@@ -17,12 +17,12 @@
 
         <!-- Open Graph -->
         <meta property="og:type" content="website">
-        <meta property="og:site_name" content="DompetKu">
-        <meta property="og:title" content="{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}">
+        <meta property="og:site_name" content="dompetku">
+        <meta property="og:title" content="{{ $title ?? 'dompetku — Aplikasi Keuangan Pribadi' }}">
         <meta property="og:description" content="Kelola pemasukan, pengeluaran, dan anggaran bulanan dengan mudah.">
         <meta property="og:url" content="{{ url()->current() }}">
 
-        <title>{{ $title ?? 'DompetKu — Aplikasi Keuangan Pribadi' }}</title>
+        <title>{{ $title ?? 'dompetku — Aplikasi Keuangan Pribadi' }}</title>
 
         <!-- Theme Init (cegah flash terang/gelap) -->
         <script>
@@ -60,9 +60,9 @@
 
             <!-- Top brand -->
             <div class="relative z-10 w-full px-6 pt-7 sm:px-8">
-                <a href="/" class="inline-flex w-max items-center gap-2.5 group" aria-label="DompetKu — kembali ke halaman utama">
+                <a href="/" class="inline-flex w-max items-center gap-2.5 group" aria-label="dompetku — kembali ke halaman utama">
                     <x-application-logo class="h-9 w-9 rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105" />
-                    <span class="text-base font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">DompetKu</span>
+                    <span class="text-base font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">dompetku</span>
                 </a>
             </div>
 
@@ -90,7 +90,7 @@
             </main>
 
             <footer class="relative z-10 pb-8 text-center">
-                <p class="text-xs text-neutral-400 dark:text-neutral-500">© {{ date('Y') }} DompetKu — Keuangan pribadi yang aman dan privat.</p>
+                <p class="text-xs text-neutral-400 dark:text-neutral-500">© {{ date('Y') }} dompetku — Keuangan pribadi yang aman dan privat.</p>
             </footer>
         </div>
     </body>

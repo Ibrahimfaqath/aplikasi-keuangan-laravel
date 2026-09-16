@@ -1,6 +1,6 @@
-# Panduan Deployment DompetKu ke cPanel
+# Panduan Deployment dompetku ke cPanel
 
-Panduan ini untuk men-deploy aplikasi **DompetKu** (Laravel 13) ke hosting cPanel.
+Panduan ini untuk men-deploy aplikasi **dompetku** (Laravel 13) ke hosting cPanel.
 
 ## 1. Persyaratan
 

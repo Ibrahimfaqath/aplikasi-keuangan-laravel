@@ -23,7 +23,7 @@ if (!apiKey) {
 // 1) CETAKAN (PromptTemplate) — sama seperti versi 1
 // ------------------------------------------------------------
 const template = PromptTemplate.fromTemplate(`
-Kamu adalah kasir aplikasi DompetKu. Dari pesan user, tentukan transaksinya.
+Kamu adalah kasir aplikasi dompetku. Dari pesan user, tentukan transaksinya.
 
 Pesan user: {pesan}
 

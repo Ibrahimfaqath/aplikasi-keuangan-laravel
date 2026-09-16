@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Keuangan - DompetKu</title>
+    <title>Laporan Keuangan - dompetku</title>
     <style>
         @page {
             margin: 25px 30px 20px 30px;
@@ -27,8 +27,7 @@
             font-size: 18px;
             font-weight: 800;
             color: #111111;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .company-logo small {
             font-size: 10px;
@@ -176,14 +175,14 @@
 <body>
 
     <!-- Watermark -->
-    <div class="watermark">DompetKu</div>
+    <div class="watermark">dompetku</div>
 
     <!-- Header -->
     <table class="header-table">
         <tr>
             <td width="50%">
                 <div class="company-logo">
-                    DompetKu <small>• Manajemen Keuangan</small>
+                    dompetku <small>• Manajemen Keuangan</small>
                 </div>
                 <div style="font-size: 8px; color: #737373; margin-top: 2px;">
                     Laporan Rekapitulasi Keuangan Resmi
@@ -284,7 +283,7 @@
         <table width="100%">
             <tr>
                 <td>
-                    • Laporan ini dihasilkan secara otomatis oleh sistem DompetKu.
+                    • Laporan ini dihasilkan secara otomatis oleh sistem dompetku.
                 </td>
                 <td style="text-align: right; font-weight: 600; color: #111111;">
                     Periode: {{ $period ?? 'Semua Waktu' }}
@@ -305,7 +304,7 @@
     <div class="footer">
         <table width="100%">
             <tr>
-                <td>© {{ date('Y') }} DompetKu. Hak Cipta Dilindungi.</td>
+                <td>© {{ date('Y') }} dompetku. Hak Cipta Dilindungi.</td>
                 <td style="text-align: right;">
                     Halaman <span class="page-number"></span> |
                     Dicetak: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}

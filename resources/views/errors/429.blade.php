@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
-    <title>Terlalu Banyak Permintaan - DompetKu</title>
+    <title>Terlalu Banyak Permintaan - dompetku</title>
     <script>
         (function initTheme() {
             try {

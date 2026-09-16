@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="DompetKu — aplikasi pencatatan keuangan pribadi. Catat pemasukan, pengeluaran, dan anggaran bulanan dengan mudah dan aman.">
+    <meta name="description" content="dompetku — aplikasi pencatatan keuangan pribadi. Catat pemasukan, pengeluaran, dan anggaran bulanan dengan mudah dan aman.">
     <meta name="theme-color" content="#0A0A0A">
     <link rel="canonical" href="{{ url('/') }}">
 
@@ -16,12 +16,12 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="DompetKu">
-    <meta property="og:title" content="DompetKu — Aplikasi Keuangan Pribadi">
+    <meta property="og:site_name" content="dompetku">
+    <meta property="og:title" content="dompetku — Aplikasi Keuangan Pribadi">
     <meta property="og:description" content="Catat pemasukan, pengeluaran, dan anggaran bulanan dengan mudah.">
     <meta property="og:url" content="{{ url('/') }}">
 
-    <title>DompetKu — Kelola Keuangan Pribadi</title>
+    <title>dompetku — Kelola Keuangan Pribadi</title>
 
     <!-- Theme Init -->
     <script>
@@ -50,9 +50,9 @@
         <!-- ============ NAVBAR ============ -->
         <header class="sticky top-0 z-40 w-full border-b border-neutral-200/80 bg-white/85 backdrop-blur-xl dark:border-[#222222] dark:bg-[#0A0A0A]/85">
             <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-8">
-                <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100" aria-label="DompetKu — kembali ke halaman utama">
+                <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100" aria-label="dompetku — kembali ke halaman utama">
                     <x-application-logo class="h-8 w-8 rounded-lg" />
-                    <span class="hidden text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 sm:inline">DompetKu</span>
+                    <span class="hidden text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 sm:inline">dompetku</span>
                 </a>
 
                 <nav class="hidden items-center gap-1 md:flex" aria-label="Navigasi utama">
@@ -106,7 +106,7 @@
                         </h1>
 
                         <p class="mt-5 max-w-xl text-base leading-relaxed text-neutral-500 dark:text-neutral-400 sm:text-lg">
-                            DompetKu membantu kamu mencatat pemasukan &amp; pengeluaran, memantau anggaran bulanan, dan memahami pola keuangan lewat ringkasan AI — semuanya sederhana dan privat.
+                            dompetku membantu kamu mencatat pemasukan &amp; pengeluaran, memantau anggaran bulanan, dan memahami pola keuangan lewat ringkasan AI — semuanya sederhana dan privat.
                         </p>
 
                         <div class="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
@@ -332,7 +332,7 @@
                             Dari mencatat sampai memahami, hanya 3 langkah
                         </h2>
                         <p class="mt-4 text-base leading-relaxed text-neutral-500 dark:text-neutral-400">
-                            Tidak perlu paham akuntansi. DompetKu menyederhanakan semuanya.
+                            Tidak perlu paham akuntansi. dompetku menyederhanakan semuanya.
                         </p>
                     </div>
 
@@ -417,9 +417,9 @@
             <div class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
                 <div class="grid gap-10 sm:grid-cols-3">
                     <div class="max-w-xs">
-                        <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100" aria-label="DompetKu — kembali ke halaman utama">
+                        <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100" aria-label="dompetku — kembali ke halaman utama">
                             <x-application-logo class="h-7 w-7 rounded-lg" />
-                            <span class="text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">DompetKu</span>
+                            <span class="text-sm font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">dompetku</span>
                         </a>
                         <p class="mt-4 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
                             Aplikasi keuangan pribadi yang mencatat, merangkum, dan membantu kamu memahami uangmu.
@@ -452,7 +452,7 @@
                 </div>
 
                 <div class="mt-12 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/70 pt-6 dark:border-[#222222] sm:flex-row">
-                    <p class="text-xs text-neutral-400 dark:text-neutral-500">© {{ date('Y') }} DompetKu. Hak cipta dilindungi.</p>
+                    <p class="text-xs text-neutral-400 dark:text-neutral-500">© {{ date('Y') }} dompetku. Hak cipta dilindungi.</p>
                     <p class="text-xs text-neutral-400 dark:text-neutral-500">Mencatat keuangan — sederhana dan privat.</p>
                 </div>
             </div>

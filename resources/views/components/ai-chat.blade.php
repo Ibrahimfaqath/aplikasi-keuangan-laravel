@@ -41,7 +41,7 @@
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
                 <div>
-                    <p class="text-xs font-bold text-neutral-900 dark:text-neutral-50">DompetKu AI</p>
+                    <p class="text-xs font-bold text-neutral-900 dark:text-neutral-50">dompetku AI</p>
                     <p class="text-[10px] text-neutral-500 dark:text-neutral-400">Asisten Keuangan</p>
                 </div>
             </div>

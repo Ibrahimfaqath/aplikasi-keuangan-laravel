@@ -1,5 +1,5 @@
 {{-- ============================================================
-  APP SHELL SIDEBAR — DompetKu
+  APP SHELL SIDEBAR — dompetku
   - Desktop (lg+): fixed left sidebar 264px, collapsible ke 76px
   - Mobile: sticky topbar + off-canvas drawer
   - SEMUA link memakai named route yang ada (tanpa halaman fiktif):
@@ -11,7 +11,7 @@
   - Prop `title`: judul halaman untuk topbar desktop.
     Contoh: <x-sidebar title="Dashboard" />
   ============================================================ --}}
-@props(['title' => 'DompetKu'])
+@props(['title' => 'dompetku'])
 <script>
     try {
         if (localStorage.getItem('dompetku_sb') === 'collapsed') {
@@ -85,18 +85,18 @@ $sbGroups = [
 
     <!-- ============ DESKTOP SIDEBAR (fixed, collapsible) ============ -->
     <aside class="sb-aside hidden lg:flex fixed inset-y-0 left-0 z-40 w-[256px] flex-col bg-white dark:bg-[#0A0A0A] border-r border-neutral-200 dark:border-[#262626] transition-all duration-200"
-           aria-label="Navigasi utama DompetKu">
+           aria-label="Navigasi utama dompetku">
 
         <!-- Brand FIXED (tidak ikut scroll) -->
         <div class="sb-brand-row flex items-center gap-2.5 px-4 h-16 shrink-0">
-            <a href="{{ route('transactions.index') }}" class="flex items-center gap-2.5 min-w-0" aria-label="DompetKu — ke Dashboard">
+            <a href="{{ route('transactions.index') }}" class="flex items-center gap-2.5 min-w-0" aria-label="dompetku — ke Dashboard">
                 <span class="w-9 h-9 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>
                     </svg>
                 </span>
                 <span class="sb-brand-text min-w-0">
-                    <span class="block font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 leading-tight">DompetKu</span>
+                    <span class="block font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 leading-tight">dompetku</span>
                     <span class="block text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">Keuangan Pribadi</span>
                 </span>
             </a>
@@ -143,9 +143,9 @@ $sbGroups = [
                 <button type="button" data-privacy-toggle
                         aria-label="Sembunyikan atau tampilkan saldo" title="Sembunyikan / tampilkan saldo"
                         class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
-                    <svg data-eye-open class="w-5 h-5 shrink-0 block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                    <svg data-eye-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-                    <span class="sb-label truncate">Sembunyikan Saldo</span>
+                    <svg data-eye-open class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg data-eye-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                    <span class="sb-label truncate" data-privacy-label>Sembunyikan Saldo</span>
                 </button>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -183,11 +183,11 @@ $sbGroups = [
                     class="p-2 -ml-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
-            <a href="{{ route('transactions.index') }}" class="flex items-center gap-2 min-w-0" aria-label="DompetKu — ke Dashboard">
+            <a href="{{ route('transactions.index') }}" class="flex items-center gap-2 min-w-0" aria-label="dompetku — ke Dashboard">
                 <span class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
                 </span>
-                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 truncate">DompetKu</span>
+                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 truncate">dompetku</span>
             </a>
             <div class="ml-auto flex items-center gap-1.5">
                 <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
@@ -246,7 +246,7 @@ $sbGroups = [
                 <span class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
                 </span>
-                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">DompetKu</span>
+                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">dompetku</span>
                 <button type="button" @click="drawer = false" aria-label="Tutup menu"
                         class="ml-auto p-2 rounded-xl text-neutral-500 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18L18 6M6 6l12 12"/></svg>
@@ -285,9 +285,9 @@ $sbGroups = [
                     <div class="space-y-1">
                         <button type="button" data-privacy-toggle
                                 class="w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-semibold transition-colors duration-150 {{ $sbIdle }} text-left">
-                            <svg data-eye-open class="w-5 h-5 shrink-0 block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                            <svg data-eye-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            <span class="truncate">Sembunyikan Saldo</span>
+                            <svg data-eye-open class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <svg data-eye-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                            <span class="truncate" data-privacy-label>Sembunyikan Saldo</span>
                         </button>
                     </div>
                 </div>

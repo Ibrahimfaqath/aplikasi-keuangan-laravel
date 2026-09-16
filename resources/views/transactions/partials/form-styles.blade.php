@@ -20,17 +20,11 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23737373' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
-        background-position: right 0.75rem center;
-        background-repeat: no-repeat;
-        background-size: 1.15em 1.15em;
-        padding-right: 2.5rem !important;
+        padding-right: 2.75rem !important;
     }
-    .dark .date-field {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23A3A3A3' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3e%3c/svg%3e");
-    }
-    /* Satu ikon saja: indikator bawaan browser dibuat transparan
-       tetapi tetap mencakup area klik kanan agar date picker native jalan */
+    /* Satu ikon (SVG elemen) di kanan lewat wrapper .relative di form-fields.
+       Indikator bawaan browser dibuat transparan tetapi tetap mencakup area
+       klik kanan agar date picker native jalan (Chrome/Safari). */
     .date-field::-webkit-calendar-picker-indicator {
         opacity: 0;
         position: absolute;

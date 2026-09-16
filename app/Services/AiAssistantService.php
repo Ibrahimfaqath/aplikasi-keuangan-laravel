@@ -339,7 +339,7 @@ class AiAssistantService
         $transactions = $ctx['recent'];
         $lastMonth = $ctx['lastMonthDate'];
 
-        $prompt = 'Kamu adalah asisten keuangan pribadi bernama DompetKu AI. Jawab dalam Bahasa Indonesia yang ramah dan santai.
+        $prompt = 'Kamu adalah asisten keuangan pribadi bernama dompetku AI. Jawab dalam Bahasa Indonesia yang ramah dan santai.
 
 DATA KEUANGAN USER (SEMUA WAKTU):
 - Total Pemasukan: Rp '.number_format($allTimeStats['totalIncome'], 0, ',', '.').'
