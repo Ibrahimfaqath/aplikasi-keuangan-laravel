@@ -117,56 +117,56 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
   - Di FTP, path relatifnya adalah `/finance.almahir.cloud` dan `/laravel_finance`.
   - ⚠️ Folder `home3/almahir/ibrahim_projects/` di dalam FTP root adalah **copy lama / sampah deploy** dan tidak dipakai subdomain. Jangan deploy ke sana.
 - **Upload bukti transaksi**: disk `public` diarahkan langsung ke folder docroot `/finance.almahir.cloud/storage` lewat `app/Providers/AppServiceProvider.php` (aktif hanya saat `APP_ENV=production`). Jadi `storage:link` **tidak diperlukan** dan tidak akan melayani upload. Pastikan folder `/finance.almahir.cloud/storage` bisa ditulis web server.
-- **`app/Providers/AppServiceProvider.php` kini ikut di-deploy** (tidak lagi di-exclude di `deploy.yml`) — isinya aman untuk lokal maupun produksi karena konfigurasi storage docroot hanya aktif ketika `APP_ENV=production`.
+- **`app/Providers/AppServiceProvider.php` ikut di-deploy** — isinya aman untuk lokal maupun produksi karena konfigurasi storage docroot hanya aktif ketika `APP_ENV=production`.
 - **`APP_DEBUG=false`** di produksi. `APP_KEY` produksi harus **berbeda dari lokal** (jangan pakai key yang sama dengan `.env` development).
-- **Aset build** hasil `npm run build` harus identik di dua tempat: `/laravel_finance/public/build/` (untuk resolve manifest) dan `/finance.almahir.cloud/build/` (yang dilayani web). Workflow deploy meng-upload keduanya (docroot pakai `--delete`).
+- **Aset build** hasil `npm run build` harus identik di dua tempat: `/laravel_finance/public/build/` (untuk resolve manifest `@vite`) dan `/finance.almahir.cloud/build/` (yang dilayani web). Keduanya harus di-mirror manual via FTP (docroot pakai `--delete`), karena cPanel Git Deploy tidak menyentuh docroot.
 - **`.htaccess`** yang dipakai web ada di docroot subdomain (`/finance.almahir.cloud/.htaccess`) dan berisi handler PHP cPanel `ea-php83`.
 - **HTTPS**: pastikan SSL aktif; gunakan URL `https://finance.almahir.cloud` langsung.
-- **Update berikutnya**: cukup upload ulang folder `app/`, `routes/`, `resources/`, `public/build` (dan `composer.lock` jika ada perubahan dependency), lalu jalankan `php artisan optimize:clear` lalu `php artisan optimize` (atau hapus manual `bootstrap/cache/*.php` + `storage/framework/views/*.php` lewat File Manager bila SSH tidak tersedia).
+- **Update berikutnya**: upload ulang folder yang berubah (`app/`, `routes/`, `resources/`, `config/`, `database/seeders/`, `public/build`, dan `composer.lock` jika dependency berubah), lalu **mirror `public/build` ke docroot** `/finance.almahir.cloud/build` juga. Detail lengkap ada di bagian **Cara Update Aplikasi (Tanpa Upload Ulang Penuh)** di bawah.
 - **Jangan pernah meng-upload `.env` dari localhost** ke server — selalu buat yang baru.
 
 ## Cara Update Aplikasi (Tanpa Upload Ulang Penuh)
 
-Kalau aplikasi sudah pernah di-deploy dan hanya ada perubahan kecil, upload **zip update** (`dompetku-update.zip`) yang berisi file yang berubah saja:
+Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git` di `/laravel_finance`), jadi update dilakukan lewat **FTP manual**:
 
-1. Upload `dompetku-update.zip` ke folder project (misal `~/dompetku`) via File Manager atau FTP
-2. Extract — file lama yang sama akan tertimpa otomatis
-3. Buka **cPanel Terminal**, lalu jalankan:
-
-```bash
-cd ~/dompetku
-
-# Daftarkan class baru (misal DashboardController) ke autoloader
-composer dump-autoload
-
-# Bersihkan cache lama (config, route, view) — WAJIB setelah ada perubahan
-php artisan optimize:clear
-
-# Buat cache produksi baru
-php artisan optimize
-```
-
-> **Kalau ada migration baru** (file baru di `database/migrations/`), tambahkan juga `php artisan migrate --force`.
-
-## Cara Memverifikasi Deploy Otomatis (GitHub Actions)
-
-Kalau perubahan di repo ter-push tapi tidak tampil di live, cek dulu apakah `FTP_PATH` benar:
-
-1. **Penanda unik di file ini**: baris berikut hanya ada di repo, bukan di server. Kalau setelah deploy otomatis penanda ini ADA di `/laravel_finance/DEPLOY-CPANEL.md`, berarti `FTP_PATH` sudah benar (mendarat di `/laravel_finance`).
-
-   `VERIFIKASI-FTP_PATH-2026-09-14`
-
-2. **Cek tanpa login**: buka tab **Actions** → run "Deploy to cPanel" terbaru → semua step harus hijau, termasuk *"Mirror build ke docroot + bersihkan cache Laravel (satu koneksi)"*.
-3. **Cek mtime**: File Manager → `/laravel_finance/config/services.php` — mtime-nya harus mengikuti waktu run terakhir dan berisi teks `langchain`.
-4. Kalau semuanya sudah, cukup **Re-run** workflow/`push` berikutnya akan otomatis menyinkronkan kode ke live.
-
-## Alternatif: Deployment via Git
-
-Kalau cPanel-mu punya fitur **Git Version Control**:
-
-1. Di cPanel Git Version Control, clone repo kamu ke `/home/<user>/dompetku`
-2. Sama seperti langkah 4–7, tapi sebelum migrasi jalankan:
+1. Build aset produksi di lokal:
    ```bash
-   composer install --no-dev --optimize-autoloader
+   npm run build
    ```
-3. Update kode selanjutnya cukup `git pull` di cPanel + `php artisan optimize:clear`
+2. Upload file yang berubah ke `/laravel_finance` (folder `app/`, `routes/`, `resources/`, `config/`, `database/seeders/`, `tests/`, `public/build/`, dll). **Jangan pernah upload `.env`.**
+3. Mirror aset build ke **dua** lokasi:
+   - `/laravel_finance/public/build/` — untuk resolve manifest `@vite`
+   - `/finance.almahir.cloud/build/` — yang dilayani web; pakai `--delete` agar aset lama terhapus
+4. Bersihkan cache di server. Kalau **cPanel Terminal/SSH** tersedia:
+   ```bash
+   cd /home3/almahir/ibrahim_projects/laravel_finance
+   php artisan optimize:clear
+   php artisan optimize
+   ```
+   Kalau tidak ada Terminal, hapus manual via File Manager:
+   - `bootstrap/cache/*.php` (kecuali `.gitignore`)
+   - `storage/framework/views/*.php` (kecuali `.gitignore`)
+   - lalu panggil `https://finance.almahir.cloud/__flush.php` untuk `opcache_reset()`
+5. **Kalau ada migration baru** (file baru di `database/migrations/`), jalankan `php artisan migrate --force` lewat Terminal.
+6. **Kalau ada seeder baru** (mis. `DemoDataSeeder`), jalankan `php artisan db:seed --class=DemoDataSeeder`.
+
+> **Seeder tanpa SSH**: dua opsi yang sudah terbukti. (a) Upload skrip PHP sementara ber-token acak ke docroot yang meng-`require` `../laravel_finance/vendor/autoload.php`, bootstrap `../laravel_finance/bootstrap/app.php`, panggil `Artisan::call('db:seed', ['--class' => '...', '--force' => true])`, lalu **hapus dirinya sendiri** — segera hapus juga via FTP sebagai cadangan. (b) Tambahkan task seeder ke `.cpanel.yml` lalu klik **Deploy** di cPanel Git Version Control (hanya jika fitur itu aktif).
+
+> **Catatan path**: `index.php` docroot memuat `../laravel_finance/vendor/autoload.php`, jadi `bootstrap/app.php` menetapkan base path ke `/laravel_finance` — skrip bantuan di docroot tetap bisa bootstrap Laravel dengan benar.
+
+## Verifikasi Setelah Deploy (FTP)
+
+1. **Aset baru terlayani**: `curl https://finance.almahir.cloud/build/manifest.json` harus menampilkan hash yang sama dengan `public/build/manifest.json` lokal.
+2. **Halaman live**: `/` dan `/login` balas HTTP 200 dan memuat nama file aset terbaru (mis. `app-XXXXXXXX.css`), bukan hash lama.
+3. **Fitur baru berjalan**: uji alur terkait (mis. tombol "Coba Demo" di `/login` → redirect ke `/transactions` + badge "Mode Demo").
+4. **Cache bersih**: pastikan `storage/framework/views/` hanya berisi `.gitignore` sebelum request pertama pasca-deploy.
+5. **Git sinkron**: `git log --oneline -1 origin/main` menunjuk commit yang di-deploy (untuk jejak perubahan).
+
+## Alternatif: Deployment via Git (cPanel Git Version Control)
+
+Server ini **belum** mengaktifkan cPanel Git Version Control (tidak ada `.git` di `/laravel_finance`), sehingga `.cpanel.yml` **tidak berjalan otomatis** saat `git push`. Kalau nanti diaktifkan:
+
+1. Hubungkan repo di cPanel → Git Version Control, lalu set `DEPLOYPATH=/laravel_finance` (sudah ada di `.cpanel.yml`).
+2. `.cpanel.yml` sudah memuat task: copy file ke `$DEPLOYPATH`, jaga `.env` yang ada, bersihkan compiled view + cache, chmod `storage`/`bootstrap/cache`, dan `db:seed --class=DemoDataSeeder` (idempoten — aman diulang).
+3. Aset `public/build` tetap harus di-mirror manual ke docroot `/finance.almahir.cloud/build` karena Git Deploy tidak menyentuh docroot.
+4. Untuk update berikutnya cukup `git push` + klik **Deploy** (atau aktifkan auto-deploy).
