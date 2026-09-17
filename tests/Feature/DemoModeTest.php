@@ -71,6 +71,9 @@ class DemoModeTest extends TestCase
         $this->assertSame($before, $after);
         $this->assertGreaterThan(0, $after);
 
+        // Tidak boleh ada transaksi bernilai nol (mengotori tampilan demo).
+        $this->assertSame(0, Transaction::where('user_id', $demo->id)->where('amount', '<=', 0)->count());
+
         // Anggaran bulan berjalan disimpan (progress terlihat di dashboard).
         $now = Carbon::now();
         $this->assertDatabaseHas('budgets', [

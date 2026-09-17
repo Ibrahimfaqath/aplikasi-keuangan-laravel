@@ -34,8 +34,6 @@ class DemoDataSeeder extends Seeder
         $seedDay = [1 => 3, 4 => 16, 9 => 24];
         $now = now();
 
-        $ids = [];
-
         for ($back = 5; $back >= 0; $back--) {
             $monthStart = $now->copy()->subMonthsNoOverflow($back)->startOfMonth();
 
@@ -47,27 +45,19 @@ class DemoDataSeeder extends Seeder
                 $day = abs(crc32($title.$monthStart->year.$monthStart->month)) % $monthStart->daysInMonth + 1;
                 $day = min($day, 28);
 
-                if ($monthStart->copy()->addDays($day - 1)->isFuture()) {
-                    continue;
-                }
-
-                $skipBase = $vary && $day % 5 === 0;
                 $date = $monthStart->copy()->addDays($day - 1);
-                $id = (string) $monthStart->year
-                    .str_pad((string) $monthStart->month, 2, '0', STR_PAD_LEFT)
-                    .$title;
 
-                if ($skipBase) {
-                    $id .= '-0';
-                }
-
-                if (isset($ids[$id])) {
+                if ($date->isFuture()) {
                     continue;
                 }
-
-                $ids[$id] = true;
 
                 $amount = $this->amountFor($title, $type, $category, $vary, $date, $monthStart, $day, $seedDay);
+
+                // Item yang tidak terjadi bulan ini bernilai 0 — jangan buat
+                // baris transaksi Rp 0 karena mengotori data demo.
+                if ($amount <= 0) {
+                    continue;
+                }
 
                 // Idempotensi dikunci (user_id, title, tanggal) — bukan amount,
                 // karena kolom DECIMAL(15,2) disimpan sebagai string ("1900000.00")
@@ -86,6 +76,9 @@ class DemoDataSeeder extends Seeder
                 );
             }
         }
+
+        // Self-healing: hapus baris Rp 0 yang dibuat oleh versi seeder lama.
+        Transaction::where('user_id', $user->id)->where('amount', '<=', 0)->delete();
 
         $this->seedBudgets($user);
 
