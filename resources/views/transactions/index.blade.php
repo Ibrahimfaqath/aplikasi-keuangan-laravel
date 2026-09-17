@@ -337,7 +337,7 @@
              class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
             <div class="relative space-y-5">
                 <div class="h-3 w-24 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-y-5 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+                <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] gap-y-5 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
                     <div class="h-11 sm:h-14 md:h-16 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
                     <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
                     <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
@@ -369,28 +369,28 @@
             </div>
 
             <!-- Summary: vertikal di mobile, 3 kolom horizontal di desktop -->
-            <div class="relative grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="min-w-0 md:pr-6 lg:pr-8">
+                <div class="min-w-0 md:pr-4 lg:pr-6">
                     <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Saldo</p>
-                    <p class="mt-1 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight tabular-nums break-words text-neutral-900 dark:text-neutral-50 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
                        x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
                     <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total saldo</p>
                 </div>
 
-                <div class="min-w-0 md:px-6 lg:px-8">
+                <div class="min-w-0 md:px-4 lg:px-6">
                     <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                    <p class="mt-1 text-lg sm:text-xl lg:text-2xl font-bold tabular-nums break-words text-green-600 dark:text-green-400 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
                        x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
                     <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pemasukan</p>
                 </div>
 
-                <div class="min-w-0 md:pl-6 lg:pl-8">
+                <div class="min-w-0 md:pl-4 lg:pl-6">
                     <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                    <p class="mt-1 text-lg sm:text-xl lg:text-2xl font-bold tabular-nums break-words text-red-600 dark:text-red-400 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
                        x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
