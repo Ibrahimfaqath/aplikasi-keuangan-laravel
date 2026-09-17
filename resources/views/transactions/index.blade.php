@@ -334,24 +334,23 @@
     <div class="flex-1 w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
         <div x-show="isLoading"
-             class="relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
-            <div class="relative space-y-4">
-                <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                <div class="h-12 sm:h-14 w-full max-w-xs bg-neutral-200 dark:bg-[#262626] rounded-xl animate-shimmer"></div>
-                <div class="pt-4 border-t border-neutral-200 dark:border-[#333333] grid grid-cols-2 divide-x divide-neutral-200 dark:divide-[#333333]">
-                    <div class="h-9 rounded-lg bg-neutral-100 dark:bg-[#262626] animate-shimmer pr-4"></div>
-                    <div class="h-9 rounded-lg bg-neutral-100 dark:bg-[#262626] animate-shimmer pl-4"></div>
+             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+            <div class="relative space-y-5">
+                <div class="h-3 w-24 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-y-5 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+                    <div class="h-11 sm:h-14 md:h-16 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
+                    <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
+                    <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
                 </div>
             </div>
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-5 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
 
-            <div class="relative flex items-center justify-between">
-                <div>
+            <div class="relative flex items-center justify-between gap-3">
+                <div class="min-w-0">
                     <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Total Saldo</span>
-                    <p class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">Seluruh pemasukan dikurangi pengeluaran</p>
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
@@ -361,53 +360,41 @@
                         Tambah
                     </a>
                     <button type="button" data-privacy-toggle
-                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 transition"
-                            aria-label="Sembunyikan atau tampilkan saldo">
-                        <svg data-eye-open class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        <svg data-eye-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>
-                        </svg>
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+                            aria-label="Sembunyikan saldo" title="Sembunyikan saldo">
+                        <svg data-lock-open class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+                        <svg data-lock-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     </button>
                 </div>
             </div>
 
-            <div class="relative mt-2 text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight tabular-nums break-words text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
-                 x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
-                 x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)">
-            </div>
+            <!-- Summary: vertikal di mobile, 3 kolom horizontal di desktop -->
+            <div class="relative grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
-            <div class="relative grid grid-cols-2 divide-x divide-neutral-200 dark:divide-[#333333] mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
-
-                <div class="flex items-center gap-2.5 sm:gap-3 pr-3 sm:pr-4 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                    </span>
-                    <div class="min-w-0">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pemasukan</p>
-                        <p class="mt-0.5 text-sm sm:text-base font-bold text-green-600 dark:text-green-400 leading-5 whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
-                           x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                           x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                           x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                    </div>
+                <div class="min-w-0 md:pr-6 lg:pr-8">
+                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Saldo</p>
+                    <p class="mt-1 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight tabular-nums break-words text-neutral-900 dark:text-neutral-50 privacy-target"
+                       x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
+                       x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
+                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total saldo</p>
                 </div>
 
-                <div class="flex items-center gap-2.5 sm:gap-3 pl-3 sm:pl-4 min-w-0">
-                    <span class="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 flex items-center justify-center">
-                        <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                        </svg>
-                    </span>
-                    <div class="min-w-0">
-                        <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 truncate">Pengeluaran</p>
-                        <p class="mt-0.5 text-sm sm:text-base font-bold text-red-600 dark:text-red-400 leading-5 whitespace-nowrap tabular-nums tracking-tight truncate privacy-target"
-                           x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                           x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                           x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
-                    </div>
+                <div class="min-w-0 md:px-6 lg:px-8">
+                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
+                    <p class="mt-1 text-lg sm:text-xl lg:text-2xl font-bold tabular-nums break-words text-green-600 dark:text-green-400 privacy-target"
+                       x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                       x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                       x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
+                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pemasukan</p>
+                </div>
+
+                <div class="min-w-0 md:pl-6 lg:pl-8">
+                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
+                    <p class="mt-1 text-lg sm:text-xl lg:text-2xl font-bold tabular-nums break-words text-red-600 dark:text-red-400 privacy-target"
+                       x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                       x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                       x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pengeluaran</p>
                 </div>
             </div>
         </section>

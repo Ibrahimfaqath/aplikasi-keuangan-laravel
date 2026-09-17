@@ -6,9 +6,10 @@
  *    Default tetap dark (perilaku lama) bila belum ada pilihan tersimpan.
  *    Setiap perubahan disiarkan lewat event 'theme-changed' (dipakai grafik).
  * 3. Privacy mode: mask/unmask angka finansial (.privacy-target, .balance-text)
- *    lewat tombol [data-privacy-toggle]; ikon MATA per tombol lewat
- *    [data-eye-open] (muncul saat saldo TERLIHAT) / [data-eye-closed]
- *    (muncul saat saldo TERSEMBUNYI). Label teks sinkron via [data-privacy-label].
+ *    lewat tombol [data-privacy-toggle]; ikon GEMBOK per tombol lewat
+ *    [data-lock-open] (muncul saat saldo TERLIHAT = gembok terbuka) /
+ *    [data-lock-closed] (muncul saat saldo TERSEMBUNYI = gembok terkunci).
+ *    Label teks sinkron via [data-privacy-label].
  */
 import Alpine from 'alpinejs';
 
@@ -197,9 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------------
     // PRIVACY MANAGEMENT (vanilla, berlaku di semua halaman)
     //    Mendukung beberapa tombol [data-privacy-toggle]; ikon per tombol
-    //    lewat [data-eye-open] (muncul saat saldo TERLIHAT = ikon mata)
-    //    dan [data-eye-closed] (muncul saat saldo TERSEMBUNYI = ikon
-    //    mata-tutup). Label teks sinkron lewat [data-privacy-label].
+    //    lewat [data-lock-open] (muncul saat saldo TERLIHAT = gembok
+    //    terbuka) dan [data-lock-closed] (muncul saat saldo TERSEMBUNYI =
+    //    gembok terkunci). Label teks sinkron lewat [data-privacy-label].
     //    Elemen saldo yang di-mask:
     //    - .balance-text   (data-value)   -> dashboard (layouts.app)
     //    - .privacy-target (data-amount)  -> halaman transaksi (Alpine)
@@ -213,12 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function syncPrivacyButton(btn, isPrivate) {
-        const eyeOpen = btn.querySelector('[data-eye-open]');
-        const eyeClosed = btn.querySelector('[data-eye-closed]');
-        eyeOpen?.classList.toggle('hidden', isPrivate);
-        eyeOpen?.classList.toggle('block', !isPrivate);
-        eyeClosed?.classList.toggle('hidden', !isPrivate);
-        eyeClosed?.classList.toggle('block', isPrivate);
+        const lockOpen = btn.querySelector('[data-lock-open]');
+        const lockClosed = btn.querySelector('[data-lock-closed]');
+        lockOpen?.classList.toggle('hidden', isPrivate);
+        lockOpen?.classList.toggle('block', !isPrivate);
+        lockClosed?.classList.toggle('hidden', !isPrivate);
+        lockClosed?.classList.toggle('block', isPrivate);
         const label = btn.querySelector('[data-privacy-label]');
         if (label) label.textContent = isPrivate ? 'Tampilkan Saldo' : 'Sembunyikan Saldo';
         btn.setAttribute('aria-label', isPrivate ? 'Tampilkan saldo' : 'Sembunyikan saldo');
