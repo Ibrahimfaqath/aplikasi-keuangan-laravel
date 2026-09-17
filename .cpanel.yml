@@ -28,3 +28,6 @@ deployment:
     # 5) Ensure proper permissions
     - /bin/chmod -R 775 $DEPLOYPATH/storage || /bin/true
     - /bin/chmod -R 775 $DEPLOYPATH/bootstrap/cache || /bin/true
+
+    # 6) Seed data akun demo (idempoten, aman diulang tiap deploy)
+    - /bin/sh -c 'cd $DEPLOYPATH && php artisan db:seed --class=DemoDataSeeder --force' || /bin/true

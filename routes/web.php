@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,9 @@ Route::get('/', function () {
 
 // 2. Redirect /dashboard lama ke transactions.index
 Route::get('/dashboard', fn () => redirect(Auth::check() ? route('transactions.index') : route('login')));
+
+// 2b. Login demo publik: terbuka (guest), CSRF via grup web, dibatasi 10x/menit per IP.
+Route::post('/demo', [DemoController::class, 'login'])->middleware('throttle:demo')->name('demo.login');
 
 // 3. Route terproteksi Auth
 Route::middleware('auth')->group(function () {

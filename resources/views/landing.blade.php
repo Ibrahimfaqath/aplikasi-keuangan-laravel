@@ -115,6 +115,15 @@
                                 Mulai Gratis
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                             </a>
+                            @if (\App\Services\DemoMode::isEnabled())
+                            <form method="POST" action="{{ route('demo.login') }}" class="w-full sm:w-auto">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex h-12 w-full items-center justify-center whitespace-nowrap rounded-xl border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAFAFA] dark:border-[#333333] dark:bg-[#171717] dark:text-neutral-100 dark:hover:bg-[#262626] dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-[#0A0A0A] sm:w-auto">
+                                    Coba Demo
+                                </button>
+                            </form>
+                            @endif
                             <a href="#fitur"
                                class="inline-flex h-12 w-full items-center justify-center whitespace-nowrap rounded-xl border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-900 shadow-sm transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAFAFA] dark:border-[#333333] dark:bg-[#171717] dark:text-neutral-100 dark:hover:bg-[#262626] dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-[#0A0A0A] sm:w-auto">
                                 Lihat Fitur
@@ -402,6 +411,15 @@
                                 Daftar Gratis
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                             </a>
+                            @if (\App\Services\DemoMode::isEnabled())
+                            <form method="POST" action="{{ route('demo.login') }}" class="w-full sm:w-auto">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex h-12 w-full items-center justify-center whitespace-nowrap rounded-xl border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-700 shadow-sm transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-[#333333] dark:bg-[#171717] dark:text-neutral-200 dark:hover:bg-[#262626] dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-[#141414] sm:w-auto">
+                                    Coba Demo
+                                </button>
+                            </form>
+                            @endif
                             <a href="{{ route('login') }}"
                                class="inline-flex h-12 w-full items-center justify-center whitespace-nowrap rounded-xl border border-neutral-300 bg-white px-6 text-sm font-semibold text-neutral-700 shadow-sm transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-[#333333] dark:bg-[#171717] dark:text-neutral-200 dark:hover:bg-[#262626] dark:focus-visible:ring-neutral-100 dark:focus-visible:ring-offset-[#141414] sm:w-auto">
                                 Masuk

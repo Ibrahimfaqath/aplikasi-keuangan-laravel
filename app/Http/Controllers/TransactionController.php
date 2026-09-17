@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Budget;
 use App\Models\Transaction;
+use App\Services\DemoMode;
 use App\Services\ReportingService;
 use App\Services\TransactionParser;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -131,6 +132,10 @@ class TransactionController extends Controller
 
     public function store(StoreTransactionRequest $request)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
         $validated = $request->validated();
 
         $imagePath = null;
@@ -160,6 +165,10 @@ class TransactionController extends Controller
 
     public function update(UpdateTransactionRequest $request, string $id)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
         $validated = $request->validated();
 
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
@@ -186,6 +195,10 @@ class TransactionController extends Controller
 
     public function destroy(string $id)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
 
         if ($transaction->image && Storage::disk('public')->exists($transaction->image)) {

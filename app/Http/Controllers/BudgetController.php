@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Budget;
 use App\Services\AmountFormatter;
+use App\Services\DemoMode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,10 @@ class BudgetController extends Controller
      */
     public function store(Request $request)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
         // Terima format Rupiah ramah pengguna ("Rp 1.500.000", "1.500.000", "1500000")
         // normalize() return null kalau kosong/tanpa digit -> validasi required gagal (tidak jadi 0).
         $request->merge(['amount' => $this->amountFormatter->normalize($request->input('amount'))]);

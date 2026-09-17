@@ -48,4 +48,26 @@
             <a class="font-semibold text-neutral-900 hover:underline dark:text-neutral-100" href="{{ route('register') }}">Daftar gratis</a>
         </p>
     </form>
+
+    @if (\App\Services\DemoMode::isEnabled())
+    <div class="mt-6">
+        <div class="flex items-center gap-3">
+            <span class="h-px flex-1 bg-neutral-200 dark:bg-[#333333]"></span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">atau</span>
+            <span class="h-px flex-1 bg-neutral-200 dark:bg-[#333333]"></span>
+        </div>
+
+        <form method="POST" action="{{ route('demo.login') }}" class="mt-5">
+            @csrf
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl text-xs sm:text-sm font-semibold transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
+                Coba Demo Tanpa Daftar
+            </button>
+        </form>
+        <p class="mt-3 text-center text-xs text-neutral-400 dark:text-neutral-500">
+            Masuk dengan data contoh. Tidak bisa di-ubah, aman untuk dicoba.
+        </p>
+    </div>
+    @endif
 </x-guest-layout>

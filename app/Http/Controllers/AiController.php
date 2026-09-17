@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Services\AiAssistantService;
+use App\Services\DemoMode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,10 @@ class AiController extends Controller
 
     public function confirmTransaction(Request $request)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warnJson();
+        }
+
         // The server-side pending candidate is authoritative: the frontend
         // must send back the exact candidate it received from /ai/chat.
         // Without a valid pending candidate, confirmation is rejected.
@@ -171,6 +176,10 @@ class AiController extends Controller
 
     public function storeTransactions(Request $request)
     {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warnJson();
+        }
+
         $validated = $request->validate([
             'items' => 'required|array|min:1|max:30',
             'items.*.title' => 'required|string|max:255',

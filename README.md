@@ -14,6 +14,7 @@ Dibangun dengan **Laravel 13 + Breeze + Tailwind CSS + Alpine.js + Chart.js + Vi
 - **AI Assistant (dompetku AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible)
 - **Voice Input** — parser lokal Bahasa Indonesia (`25 ribu`, `5 juta`, `Rp 25.000`, bahkan `dua puluh lima ribu`) tanpa perlu API
 - **UI Profesional** — dark/light mode, privacy toggle saldo, skeleton loading, responsif mobile, SEO meta + PWA manifest
+- **Public Demo Account** — tombol "Coba Demo" di landing/login, masuk otomatis dengan data contoh, read-only (tidak bisa ubah data)
 
 ## Tech Stack
 
@@ -52,6 +53,32 @@ composer dev     # serve + queue + pail + vite
 ```
 
 Buka: `http://localhost:8000`
+
+## Akun Demo Publik ("Coba Demo")
+
+Landing & halaman login punya tombol **Coba Demo** untuk mencoba aplikasi tanpa daftar. Tombol login otomatis sebagai akun demo dan semua form-nya dikunci read-only — aman untuk dicoba siapa pun.
+
+Siapkan data demonya (idempotent, bisa diulang):
+
+```bash
+php artisan db:seed --class=DemoDataSeeder
+```
+
+Atau ikut serta saat `db:seed` biasa dijalankan. Data mencakup transaksi ±6 bulan terakhir (gaji, tagihan, dll.) + anggaran bulan berjalan dan 3 bulan sebelumnya.
+
+Konfigurasi ada di `.env`:
+
+```ini
+DEMO_MODE_ENABLED=true          # false = tombol & guard demo nonaktif
+DEMO_ACCOUNT_EMAIL=demo@dompetku.app
+DEMO_ACCOUNT_NAME="Demo User"
+DEMO_ACCOUNT_PASSWORD=UbahIni2026!   # hanya dipakai seeder
+```
+
+Catatan:
+- Akun demo hanyalah user biasa — semua query tetap di-scope per `user_id`, jadi data demo dan data user lain tidak pernah tercampur.
+- Login demo dibatasi 10×/menit per IP (`throttle:demo`).
+- Jika akun email demo sudah ada (mis. didaftarkan user asli), seeder tidak menimpa data mereka.
 
 ## Konfigurasi .env Penting
 
