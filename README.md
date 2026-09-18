@@ -11,7 +11,7 @@ Dibangun dengan **Laravel 13 + Breeze + Tailwind CSS + Alpine.js + Chart.js + Vi
 - **Filter & Pencarian** — cari judul, filter tipe/kategori/periode, pagination
 - **Anggaran Bulanan** — set batas belanja, progress bar, sisa/hari, peringatan over-budget
 - **Export Laporan** — PDF (DomPDF) & Excel (Maatwebsite), mengikuti filter aktif
-- **AI Assistant (dompetku AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible)
+- **AI Assistant (dompetku AI)** — chat keuangan berbasis data nyata user, deteksi niat transaksi + konfirmasi aman anti-duplikat (via KiosAPI OpenAI-compatible atau service LangChain lokal)
 - **Voice Input** — parser lokal Bahasa Indonesia (`25 ribu`, `5 juta`, `Rp 25.000`, bahkan `dua puluh lima ribu`) tanpa perlu API
 - **UI Profesional** — dark/light mode, privacy toggle saldo, skeleton loading, responsif mobile, SEO meta + PWA manifest
 - **Public Demo Account** — tombol "Coba Demo" di landing/login, masuk otomatis dengan data contoh, read-only (tidak bisa ubah data)
@@ -22,7 +22,7 @@ Dibangun dengan **Laravel 13 + Breeze + Tailwind CSS + Alpine.js + Chart.js + Vi
 - Frontend: Blade, Tailwind CSS 3, Alpine.js, Chart.js 4, Vite
 - Auth: Laravel Breeze (Blade)
 - Laporan: `barryvdh/laravel-dompdf`, `maatwebsite/excel`
-- AI: `KiosAPI` (`deepseek-v4-flash`, OpenAI-compatible) + fallback parser lokal `App\Services\TransactionParser`
+- AI: `KiosAPI` (`agnes-2.5-flash`, OpenAI-compatible) atau service LangChain lokal (`langchain-svc/server.js`) + fallback parser lokal `App\Services\TransactionParser`
 - Database: SQLite (development) / MySQL (production cPanel)
 - Testing: PHPUnit 12 (`tests/Feature`, `tests/Unit`)
 
@@ -90,13 +90,22 @@ APP_URL=http://localhost
 
 DB_CONNECTION=sqlite
 
-# AI Assistant (wajib isi biar chat AI jalan, daftar di kiosapi.com)
+# AI Assistant
+# Pilih salah satu jalur biar chat AI jalan:
+# 1) Langsung ke KiosAPI (daftar di kiosapi.com) — isi KIOSAPI_API_KEY.
+#    Model default agnes-2.5-flash, bisa diganti sesuai ketersediaan di KiosAPI.
 KIOSAPI_API_KEY=
 KIOSAPI_BASE_URL=https://kiosapi.com/v1/chat/completions
-KIOSAPI_MODEL=deepseek-v4-flash
+KIOSAPI_MODEL=agnes-2.5-flash
+
+# 2) Atau pakai service LangChain lokal (langchain-svc/server.js):
+#    biarkan KIOSAPI_API_KEY kosong dan set LANGCHAIN_SERVICE_URL.
+#    Token wajib disamakan dengan LANGCHAIN_INTERNAL_TOKEN di langchain-svc/.env.
+# LANGCHAIN_SERVICE_URL=http://127.0.0.1:8787
+# LANGCHAIN_SERVICE_TOKEN=
 ```
 
-Tanpa `KIOSAPI_API_KEY`, chat AI akan balas pesan ramah `belum dikonfigurasi` — aplikasi tetap jalan normal.
+Catatan: Model di `KIOSAPI_MODEL` hanyalah default dari `.env` — `AiAssistantService` memakainya sebagai model OpenAI-compatible. Jika keduanya (`KIOSAPI_API_KEY` & `LANGCHAIN_SERVICE_URL`) kosong, chat AI akan balas pesan ramah `belum dikonfigurasi` — aplikasi tetap jalan normal.
 
 ## Testing
 

@@ -18,7 +18,7 @@ class AiFinancialTest extends TestCase
         parent::setUp();
         config(['services.kiosapi.key' => 'test-kiosapi-key']);
         config(['services.kiosapi.url' => 'https://kiosapi.com/v1/chat/completions']);
-        config(['services.kiosapi.model' => 'deepseek-v4-flash']);
+        config(['services.kiosapi.model' => 'agnes-2.5-flash']);
         // Isolasi: paksa jalur KiosAPI agar tidak terpengaruh .env lokal.
         config(['services.langchain.url' => null]);
         config(['services.langchain.token' => null]);

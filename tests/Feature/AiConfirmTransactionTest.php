@@ -227,7 +227,7 @@ class AiConfirmTransactionTest extends TestCase
     {
         config(['services.kiosapi.key' => 'test-kiosapi-key']);
         config(['services.kiosapi.url' => 'https://kiosapi.com/v1/chat/completions']);
-        config(['services.kiosapi.model' => 'deepseek-v4-flash']);
+        config(['services.kiosapi.model' => 'agnes-2.5-flash']);
 
         $content = 'Baik, ini ringkasannya. Mohon konfirmasi ya!'
             ."\n<<<JSON\n".json_encode($candidate)."\nJSON>>>";

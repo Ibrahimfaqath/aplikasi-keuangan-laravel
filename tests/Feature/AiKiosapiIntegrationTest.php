@@ -20,7 +20,7 @@ class AiKiosapiIntegrationTest extends TestCase
         // Ensure the KiosAPI key is present for these tests.
         config(['services.kiosapi.key' => 'test-kiosapi-key']);
         config(['services.kiosapi.url' => 'https://kiosapi.com/v1/chat/completions']);
-        config(['services.kiosapi.model' => 'deepseek-v4-flash']);
+        config(['services.kiosapi.model' => 'agnes-2.5-flash']);
         // Paksa jalur KiosAPI langsung. Tanpa ini, .env lokal yang berisi
         // LANGCHAIN_SERVICE_URL akan membelokkan test ke service LangChain.
         config(['services.langchain.url' => null]);
@@ -70,7 +70,7 @@ class AiKiosapiIntegrationTest extends TestCase
             return $request->url() === 'https://kiosapi.com/v1/chat/completions'
                 && $request->hasHeader('Authorization', 'Bearer test-kiosapi-key')
                 && $request->hasHeader('Accept', 'application/json')
-                && $body['model'] === 'deepseek-v4-flash'
+                && $body['model'] === 'agnes-2.5-flash'
                 && $body['temperature'] === 0
                 && count($body['messages']) === 2;
         });
