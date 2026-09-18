@@ -201,13 +201,70 @@ class TransactionController extends Controller
 
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
 
+        // Soft delete: baris disembunyikan dari laporan/dashboard tapi tetap
+        // ada di DB — bisa dipulihkan dari halaman Sampah. Bukti gambar sengaja
+        // dipertahankan agar restore tidak kehilangan lampiran.
+        $transaction->delete();
+
+        return redirect('/transactions')->with('success', 'Transaksi dipindahkan ke Sampah. Bisa dipulihkan kapan saja di menu Sampah.');
+    }
+
+    /**
+     * Halaman Sampah: daftar transaksi yang di-soft-delete, berikut statistiknya.
+     */
+    public function trashed(Request $request)
+    {
+        $reportingService = new ReportingService;
+
+        $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
+
+        $query = $reportingService->getFilteredQuery($filters, Auth::id(), true);
+        $stats = $reportingService->getStatistics($query);
+
+        $transactions = $query->orderBy('deleted_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('transactions.trashed', array_merge([
+            'transactions' => $transactions,
+            'filters' => $filters,
+        ], $stats));
+    }
+
+    /**
+     * Pulihkan transaksi yang masih di Sampah kembali ke daftar aktif.
+     */
+    public function restore(string $id)
+    {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
+        $transaction = Transaction::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+        $transaction->restore();
+
+        return redirect()->route('transactions.trashed')->with('success', 'Transaksi berhasil dipulihkan.');
+    }
+
+    /**
+     * Hapus permanen: baris dihapus dari DB dan bukti gambar ikut dihapus.
+     */
+    public function forceDestroy(string $id)
+    {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
+        $transaction = Transaction::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
+
         if ($transaction->image && Storage::disk('public')->exists($transaction->image)) {
             Storage::disk('public')->delete($transaction->image);
         }
 
-        $transaction->delete();
+        $transaction->forceDelete();
 
-        return redirect('/transactions')->with('success', 'Transaksi berhasil dihapus!');
+        return redirect()->route('transactions.trashed')->with('success', 'Transaksi dihapus permanen.');
     }
 
     private function storeAndOptimizeImage(UploadedFile $file): string

@@ -683,11 +683,18 @@
                     <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Riwayat Transaksi</h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
                 </div>
+                <div class="flex items-center gap-2">
+                <a href="{{ route('transactions.trashed') }}" title="Lihat transaksi di Sampah"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 rounded-xl text-xs font-semibold transition no-print">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                    Sampah
+                </a>
                 <a href="{{ route('transactions.create') }}"
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold transition no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Tambah
                 </a>
+                </div>
             </div>
 
             <div x-show="isLoading">

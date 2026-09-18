@@ -38,6 +38,11 @@ Route::middleware('auth')->group(function () {
     // Sengaja tanpa throttle "exports" agar klik tab grafik tidak memakan kuota export.
     Route::get('/transactions/trend', [TransactionController::class, 'trend'])->name('transactions.trend');
 
+    // Sampah (soft-delete): lihat, pulihkan, dan hapus permanen.
+    Route::get('/transactions/trashed', [TransactionController::class, 'trashed'])->name('transactions.trashed');
+    Route::post('/transactions/{transaction}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
+    Route::delete('/transactions/{transaction}/force-destroy', [TransactionController::class, 'forceDestroy'])->name('transactions.force-destroy');
+
     // CRUD Utama Transaksi (tanpa show yang tidak ada controller-nya)
     Route::resource('transactions', TransactionController::class)->except(['show']);
 

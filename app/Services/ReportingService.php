@@ -13,18 +13,21 @@ class ReportingService
      * Membuat query transaksi milik user yang diberikan, difilter sesuai parameter.
      *
      * @param  array  $filters  search, type, period, start_date, end_date
+     * @param  bool  $onlyTrashed  true = hanya transaksi di Sampah (soft-deleted)
      * @return Builder
      */
-    public function getFilteredQuery(array $filters, ?int $userId = null)
+    public function getFilteredQuery(array $filters, ?int $userId = null, bool $onlyTrashed = false)
     {
         $userId = $userId ?? request()->user()?->id;
 
         // Tanpa user yang jelas, jangan bocorkan data: kembalikan query kosong.
         if (! $userId) {
-            return Transaction::whereRaw('1 = 0');
+            return ($onlyTrashed ? Transaction::onlyTrashed() : Transaction::query())->whereRaw('1 = 0');
         }
 
-        $query = Transaction::where('user_id', $userId);
+        $query = $onlyTrashed
+            ? Transaction::onlyTrashed()->where('user_id', $userId)
+            : Transaction::where('user_id', $userId);
 
         if (! empty($filters['search'])) {
             // Escape wildcard LIKE agar "%" / "_" user tidak jadi full-scan liar.
