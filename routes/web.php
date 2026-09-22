@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AiController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DemoController;
@@ -55,6 +56,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Riwayat aktivitas (audit log): baca saja, tanpa aksi tulis.
+    Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Services\AiAssistantService;
+use App\Services\AuditLogger;
 use App\Services\DemoMode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -134,6 +135,7 @@ class AiController extends Controller
             ], 422);
         }
 
+        AuditLogger::begin('ai');
         $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'title' => $pending['title'],
@@ -205,6 +207,7 @@ class AiController extends Controller
         $created = DB::transaction(function () use ($validated) {
             $rows = [];
             foreach ($validated['items'] as $item) {
+                AuditLogger::begin('ai');
                 $rows[] = Transaction::create([
                     'user_id' => Auth::id(),
                     'title' => trim($item['title']),
