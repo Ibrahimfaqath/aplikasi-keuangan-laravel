@@ -278,4 +278,21 @@ class AiFinancialTest extends TestCase
                 && str_contains($prompt, $fmt($allIncome - $allExpense));
         });
     }
+
+    public function test_system_prompt_seeds_today_date(): void
+    {
+        $user = User::factory()->create();
+        $now = Carbon::now();
+
+        $response = $this->actingAs($user)
+            ->postJson('/ai/chat', ['message' => 'Catat makan siang 25 ribu']);
+        $response->assertOk();
+
+        Http::assertSent(function ($sent) use ($now) {
+            $prompt = $sent->data()['messages'][0]['content'] ?? '';
+
+            return str_contains($prompt, 'HARI INI:')
+                && str_contains($prompt, '('.$now->format('Y-m-d').').');
+        });
+    }
 }

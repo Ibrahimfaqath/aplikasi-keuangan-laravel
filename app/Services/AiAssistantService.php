@@ -314,7 +314,20 @@ class AiAssistantService
         }
 
         try {
-            $date = Carbon::parse($date)->format('Y-m-d');
+            $parsed = Carbon::parse($date);
+            $today = Carbon::today();
+
+            // Jaring pengaman tanggal AI: tanggal masa depan (lebih dari +2 hari)
+            // atau sebelum 2000 nyaris pasti tebakan salah. Turunkan ke hari ini.
+            if ($parsed->gt($today->copy()->addDays(2)) || $parsed->lt(Carbon::parse('2000-01-01'))) {
+                Log::warning('Tanggal transaksi AI di luar rentang wajar, dikembalikan ke hari ini', [
+                    'parsed' => $parsed->format('Y-m-d'),
+                    'today' => $today->format('Y-m-d'),
+                ]);
+                $date = $today->format('Y-m-d');
+            } else {
+                $date = $parsed->format('Y-m-d');
+            }
         } catch (\Throwable) {
             $date = now()->format('Y-m-d');
         }
@@ -340,6 +353,9 @@ class AiAssistantService
         $lastMonth = $ctx['lastMonthDate'];
 
         $prompt = 'Kamu adalah asisten keuangan pribadi bernama dompetku AI. Jawab dalam Bahasa Indonesia yang ramah dan santai.
+
+HARI INI: '.$now->isoFormat('dddd, D MMMM YYYY').' ('.$now->format('Y-m-d').').
+Jika user menyebut "hari ini", "sekarang", atau "kemarin", hitung dari TANGGAL HARI INI di atas — jangan menebak dari data transaksi.
 
 DATA KEUANGAN USER (SEMUA WAKTU):
 - Total Pemasukan: Rp '.number_format($allTimeStats['totalIncome'], 0, ',', '.').'
