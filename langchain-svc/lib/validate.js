@@ -21,8 +21,10 @@
 
 const VALID_TYPES = new Set(["income", "expense"]);
 
-// Harus identik dengan Transaction::allCategories() (PHP).
-const VALID_CATEGORIES = new Set([
+// Harus identik dengan Transaction::allCategories() (PHP). Daftar ini dipakai
+// sebagai FALLBACK bila payload /chat tidak membawa daftar kategori user
+// (kategori bawaan + custom). User mengirim daftarnya lewat field `categories`.
+const DEFAULT_CATEGORIES = [
     "Gaji",
     "Bonus",
     "Bisnis",
@@ -37,7 +39,8 @@ const VALID_CATEGORIES = new Set([
     "Kesehatan",
     "Pendidikan",
     "Keluarga",
-]);
+];
+const VALID_CATEGORIES = new Set(DEFAULT_CATEGORIES);
 
 const MAX_AMOUNT = 999999999999.99;
 const MAX_TITLE_CHARS = 255;
@@ -65,7 +68,12 @@ function toAmount(value) {
     return NaN;
 }
 
-export function sanitizeTransaction(candidate) {
+function toValidCategories(validCategories) {
+    if (validCategories instanceof Set && validCategories.size > 0) return validCategories;
+    return VALID_CATEGORIES;
+}
+
+export function sanitizeTransaction(candidate, validCategories) {
     if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
         return null;
     }
@@ -79,7 +87,7 @@ export function sanitizeTransaction(candidate) {
     if (title === "") return null;
     if (!Number.isFinite(amount) || amount < 1 || amount > MAX_AMOUNT) return null;
     if (!VALID_TYPES.has(type)) return null;
-    if (!VALID_CATEGORIES.has(category)) return null;
+    if (!toValidCategories(validCategories).has(category)) return null;
 
     return {
         title,
@@ -92,9 +100,10 @@ export function sanitizeTransaction(candidate) {
 
 /**
  * @param {unknown} obj hasil extractJson()
+ * @param {Set<string>|undefined} [validCategories] daftar kategori user (bawaan + custom)
  * @returns {{ reply: string, transaction: object | null } | null}
  */
-export function sanitizeAiOutput(obj) {
+export function sanitizeAiOutput(obj, validCategories) {
     if (!obj || typeof obj !== "object" || Array.isArray(obj)) return null;
 
     const replyRaw = obj.reply;
@@ -104,6 +113,6 @@ export function sanitizeAiOutput(obj) {
 
     return {
         reply,
-        transaction: sanitizeTransaction(obj.transaction),
+        transaction: sanitizeTransaction(obj.transaction, validCategories),
     };
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
@@ -47,7 +48,7 @@ class AiAssistantService
         $ctx = $this->contextBuilder->build($userId, $now);
         $timing['context_ms'] = (int) round((microtime(true) - $contextStarted) * 1000);
 
-        $systemPrompt = $this->buildSystemPrompt($message, $now, $ctx);
+        $systemPrompt = $this->buildSystemPrompt($message, $now, $ctx, $userId);
         $cleanHistory = $this->sanitizeHistory($history);
 
         // Dua jalur: LangChain bila service dikonfigurasi, selain itu KiosAPI
@@ -128,7 +129,7 @@ class AiAssistantService
                     ]);
                     $reply = 'Maaf, asisten sedang mengalami masalah. Coba lagi ya!';
                 } else {
-                    [$reply, $transaction] = $this->extractTransaction($content);
+                    [$reply, $transaction] = $this->extractTransaction($content, $userId);
                 }
                 $parseMs = (int) round((microtime(true) - $parseStarted) * 1000);
             } else {
@@ -179,6 +180,9 @@ class AiAssistantService
                 'system' => $systemPrompt,
                 'message' => $message,
                 'history' => $history,
+                // Kategori user (bawaan + custom) agar service langchain-svc
+                // memberi tahu model list yang valid dan menyetujuinya juga.
+                'categories' => implode(', ', Category::allNames($userId)),
             ]);
             $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
 
@@ -201,7 +205,7 @@ class AiAssistantService
 
             $reply = trim((string) ($data['reply'] ?? ''));
             $candidate = $data['transaction'] ?? null;
-            $transaction = is_array($candidate) ? $this->normalizeCandidate($candidate) : null;
+            $transaction = is_array($candidate) ? $this->normalizeCandidate($candidate, $userId) : null;
 
             if ($reply === '') {
                 $reply = 'Maaf, tidak ada balasan dari asisten. Coba lagi ya!';
@@ -289,7 +293,7 @@ class AiAssistantService
      * Menerima alias "date" agar frontend bisa mengirim balik kandidat
      * secara verbatim. Mengembalikan null bila kandidat tidak bisa dipakai.
      */
-    public function normalizeCandidate(mixed $candidate): ?array
+    public function normalizeCandidate(mixed $candidate, ?int $userId = null): ?array
     {
         if (! is_array($candidate)) {
             return null;
@@ -309,7 +313,9 @@ class AiAssistantService
             return null;
         }
 
-        if ($category === '' || ! in_array($category, Transaction::allCategories(), true)) {
+        $allowedCategories = $userId !== null ? Category::allNames($userId) : Transaction::allCategories();
+
+        if ($category === '' || ! in_array($category, $allowedCategories, true)) {
             return null;
         }
 
@@ -341,7 +347,7 @@ class AiAssistantService
         ];
     }
 
-    private function buildSystemPrompt(string $message, Carbon $now, array $ctx): string
+    private function buildSystemPrompt(string $message, Carbon $now, array $ctx, ?int $userId = null): string
     {
         $allTimeStats = $ctx['allTime'];
         $thisMonthStats = $ctx['thisMonth'];
@@ -406,21 +412,35 @@ INSTRUKSI KHUSUS (user bertanya tentang keuangan):
 - Berikan analisis sederhana jika diminta.
 - Jika data tidak tersedia, katakan dengan jujur.
 ').'
-Kategori valid: '.self::CATEGORIES_HINT;
+Kategori valid: '.$this->categoriesHint($userId);
 
         return $prompt;
     }
 
-    private function extractTransaction(string $reply): array
+    private function extractTransaction(string $reply, ?int $userId = null): array
     {
         $transaction = null;
         if (preg_match('/<<<JSON(.*?)JSON>>>/s', $reply, $m)) {
             $decoded = json_decode(trim($m[1]), true);
             $reply = trim(str_replace($m[0], '', $reply));
-            $transaction = is_array($decoded) ? $this->normalizeCandidate($decoded) : null;
+            $transaction = is_array($decoded) ? $this->normalizeCandidate($decoded, $userId) : null;
         }
 
         return [$reply, $transaction];
+    }
+
+    /**
+     * Petunjuk daftar kategori untuk prompt AI, memakai kategori milik user
+     * (bawaan global + custom). Tanpa userId memakai konstanta bawaan agar
+     * pemanggil lama/test tetap berjalan.
+     */
+    private function categoriesHint(?int $userId = null): string
+    {
+        if ($userId === null) {
+            return self::CATEGORIES_HINT;
+        }
+
+        return implode(', ', Category::allNames($userId));
     }
 
     /**

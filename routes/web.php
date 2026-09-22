@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
@@ -48,6 +49,12 @@ Route::middleware('auth')->group(function () {
 
     // Anggaran Bulanan
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+
+    // Kategori custom per user: lihat, tambah, hapus (tanpa edit — mengganti nama
+    // kategori akan memutus riwayat transaksi yang menyimpan nama sebagai string).
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

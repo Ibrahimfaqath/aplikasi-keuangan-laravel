@@ -66,4 +66,37 @@ describe("sanitizeAiOutput (validasi profesional output AI)", () => {
         expect(sanitizeAiOutput(null)).toBeNull();
         expect(sanitizeAiOutput("halo")).toBeNull();
     });
+
+    it("terima kategori custom user via Set dinamis, tolak yang tidak ada", () => {
+        const cats = new Set(["Freelance Desain", "Gaji", "Lainnya"]);
+
+        const ok = sanitizeTransaction({
+            title: "Desain Logo",
+            amount: 500000,
+            type: "income",
+            category: "Freelance Desain",
+            transaction_date: "2026-09-20",
+        }, cats);
+        expect(ok).toMatchObject({ title: "Desain Logo", category: "Freelance Desain" });
+
+        const rejected = sanitizeTransaction({
+            title: "X",
+            amount: 500000,
+            type: "income",
+            category: "Makanan & Minuman",
+            transaction_date: "2026-09-20",
+        }, cats);
+        expect(rejected).toBeNull();
+    });
+
+    it("tanpa Set dinamis tetap pakai daftar bawaan (backward-compatible)", () => {
+        const ok = sanitizeTransaction({
+            title: "Bensin",
+            amount: 50000,
+            type: "expense",
+            category: "Transportasi",
+            transaction_date: "2026-09-20",
+        });
+        expect(ok).not.toBeNull();
+    });
 });

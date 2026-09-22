@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Transaction;
+use App\Models\Category;
 use App\Services\AmountFormatter;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -23,7 +24,7 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
+            'category' => ['required', 'string', 'max:50', Rule::in(Category::allNames(Auth::id()))],
             'amount' => ['required', 'numeric', 'min:1', 'max:999999999999.99'],
             'type' => ['required', Rule::in(['income', 'expense'])],
             'transaction_date' => ['required', 'date'],
@@ -55,11 +56,11 @@ class StoreTransactionRequest extends FormRequest
                 return;
             }
 
-            if (! is_string($category) || ! in_array($category, Transaction::allCategories(), true)) {
+            if (! is_string($category) || ! in_array($category, Category::allNames(Auth::id()), true)) {
                 return;
             }
 
-            if (! in_array($category, Transaction::categoriesFor($type), true)) {
+            if (! in_array($category, Category::namesFor(Auth::id(), $type), true)) {
                 $validator->errors()->add(
                     'category',
                     'Kategori tidak sesuai dengan jenis transaksi. Periksa lagi ya!'

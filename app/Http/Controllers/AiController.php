@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Services\AiAssistantService;
 use App\Services\DemoMode;
@@ -79,7 +80,7 @@ class AiController extends Controller
         // The server-side pending candidate is authoritative: the frontend
         // must send back the exact candidate it received from /ai/chat.
         // Without a valid pending candidate, confirmation is rejected.
-        $pending = $this->assistant->normalizeCandidate(Session::get('pending_transaction'));
+        $pending = $this->assistant->normalizeCandidate(Session::get('pending_transaction'), Auth::id());
 
         if (! $pending) {
             Session::forget('pending_transaction');
@@ -99,13 +100,13 @@ class AiController extends Controller
             'title' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1|max:999999999999.99',
             'type' => ['required', Rule::in(['income', 'expense'])],
-            'category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
+            'category' => ['required', 'string', 'max:50', Rule::in(Category::allNames(Auth::id()))],
             'transaction_date' => 'required|date',
         ]);
 
         // Category must be valid for the selected type (e.g. an expense
         // cannot be saved with the income-only "Gaji" category).
-        if (! in_array($validated['category'], Transaction::categoriesFor($validated['type']), true)) {
+        if (! in_array($validated['category'], Category::namesFor(Auth::id(), $validated['type']), true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kategori tidak sesuai dengan jenis transaksi. Periksa lagi ya!',
@@ -185,14 +186,14 @@ class AiController extends Controller
             'items.*.title' => 'required|string|max:255',
             'items.*.amount' => 'required|numeric|min:1|max:999999999999.99',
             'items.*.type' => 'required|in:income,expense',
-            'items.*.category' => ['required', 'string', 'max:50', Rule::in(Transaction::allCategories())],
+            'items.*.category' => ['required', 'string', 'max:50', Rule::in(Category::allNames(Auth::id()))],
             'items.*.transaction_date' => 'required|date',
         ]);
 
         // Kategori harus sesuai jenisnya (sama seperti confirmTransaction).
         // Contoh: expense tidak boleh pakai kategori "Gaji".
         foreach ($validated['items'] as $index => $item) {
-            if (! in_array($item['category'], Transaction::categoriesFor($item['type']), true)) {
+            if (! in_array($item['category'], Category::namesFor(Auth::id(), $item['type']), true)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Item ke-'.($index + 1).' kategorinya tidak sesuai dengan jenis transaksi. Periksa lagi ya!',

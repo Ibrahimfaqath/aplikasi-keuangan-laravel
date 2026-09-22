@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,7 +40,7 @@ class ReportingService
             $query->where('type', $filters['type']);
         }
 
-        if (! empty($filters['category']) && in_array($filters['category'], Transaction::allCategories(), true)) {
+        if (! empty($filters['category']) && in_array($filters['category'], Category::allNames($userId), true)) {
             $query->where('category', $filters['category']);
         }
 

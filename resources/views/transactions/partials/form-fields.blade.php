@@ -162,13 +162,13 @@
 
         <div id="cat-income">
             <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                @foreach (\App\Models\Transaction::INCOME_CATEGORIES as $cat){!! $chipBtn($cat) !!}@endforeach
+                @foreach (\App\Models\Category::namesFor(Auth::id(), 'income') as $cat){!! $chipBtn($cat) !!}@endforeach
             </div>
         </div>
 
         <div id="cat-expense">
             <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                @foreach (\App\Models\Transaction::EXPENSE_CATEGORIES as $cat){!! $chipBtn($cat) !!}@endforeach
+                @foreach (\App\Models\Category::namesFor(Auth::id(), 'expense') as $cat){!! $chipBtn($cat) !!}@endforeach
             </div>
         </div>
         @error('category')

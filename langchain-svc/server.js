@@ -187,21 +187,21 @@ Jangan sertakan teks lain di luar objek JSON tersebut.{instructions}`),
 // Mengembalikan { data, usage } agar observability (token) tidak hilang saat retry.
 // sanitizeAiOutput memastikan transaction invalid menjadi null (tetap balas chat),
 // dan reply kosong dianggap gagal sehingga memicu retry.
-async function cobaSekali(payload, historyMessages, signal) {
+async function cobaSekali(payload, historyMessages, signal, categorySet) {
     const rendered = await prompt.invoke({ today: buildHariIni(), ...payload, history: historyMessages });
     const res = await model.invoke(rendered, { signal });
 
     const text = Array.isArray(res.content)
         ? res.content.map((c) => (typeof c === "string" ? c : (c.text ?? ""))).join("")
         : String(res.content ?? "");
-    return { data: sanitizeAiOutput(extractJson(text)), usage: extractUsage(res) };
+    return { data: sanitizeAiOutput(extractJson(text), categorySet), usage: extractUsage(res) };
 }
 
 // Retry 2x: percobaan ke-2 diberi instruksi tegas agar model reasoning
 // memotong chain-of-thought dan langsung mengeluarkan JSON.
 // History diubah ke HumanMessage/AIMessage di sini (batas sudah di normalizeHistory).
 // Mengembalikan { data, usage } — usage diambil dari percobaan yang berhasil.
-async function chat(payload, rawHistory, signal) {
+async function chat(payload, rawHistory, signal, categorySet) {
     const historyMessages = (rawHistory || []).map((h) =>
         h.role === "user" ? new HumanMessage(h.content) : new AIMessage(h.content)
     );
@@ -215,10 +215,13 @@ async function chat(payload, rawHistory, signal) {
     ];
 
     for (let i = 0; i < attempts.length; i++) {
-        const { data, usage } = await cobaSekali({ ...payload, ...attempts[i] }, historyMessages, signal);
+        const { data, usage } = await cobaSekali({ ...payload, ...attempts[i] }, historyMessages, signal, categorySet);
         if (data) return { data, usage };
         console.log(`[retry-${i + 1}] model tidak mengembalikan JSON valid`);
     }
+
+    throw new Error("model tidak mengembalikan JSON yang valid setelah 2 percobaan");
+}
 
     throw new Error("model tidak mengembalikan JSON yang valid setelah 2 percobaan");
 }
@@ -294,15 +297,24 @@ app.post("/chat", chatLimiter, requireInternalToken, async (req, res) => {
             .json({ error: `message terlalu panjang (maks ${MAX_MESSAGE_CHARS} karakter)` });
     }
 
+    // Kategori user (bawaan + custom) dikirim Laravel sebagai string CSV.
+    // Dipakai UNTUK MODEL (petunjuk list di prompt) DAN UNTUK VALIDASI/sanitasi
+    // kandidat. Bila tidak dikirim (service versi lama / malformed), fallback
+    // ke daftar bawaan yang identik dengan Transaction::allCategories().
+    const requestedCategories = typeof req.body.categories === "string" ? req.body.categories.trim() : "";
+    const categoriesHint = requestedCategories !== "" ? requestedCategories : CATEGORIES_HINT;
+    const categorySet = new Set(categoriesHint.split(",").map((s) => s.trim()).filter(Boolean));
+
     const mulai = performance.now();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
     try {
         const { data: hasil, usage } = await chat(
-            { system: system.trim(), message: message.trim(), categories: CATEGORIES_HINT },
+            { system: system.trim(), message: message.trim(), categories: categoriesHint },
             cleanHistory,
-            controller.signal
+            controller.signal,
+            categorySet
         );
 
         const timing_ms = Math.round(performance.now() - mulai);

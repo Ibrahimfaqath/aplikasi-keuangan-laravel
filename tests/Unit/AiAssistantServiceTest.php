@@ -2,13 +2,18 @@
 
 namespace Tests\Unit;
 
+use App\Models\Category;
+use App\Models\User;
 use App\Services\AiAssistantService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AiAssistantServiceTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function service(): AiAssistantService
     {
         return app(AiAssistantService::class);
@@ -66,5 +71,44 @@ class AiAssistantServiceTest extends TestCase
         ]));
 
         $this->assertSame('2024-01-15', $result['transaction_date']);
+    }
+
+    #[Test]
+    public function custom_category_is_accepted_for_its_owner(): void
+    {
+        $user = User::factory()->create();
+        Category::create(['user_id' => $user->id, 'name' => 'Jualan Online', 'type' => 'income']);
+
+        $result = $this->service()->normalizeCandidate(
+            $this->candidate(['type' => 'income', 'category' => 'Jualan Online']),
+            $user->id
+        );
+
+        $this->assertNotNull($result);
+        $this->assertSame('Jualan Online', $result['category']);
+    }
+
+    #[Test]
+    public function other_users_custom_category_is_rejected(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        Category::create(['user_id' => $owner->id, 'name' => 'Jualan Online', 'type' => 'income']);
+
+        $result = $this->service()->normalizeCandidate(
+            $this->candidate(['type' => 'income', 'category' => 'Jualan Online']),
+            $other->id
+        );
+
+        $this->assertNull($result);
+    }
+
+    #[Test]
+    public function default_category_still_accepted_without_userid(): void
+    {
+        $result = $this->service()->normalizeCandidate($this->candidate());
+
+        $this->assertNotNull($result);
+        $this->assertSame('Makanan & Minuman', $result['category']);
     }
 }

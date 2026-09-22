@@ -139,7 +139,7 @@
                 <div class="lg:col-span-3">
                     @php
                         $categoryFilterOptions = ['' => 'Semua Kategori'];
-                        foreach (\App\Models\Transaction::allCategories() as $cat) { $categoryFilterOptions[$cat] = $cat; }
+                        foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
                     <x-custom-select name="category" id="trashCategory" label="Filter berdasarkan kategori"
                         :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" />

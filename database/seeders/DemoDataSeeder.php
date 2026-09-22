@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Budget;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -28,6 +29,17 @@ class DemoDataSeeder extends Seeder
                 'password' => bcrypt(config('demo.password')),
                 'email_verified_at' => now(),
             ]
+        );
+
+        // Kategori custom milik user sebagai showcase fitur: muncul di chip,
+        // filter, dan daftar kategori yang dibagikan ke asisten AI.
+        Category::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'name' => 'Freelance Desain',
+                'type' => 'income',
+            ],
+            []
         );
 
         $required = $this->requiredVariations();
@@ -95,6 +107,7 @@ class DemoDataSeeder extends Seeder
             'Pendapatan Online' => ['income', 'Bisnis', true],
             'Bonus Kinerja' => ['income', 'Bonus', true],
             'Cuan Investasi Reksadana' => ['income', 'Investasi', true],
+            'Jasa Desain Logo' => ['income', 'Freelance Desain', true],
             'Tukang Parkir' => ['expense', 'Lainnya', true],
             'Kontrakan' => ['expense', 'Tagihan & Utilitas', false],
             'Internet' => ['expense', 'Tagihan & Utilitas', false],
@@ -142,6 +155,7 @@ class DemoDataSeeder extends Seeder
                 $title === 'Pendapatan Online' => $vary ? mt_rand(250000, 750000) : 0,
                 $title === 'Bonus Kinerja' => $vary && $day % 3 === 0 ? mt_rand(400000, 900000) : 0,
                 $title === 'Cuan Investasi Reksadana' => $vary && $day % 2 === 0 ? mt_rand(80000, 350000) : 0,
+                $title === 'Jasa Desain Logo' => $day % 5 === 0 ? mt_rand(200000, 800000) : 0,
                 $title === 'Tukang Parkir' => $day > 20 ? 4000 : 0,
                 $title === 'Kontrakan' => $day === 1 ? 2000000 : 0,
                 $title === 'Internet' => $day === 5 ? 450000 : 0,
