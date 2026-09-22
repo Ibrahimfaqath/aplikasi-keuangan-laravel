@@ -38,6 +38,36 @@ import { extractJson } from "./lib/extractJson.js";
 import { sanitizeAiOutput } from "./lib/validate.js";
 import { extractUsage } from "./lib/usage.js";
 import { normalizeHistory } from "./lib/history.js";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// --- LOADER .env (fallback) -------------------------------------------------
+// Env vars dari Passenger/shell tetap prioritas; file .env hanya mengisi yang
+// belum ada. Ini membuat service tetap jalan walau user tidak sempat set
+// "Add Variable" di cPanel (cukup upload .env berisi konfigurasi).
+const APP_DIR = path.dirname(fileURLToPath(import.meta.url));
+const ENV_FILE = path.join(APP_DIR, ".env");
+if (existsSync(ENV_FILE)) {
+    const raw = readFileSync(ENV_FILE, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+        const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+        if (!m || /^\s*#/.test(line)) {
+            continue;
+        }
+        const key = m[1];
+        let val = m[2].trim();
+        if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+        ) {
+            val = val.slice(1, -1);
+        }
+        if (process.env[key] === undefined) {
+            process.env[key] = val;
+        }
+    }
+}
 
 // --- VALIDASI ENV (fail-fast, jangan jalan setengah jadi) ------------------
 const apiKey = process.env.KIOSAPI_API_KEY;
@@ -70,7 +100,7 @@ const MAX_MESSAGE_CHARS = 2000; // selaras validasi AiController: message max:20
 
 // Versi prompt — naikkan tiap ubah template di bawah agar log & debug bisa
 // membedakan output prompt lama vs baru. Gratis, tanpa service tambahan.
-const PROMPT_VERSION = process.env.PROMPT_VERSION || "v1.1.0";
+const PROMPT_VERSION = process.env.PROMPT_VERSION || "v1.2.0";
 
 // LangSmith tracing (opsional, ada free-tier). Aktif bila env berikut di-set:
 //   LANGCHAIN_TRACING_V2=true, LANGCHAIN_API_KEY=..., LANGCHAIN_PROJECT=...
@@ -81,6 +111,31 @@ const TRACING_ENABLED = process.env.LANGCHAIN_TRACING_V2 === "true";
 const CATEGORIES_HINT =
     "Gaji, Bonus, Bisnis, Investasi, Hadiah, Lainnya, Makanan & Minuman, " +
     "Transportasi, Tagihan & Utilitas, Belanja, Hiburan, Kesehatan, Pendidikan, Keluarga";
+
+// Tanggal "hari ini" pakai zona waktu Indonesia (WIB), terlepas dari timezone
+// server. Model sering menebak "hari ini" dari data transaksi; sematkan tanggal
+// eksplisit agar pemakaian "hari ini"/"sekarang"/"kemarin" akurat untuk data keuangan.
+function buildHariIni() {
+    const now = new Date();
+    const long = new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    }).format(now);
+    const iso = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Jakarta",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).format(now);
+    return (
+        "HARI INI: " + long + " (" + iso + ").\n" +
+        "Rujuk tanggal HARI INI untuk ungkapan \u201chairi ini\u201d, \u201csekarang\u201d, \u201ckemarin\u201d. " +
+        "JANGAN menebak tanggal dari data transaksi."
+    );
+}
 
 // --- MODEL ----------------------------------------------------------------
 // deepseek-v4-flash adalah model "reasoning": dia berpikir panjang dulu
@@ -103,7 +158,9 @@ const model = new ChatOpenAI({
 //   2. History (10 pertukaran terakhir, disuntik sebagai Human/AIMessage)
 //   3. Human (pesan terbaru user)
 const prompt = ChatPromptTemplate.fromMessages([
-    SystemMessagePromptTemplate.fromTemplate(`{system}
+    SystemMessagePromptTemplate.fromTemplate(`{today}
+
+{system}
 
 Kamu punya MEMORI percakapan di bawah (bila ada). Gunakan untuk menjawab
 pertanyaan lanjutan seperti "berapa tadi?", "yang itu kapan?", "tambahin lagi".
@@ -131,7 +188,7 @@ Jangan sertakan teks lain di luar objek JSON tersebut.{instructions}`),
 // sanitizeAiOutput memastikan transaction invalid menjadi null (tetap balas chat),
 // dan reply kosong dianggap gagal sehingga memicu retry.
 async function cobaSekali(payload, historyMessages, signal) {
-    const rendered = await prompt.invoke({ ...payload, history: historyMessages });
+    const rendered = await prompt.invoke({ today: buildHariIni(), ...payload, history: historyMessages });
     const res = await model.invoke(rendered, { signal });
 
     const text = Array.isArray(res.content)
@@ -169,9 +226,23 @@ async function chat(payload, rawHistory, signal) {
 // --- APP ------------------------------------------------------------------
 const app = express();
 app.disable("x-powered-by");
+app.set("trust proxy", true); // Passenger cPanel menambah X-Forwarded-For; tanpa ini express-rate-limit melempar error
 app.use(helmet());
 app.use(cors({ origin: false })); // tidak perlu browser cross-origin; Laravel memanggil server-to-server
 app.use(express.json({ limit: "32kb" })); // system prompt besar tapi tetap dibatasi
+
+// Passenger cPanel/CloudLinux memasang app pada base URI (contoh /langchain-node)
+// dan meneruskan request dengan path LENGKAP. Strip prefix tersebut agar route
+// di bawah tetap cocok ("/health", "/chat", "/"). Aman bila prefix tidak ada.
+app.use((req, _res, next) => {
+    const p = req.path;
+    const slash = p.indexOf("/", 1);
+    const first = slash === -1 ? p.slice(1) : p.slice(1, slash);
+    if (first && first !== "chat" && first !== "health") {
+        req.url = p.slice(first.length + 1) || "/";
+    }
+    next();
+});
 
 // Rate-limit selaras Laravel throttle:ai (30/menit per user).
 const chatLimiter = rateLimit({
@@ -195,6 +266,10 @@ function requireInternalToken(req, res, next) {
 
 app.get("/health", (_req, res) => {
     res.json({ status: "ok", model: MODEL, prompt_version: PROMPT_VERSION, tracing: TRACING_ENABLED });
+});
+
+app.get("/", (_req, res) => {
+    res.json({ status: "ok", service: "langchain-svc", health: "/health" });
 });
 
 app.post("/chat", chatLimiter, requireInternalToken, async (req, res) => {
