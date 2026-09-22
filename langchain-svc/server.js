@@ -223,9 +223,6 @@ async function chat(payload, rawHistory, signal, categorySet) {
     throw new Error("model tidak mengembalikan JSON yang valid setelah 2 percobaan");
 }
 
-    throw new Error("model tidak mengembalikan JSON yang valid setelah 2 percobaan");
-}
-
 // --- APP ------------------------------------------------------------------
 const app = express();
 app.disable("x-powered-by");
