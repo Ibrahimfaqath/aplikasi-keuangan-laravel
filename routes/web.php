@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
 
     // Anggaran Bulanan
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::delete('/budgets/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
     // Kategori custom per user: lihat, tambah, hapus (tanpa edit — mengganti nama
     // kategori akan memutus riwayat transaksi yang menyimpan nama sebagai string).

@@ -16,7 +16,8 @@ class BudgetObserver extends AuditObserver
     {
         $budget = $model instanceof Budget ? $model : null;
         $amount = 'Rp '.number_format((float) ($budget?->amount ?? 0), 0, ',', '.');
+        $category = $budget?->category ? ' ('.$budget->category.')' : '';
 
-        return $amount.' untuk bulan '.($budget?->month ?? '-').'/'.($budget?->year ?? '-');
+        return $amount.' untuk bulan '.($budget?->month ?? '-').'/'.($budget?->year ?? '-').$category;
     }
 }

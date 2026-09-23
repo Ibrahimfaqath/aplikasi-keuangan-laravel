@@ -6,6 +6,7 @@ use App\Exports\TransactionsExport;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Budget;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Services\DemoMode;
 use App\Services\ReportingService;
@@ -59,10 +60,15 @@ class TransactionController extends Controller
 
         $now = Carbon::now();
 
-        $budget = Budget::where('user_id', Auth::id())
+        // Semua baris anggaran bulan berjalan: keseluruhan (category='') + per kategori.
+        $budgets = Budget::where('user_id', Auth::id())
             ->where('month', $now->month)
             ->where('year', $now->year)
-            ->first();
+            ->orderByRaw("CASE WHEN category = '' THEN 0 ELSE 1 END, category")
+            ->get();
+
+        $budget = $budgets->firstWhere('category', '') ?: null;
+        $categoryBudgets = $budgets->where('category', '!==', '')->values();
 
         // Perf: whereBetween memakai index (user_id, type, transaction_date),
         // sedangkan whereMonth()/whereYear() membungkus kolom dengan fungsi SQL
@@ -74,12 +80,27 @@ class TransactionController extends Controller
             ->whereBetween('transaction_date', [$monthStart, $monthEnd])
             ->sum('amount');
 
+        // Pengeluaran bulan berjalan per kategori, untuk progress anggaran kategori.
+        $categorySpent = Transaction::where('user_id', Auth::id())
+            ->where('type', 'expense')
+            ->whereNotNull('category')
+            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+            ->select('category')
+            ->selectRaw('SUM(amount) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category')
+            ->map(fn ($total) => (float) $total)
+            ->toArray();
+
         return view('transactions.index', array_merge([
             'transactions' => $transactions,
             'filters' => $filters,
             'budget' => $budget,
+            'categoryBudgets' => $categoryBudgets,
+            'categorySpent' => $categorySpent,
             'monthlyExpense' => $monthlyExpense,
             'categoryExpenses' => $categoryExpenses,
+            'expenseCategories' => Category::namesFor(Auth::id(), 'expense'),
             'trendData' => $trendData,
         ], $stats));
     }

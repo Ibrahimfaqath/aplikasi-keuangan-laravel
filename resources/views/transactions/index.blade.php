@@ -499,7 +499,9 @@
                     <span>Pengeluaran sudah melewati batas bulan ini. Pertimbangkan untuk menyesuaikan anggaranmu.</span>
                 </p>
                 @endif
-            @else
+            @endif
+
+            @if($budget === null && $categoryBudgets->isEmpty())
                 <div class="flex flex-col items-center text-center py-6 px-4 bg-neutral-50 dark:bg-[#262626]/40 border border-dashed border-neutral-300 dark:border-[#333333] rounded-2xl">
                     <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center mb-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -513,6 +515,49 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Atur Anggaran
                     </button>
+                </div>
+            @endif
+
+            @if($categoryBudgets->isNotEmpty())
+                <div class="mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Anggaran per Kategori</p>
+                    </div>
+                    <div class="space-y-3">
+                        @foreach($categoryBudgets as $cb)
+                            @php
+                                $spent      = $categorySpent[$cb->category] ?? 0;
+                                $percentage = $cb->amount > 0 ? min(100, round(($spent / $cb->amount) * 100)) : 0;
+                                $remaining  = $cb->amount - $spent;
+                                $isOver     = $remaining < 0;
+                                $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
+                            @endphp
+                            <div class="rounded-xl border border-neutral-200 dark:border-[#333333] bg-neutral-50/50 dark:bg-[#262626]/30 p-3">
+                                <div class="flex items-center justify-between gap-2 mb-2">
+                                    <p class="text-xs font-bold text-neutral-900 dark:text-neutral-50">{{ $cb->category }}</p>
+                                    @unless (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
+                                    <div class="flex items-center gap-1.5 no-print">
+                                        <button type="button" onclick="openBudgetModal({{ Js::from($cb->category) }}, {{ $cb->amount }})"
+                                                class="px-2.5 py-1 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 border border-neutral-300 dark:border-[#333333] rounded-lg hover:bg-neutral-100 dark:hover:bg-[#333333] transition">Ubah</button>
+                                        <form action="{{ route('budgets.destroy', $cb) }}" method="POST" onsubmit="return confirm('Hapus anggaran {{ addslashes($cb->category) }} bulan ini?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition">Hapus</button>
+                                        </form>
+                                    </div>
+                                    @endunless
+                                </div>
+                                <div class="w-full h-2 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 mt-2">
+                                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($spent, 0, ',', '.') }} dari Rp {{ number_format($cb->amount, 0, ',', '.') }}">Rp {{ number_format($spent, 0, ',', '.') }} dari Rp {{ number_format($cb->amount, 0, ',', '.') }}</p>
+                                    <p class="text-[11px] font-bold {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-300' }}">
+                                        {{ $percentage }}%{{ $isOver ? ' · melebihi' : '' }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
         </section>
@@ -1021,6 +1066,30 @@
                         </div>
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="budget-category" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-2">Kategori</label>
+                            <select id="budget-category" name="category"
+                                    class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
+                                <option value="">Keseluruhan (semua pengeluaran)</option>
+                                @foreach($expenseCategories as $cat)
+                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                            <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
+                        </div>
+                        <div>
+                            <label for="budget-months" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-2">Berlaku Selama</label>
+                            <select id="budget-months" name="months"
+                                    class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
+                                @for($m = 1; $m <= 12; $m++)
+                                    <option value="{{ $m }}" @selected($m === 1)>{{ $m === 1 ? '1 Bulan Ini' : $m.' Bulan' }}</option>
+                                @endfor
+                            </select>
+                            <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Terapkan nominal yang sama ke beberapa bulan sekaligus.</p>
+                        </div>
+                    </div>
+
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-[#333333]">
                         <button type="button" onclick="closeBudgetModal()" class="px-4 py-2 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-50 dark:hover:bg-[#333333] transition">Batal</button>
                         <button type="submit"
@@ -1034,9 +1103,19 @@
     </div>
 
     <script>
-        function openBudgetModal() {
+        function openBudgetModal(category = '', amount = null) {
             document.getElementById('budgetModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            const catSel = document.getElementById('budget-category');
+            if (catSel) catSel.value = category || '';
+            const monSel = document.getElementById('budget-months');
+            if (monSel) monSel.value = '1';
+            if (amount) {
+                const input = document.getElementById('budget-amount-input');
+                const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                setter.call(input, new Intl.NumberFormat('id-ID').format(Number(amount)));
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         }
         function closeBudgetModal() {
             document.getElementById('budgetModal').classList.add('hidden');
