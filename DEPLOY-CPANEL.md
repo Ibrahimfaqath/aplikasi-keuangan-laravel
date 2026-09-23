@@ -156,12 +156,20 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
 
 ## Cadangan Database Otomatis
 
-Fitur pencadangan (menu **Pencadangan** di sidebar) menghasilkan file `.sql` lengkap ke
-`storage/app/backups` (di luar docroot — tidak bisa diunduh publik) dan tersedia untuk
-diunduh lewat route ber-autentikasi.
+Backup adalah urusan infrastruktur — **tidak tampil di sidebar** untuk user biasa. File `.sql`
+lengkap dihasilkan ke `storage/app/backups` (di luar docroot — tidak bisa diunduh publik) dan
+halaman `/backups` (lihat + unduh + buat manual) **hanya untuk akun pemilik**:
 
-- **Cara buat**: tombol "Buat Backup Sekarang" di halaman `/backups`, atau
-  `php artisan backup:database` (opsi `--keep=` untuk atur retensi, default 30 file).
+- **Aktifkan akses pemilik**: tambahkan di `.env` produksi
+  `BACKUP_OWNER_EMAIL=email_lengkap_akunmu`. Selama belum diisi, halaman web nonaktif (404)
+  dan backup tetap berjalan otomatis via cron.
+
+Daftar isi file backup ada dua cara, keduanya hanya — buka
+`storage/app/backups` via **File Manager** cPanel, atau (jika diaktifkan) akses `/backups`
+sebagai pemilik.
+
+- **Cara buat**: `php artisan backup:database` (opsi `--keep=` untuk atur retensi, default 30 file),
+  atau tombol "Buat Backup Sekarang" di halaman `/backups` sebagai pemilik.
 - **Otomatis**: jadwal harian 03:00 WIB via Laravel Scheduler. Scheduler butuh SATU cron
   di cPanel → **Cron Jobs** (contoh menit 1-59 agar tidak bentrok dengan proses lain):
 

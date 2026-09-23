@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\DatabaseBackupService;
-use App\Services\DemoMode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,21 +10,26 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class BackupController extends Controller
 {
+    /**
+     * Halaman cadangan hanya untuk pemilik aplikasi (lihat config/backup.php).
+     * Pemilik dikonfigurasi lewat BACKUP_OWNER_EMAIL di .env produksi.
+     * Selama belum diisi, seluruh halaman nonaktif (404) — backup tetap
+     * berjalan otomatis lewat cron.
+     */
     public function index(DatabaseBackupService $service)
     {
+        $this->ensureOwner();
+
         return view('backups.index', [
             'backups' => $service->all(),
             'backupDir' => $service->directory(),
             'retentionKeep' => DatabaseBackupService::DEFAULT_KEEP,
-            'isDemo' => DemoMode::isEnabled() && DemoMode::isDemoUser(Auth::user()),
         ]);
     }
 
-    public function store(Request $request, DatabaseBackupService $service)
+    public function store(Request $request, DatabaseBackupService $service): RedirectResponse
     {
-        if (DemoMode::isEnabled() && DemoMode::isDemoUser(Auth::user())) {
-            return DemoMode::warn();
-        }
+        $this->ensureOwner();
 
         $backup = $service->take();
 
@@ -39,9 +43,7 @@ class BackupController extends Controller
      */
     public function download(DatabaseBackupService $service, string $filename): BinaryFileResponse|RedirectResponse
     {
-        if (DemoMode::isEnabled() && DemoMode::isDemoUser(Auth::user())) {
-            return DemoMode::warn();
-        }
+        $this->ensureOwner();
 
         if (! $service->has($filename)) {
             abort(404);
@@ -50,5 +52,18 @@ class BackupController extends Controller
         return response()->download($service->pathFor($filename), $filename, [
             'Content-Type' => 'application/sql',
         ]);
+    }
+
+    /**
+     * Kota pintu: hanya akun dengan email pemilik yang boleh masuk.
+     * Lainnya 404 (seakan halaman tidak pernah ada) — bukan pesan error.
+     */
+    private function ensureOwner(): void
+    {
+        $ownerEmail = config('backup.owner_email');
+
+        if ($ownerEmail === '' || Auth::user()?->email !== $ownerEmail) {
+            abort(404);
+        }
     }
 }

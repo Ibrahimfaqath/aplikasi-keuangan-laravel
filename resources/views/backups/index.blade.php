@@ -67,7 +67,6 @@
     @endif
 
     @php
-        $isDemo = \App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user());
         $humanSize = function (int $bytes): string {
             if ($bytes >= 1048576) return number_format($bytes / 1048576, 1, ',', '.') . ' MB';
             if ($bytes >= 1024) return number_format($bytes / 1024, 1, ',', '.') . ' kB';
@@ -93,17 +92,6 @@
             </div>
         </div>
 
-        @if ($isDemo)
-        <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-6">
-            <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">
-                Mode demo — pencadangan dinonaktifkan. Daftar akun sendiri supaya bisa mencadangkan dan mengunduh datamu.
-                <a href="{{ route('register') }}" class="underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200">Daftar gratis</a>.
-            </p>
-        </div>
-        @endif
-
-        @if (! $isDemo)
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-5 sm:p-6 mb-6">
             <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Cadangkan Sekarang</h2>
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 mb-4">
@@ -125,7 +113,6 @@
                 Pastikan <strong>cron</strong> di cPanel sudah diaktifkan — lihat <em>Petunjuk Cron</em> di bawah.
             </p>
         </section>
-        @endif
 
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden">
             <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
