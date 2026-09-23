@@ -35,25 +35,25 @@
         cursor: pointer;
     }
     .btn-upload.active {
-        background-color: #111111 !important;
-        border-color: #111111 !important;
+        background-color: #4f46e5 !important;
+        border-color: #4f46e5 !important;
         color: #ffffff !important;
     }
     .dark .btn-upload.active {
-        background-color: #FAFAFA !important;
-        border-color: #FAFAFA !important;
-        color: #0A0A0A !important;
+        background-color: #6366f1 !important;
+        border-color: #6366f1 !important;
+        color: #ffffff !important;
     }
     .cat-chip.active {
-        background-color: #111111 !important;
-        border-color: #111111 !important;
+        background-color: #4f46e5 !important;
+        border-color: #4f46e5 !important;
         color: #ffffff !important;
         box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
     }
     .dark .cat-chip.active {
-        background-color: #FAFAFA !important;
-        border-color: #FAFAFA !important;
-        color: #0A0A0A !important;
+        background-color: #6366f1 !important;
+        border-color: #6366f1 !important;
+        color: #ffffff !important;
     }
     .cat-chip.active > span:first-child {
         background-color: rgba(255, 255, 255, 0.16) !important;

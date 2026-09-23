@@ -49,7 +49,7 @@
                 </svg>
             </a>
             <div class="text-center px-12">
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Pratinjau Import</h1>
+                <h1 class="app-page-heading text-xl sm:text-2xl">Pratinjau import</h1>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-xs sm:max-w-sm mx-auto">{{ $filename }}</p>
             </div>
         </div>

@@ -36,8 +36,8 @@
 </script>
 
 @php
-$sbActive = 'bg-neutral-900 text-white dark:bg-[#262626] dark:text-neutral-50 shadow-sm';
-$sbIdle = 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50';
+$sbActive = 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-200 shadow-none';
+$sbIdle = 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50';
 $sbIconSvg = 'class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 $sbGroups = [
     'UTAMA' => [
@@ -108,13 +108,13 @@ $sbGroups = [
      x-effect="document.body.style.overflow = drawer ? 'hidden' : ''">
 
     <!-- ============ DESKTOP SIDEBAR (fixed, collapsible) ============ -->
-    <aside class="sb-aside hidden lg:flex fixed inset-y-0 left-0 z-40 w-[256px] flex-col bg-white dark:bg-[#0A0A0A] border-r border-neutral-200 dark:border-[#262626] transition-all duration-200"
+    <aside class="sb-aside hidden lg:flex fixed inset-y-0 left-0 z-40 w-[256px] flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-200"
            aria-label="Navigasi utama dompetku">
 
         <!-- Brand FIXED (tidak ikut scroll) -->
         <div class="sb-brand-row flex items-center gap-2.5 px-4 h-16 shrink-0">
             <a href="{{ route('transactions.index') }}" class="flex items-center gap-2.5 min-w-0" aria-label="dompetku — ke Dashboard">
-                <span class="w-9 h-9 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
+                <span class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-indigo-600/20">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>
                     </svg>

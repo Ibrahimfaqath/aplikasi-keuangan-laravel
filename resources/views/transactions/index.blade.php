@@ -348,8 +348,8 @@
 
         <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
             <div class="min-w-0">
-                <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi</h1>
-                <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</p>
+                <h1 class="app-page-heading text-xl sm:text-2xl">Ringkasan keuangan</h1>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
         </div>
 
@@ -366,21 +366,23 @@
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+                 class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 p-5 sm:p-6 lg:p-7 text-white shadow-lg shadow-indigo-950/15">
+
+            <div class="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" aria-hidden="true"></div>
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
-                    <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Saldo</span>
+                    <span class="text-xs font-medium text-indigo-100">Total saldo tersedia</span>
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
                     <a href="{{ route('transactions.create') }}"
-                       class="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-black dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white">
+                       class="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-50">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                         Tambah
                     </a>
                     <button type="button" data-privacy-toggle
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                             aria-label="Sembunyikan saldo" title="Sembunyikan saldo">
                         <svg data-lock-open class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         <svg data-lock-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
@@ -389,44 +391,44 @@
             </div>
 
             <!-- Summary: vertikal di mobile, 3 kolom horizontal di desktop -->
-            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-white/20 gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-white/20">
 
                 <div class="min-w-0 md:pr-4 lg:pr-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Saldo</p>
-                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
+                    <p class="text-xs font-medium text-indigo-100">Saldo</p>
+                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight leading-tight tabular-nums text-white privacy-target"
                        x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total saldo</p>
+                    <p class="mt-1 text-[11px] text-indigo-200">Saldo seluruh transaksi</p>
                 </div>
 
                 <div class="min-w-0 md:px-4 lg:px-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
+                    <p class="text-xs font-medium text-indigo-100">Pemasukan</p>
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-emerald-200 privacy-target"
                        x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pemasukan</p>
+                    <p class="mt-1 text-[11px] text-indigo-200">Bulan berjalan</p>
                 </div>
 
                 <div class="min-w-0 md:pl-4 lg:pl-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
+                    <p class="text-xs font-medium text-indigo-100">Pengeluaran</p>
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-rose-200 privacy-target"
                        x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pengeluaran</p>
+                    <p class="mt-1 text-[11px] text-indigo-200">Bulan berjalan</p>
                 </div>
             </div>
         </section>
 
         <!-- ROW: BUDGET + INCOME VS EXPENSE (side by side di desktop) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
+        <div class="grid grid-cols-1 xl:grid-cols-5 items-start gap-6 sm:gap-8">
 
         <!-- BUDGET CARD -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm">
+        <section class="ui-card xl:col-span-2 p-5 sm:p-6">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 rounded-xl flex-shrink-0">
+                    <div class="p-2.5 bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20 rounded-xl flex-shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -462,7 +464,7 @@
                     $daysLeft   = max(1, $now->daysInMonth - $now->day + 1);
                     $daily      = $remaining > 0 ? floor($remaining / $daysLeft) : 0;
                     // Progress semantic: calm neutral, amber saat ≥80%, red saat over
-                    $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
+                    $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-indigo-500');
                 @endphp
 
                 <div class="flex items-end justify-between gap-3">
@@ -510,7 +512,7 @@
 
             @if($budget === null && $categoryBudgets->isEmpty())
                 <div class="flex flex-col items-center text-center py-6 px-4 bg-neutral-50 dark:bg-[#262626]/40 border border-dashed border-neutral-300 dark:border-[#333333] rounded-2xl">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center mb-3">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20 flex items-center justify-center mb-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -537,7 +539,7 @@
                                 $percentage = $cb->amount > 0 ? min(100, round(($spent / $cb->amount) * 100)) : 0;
                                 $remaining  = $cb->amount - $spent;
                                 $isOver     = $remaining < 0;
-                                $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
+                                $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-indigo-500');
                             @endphp
                             <div class="rounded-xl border border-neutral-200 dark:border-[#333333] bg-neutral-50/50 dark:bg-[#262626]/30 p-3">
                                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -570,7 +572,7 @@
         </section>
 
         <!-- CHART TREN -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+        <section class="ui-card xl:col-span-3 p-5 sm:p-6 overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
                     <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
@@ -613,10 +615,10 @@
         </div>
 
         <!-- ROW: EXPENSE BY CATEGORY + RECENT TRANSACTIONS (side by side di desktop) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
+        <div class="grid grid-cols-1 xl:grid-cols-5 items-start gap-6 sm:gap-8">
 
         <!-- EXPENSE BY CATEGORY (half width) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+        <section class="ui-card xl:col-span-2 p-5 sm:p-6 overflow-hidden">
             <div class="mb-4">
                 <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
@@ -645,7 +647,7 @@
         </section>
 
         <!-- RECENT TRANSACTIONS (compact, half width) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex flex-col">
+        <section class="ui-card xl:col-span-3 overflow-hidden flex flex-col">
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
                     <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
@@ -682,7 +684,13 @@
         </div>
 
         <!-- FILTER -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm no-print">
+        <section class="ui-card p-5 sm:p-6 no-print">
+            <div class="mb-4 flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Cari dan filter transaksi</h2>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Persempit riwayat berdasarkan tipe, kategori, atau waktu.</p>
+                </div>
+            </div>
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>

@@ -82,6 +82,95 @@
 }
 
 /* ==========================================================
+   DOMPETKU 2.0 — application foundation
+   Calm slate surfaces + an indigo action color.  These rules sit after
+   Tailwind utilities intentionally: all legacy pages share the same shell
+   while they are migrated one by one.
+   ========================================================== */
+@layer components {
+    .app-shell-content {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+    .dark .app-shell-content {
+        background: #0f172a;
+        color: #f8fafc;
+    }
+
+    .app-shell-content .sb-aside {
+        background: #ffffff;
+        border-color: #e2e8f0;
+    }
+    .dark .app-shell-content .sb-aside {
+        background: #0f172a;
+        border-color: #1e293b;
+    }
+    .app-shell-content .sb-link[aria-current="page"] {
+        background: #eef2ff;
+        color: #4338ca;
+        box-shadow: none;
+    }
+    .dark .app-shell-content .sb-link[aria-current="page"] {
+        background: rgb(99 102 241 / 0.16);
+        color: #c7d2fe;
+    }
+    .app-shell-content .sb-section-label {
+        color: #94a3b8;
+        letter-spacing: .08em;
+    }
+    .app-shell-content .sb-brand-row > a > span:first-child,
+    .app-shell-content .sb-profile-card > span:first-child {
+        background: #4f46e5;
+        color: #fff;
+    }
+
+    .app-page-heading {
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #0f172a;
+    }
+    .dark .app-page-heading { color: #f8fafc; }
+
+    .ui-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.03), 0 1px 3px rgb(15 23 42 / 0.04);
+    }
+    .dark .ui-card {
+        border-color: #1e293b;
+        background: #111c30;
+        box-shadow: none;
+    }
+
+    /* Compatibility layer for the existing Blade pages. It gives every
+       established panel the same quieter fintech surface during migration. */
+    .app-shell-content :is(section, div).bg-white.rounded-2xl {
+        border-color: #e2e8f0;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.03), 0 1px 3px rgb(15 23 42 / 0.04);
+    }
+    .dark .app-shell-content :is(section, div).bg-white.rounded-2xl {
+        background-color: #111c30;
+        border-color: #1e293b;
+        box-shadow: none;
+    }
+    .app-shell-content :is(a, button).bg-neutral-900 {
+        background-color: #4f46e5;
+        box-shadow: 0 1px 2px rgb(79 70 229 / 0.18);
+    }
+    .app-shell-content :is(a, button).bg-neutral-900:hover {
+        background-color: #4338ca;
+    }
+    .dark .app-shell-content :is(a, button).bg-neutral-900 {
+        background-color: #6366f1;
+        color: #fff;
+    }
+    .dark .app-shell-content :is(a, button).bg-neutral-900:hover {
+        background-color: #818cf8;
+    }
+}
+
+/* ==========================================================
    HALAMAN PUBLIK (landing & auth) — dekorasi latar monokrom
    ========================================================== */
 /* Dot grid halus — dipakai di landing & guest layout */

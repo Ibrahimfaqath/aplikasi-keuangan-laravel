@@ -107,7 +107,7 @@
                 </svg>
             </a>
             <div class="text-center">
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Riwayat Aktivitas</h1>
+                <h1 class="app-page-heading text-xl sm:text-2xl">Riwayat aktivitas</h1>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Semua perubahan dicatat otomatis oleh sistem</p>
             </div>
         </div>

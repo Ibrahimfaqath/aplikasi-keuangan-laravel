@@ -21,19 +21,21 @@
     </div>
     @endif
 
-    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
-        Jenis Transaksi
-    </label>
+    <div>
+        <p class="text-xs font-bold uppercase tracking-[0.12em] text-indigo-600 dark:text-indigo-300">Langkah 1</p>
+        <label class="mt-1 block text-sm font-semibold text-slate-900 dark:text-slate-100">Jenis transaksi</label>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Pilih apakah uang masuk atau keluar.</p>
+    </div>
 
-    <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]"
+    <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700"
          role="radiogroup" aria-label="Jenis Transaksi">
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-indigo-600 dark:has-[:checked]:bg-indigo-500 has-[:checked]:text-white has-[:checked]:shadow-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 focus-within:ring-2 focus-within:ring-indigo-500">
             <input type="radio" name="type" value="income" class="sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
             <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
         </label>
 
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-indigo-600 dark:has-[:checked]:bg-indigo-500 has-[:checked]:text-white has-[:checked]:shadow-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 focus-within:ring-2 focus-within:ring-indigo-500">
             <input type="radio" name="type" value="expense" class="sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
             <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
@@ -47,7 +49,13 @@
     @enderror
 </div>
 
-<main class="bg-white dark:bg-[#171717] rounded-2xl border border-neutral-200 dark:border-[#333333] shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
+<main class="ui-card overflow-hidden p-6 sm:p-8 space-y-6">
+
+    <div class="border-b border-slate-100 pb-5 dark:border-slate-800">
+        <p class="text-xs font-bold uppercase tracking-[0.12em] text-indigo-600 dark:text-indigo-300">Langkah 2</p>
+        <h2 class="mt-1 text-base font-semibold text-slate-900 dark:text-slate-100">Detail transaksi</h2>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Lengkapi nominal, waktu, dan kategori agar ringkasanmu akurat.</p>
+    </div>
 
     <div class="space-y-2">
         <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
@@ -66,7 +74,7 @@
                 required
                 min="1"
                 step="any"
-                class="w-full pl-12 pr-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-neutral-900 dark:text-neutral-50 font-extrabold text-base sm:text-lg placeholder-neutral-300 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
+                class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-50 font-extrabold text-base sm:text-lg placeholder-slate-300 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
             >
         </div>
         @error('amount')
@@ -89,7 +97,7 @@
                     id="transaction_date"
                     value="{{ $dateValue }}"
                     required
-                    class="date-field w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('transaction_date') border-red-400 @enderror"
+                    class="date-field w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition @error('transaction_date') border-red-400 @enderror"
                 >
                 <svg class="date-field-icon pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -114,7 +122,7 @@
                 value="{{ $titleValue }}"
                 placeholder="Contoh: Gaji Bulanan, Beli Kopi"
                 required
-                class="w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('title') border-red-400 @enderror"
+                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition @error('title') border-red-400 @enderror"
             >
             @error('title')
                 <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">

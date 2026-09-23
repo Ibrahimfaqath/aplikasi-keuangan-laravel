@@ -100,7 +100,7 @@
                 </svg>
             </a>
             <div class="text-center">
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Kelola Kategori</h1>
+                <h1 class="app-page-heading text-xl sm:text-2xl">Kelola kategori</h1>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Kategori bawaan + custom pribadimu</p>
             </div>
         </div>

@@ -10,6 +10,13 @@ export default {
     theme: {
         extend: {
             colors: {
+                brand: {
+                    50: '#eef2ff',
+                    100: '#e0e7ff',
+                    500: '#6366f1',
+                    600: '#4f46e5',
+                    700: '#4338ca',
+                },
                 // Alias semantik monochrome agar konsisten di seluruh UI.
                 // Light: bg #FAFAFA, card #FFFFFF, text #111111
                 // Dark: bg #0A0A0A, card #171717, secondary #262626, border #333333

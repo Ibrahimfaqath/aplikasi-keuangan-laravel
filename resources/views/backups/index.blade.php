@@ -87,7 +87,7 @@
                 </svg>
             </a>
             <div class="text-center">
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Pencadangan & Restore</h1>
+                <h1 class="app-page-heading text-xl sm:text-2xl">Pencadangan &amp; restore</h1>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Lindungi data keuanganmu dari kehilangan</p>
             </div>
         </div>
