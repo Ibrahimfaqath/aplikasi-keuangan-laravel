@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -47,35 +48,46 @@ class DatabaseBackupService
      */
     public function take(int $keep = self::DEFAULT_KEEP): array
     {
-        $dir = $this->directory();
+        // Cegah dua proses menulis bersamaan (mis. cron + klik manual).
+        $lock = Cache::lock('dompetku:backup', 60);
 
-        if (! is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        if (! $lock->get()) {
+            throw new \RuntimeException('Backup lain sedang berjalan. Coba lagi sebentar lagi.');
         }
 
-        $filename = 'dompetku-'.now()->format('Ymd_His').'-'.Str::lower(Str::random(4)).'.sql';
-        $file = $dir.DIRECTORY_SEPARATOR.$filename;
+        try {
+            $dir = $this->directory();
 
-        $sql = $this->sql();
+            if (! is_dir($dir)) {
+                mkdir($dir, 0775, true);
+            }
 
-        // Tulis atomik: file temp dulu, lalu rename — hindari file separuh
-        // yang terlihat seandainya request terpotong di tengah-tengah.
-        $tmp = $file.'.tmp';
-        if (file_put_contents($tmp, $sql) === false) {
-            throw new \RuntimeException('Gagal menulis file backup.');
+            $filename = 'dompetku-'.now()->format('Ymd_His').'-'.Str::lower(Str::random(4)).'.sql';
+            $file = $dir.DIRECTORY_SEPARATOR.$filename;
+
+            $sql = $this->sql();
+
+            // Tulis atomik: file temp dulu, lalu rename — hindari file separuh
+            // yang terlihat seandainya request terpotong di tengah-tengah.
+            $tmp = $file.'.tmp';
+            if (file_put_contents($tmp, $sql) === false) {
+                throw new \RuntimeException('Gagal menulis file backup.');
+            }
+            if (! rename($tmp, $file)) {
+                @unlink($tmp);
+                throw new \RuntimeException('Gagal menyimpan file backup.');
+            }
+
+            $this->prune($keep);
+
+            return [
+                'filename' => $filename,
+                'size' => (int) @filesize($file),
+                'created_at' => now()->toDateTimeString(),
+            ];
+        } finally {
+            $lock->release();
         }
-        if (! rename($tmp, $file)) {
-            @unlink($tmp);
-            throw new \RuntimeException('Gagal menyimpan file backup.');
-        }
-
-        $this->prune($keep);
-
-        return [
-            'filename' => $filename,
-            'size' => (int) filesize($file),
-            'created_at' => now()->toDateTimeString(),
-        ];
     }
 
     /**
@@ -91,12 +103,28 @@ class DatabaseBackupService
             return collect();
         }
 
-        return collect(glob($dir.'/*.sql') ?: [])
-            ->map(fn (string $path): array => [
+        $items = [];
+
+        foreach (glob($dir.'/*.sql') ?: [] as $path) {
+            // Proses lain (cron vs klik manual) bisa saja menghapus file di
+            // antara glob() dan stat — lewati saja, jangan sampai err.
+            clearstatcache(true, $path);
+
+            $size = @filesize($path);
+            $time = @filemtime($path);
+
+            if ($size === false || $time === false) {
+                continue;
+            }
+
+            $items[] = [
                 'filename' => basename($path),
-                'size' => (int) filesize($path),
-                'created_at' => date('Y-m-d H:i:s', (int) filemtime($path)),
-            ])
+                'size' => (int) $size,
+                'created_at' => date('Y-m-d H:i:s', (int) $time),
+            ];
+        }
+
+        return collect($items)
             ->sortByDesc('created_at')
             ->values();
     }
