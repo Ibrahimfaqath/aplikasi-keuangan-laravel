@@ -346,6 +346,13 @@
 
     <div class="flex-1 w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-8 space-y-6 sm:space-y-8 overflow-x-hidden">
 
+        <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+            <div class="min-w-0">
+                <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi</h1>
+                <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</p>
+            </div>
+        </div>
+
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
             <div class="relative space-y-5">
@@ -363,7 +370,7 @@
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
-                    <span class="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Total Saldo</span>
+                    <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Saldo</span>
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
@@ -385,15 +392,15 @@
             <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
                 <div class="min-w-0 md:pr-4 lg:pr-6">
-                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Saldo</p>
-                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
+                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Saldo</p>
+                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
                        x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
                     <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total saldo</p>
                 </div>
 
                 <div class="min-w-0 md:px-4 lg:px-6">
-                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
+                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pemasukan</p>
                     <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
                        x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
@@ -402,7 +409,7 @@
                 </div>
 
                 <div class="min-w-0 md:pl-4 lg:pl-6">
-                    <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
+                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
                     <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
                        x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
@@ -425,7 +432,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Anggaran Bulanan</h2>
+                        <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Anggaran Bulanan</h2>
                         <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                     </div>
                 </div>
@@ -460,17 +467,17 @@
 
                 <div class="flex items-end justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
+                        <p class="text-xs font-medium {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight break-words tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
+                        <p class="mt-1 text-2xl sm:text-3xl font-bold tracking-tight leading-tight break-words tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
                            data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
                             {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
                         </p>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-xl sm:text-2xl font-extrabold tracking-tight tabular-nums text-neutral-900 dark:text-neutral-50">{{ $percentage }}%</p>
-                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-neutral-400 dark:text-neutral-500">terpakai</p>
+                        <p class="text-xl sm:text-2xl font-bold tracking-tight tabular-nums text-neutral-900 dark:text-neutral-50">{{ $percentage }}%</p>
+                        <p class="mt-0.5 text-xs font-medium text-neutral-400 dark:text-neutral-500">terpakai</p>
                     </div>
                 </div>
 
@@ -480,15 +487,15 @@
 
                 <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
                     <div class="min-w-0">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Batas</p>
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Batas</p>
                         <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Terpakai</p>
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Terpakai</p>
                         <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
                         <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
                     </div>
                 </div>
@@ -521,7 +528,7 @@
             @if($categoryBudgets->isNotEmpty())
                 <div class="mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
                     <div class="flex items-center justify-between gap-3 mb-3">
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Anggaran per Kategori</p>
+                        <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Anggaran per Kategori</p>
                     </div>
                     <div class="space-y-3">
                         @foreach($categoryBudgets as $cb)
@@ -566,7 +573,7 @@
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
+                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -611,7 +618,7 @@
         <!-- EXPENSE BY CATEGORY (half width) -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="mb-4">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
+                <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
             </div>
 
@@ -641,7 +648,7 @@
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex flex-col">
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
+                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">5 aktivitas terbaru</p>
                 </div>
                 <a href="#riwayat"
@@ -659,7 +666,7 @@
                             <p class="font-semibold text-sm text-neutral-900 dark:text-neutral-50 truncate">{{ $item->title ?? $item->nama ?? $item->kategori }}</p>
                             <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ $item->category ?? 'Lainnya' }} · {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}</p>
                         </div>
-                        <p class="font-extrabold text-sm whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                        <p class="font-bold text-sm whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                            data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                             {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                         </p>
@@ -725,7 +732,7 @@
 
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Riwayat Transaksi</h2>
+                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Riwayat Transaksi</h2>
                     <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $transactions->total() ?? 0 }} transaksi tercatat</p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -787,7 +794,7 @@
                 <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333] text-neutral-500 dark:text-neutral-400 text-xs font-semibold uppercase tracking-wider">
+                            <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333] text-neutral-500 dark:text-neutral-400 text-xs font-semibold">
                                 <th class="py-3.5 px-4">Tanggal</th>
                                 <th class="py-3.5 px-4">Bukti</th>
                                 <th class="py-3.5 px-4">Keterangan</th>
@@ -874,7 +881,7 @@
                                         <span class="truncate">{{ $catName }}</span>
                                     </span>
                                 </td>
-                                <td class="py-4 px-4 text-right font-extrabold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                                <td class="py-4 px-4 text-right font-bold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                     data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </td>
@@ -947,7 +954,7 @@
                             </div>
 
                             <div class="flex-shrink-0 flex flex-col items-end gap-1">
-                                <p class="font-extrabold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                                <p class="font-bold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
                                    data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
                                     {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
                                 </p>
@@ -1043,7 +1050,7 @@
                     @endif
 
                     <div>
-                        <label for="budget-amount-input" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-2">Batas Pengeluaran</label>
+                        <label for="budget-amount-input" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Batas Pengeluaran</label>
                         <div class="relative rounded-xl shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 font-bold text-sm">Rp</div>
                             <input type="text" inputmode="numeric" id="budget-amount-input" name="amount"
@@ -1055,7 +1062,7 @@
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">Pilih cepat</p>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">Pilih cepat</p>
                         <div class="flex flex-wrap gap-2">
                             <template x-for="preset in presets" :key="preset">
                                 <button type="button" @click="setPreset(preset)"
@@ -1068,7 +1075,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="budget-category" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-2">Kategori</label>
+                            <label for="budget-category" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Kategori</label>
                             <select id="budget-category" name="category"
                                     class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
                                 <option value="">Keseluruhan (semua pengeluaran)</option>
@@ -1079,7 +1086,7 @@
                             <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
                         </div>
                         <div>
-                            <label for="budget-months" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300 mb-2">Berlaku Selama</label>
+                            <label for="budget-months" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Berlaku Selama</label>
                             <select id="budget-months" name="months"
                                     class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
                                 @for($m = 1; $m <= 12; $m++)
