@@ -47,6 +47,12 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Cadangan DB: buat/download dibatasi supaya tidak bisa jadi penyerap
+        // disk atau kuota bandwith saat di-trigger berlebihan.
+        RateLimiter::for('backups', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
         // Login demo publik: dibatasi per-IP supaya tidak bisa di-spam brute-force.
         RateLimiter::for('demo', function (Request $request) {
             return Limit::perMinute(10)->by($request->ip());

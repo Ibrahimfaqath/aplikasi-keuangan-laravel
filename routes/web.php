@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DemoController;
@@ -79,6 +80,13 @@ Route::middleware('auth')->group(function () {
 
     // Notifikasi reminder (dihitung langsung dari data, tanpa cron).
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    // Cadangan database: lihat daftar, buat sekarang, dan unduh file .sql.
+    Route::middleware('throttle:backups')->group(function () {
+        Route::get('/backups', [BackupController::class, 'index'])->name('backups.index');
+        Route::post('/backups', [BackupController::class, 'store'])->name('backups.store');
+        Route::get('/backups/{filename}', [BackupController::class, 'download'])->name('backups.download');
+    });
 
     // AI Assistant Routes
     Route::get('/ai', [AiController::class, 'page'])->name('ai.index');

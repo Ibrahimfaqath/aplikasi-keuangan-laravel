@@ -154,6 +154,28 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
 
 > **Catatan path**: `index.php` docroot memuat `../laravel_finance/vendor/autoload.php`, jadi `bootstrap/app.php` menetapkan base path ke `/laravel_finance` — skrip bantuan di docroot tetap bisa bootstrap Laravel dengan benar.
 
+## Cadangan Database Otomatis
+
+Fitur pencadangan (menu **Pencadangan** di sidebar) menghasilkan file `.sql` lengkap ke
+`storage/app/backups` (di luar docroot — tidak bisa diunduh publik) dan tersedia untuk
+diunduh lewat route ber-autentikasi.
+
+- **Cara buat**: tombol "Buat Backup Sekarang" di halaman `/backups`, atau
+  `php artisan backup:database` (opsi `--keep=` untuk atur retensi, default 30 file).
+- **Otomatis**: jadwal harian 03:00 WIB via Laravel Scheduler. Scheduler butuh SATU cron
+  di cPanel → **Cron Jobs** (contoh menit 1-59 agar tidak bentrok dengan proses lain):
+
+  ```
+  * * * * * /usr/local/bin/php /home3/almahir/ibrahim_projects/laravel_finance/artisan schedule:run
+  ```
+
+  (Cek path PHP dengan `which php` di Terminal cPanel; tanpa cron, backup otomatis
+  tidak berjalan — gunakan tombol manual.)
+- **Restore**: phpMyAdmin → database `almahir_keuangan` → **Import** file `.sql`.
+  File sudah memuat `DROP TABLE IF EXISTS`, jadi aman diimpor di atas data lama.
+- **Best practice**: unduh salinan `.sql` ke tempat di luar server (laptop/cloud)
+  secara berkala.
+
 ## Verifikasi Setelah Deploy (FTP)
 
 1. **Aset baru terlayani**: `curl https://finance.almahir.cloud/build/manifest.json` harus menampilkan hash yang sama dengan `public/build/manifest.json` lokal.
