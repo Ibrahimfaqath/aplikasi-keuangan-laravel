@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TransactionImportController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/trashed', [TransactionController::class, 'trashed'])->name('transactions.trashed');
     Route::post('/transactions/{transaction}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
     Route::delete('/transactions/{transaction}/force-destroy', [TransactionController::class, 'forceDestroy'])->name('transactions.force-destroy');
+
+    // Import transaksi dari CSV: halaman unggah, unduh template, pratinjau & simpan.
+    // Ditaruh SEBELUM resource agar "import" tidak tertelan pola {transaction} (except show).
+    Route::prefix('transactions/import')->group(function () {
+        Route::get('/', [TransactionImportController::class, 'index'])->name('transactions.import');
+        Route::get('/template', [TransactionImportController::class, 'template'])->name('transactions.import-template');
+        Route::post('/preview', [TransactionImportController::class, 'preview'])->name('transactions.import-preview');
+        Route::post('/store', [TransactionImportController::class, 'store'])->name('transactions.import-store');
+    });
 
     // CRUD Utama Transaksi (tanpa show yang tidak ada controller-nya)
     Route::resource('transactions', TransactionController::class)->except(['show']);
