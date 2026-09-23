@@ -115,8 +115,8 @@
             input: '',
             loading: false,
             confirming: false,
-            pendingTransaction: null,
-            showConfirm: false,
+            pendingTransaction: @json($pendingTransaction ?? null),
+            showConfirm: @json(!empty($pendingTransaction)),
 
             init() {
                 this.scroll();

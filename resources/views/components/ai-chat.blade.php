@@ -1,5 +1,6 @@
 @php
     $messages = Session::get('ai_messages', []);
+    $pendingTransaction = Session::get('pending_transaction');
 @endphp
 
 <div x-data="aiChatWidget()"
@@ -153,8 +154,8 @@ function aiChatWidget() {
         loading: false,
         confirming: false,
         messages: @json($messages),
-        pendingTransaction: null,
-        showConfirm: false,
+        pendingTransaction: @json($pendingTransaction),
+        showConfirm: @json(!empty($pendingTransaction)),
 
         initWidget() {
             // Load messages dari session

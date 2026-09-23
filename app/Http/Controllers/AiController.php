@@ -25,6 +25,9 @@ class AiController extends Controller
 
         return view('ai.index', [
             'messages' => $messages,
+            // Teruskan kandidat transaksi yang menunggu konfirmasi agar kartu
+            // konfirmasi tetap tampil (dan aman) setelah halaman di-refresh.
+            'pendingTransaction' => Session::get('pending_transaction'),
         ]);
     }
 

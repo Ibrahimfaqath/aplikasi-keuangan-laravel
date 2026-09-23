@@ -302,6 +302,54 @@ class AiConfirmTransactionTest extends TestCase
         $this->assertEquals(Carbon::now()->format('Y-m-d'), $pending['transaction_date']);
     }
 
+    public function test_pending_candidate_is_re_exposed_on_ai_page_reload(): void
+    {
+        $user = User::factory()->create();
+
+        $pending = [
+            'title' => 'Belanja Mingguan',
+            'amount' => 125000,
+            'type' => 'expense',
+            'category' => 'Makanan & Minuman',
+            'transaction_date' => Carbon::now()->format('Y-m-d'),
+        ];
+        Session::put('pending_transaction', $pending);
+
+        // Simulasi refresh: session masih menyimpan kandidat dan halaman AI harus
+        // menyuntikkannya ke inisialisasi widget agar kartu konfirmasi tampil lagi.
+        $response = $this->actingAs($user)->get('/ai');
+
+        $response->assertOk();
+        $response->assertSee(
+            json_encode($pending, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR),
+            false
+        );
+    }
+
+    public function test_pending_candidate_is_re_exposed_on_widget_page_reload(): void
+    {
+        $user = User::factory()->create();
+
+        $pending = [
+            'title' => 'Belanja Mingguan',
+            'amount' => 125000,
+            'type' => 'expense',
+            'category' => 'Makanan & Minuman',
+            'transaction_date' => Carbon::now()->format('Y-m-d'),
+        ];
+        Session::put('pending_transaction', $pending);
+
+        // Widget floating (components/ai-chat) di halaman transaksi harus ikut
+        // me-render kartu konfirmasi dari session setelah refresh.
+        $response = $this->actingAs($user)->get('/transactions');
+
+        $response->assertOk();
+        $response->assertSee(
+            json_encode($pending, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_THROW_ON_ERROR),
+            false
+        );
+    }
+
     public function test_confirm_without_pending_candidate_creates_nothing(): void
     {
         $user = User::factory()->create();
