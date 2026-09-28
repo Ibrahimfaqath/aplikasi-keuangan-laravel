@@ -25,18 +25,39 @@
         Jenis Transaksi
     </label>
 
-    <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]"
-         role="radiogroup" aria-label="Jenis Transaksi">
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
-            <input type="radio" name="type" value="income" class="sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
-            <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
-            <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
+    <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Jenis Transaksi">
+        <label class="relative block cursor-pointer select-none rounded-2xl focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100 focus-within:ring-offset-2">
+            <input type="radio" name="type" value="income" class="sr-only peer" {{ $typeValue == 'income' ? 'checked' : '' }} required>
+            <span class="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl border-2 border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717] transition-all duration-150
+                         peer-checked:border-green-600 dark:peer-checked:border-green-500 peer-checked:bg-green-50 dark:peer-checked:bg-green-500/10 peer-checked:shadow-sm ">
+                <span class="w-10 h-10 shrink-0 rounded-xl bg-green-600 text-white flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25"/></svg>
+                </span>
+                <span class="min-w-0">
+                    <span class="block text-sm font-bold text-neutral-900 dark:text-neutral-50 truncate">Pemasukan</span>
+                    <span class="block text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate">Uang masuk</span>
+                </span>
+            </span>
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-150">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
         </label>
 
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
-            <input type="radio" name="type" value="expense" class="sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
-            <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
-            <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
+        <label class="relative block cursor-pointer select-none rounded-2xl focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100 focus-within:ring-offset-2">
+            <input type="radio" name="type" value="expense" class="sr-only peer" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
+            <span class="flex items-center gap-3 p-3.5 sm:p-4 rounded-2xl border-2 border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717] transition-all duration-150
+                         peer-checked:border-red-600 dark:peer-checked:border-red-500 peer-checked:bg-red-50 dark:peer-checked:bg-red-500/10 peer-checked:shadow-sm ">
+                <span class="w-10 h-10 shrink-0 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/></svg>
+                </span>
+                <span class="min-w-0">
+                    <span class="block text-sm font-bold text-neutral-900 dark:text-neutral-50 truncate">Pengeluaran</span>
+                    <span class="block text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate">Uang keluar</span>
+                </span>
+            </span>
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-150">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
         </label>
     </div>
     @error('type')
