@@ -690,8 +690,12 @@
             </div>
         </section>
 
-        <!-- RECENT TRANSACTIONS (compact, half width) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex flex-col">
+        <!-- RECENT TRANSACTIONS (compact, half width).
+             Desktop xl+: side by side dengan grafik kategori.
+             Mobile/tablet (< xl): disembunyikan — isinya cuma 5 item yang
+             sama persis dengan tabel Riwayat di bawah, jadi kalau ditumpuk
+             hanya membuat halaman makin panjang tanpa informasi baru. -->
+        <section class="hidden xl:flex bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex-col">
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
                     <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
