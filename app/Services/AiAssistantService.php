@@ -187,7 +187,7 @@ class AiAssistantService
             $apiMs = (int) round((microtime(true) - $apiStarted) * 1000);
 
             if (! $response->successful()) {
-                $this->logApiError($response);
+                $this->logApiError($response, 'langchain');
 
                 return ['Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!', null, $apiMs];
             }
@@ -463,31 +463,40 @@ Kategori valid: '.$this->categoriesHint($userId);
     /**
      * Log ringkasan aman dari respons API yang gagal. Tidak pernah mencatat
      * API key atau header Authorization.
+     *
+     * $via menjelaskan hop mana yang gagal: 'kiosapi' (panggilan langsung) atau
+     * 'langchain' (service langchain-svc). Tanpa ini, error dari service
+     * LangChain ikut tercatat sebagai "KiosAPI 5xx" padahal yang gagal adalah
+     * hop ke service — menyesatkan saat menelusuri log produksi.
+     *
+     * @param  string  $via  'kiosapi' | 'langchain'
      */
-    private function logApiError($response): void
+    private function logApiError($response, string $via = 'kiosapi'): void
     {
         $status = $response->status();
         $reason = $response->reason();
+        $label = $via === 'langchain' ? 'LangChain service' : 'KiosAPI';
 
         $context = [
             'http_status' => $status,
             'reason' => $reason,
+            'via' => $via,
         ];
 
         if ($status === 401) {
-            Log::warning('KiosAPI 401: invalid or missing API key', $context);
+            Log::warning($label.' 401: invalid or missing API key', $context);
         } elseif ($status === 403) {
-            Log::warning('KiosAPI 403: API access denied', $context);
+            Log::warning($label.' 403: API access denied', $context);
         } elseif ($status === 400) {
-            Log::warning('KiosAPI 400: invalid request/model/payload', $context);
+            Log::warning($label.' 400: invalid request/model/payload', $context);
         } elseif ($status === 404) {
-            Log::warning('KiosAPI 404: wrong API endpoint', $context);
+            Log::warning($label.' 404: wrong API endpoint', $context);
         } elseif ($status === 429) {
-            Log::warning('KiosAPI 429: rate limit or quota exceeded', $context);
+            Log::warning($label.' 429: rate limit or quota exceeded', $context);
         } elseif ($status >= 500) {
-            Log::error('KiosAPI 5xx: provider/server error', $context);
+            Log::error($label.' 5xx: provider/server error', $context);
         } else {
-            Log::error('KiosAPI unexpected HTTP status', $context);
+            Log::error($label.' unexpected HTTP status', $context);
         }
     }
 }
