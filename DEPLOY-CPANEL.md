@@ -18,13 +18,17 @@ Panduan ini untuk men-deploy aplikasi **dompetku** (Laravel 13) ke hosting cPane
 
 ## 3. Upload & Extract
 
-File `dompetku-deploy.zip` (44 MB) sudah berisi seluruh aplikasi **termasuk `vendor/` dan asset hasil build**, jadi **tidak perlu** menjalankan composer di server.
+File `laravel_finance.zip` (~127 MB) sudah berisi seluruh aplikasi **termasuk `vendor/` dan asset hasil build**, jadi **tidak perlu** menjalankan composer di server.
 
 1. Login cPanel → **File Manager** → masuk ke home directory
-2. Buat folder, misal `dompetku`, lalu upload `dompetku-deploy.zip` ke dalamnya
-   > File 44 MB — kalau File Manager gagal, gunakan **FTP** (FileZilla) dan upload ke `/home/<user>/dompetku/`
+2. Buat folder, misal `dompetku`, lalu upload `laravel_finance.zip` ke dalamnya
+   > File 127 MB — kalau File Manager gagal, gunakan **FTP** (FileZilla) dan upload ke `/home/<user>/dompetku/`
 3. Klik kanan zip → **Extract**
 4. Hapus file zip setelah extract
+
+> ⚠️ **Jangan commit zip ini ke git.** Arsip deploy adalah artefak sekali pakai yang
+> langsung basi begitu kode berubah. `.gitignore` sudah mengecualikannya — kalau
+> perlu upload ulang, buat zip baru dari state terbaru, jangan pakai arsip lama.
 
 **Struktur folder yang disarankan:**
 ```
@@ -146,7 +150,13 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
    Kalau tidak ada Terminal, hapus manual via File Manager:
    - `bootstrap/cache/*.php` (kecuali `.gitignore`)
    - `storage/framework/views/*.php` (kecuali `.gitignore`)
-   - lalu panggil `https://finance.almahir.cloud/__flush.php` untuk `opcache_reset()`
+
+   > ⚠️ **`opcache` tidak aktif** di handler `ea-php83` server ini, jadi tidak ada
+   > cara reset opcache dari web. Dulu ada `__flush.php` di docroot untuk itu, tapi
+   > file itu selalu balas **HTTP 500** (`Call to undefined function opcache_reset()`)
+   > dan sempat menulis path absolut server ke `error_log` yang ada di docroot.
+   > **Sudah dihapus pada 28 Sep 2026** — jangan dibuat ulang. Menghapus compiled
+   > view + `bootstrap/cache` sudah cukup.
 5. **Kalau ada migration baru** (file baru di `database/migrations/`), jalankan `php artisan migrate --force` lewat Terminal.
 6. **Kalau ada seeder baru** (mis. `DemoDataSeeder`), jalankan `php artisan db:seed --class=DemoDataSeeder`.
 
@@ -157,7 +167,7 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
 ## Cadangan Database Otomatis
 
 Backup adalah urusan infrastruktur — **tidak tampil di sidebar** untuk user biasa. File `.sql`
-lengkap dihasilkan ke `storage/app/backups` (di luar docroot — tidak bisa diunduh publik) dan
+lengkap dihasilkan ke `storage/app/private/backups` (di luar docroot — tidak bisa diunduh publik) dan
 halaman `/backups` (lihat + unduh + buat manual) **hanya untuk akun pemilik**:
 
 - **Aktifkan akses pemilik**: tambahkan di `.env` produksi
@@ -165,7 +175,7 @@ halaman `/backups` (lihat + unduh + buat manual) **hanya untuk akun pemilik**:
   dan backup tetap berjalan otomatis via cron.
 
 Daftar isi file backup ada dua cara, keduanya hanya — buka
-`storage/app/backups` via **File Manager** cPanel, atau (jika diaktifkan) akses `/backups`
+`storage/app/private/backups` via **File Manager** cPanel, atau (jika diaktifkan) akses `/backups`
 sebagai pemilik.
 
 - **Cara buat**: `php artisan backup:database` (opsi `--keep=` untuk atur retensi, default 30 file),
