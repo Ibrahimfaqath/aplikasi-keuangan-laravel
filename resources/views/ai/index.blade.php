@@ -17,7 +17,7 @@
 </head>
 <body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased flex flex-col">
 
-    <x-sidebar title="Asisten AI" />
+    <x-sidebar title="Asisten AI" :back="route('transactions.index')" minimal />
 
     <div class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 flex flex-col" x-data="aiFullChat()" x-init="init()">
         <!-- Header -->

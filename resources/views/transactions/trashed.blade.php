@@ -55,7 +55,7 @@
 
 <body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased flex flex-col">
 
-    <x-sidebar title="Sampah" />
+    <x-sidebar title="Sampah" :back="route('transactions.index')" minimal />
 
     @if(session('success'))
     <div id="toast-success" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"

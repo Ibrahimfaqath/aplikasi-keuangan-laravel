@@ -38,7 +38,7 @@
 
 <body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">
 
-    <x-sidebar title="Pencadangan & Restore" />
+    <x-sidebar title="Pencadangan & Restore" :back="route('transactions.index')" minimal />
 
     @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"

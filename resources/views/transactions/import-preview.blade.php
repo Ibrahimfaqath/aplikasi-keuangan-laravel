@@ -37,7 +37,7 @@
 
 <body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">
 
-    <x-sidebar title="Pratinjau Import" />
+    <x-sidebar title="Pratinjau Import" :back="route('transactions.import')" minimal />
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
