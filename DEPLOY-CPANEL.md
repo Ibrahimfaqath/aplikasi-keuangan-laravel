@@ -181,14 +181,23 @@ sebagai pemilik.
 - **Cara buat**: `php artisan backup:database` (opsi `--keep=` untuk atur retensi, default 30 file),
   atau tombol "Buat Backup Sekarang" di halaman `/backups` sebagai pemilik.
 - **Otomatis**: jadwal harian 03:00 WIB via Laravel Scheduler. Scheduler butuh SATU cron
-  di cPanel → **Cron Jobs** (contoh menit 1-59 agar tidak bentrok dengan proses lain):
+  di cPanel → **Cron Jobs**:
 
   ```
-  * * * * * /usr/local/bin/php /home3/almahir/ibrahim_projects/laravel_finance/artisan schedule:run
+  * * * * * cd /home3/almahir/ibrahim_projects/laravel_finance && /usr/local/bin/php /home3/almahir/ibrahim_projects/laravel_finance/artisan schedule:run
   ```
 
-  (Cek path PHP dengan `which php` di Terminal cPanel; tanpa cron, backup otomatis
-  tidak berjalan — gunakan tombol manual.)
+  > ⚠️ **`cd` itu wajib.** cPanel menjalankan cron dengan working directory = home
+  > directory akun, bukan folder project. Tanpa `cd`, cron gagal dengan
+  > `Could not open input file: artisan` dan `schedule:run` tidak pernah jalan —
+  > sedangkan halaman `/backups` tetap tampil normal, jadi kelihatannya sehat padahal
+  > backup sudah berhenti. Gejalanya: folder `storage/app/private/backups` kosong /
+  > file terakhirnya membeku, dan `storage/logs/laravel.log` tidak pernah memuat baris
+  > `[backup] backup harian selesai.`
+  >
+  > Cocokkan juga binary PHP dengan versi di dropdown cPanel, lalu cek sekali jalan
+  > dengan append output ke file agar mudah di-debug:
+  > `... schedule:run >> /home3/almahir/schedule.log 2>&1` (hapus redirect begitu yakin).
 - **Restore**: phpMyAdmin → database `almahir_keuangan` → **Import** file `.sql`.
   File sudah memuat `DROP TABLE IF EXISTS`, jadi aman diimpor di atas data lama.
 - **Best practice**: unduh salinan `.sql` ke tempat di luar server (laptop/cloud)

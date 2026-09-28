@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Schedule;
 | Console Scheduling
 |--------------------------------------------------------------------------
 |
-| Jadwal berjalan lewat satu cron: `* * * * * php artisan schedule:run`.
-| Pasang di cPanel menu "Cron Jobs". Detail di DEPLOY-CPANEL.md.
+| Jadwal berjalan lewat satu cron cPanel:
+| `* * * * * cd /path/ke/project && /usr/local/bin/php /path/ke/project/artisan schedule:run`
+| `cd` wajib karena cPanel menjalankan cron dari home directory. Detail di DEPLOY-CPANEL.md.
 */
 
 // Backup database tiap hari 03:00 WIB. Retensi (30 terakhir — cukup ~1 bulan)

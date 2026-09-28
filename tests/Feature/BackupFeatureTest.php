@@ -182,4 +182,18 @@ class BackupFeatureTest extends TestCase
         // sehingga sukses cocok begitu storage pindah ke app/private dan cron mati.
         $response->assertDontSee('backups schedule:run', escape: false);
     }
+
+    public function test_cron_petunjuk_menyertakan_cd_ke_folder_project(): void
+    {
+        $response = $this->actingAs($this->owner())->get(route('backups.index'));
+
+        // cPanel menjalankan cron dari home directory. Tanpa `cd`, `php artisan` tidak
+        // ditemukan dan schedule:run tidak pernah jalan — halaman tetap tampil normal
+        // sehingga backup mati tidak langsung terlihat.
+        //
+        // e() meniru escaping Blade: `&&` dirender jadi `&amp;&amp;` di dalam <pre>.
+        $expected = '* * * * * cd '.base_path().' && /usr/local/bin/php '.base_path('artisan').' schedule:run';
+
+        $response->assertSee(e($expected), escape: false);
+    }
 }

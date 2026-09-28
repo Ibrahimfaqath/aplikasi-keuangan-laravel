@@ -23,12 +23,28 @@ class BackupController extends Controller
         return view('backups.index', [
             'backups' => $service->all(),
             'backupDir' => $service->directory(),
-            // Path artisan diturunkan dari base_path, bukan ditebak dari path folder
-            // backup — layout storage bisa berubah (Laravel 11+ pakai app/private)
-            // sehingga str_replace lama ikut salah dan cron jadi tidak jalan.
-            'artisanPath' => base_path('artisan'),
+            'cronCommand' => $this->cronCommand(),
             'retentionKeep' => DatabaseBackupService::DEFAULT_KEEP,
         ]);
+    }
+
+    /**
+     * Baris cron siap salin untuk cPanel.
+     *
+     * `cd` itu wajib, bukan opsional: cPanel menjalankan cron dengan working
+     * directory = home directory akun, bukan folder project. Tanpa `cd`,
+     * `php artisan` tidak ditemukan ("Could not open input file: artisan") dan
+     * schedule:run diam-diam tidak pernah jalan — halaman /backups tetap tampil
+     * normal sehingga tidak ada yang curiga.
+     *
+     * Path project & artisan diturunkan dari base_path supaya tetap benar
+     * walau lokasi install berubah.
+     */
+    private function cronCommand(): string
+    {
+        $artisan = base_path('artisan');
+
+        return '* * * * * cd '.dirname($artisan).' && /usr/local/bin/php '.$artisan.' schedule:run';
     }
 
     public function store(Request $request, DatabaseBackupService $service): RedirectResponse

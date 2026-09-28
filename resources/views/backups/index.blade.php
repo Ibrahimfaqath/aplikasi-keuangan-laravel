@@ -158,10 +158,9 @@
                     Backup otomatis dijalankan Laravel Scheduler lewat <strong>satu</strong> baris cron. Buka
                     <strong>cPanel &rarr; Cron Jobs</strong> lalu tambahkan:
                 </p>
-                <pre class="mt-3 p-3 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-xl text-[11px] leading-relaxed overflow-x-auto text-neutral-700 dark:text-neutral-300">* * * * * /usr/local/bin/php {{ $artisanPath }} schedule:run</pre>
+                <pre class="mt-3 p-3 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-xl text-[11px] leading-relaxed overflow-x-auto text-neutral-700 dark:text-neutral-300">{{ $cronCommand }}</pre>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-3 leading-relaxed">
-                    Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Kode rahasia & data tidak pernah bocor —
-                    backup disimpan di <code class="text-neutral-700 dark:text-neutral-300">{{ $backupDir }}</code> (di luar area web).
+                    Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Bagian <code class="text-neutral-700 dark:text-neutral-300">cd</code> wajib ada — cPanel menjalankan cron dari home directory, jadi tanpa itu <code class="text-neutral-700 dark:text-neutral-300">php artisan</code> tidak ditemukan dan backup diam-diam tidak jalan. Kode rahasia & data tidak pernah bocor — backup disimpan di <code class="text-neutral-700 dark:text-neutral-300">{{ $backupDir }}</code> (di luar area web).
                 </p>
             </section>
 
