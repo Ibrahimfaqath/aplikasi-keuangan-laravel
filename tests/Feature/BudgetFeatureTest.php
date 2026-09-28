@@ -245,7 +245,7 @@ class BudgetFeatureTest extends TestCase
         $response->assertOk();
         $response->assertSee('Anggaran per Kategori');
         $response->assertSee('Makanan & Minuman');
-        $response->assertSee('dari Rp 1.000.000');
+        $response->assertSee('dari Rp 1 juta');
     }
 
     public function test_guest_cannot_set_budget(): void

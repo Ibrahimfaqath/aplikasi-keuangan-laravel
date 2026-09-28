@@ -110,11 +110,11 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Total Nominal</p>
-                    <p class="mt-1 whitespace-nowrap text-lg font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target" data-amount="Rp {{ number_format($totalExpense + $totalIncome, 0, ',', '.') }}">Rp {{ number_format($totalExpense + $totalIncome, 0, ',', '.') }}</p>
+                    <p class="mt-1 whitespace-nowrap text-lg font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($totalExpense + $totalIncome) }}">{{ \App\Services\AmountFormatter::compact($totalExpense + $totalIncome) }}</p>
                 </div>
                 <div class="min-w-0">
                     <p class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                    <p class="mt-1 whitespace-nowrap text-lg font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target" data-amount="Rp {{ number_format($totalIncome, 0, ',', '.') }}">Rp {{ number_format($totalIncome, 0, ',', '.') }}</p>
+                    <p class="mt-1 whitespace-nowrap text-lg font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($totalIncome) }}">{{ \App\Services\AmountFormatter::compact($totalIncome) }}</p>
                 </div>
             </div>
         </section>
@@ -228,8 +228,8 @@
                                 </span>
                             </td>
                             <td class="py-4 px-4 text-right font-extrabold whitespace-nowrap privacy-target {{ $item->type == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                                data-amount="{{ $item->type == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount, 0, ',', '.') }}">
-                                {{ $item->type == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount, 0, ',', '.') }}
+                                data-amount="{{ $item->type == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount) }}">
+                                {{ $item->type == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount) }}
                             </td>
                             <td class="py-4 px-4 font-medium text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($item->deleted_at)->diffForHumans() }}
@@ -301,8 +301,8 @@
                             <p class="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5">Dihapus {{ \Carbon\Carbon::parse($item->deleted_at)->diffForHumans() }}</p>
                         </div>
                         <p class="flex-shrink-0 font-extrabold text-sm sm:text-base whitespace-nowrap privacy-target {{ $item->type == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                           data-amount="{{ $item->type == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount, 0, ',', '.') }}">
-                            {{ $item->type == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount, 0, ',', '.') }}
+                           data-amount="{{ $item->type == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount) }}">
+                            {{ $item->type == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount) }}
                         </p>
                     </div>
                     @php

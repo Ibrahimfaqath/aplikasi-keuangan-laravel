@@ -517,8 +517,8 @@
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
                         <p class="mt-1 text-2xl sm:text-3xl font-bold tracking-tight leading-tight break-words tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
-                           data-amount="{{ $isOver ? '-' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}">
-                            {{ $isOver ? '−' : '' }}Rp {{ number_format(abs($remaining), 0, ',', '.') }}
+                           data-amount="{{ $isOver ? '-' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}">
+                            {{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}
                         </p>
                     </div>
                     <div class="text-right flex-shrink-0">
@@ -534,15 +534,15 @@
                 <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
                     <div class="min-w-0">
                         <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Batas</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($budget->amount, 0, ',', '.') }}">Rp {{ number_format($budget->amount, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</p>
                     </div>
                     <div class="min-w-0">
                         <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Terpakai</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</p>
                     </div>
                     <div class="min-w-0">
                         <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($daily, 0, ',', '.') }}">Rp {{ number_format($daily, 0, ',', '.') }}</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</p>
                     </div>
                 </div>
 
@@ -603,7 +603,7 @@
                                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                                 </div>
                                 <div class="flex items-center justify-between gap-2 mt-2">
-                                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 break-all sm:break-words privacy-target" data-amount="Rp {{ number_format($spent, 0, ',', '.') }} dari Rp {{ number_format($cb->amount, 0, ',', '.') }}">Rp {{ number_format($spent, 0, ',', '.') }} dari Rp {{ number_format($cb->amount, 0, ',', '.') }}</p>
+                                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}">{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}</p>
                                     <p class="text-[11px] font-bold {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-300' }}">
                                         {{ $percentage }}%{{ $isOver ? ' · melebihi' : '' }}
                                     </p>
@@ -713,8 +713,8 @@
                             <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ $item->category ?? 'Lainnya' }} · {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}</p>
                         </div>
                         <p class="font-bold text-sm whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                           data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                            {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+                           data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
+                            {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                         </p>
                     </div>
                 @empty
@@ -928,8 +928,8 @@
                                     </span>
                                 </td>
                                 <td class="py-4 px-4 text-right font-bold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                                    data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
+                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                                 </td>
                                 <td class="py-4 px-4 text-center no-print">
                                     <div class="inline-flex items-center gap-1">
@@ -1001,8 +1001,8 @@
 
                             <div class="flex-shrink-0 flex flex-col items-end gap-1">
                                 <p class="font-bold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                                   data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}">
-                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} Rp {{ number_format($item->amount ?? $item->nominal ?? 0, 0, ',', '.') }}
+                                   data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
+                                    {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                                 </p>
                                 <svg class="w-4 h-4 text-neutral-400 dark:text-neutral-500 transition-transform duration-200"
                                      :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -1091,7 +1091,7 @@
                     @if($monthlyExpense > 0)
                     <div class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] rounded-xl">
                         <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran bulan ini</span>
-                        <span class="text-sm font-bold text-neutral-900 dark:text-neutral-50 privacy-target" data-amount="Rp {{ number_format($monthlyExpense, 0, ',', '.') }}">Rp {{ number_format($monthlyExpense, 0, ',', '.') }}</span>
+                        <span class="text-sm font-bold text-neutral-900 dark:text-neutral-50 privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</span>
                     </div>
                     @endif
 

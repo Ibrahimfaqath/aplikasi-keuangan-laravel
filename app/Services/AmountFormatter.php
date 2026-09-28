@@ -51,4 +51,48 @@ class AmountFormatter
 
         return $isNegative ? -abs($amount) : $amount;
     }
+
+    /**
+     * Format penuh ala Indonesia: 1500000 -> "Rp 1.500.000".
+     */
+    public static function format(int|float $value): string
+    {
+        return 'Rp '.number_format((float) $value, 0, ',', '.');
+    }
+
+    /**
+     * Format ringkas untuk nominal besar (sama dengan rupiahCompact di
+     * dashboard Alpine): di bawah 1 juta tampil penuh, dari 1 juta ke atas
+     * dipadatkan per besaran (juta -> miliar -> triliun). Tulisan dibuat
+     * lengkap agar tidak ambigu dengan singkatan yang bisa salah baca.
+     * 1500000 -> "Rp 1,5 juta", 1.500.000.000 -> "Rp 1,5 miliar".
+     */
+    public static function compact(int|float $value): string
+    {
+        $abs = abs((float) $value);
+
+        if ($abs < 1_000_000) {
+            return self::format($abs);
+        }
+
+        $units = [
+            [1e12, 'triliun'],
+            [1e9, 'miliar'],
+            [1e6, 'juta'],
+        ];
+
+        foreach ($units as [$base, $word]) {
+            if ($abs >= $base) {
+                $frac = $abs < $base * 100 ? 2 : 0;
+                $val = number_format($abs / $base, $frac, ',', '.');
+                if ($frac === 2) {
+                    $val = rtrim(rtrim($val, '0'), ',');
+                }
+
+                return 'Rp '.$val.' '.$word;
+            }
+        }
+
+        return self::format($abs);
+    }
 }
