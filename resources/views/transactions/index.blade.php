@@ -266,13 +266,13 @@
                                             const range = (series.ranges ?? [])[idx];
                                             return range ? label + ' · ' + range : label;
                                         },
-                                        label: (ctx) => ' ' + ctx.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(ctx.parsed.y),
+                                        label: (ctx) => ' ' + ctx.dataset.label + ': ' + this.rupiahCompact(ctx.parsed.y),
                                     }
                                 }
                             },
                             scales: {
                                 x: { ticks: { color: textColor, maxTicksLimit: 10 }, grid: { display: false } },
-                                y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } }
+                                y: { beginAtZero: true, ticks: { color: textColor, callback: (v) => this.rupiahCompact(v) }, grid: { color: gridColor } }
                             }
                         }
                     });
@@ -331,7 +331,7 @@
                                         label: (ctx) => {
                                             const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                                             const pct = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
-                                            return ` ${ctx.label}: Rp ${new Intl.NumberFormat('id-ID').format(ctx.parsed)} (${pct}%)`;
+                                            return ` ${ctx.label}: ${this.rupiahCompact(ctx.parsed)} (${pct}%)`;
                                         }
                                     }
                                 }
