@@ -359,18 +359,20 @@
                 <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
                 <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
                      tinggi kartu tidak melompat saat isLoading -> false. -->
-                <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] gap-y-5 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
-                    <div class="space-y-2">
-                        <div class="h-3 w-16 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                        <div class="h-8 lg:h-10 w-32 sm:w-40 lg:w-48 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] gap-y-4 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
+                    <div class="text-center md:text-left space-y-2">
+                        <div class="h-3 w-16 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
                     </div>
-                    <div class="space-y-2">
-                        <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                        <div class="h-5 lg:h-7 w-24 sm:w-28 lg:w-32 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="h-3 w-24 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                        <div class="h-5 lg:h-7 w-24 sm:w-28 lg:w-32 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                    <div class="grid grid-cols-2 divide-x divide-neutral-300/70 dark:divide-[#333333] rounded-2xl bg-neutral-100/80 dark:bg-[#262626]/50 py-3 md:contents">
+                        <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
+                            <div class="h-3 w-16 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        </div>
+                        <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
+                            <div class="h-3 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -400,35 +402,37 @@
             </div>
 
             <!-- Ringkasan.
-                 Mobile: ketiganya tetap ditumpuk (supaya nominal panjang tetap
-                 muat di layar sempit), tapi tiap item dipisah garis dan diberi
-                 padding sendiri. Sebelumnya hanya `gap-y-6` tanpa pembatas,
-                 padahal jarak label->nominal cuma 4px — hierarki spasinya
-                 terbalik sehingga terbaca sebagai satu daftar longgar, bukan
-                 tiga data terpisah. Desktop tetap 3 kolom dengan divide-x. -->
+                 Mobile: Saldo jadi hero besar & rata tengah (pola aplikasi
+                 keuangan), lalu Pemasukan + Pengeluaran disatukan dalam satu
+                 panel abu-abu 2 kolom yang membagi lebar — tidak lagi semua
+                 menempel ke kiri. Desktop (md+) tetap 3 kolom dengan divide-x
+                 dan teks rata kiri. Panel memakai `md:contents` agar kotaknya
+                 meniadakan diri sendiri di desktop dan kedua anaknya kembali
+                 menjadi grid item langsung (padding kolomnya yang berlaku). -->
             <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="min-w-0 pb-4 border-b border-neutral-200 dark:border-[#333333] md:pb-0 md:border-b-0 md:pr-3 lg:pr-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Saldo</p>
+                <div class="min-w-0 text-center md:text-left md:pr-3 lg:pr-6">
+                    <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Saldo</p>
                     <p class="mt-1 whitespace-nowrap text-3xl lg:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
                        x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
                 </div>
 
-                <div class="min-w-0 pt-4 pb-4 border-b border-neutral-200 dark:border-[#333333] md:py-0 md:border-b-0 md:px-3 lg:px-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                    <p class="mt-1 whitespace-nowrap text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
-                       x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                       x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                       x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                </div>
-
-                <div class="min-w-0 pt-4 md:pt-0 md:pl-3 lg:pl-6">
-                    <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                    <p class="mt-1 whitespace-nowrap text-lg lg:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
-                       x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                       x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                       x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-neutral-300/70 dark:divide-[#333333] rounded-2xl bg-neutral-100/80 dark:bg-[#262626]/50 py-3 md:contents">
+                    <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
+                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
+                           x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                           x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
+                           x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
+                    </div>
+                    <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pengeluaran</p>
+                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
+                           x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                           x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
+                           x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                    </div>
                 </div>
             </div>
         </section>
