@@ -21,21 +21,7 @@
 
     <div class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 flex flex-col" x-data="aiFullChat()" x-init="init()">
         <!-- Header -->
-        <div class="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-neutral-200 dark:border-[#333333]">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('transactions.index') }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#171717] border border-neutral-300 dark:border-[#333333] text-neutral-700 dark:text-neutral-200 text-xs font-semibold rounded-xl hover:bg-neutral-100 dark:hover:bg-[#262626] transition flex-shrink-0"
-                   aria-label="Kembali ke Transaksi">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    <span class="hidden sm:inline">Kembali</span>
-                </a>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight">AI Financial Assistant</h1>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Tanya data keuangan atau catat transaksi via chat.</p>
-                </div>
-            </div>
+        <div class="flex items-center justify-end gap-3 mb-4 pb-4 border-b border-neutral-200 dark:border-[#333333]">
             @if(count($messages) > 0)
             <form action="{{ route('ai.clear') }}" method="POST">
                 @csrf @method('DELETE')

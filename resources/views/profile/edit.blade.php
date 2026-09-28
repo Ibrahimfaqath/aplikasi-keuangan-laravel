@@ -77,17 +77,6 @@
         </div>
         @endif
 
-        <!-- Header -->
-        <div class="flex items-center gap-3">
-            <a href="{{ route('transactions.index') }}" class="p-2 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-xl text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            </a>
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Profil Saya</h1>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">Kelola informasi akun kamu.</p>
-            </div>
-        </div>
-
         <!-- Avatar Card -->
         <div class="bg-white dark:bg-[#171717] rounded-2xl border border-neutral-200 dark:border-[#333333] shadow-sm p-6 flex items-center gap-4">
             <div class="w-16 h-16 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center text-2xl font-extrabold flex-shrink-0">

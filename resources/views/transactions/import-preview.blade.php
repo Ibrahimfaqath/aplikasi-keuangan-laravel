@@ -41,18 +41,7 @@
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <div class="relative flex items-center justify-center mb-6">
-            <a href="{{ route('transactions.import') }}" aria-label="Kembali ke halaman import"
-               class="absolute left-0 flex-shrink-0 w-10 h-10 rounded-xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 flex items-center justify-center transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
-            <div class="text-center px-12">
-                <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Pratinjau Import</h1>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate max-w-xs sm:max-w-sm mx-auto">{{ $filename }}</p>
-            </div>
-        </div>
+        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-4 truncate">File: {{ $filename }}</p>
 
         <!-- Ringkasan -->
         <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
