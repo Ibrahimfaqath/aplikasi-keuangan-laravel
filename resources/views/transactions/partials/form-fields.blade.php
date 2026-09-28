@@ -153,7 +153,7 @@
                 $selected = $categoryValue == $cat;
                 $active = $selected ? ' active' : '';
                 return '<button type="button" data-category="' . e($cat) . '"' .
-                    ' class="cat-chip flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-neutral-50 dark:bg-[#262626]/60 border-neutral-200 dark:border-[#333333] text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
+                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-neutral-50 dark:bg-[#262626]/60 border-neutral-200 dark:border-[#333333] text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
                     '<span class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-[#333333] flex items-center justify-center transition">' .
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                     '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
@@ -161,13 +161,13 @@
         @endphp
 
         <div id="cat-income">
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <div class="cat-scroll flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1" role="list">
                 @foreach (\App\Models\Category::namesFor(Auth::id(), 'income') as $cat){!! $chipBtn($cat) !!}@endforeach
             </div>
         </div>
 
         <div id="cat-expense">
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <div class="cat-scroll flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1" role="list">
                 @foreach (\App\Models\Category::namesFor(Auth::id(), 'expense') as $cat){!! $chipBtn($cat) !!}@endforeach
             </div>
         </div>
@@ -178,6 +178,25 @@
             </p>
         @enderror
     </div>
+
+    <!-- FITUR LANJUTAN (opsional): Input Suara + Bukti Foto — dilipat
+         agar form cepat diisi tanpa gulir jauh. -->
+    <div x-data="{ open: @json(isset($transaction) && $transaction->image) }" class="space-y-3">
+        <button type="button" @click="open = !open"
+                aria-expanded="false" :aria-expanded="open.toString()"
+                class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-200 dark:border-[#333333] bg-neutral-50 dark:bg-[#262626]/50 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#262626] transition">
+            <span class="flex items-center gap-2.5 min-w-0">
+                <svg class="w-4 h-4 shrink-0 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Fitur Lanjutan</span>
+                <span class="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500">(opsional)</span>
+            </span>
+            <span class="flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
+                <span class="hidden sm:inline">Suara · Bukti foto</span>
+                <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </span>
+        </button>
+
+        <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
     <!-- Web Speech API Input Suara (Lokal Bawaan Browser) -->
     <div x-data="voiceInput()" class="space-y-2">
@@ -276,8 +295,11 @@
             </p>
         @enderror
     </div>
+        </div>
+    </div>
 
-    <div class="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-neutral-200 dark:border-[#333333]">
+    <div class="sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 border-t border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717] rounded-b-2xl"
+         style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
         <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm font-semibold transition">
             Batal
         </a>

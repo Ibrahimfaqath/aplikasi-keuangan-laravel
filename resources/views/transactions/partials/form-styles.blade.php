@@ -63,4 +63,7 @@
         background-color: rgba(0, 0, 0, 0.08) !important;
         color: #0A0A0A !important;
     }
+    /* Baris kategori horizontal tanpa scrollbar (msih bisa digeser) */
+    .cat-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+    .cat-scroll::-webkit-scrollbar { display: none; }
 </style>
