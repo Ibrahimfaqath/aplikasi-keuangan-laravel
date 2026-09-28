@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Backup database ke file .sql di storage/app/backups.
+ * Backup database ke file .sql di storage/app/private/backups.
  *
  * Prioritas dump:
  *  1. `mysqldump` (jika driver MySQL/MariaDB dan binary tersedia) — hasil
