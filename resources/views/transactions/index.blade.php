@@ -106,6 +106,33 @@
                 trendChartInstance: null,
                 categoryChartInstance: null,
 
+                // Format Rupiah ringkas: di bawah 1 juta tampil lengkap;
+                // dari 1 juta ke atas dipadatkan per besaran (rb -> juta ->
+                // miliar -> triliun) dengan tulisan lengkap supaya tidak
+                // ambigu. Angka persis selalu tersedia lewat attribute title.
+                rupiah(n) {
+                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(n);
+                },
+                rupiahCompact(n) {
+                    const abs = Math.abs(Number(n) || 0);
+                    if (abs < 1_000_000) {
+                        return this.rupiah(abs);
+                    }
+                    const units = [
+                        [1e12, 'triliun'],
+                        [1e9, 'miliar'],
+                        [1e6, 'juta'],
+                    ];
+                    for (const [base, word] of units) {
+                        if (abs >= base) {
+                            const frac = abs < base * 100 ? 2 : 0;
+                            const val = new Intl.NumberFormat('id-ID', { maximumFractionDigits: frac }).format(abs / base);
+                            return 'Rp ' + val + ' ' + word;
+                        }
+                    }
+                    return this.rupiah(abs);
+                },
+
                 initDashboard() {
                     this.isLoading = true;
 
@@ -414,24 +441,25 @@
                 <div class="min-w-0 text-center md:text-left md:pr-3 lg:pr-6">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Saldo</p>
                     <p class="mt-1 whitespace-nowrap text-3xl lg:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
-                       x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
-                       x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
+                       x-bind:title="rupiah(totalBalance)"
+                       x-bind:data-amount="rupiahCompact(totalBalance)"
+                       x-text="rupiahCompact(totalBalance)"></p>
                 </div>
 
                 <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-neutral-300/70 dark:divide-[#333333] rounded-2xl bg-neutral-100/80 dark:bg-[#262626]/50 py-3 md:contents">
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
                         <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
-                           x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                           x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
-                           x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
+                           x-bind:data-amount="'+ ' + rupiahCompact(totalIncome)"
+                           x-bind:title="'+ ' + rupiah(totalIncome)"
+                           x-text="'+ ' + rupiahCompact(totalIncome)"></p>
                     </div>
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pengeluaran</p>
                         <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
-                           x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                           x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
-                           x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
+                           x-bind:data-amount="'− ' + rupiahCompact(totalExpense)"
+                           x-bind:title="'− ' + rupiah(totalExpense)"
+                           x-text="'− ' + rupiahCompact(totalExpense)"></p>
                     </div>
                 </div>
             </div>
