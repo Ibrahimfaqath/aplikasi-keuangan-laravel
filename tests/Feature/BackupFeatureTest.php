@@ -172,4 +172,14 @@ class BackupFeatureTest extends TestCase
         $response->assertSee('schedule:run');
         $response->assertSee('Cara Restore');
     }
+
+    public function test_cron_petunjuk_menunjuk_ke_artisan_bukan_folder_backup(): void
+    {
+        $response = $this->actingAs($this->owner())->get(route('backups.index'));
+
+        $response->assertSee(base_path('artisan').' schedule:run', escape: false);
+        // Regresi: path cron pernah diturunkan dengan str_replace dari folder backup,
+        // sehingga sukses cocok begitu storage pindah ke app/private dan cron mati.
+        $response->assertDontSee('backups schedule:run', escape: false);
+    }
 }

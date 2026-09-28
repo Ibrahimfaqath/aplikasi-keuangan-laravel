@@ -158,7 +158,7 @@
                     Backup otomatis dijalankan Laravel Scheduler lewat <strong>satu</strong> baris cron. Buka
                     <strong>cPanel &rarr; Cron Jobs</strong> lalu tambahkan:
                 </p>
-                <pre class="mt-3 p-3 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-xl text-[11px] leading-relaxed overflow-x-auto text-neutral-700 dark:text-neutral-300">* * * * * /usr/local/bin/php {{ $backupDir ? str_replace('storage/app/backups', 'artisan', $backupDir) : '/home3/almahir/ibrahim_projects/laravel_finance/artisan' }} schedule:run</pre>
+                <pre class="mt-3 p-3 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-xl text-[11px] leading-relaxed overflow-x-auto text-neutral-700 dark:text-neutral-300">* * * * * /usr/local/bin/php {{ $artisanPath }} schedule:run</pre>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-3 leading-relaxed">
                     Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Kode rahasia & data tidak pernah bocor —
                     backup disimpan di <code class="text-neutral-700 dark:text-neutral-300">{{ $backupDir }}</code> (di luar area web).

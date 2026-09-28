@@ -23,6 +23,10 @@ class BackupController extends Controller
         return view('backups.index', [
             'backups' => $service->all(),
             'backupDir' => $service->directory(),
+            // Path artisan diturunkan dari base_path, bukan ditebak dari path folder
+            // backup — layout storage bisa berubah (Laravel 11+ pakai app/private)
+            // sehingga str_replace lama ikut salah dan cron jadi tidak jalan.
+            'artisanPath' => base_path('artisan'),
             'retentionKeep' => DatabaseBackupService::DEFAULT_KEEP,
         ]);
     }
