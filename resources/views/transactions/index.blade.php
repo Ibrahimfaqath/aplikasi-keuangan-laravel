@@ -356,11 +356,22 @@
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
             <div class="relative space-y-5">
-                <div class="h-3 w-24 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
+                     tinggi kartu tidak melompat saat isLoading -> false. -->
                 <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] gap-y-5 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
-                    <div class="h-11 sm:h-14 md:h-16 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
-                    <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
-                    <div class="h-9 sm:h-11 md:h-14 rounded-xl bg-neutral-200 dark:bg-[#262626] animate-shimmer"></div>
+                    <div class="space-y-2">
+                        <div class="h-3 w-16 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        <div class="h-7 sm:h-8 lg:h-9 w-28 sm:w-40 lg:w-48 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        <div class="h-5 sm:h-6 lg:h-7 w-24 sm:w-28 lg:w-32 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="h-3 w-24 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        <div class="h-5 sm:h-6 lg:h-7 w-24 sm:w-28 lg:w-32 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -370,7 +381,7 @@
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
-                    <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Saldo</span>
+                    <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Ringkasan</span>
                 </div>
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
@@ -388,33 +399,35 @@
                 </div>
             </div>
 
-            <!-- Summary: vertikal di mobile, 3 kolom horizontal di desktop -->
+            <!-- Summary: vertikal di mobile, 3 kolom horizontal di desktop.
+                 Padding kolom sengaja rapat di md (md:px-3) lalu longgar di lg+:
+                 di md kolom samping hanya ~120px, nominal "Rp 1.234.567" pada
+                 text-lg sudah memenuhi, jadi ini yang menjaga angka tidak
+                 keluar kotak. Ukuran nominal naik monoton per breakpoint
+                 (tidak pernah mengecil) supaya tidak "goyang" saat resize. -->
             <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] gap-y-6 md:gap-y-0 mt-5 pt-5 border-t border-neutral-200 dark:border-[#333333]">
 
-                <div class="min-w-0 md:pr-4 lg:pr-6">
+                <div class="min-w-0 md:pr-3 lg:pr-6">
                     <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Saldo</p>
-                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl md:text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target"
                        x-bind:data-amount="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"
                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalBalance)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total saldo</p>
                 </div>
 
-                <div class="min-w-0 md:px-4 lg:px-6">
+                <div class="min-w-0 md:px-3 lg:px-6">
                     <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pemasukan</p>
-                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
                        x-bind:data-amount="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-bind:title="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"
                        x-text="'+ Rp ' + new Intl.NumberFormat('id-ID').format(totalIncome)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pemasukan</p>
                 </div>
 
-                <div class="min-w-0 md:pl-4 lg:pl-6">
+                <div class="min-w-0 md:pl-3 lg:pl-6">
                     <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran</p>
-                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg md:text-base lg:text-lg xl:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
+                    <p class="mt-1 whitespace-nowrap text-base sm:text-lg lg:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
                        x-bind:data-amount="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-bind:title="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"
                        x-text="'− Rp ' + new Intl.NumberFormat('id-ID').format(totalExpense)"></p>
-                    <p class="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">Total pengeluaran</p>
                 </div>
             </div>
         </section>
