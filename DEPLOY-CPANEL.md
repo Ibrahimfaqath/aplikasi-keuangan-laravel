@@ -151,6 +151,19 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
    - `bootstrap/cache/*.php` (kecuali `.gitignore`)
    - `storage/framework/views/*.php` (kecuali `.gitignore`)
 
+   > ⚠️ **Upload `.blade.php` saja tidak cukup — compiled view HARUS dihapus.**
+   > Blade memuat ulang compiled view kalau `mtime` sumber lebih baru dari compiled.
+   > Di host ini file hasil ekstrak zip membawa timestamp `Jan 1 01:00`, sehingga
+   > perbandingan itu tidak selalu mendeteksi perubahan dan halaman diam-diam
+   > menyajikan versi lama.
+   >
+   > Gejalanya begini: `manifest.json` sudah benar (file itu dibaca langsung tiap
+   > request) tapi isi halaman masih markup lama. Terjadi 28 Sep 2026 di kartu
+   > ringkasan `/transactions` — label lama tetap tampil padahal file-nya sudah
+   > ter-upload dan byte-identical dengan repo.
+   > `rm storage/framework/views/*.php` langsung memulihkannya — aman, Laravel
+   > regenerate sendiri.
+
    > ⚠️ **`opcache` tidak aktif** di handler `ea-php83` server ini, jadi tidak ada
    > cara reset opcache dari web. Dulu ada `__flush.php` di docroot untuk itu, tapi
    > file itu selalu balas **HTTP 500** (`Call to undefined function opcache_reset()`)
