@@ -103,6 +103,7 @@
                 @endphp
                 trendData: {!! $trendDataJson !!},
                 trendPeriod: 'week',
+                analisisTab: 'tren',
                 trendChartInstance: null,
                 categoryChartInstance: null,
 
@@ -138,8 +139,11 @@
 
                     window.addEventListener('theme-changed', (e) => {
                         this.isDarkMode = e.detail?.isDark ?? document.documentElement.classList.contains('dark');
-                        this.initTrendChart();
-                        this.initCategoryChart();
+                        if (this.analisisTab === 'tren') {
+                            this.initTrendChart();
+                        } else {
+                            this.initCategoryChart();
+                        }
                     });
 
                     // Perf: tanpa delay buatan 500ms. Render secepatnya setelah
@@ -153,8 +157,11 @@
                     if (typeof window.Chart !== 'undefined') {
                         this.isLoading = false;
                         this.$nextTick(() => {
-                            this.initTrendChart();
-                            this.initCategoryChart();
+                            if (this.analisisTab === 'tren') {
+                                this.initTrendChart();
+                            } else {
+                                this.initCategoryChart();
+                            }
                         });
                         return;
                     }
@@ -165,6 +172,19 @@
                         return;
                     }
                     setTimeout(() => this.initChartsWhenReady((attempt || 0) + 1), 100);
+                },
+
+                setAnalisisTab(tab) {
+                    this.analisisTab = tab;
+                    // Chart.js butuh canvas yang terlihat (bukan display:none), jadi
+                    // chart di-render ulang pas tab benar-benar aktif.
+                    this.$nextTick(() => {
+                        if (tab === 'tren') {
+                            this.initTrendChart();
+                        } else {
+                            this.initCategoryChart();
+                        }
+                    });
                 },
 
                 setTrendPeriod(period) {
@@ -465,6 +485,10 @@
             </div>
         </section>
 
+        <!-- Saat transaksi masih sedikit (tanpa filter): tampilkan empty-state
+             yang ramah alih-alih gugusan kartu angka nol & grafik kosong.
+             Semua konten analitik baru muncul penuh setelah data cukup. -->
+        @if ($transactions->total() >= 5 || request('search') || request('type') || request('category') || request('period'))
         <!-- ROW: BUDGET + INCOME VS EXPENSE (side by side di desktop) -->
         <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
 
@@ -615,83 +639,107 @@
             @endif
         </section>
 
-        <!-- CHART TREN -->
+        </div>
+
+        <!-- ANALISIS + TRANSAKSI TERAKHIR (side by side di desktop) -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
+
+        <!-- ANALISIS: grafik tren & kategori digabung dalam satu kartu ber-tab.
+             Mobile jadi jauh lebih pendek — 1 kartu, 2 panel pilih cepat. -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
+                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Analisis</h2>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Tren pemasukan/pengeluaran dan rincian per kategori</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
-                        <button type="button" @click="setTrendPeriod('week')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'week' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                            Minggu
-                        </button>
-                        <button type="button" @click="setTrendPeriod('month')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'month' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                            Bulan
-                        </button>
-                        <button type="button" @click="setTrendPeriod('year')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'year' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                            Tahun
-                        </button>
+                <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
+                    <button type="button" @click="setAnalisisTab('tren')"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                            :class="analisisTab === 'tren' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                        Tren
+                    </button>
+                    <button type="button" @click="setAnalisisTab('kategori')"
+                            class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                            :class="analisisTab === 'kategori' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                        Kategori
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel: Tren -->
+            <div x-show="analisisTab === 'tren'" x-cloak>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
                     </div>
-                    <span class="flex items-center gap-3 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"></span> Pemasukan</span>
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 flex-shrink-0"></span> Pengeluaran</span>
-                    </span>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
+                            <button type="button" @click="setTrendPeriod('week')"
+                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                    :class="trendPeriod === 'week' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                Minggu
+                            </button>
+                            <button type="button" @click="setTrendPeriod('month')"
+                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                    :class="trendPeriod === 'month' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                Bulan
+                            </button>
+                            <button type="button" @click="setTrendPeriod('year')"
+                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                    :class="trendPeriod === 'year' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                Tahun
+                            </button>
+                        </div>
+                        <span class="flex items-center gap-3 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"></span> Pemasukan</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 flex-shrink-0"></span> Pengeluaran</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                     x-show="isLoading">
+                    <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
+                </div>
+
+                <div class="h-56 sm:h-72" x-show="!isLoading">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
-            <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
-                 x-show="isLoading">
-                <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
-            </div>
-
-            <div class="h-56 sm:h-72" x-show="!isLoading">
-                <canvas id="trendChart"></canvas>
-            </div>
-        </section>
-        </div>
-
-        <!-- ROW: EXPENSE BY CATEGORY + RECENT TRANSACTIONS (side by side di desktop) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
-
-        <!-- EXPENSE BY CATEGORY (half width) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
-            <div class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
-            </div>
-
-            <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
-                 x-show="isLoading">
-                <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
-            </div>
-
-            <div class="flex-col sm:flex-row flex items-center gap-4" x-show="!isLoading" x-cloak>
-                <div class="h-60 w-full sm:w-1/2 shrink-0">
-                    <canvas id="categoryChart"></canvas>
+            <!-- Panel: Kategori -->
+            <div x-show="analisisTab === 'kategori'" x-cloak>
+                <div class="mb-4">
+                    <h2 class="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
                 </div>
-                <ul class="w-full sm:flex-1 min-w-0 space-y-0.5 max-h-60 overflow-y-auto" aria-label="Rincian kategori">
-                    <template x-for="item in categoryLegend()" :key="item.label">
-                        <li class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-[#262626]/60 transition">
-                            <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="'background-color: ' + item.color"></span>
-                            <span class="flex-1 min-w-0 truncate text-xs font-medium text-neutral-600 dark:text-neutral-300" x-text="item.label"></span>
-                            <span class="text-xs font-bold tabular-nums text-neutral-900 dark:text-neutral-50" x-text="item.pct + '%'"></span>
-                        </li>
-                    </template>
-                    <li x-show="categoryLegend().length === 0" class="px-2 py-4 text-center text-xs text-neutral-400 dark:text-neutral-500">Belum ada data pengeluaran.</li>
-                </ul>
+
+                <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                     x-show="isLoading">
+                    <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
+                </div>
+
+                <div class="flex-col sm:flex-row flex items-center gap-4" x-show="!isLoading">
+                    <div class="h-60 w-full sm:w-1/2 shrink-0">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <ul class="w-full sm:flex-1 min-w-0 space-y-0.5 max-h-60 overflow-y-auto" aria-label="Rincian kategori">
+                        <template x-for="item in categoryLegend()" :key="item.label">
+                            <li class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-[#262626]/60 transition">
+                                <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="'background-color: ' + item.color"></span>
+                                <span class="flex-1 min-w-0 truncate text-xs font-medium text-neutral-600 dark:text-neutral-300" x-text="item.label"></span>
+                                <span class="text-xs font-bold tabular-nums text-neutral-900 dark:text-neutral-50" x-text="item.pct + '%'"></span>
+                            </li>
+                        </template>
+                        <li x-show="categoryLegend().length === 0" class="px-2 py-4 text-center text-xs text-neutral-400 dark:text-neutral-500">Belum ada data pengeluaran.</li>
+                    </ul>
+                </div>
             </div>
         </section>
 
         <!-- RECENT TRANSACTIONS (compact, half width).
-             Desktop xl+: side by side dengan grafik kategori.
+             Desktop xl+: side by side dengan kartu Analisis.
              Mobile/tablet (< xl): disembunyikan — isinya cuma 5 item yang
              sama persis dengan tabel Riwayat di bawah, jadi kalau ditumpuk
              hanya membuat halaman makin panjang tanpa informasi baru. -->
@@ -730,6 +778,27 @@
             </div>
         </section>
         </div>
+
+        @else
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-6 sm:p-8 shadow-sm text-center">
+            <div class="mx-auto w-14 h-14 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
+            </div>
+            <h2 class="mt-4 text-lg font-bold tracking-tight text-neutral-900 dark:text-neutral-50">{{ $transactions->total() === 0 ? 'Mulai Kelola Keuanganmu' : 'Transaksi Masih Sedikit' }}</h2>
+            <p class="mx-auto mt-1.5 max-w-md text-sm text-neutral-500 dark:text-neutral-400">{{ $transactions->total() === 0 ? 'Catat pemasukan dan pengeluaran pertama agar ringkasan, grafik, dan laporan muncul otomatis di dashboard ini.' : 'Tambahkan beberapa transaksi lagi agar grafik tren dan analisis kategori tampil di dashboard ini.' }}</p>
+            <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{{ route('transactions.create') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    Catat Transaksi
+                </a>
+                <a href="{{ route('transactions.import') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-neutral-300 dark:border-[#333333] bg-white dark:bg-transparent px-5 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200 transition hover:bg-neutral-100 dark:hover:bg-[#262626]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                    Import CSV
+                </a>
+            </div>
+            <p class="mt-4 text-xs text-neutral-400 dark:text-neutral-500">Saldo di atas otomatis terisi setiap kamu mencatat transaksi.</p>
+        </section>
+        @endif
 
         <!-- FILTER -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm no-print">
