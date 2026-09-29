@@ -489,22 +489,31 @@
              yang ramah alih-alih gugusan kartu angka nol & grafik kosong.
              Semua konten analitik baru muncul penuh setelah data cukup. -->
         @if ($transactions->total() >= 5 || request('search') || request('type') || request('category') || request('period'))
-        <!-- ANGGARAN (ringkas) — dashboard cuma cek-cepat; kelola penuh di /budget. -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm">
+        <!-- ANGGARAN + ANALISIS berdampingan.
+             Anggaran ditekan jadi kartu kecil karena isinya cuma satu pertanyaan
+             ("berapa sisa, dan berapa pace-nya") — pengelolaan penuhnya ada di
+             /budgets. Analisis pindah ke sebelahnya supaya grafik dapat lebar
+             tanpa menambah tinggi halaman.
+             "Transaksi Terakhir" dihapus: isinya persis 5 baris pertama tabel
+             Riwayat di bawah, jadi tidak menambah informasi apa pun. -->
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] items-start gap-6">
+
+        <!-- ANGGARAN (ringkas) -->
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="p-2.5 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 rounded-xl flex-shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                     </div>
                     <div class="min-w-0">
-                        <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Anggaran</h2>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
+                        <h2 class="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Anggaran</h2>
+                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                     </div>
                 </div>
                 <a href="{{ route('budgets.index') }}"
-                   class="inline-flex items-center gap-1 px-3 py-1.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333333] rounded-xl text-xs font-semibold transition no-print">
+                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333333] rounded-lg text-xs font-semibold transition no-print flex-shrink-0">
                     Kelola
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
                 </a>
@@ -523,75 +532,69 @@
                     $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
                 @endphp
 
-                <div class="flex items-end justify-between gap-3 mt-4">
+                <div class="mt-4 flex items-end justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-xs font-medium {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
+                        <p class="text-[11px] font-medium {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400' }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-1 text-2xl sm:text-3xl font-bold tracking-tight leading-tight break-words tabular-nums text-neutral-900 dark:text-neutral-50 privacy-target inline-block"
-                           data-amount="{{ $isOver ? '-' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}">
+                        <p class="mt-0.5 text-2xl font-bold tracking-tight leading-tight tabular-nums privacy-target {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}"
+                           data-amount="{{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}">
                             {{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}
                         </p>
                     </div>
-                    <div class="text-right flex-shrink-0">
-                        <p class="text-xl sm:text-2xl font-bold tracking-tight tabular-nums text-neutral-900 dark:text-neutral-50">{{ $percentage }}%</p>
-                        <p class="mt-0.5 text-xs font-medium text-neutral-400 dark:text-neutral-500">terpakai</p>
-                    </div>
+                    <p class="flex-shrink-0 text-lg font-bold tabular-nums leading-none pb-0.5 {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}">{{ $percentage }}%</p>
                 </div>
 
-                <div class="mt-3 w-full h-2.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
+                <div class="mt-2.5 w-full h-1.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                    <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Batas</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</p>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Terpakai</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</p>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
-                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</p>
-                    </div>
-                </div>
+                {{-- Batas & terpakai dirapatkan jadi satu baris: tiga kolom
+                     sebelumnya hanya memakan tinggi kartu, bukan menambah
+                     informasi baru. --}}
+                <p class="mt-3 flex items-baseline justify-between gap-3 text-[11px] text-neutral-400 dark:text-neutral-500">
+                    <span class="min-w-0 truncate">dari <span class="privacy-target font-semibold text-neutral-600 dark:text-neutral-300" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</span></span>
+                    <span class="flex-shrink-0">terpakai <span class="privacy-target font-semibold text-neutral-600 dark:text-neutral-300" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</span></span>
+                </p>
 
                 @if($isOver)
-                <p class="mt-3 flex items-start gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2">
-                    <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span>Pengeluaran sudah melewati batas bulan ini. Kelola di <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">halaman Anggaran</a>.</span>
+                <p class="mt-3 pt-3 border-t border-neutral-200 dark:border-[#333333] text-[11px] font-semibold text-red-700 dark:text-red-400">
+                    Batas bulan ini terlampaui —
+                    <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">kelola anggaran</a>.
+                </p>
+                @else
+                <p class="mt-3 pt-3 border-t border-neutral-200 dark:border-[#333333] text-[11px] text-neutral-500 dark:text-neutral-400">
+                    Butuh <span class="privacy-target font-semibold text-neutral-700 dark:text-neutral-200" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</span>/hari sampai {{ $now->copy()->endOfMonth()->isoFormat('D MMMM') }}.
                 </p>
                 @endif
             @elseif($categoryBudgets->isNotEmpty())
-                <p class="mt-4 px-4 py-3 text-xs font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-[#262626]/40 border border-neutral-200 dark:border-[#333333] rounded-xl">
-                    {{ $categoryBudgets->count() }} anggaran per kategori aktif, belum ada batas keseluruhan — lanjutkan di halaman Anggaran.
+                <p class="mt-3.5 px-3 py-2.5 text-[11px] text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-[#262626]/40 border border-neutral-200 dark:border-[#333333] rounded-lg">
+                    {{ $categoryBudgets->count() }} anggaran per kategori aktif, belum ada batas keseluruhan —
+                    <a href="{{ route('budgets.index') }}" class="font-semibold text-neutral-700 dark:text-neutral-200 underline underline-offset-2">lanjutkan di halaman Anggaran</a>.
                 </p>
             @else
-                <div class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-dashed border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#262626]/40 px-4 py-3">
-                    <p class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Belum ada anggaran bulan ini</p>
+                <div class="mt-3.5 flex items-center justify-between gap-3 rounded-lg border border-dashed border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#262626]/40 px-3 py-2.5">
+                    <p class="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">Belum ada anggaran bulan ini</p>
                     <a href="{{ route('budgets.index') }}"
-                       class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition no-print">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                       class="flex-shrink-0 inline-flex items-center px-2.5 py-1.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-lg text-[11px] font-semibold transition no-print">
                         Atur
                     </a>
                 </div>
             @endif
         </section>
 
-        <!-- ANALISIS + TRANSAKSI TERAKHIR (side by side di desktop) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
-
-        <!-- ANALISIS: grafik tren & kategori digabung dalam satu kartu ber-tab.
-             Mobile jadi jauh lebih pendek — 1 kartu, 2 panel pilih cepat. -->
+        <!-- ANALISIS: tren & kategori digabung dalam satu kartu ber-tab supaya
+             mobile tetap pendek. Di desktop kini duduk di sebelah kanan kartu
+             Anggaran, jadi grafiknya jauh lebih lega. Subjudul ikut berubah
+             mengikuti tab aktif — tidak ada dua lapis judul yang mengulang info. -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div>
+                <div class="min-w-0">
                     <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Analisis</h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Tren pemasukan/pengeluaran dan rincian per kategori</p>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400"
+                       x-text="analisisTab === 'tren' ? 'Perbandingan pemasukan dan pengeluaran' : 'Pengeluaran per kategori'">Perbandingan pemasukan dan pengeluaran</p>
                 </div>
-                <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
+                <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print flex-shrink-0 self-start sm:self-auto">
                     <button type="button" @click="setAnalisisTab('tren')"
                             class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
                             :class="analisisTab === 'tren' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
@@ -605,56 +608,48 @@
                 </div>
             </div>
 
-            <!-- Panel: Tren -->
+            <!-- Panel: Tren. Judul periode dihapus karena sudah tertera pada
+                 tombol periode yang sedang aktif. -->
             <div x-show="analisisTab === 'tren'" x-cloak>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-50" x-text="(trendPeriod === 'week' ? 'Minggu Ini' : trendPeriod === 'month' ? 'Bulan Ini' : 'Tahun Ini')"></h2>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400">Perbandingan pemasukan dan pengeluaran</p>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
+                        <button type="button" @click="setTrendPeriod('week')"
+                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                :class="trendPeriod === 'week' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                            Minggu
+                        </button>
+                        <button type="button" @click="setTrendPeriod('month')"
+                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                :class="trendPeriod === 'month' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                            Bulan
+                        </button>
+                        <button type="button" @click="setTrendPeriod('year')"
+                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
+                                :class="trendPeriod === 'year' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                            Tahun
+                        </button>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div class="inline-flex items-center gap-1 p-1 bg-neutral-100 dark:bg-[#262626] border border-neutral-200 dark:border-[#333333] rounded-full no-print">
-                            <button type="button" @click="setTrendPeriod('week')"
-                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                    :class="trendPeriod === 'week' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                                Minggu
-                            </button>
-                            <button type="button" @click="setTrendPeriod('month')"
-                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                    :class="trendPeriod === 'month' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                                Bulan
-                            </button>
-                            <button type="button" @click="setTrendPeriod('year')"
-                                    class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                    :class="trendPeriod === 'year' ? 'bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'">
-                                Tahun
-                            </button>
-                        </div>
-                        <span class="flex items-center gap-3 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"></span> Pemasukan</span>
-                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 flex-shrink-0"></span> Pengeluaran</span>
-                        </span>
-                    </div>
+                    <span class="flex items-center gap-3 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"></span> Pemasukan</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 flex-shrink-0"></span> Pengeluaran</span>
+                    </span>
                 </div>
 
-                <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                <div class="h-64 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
                      x-show="isLoading">
                     <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
                 </div>
 
-                <div class="h-56 sm:h-72" x-show="!isLoading">
+                <div class="h-64 sm:h-72" x-show="!isLoading">
                     <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
-            <!-- Panel: Kategori -->
+            <!-- Panel: Kategori. Judul dihapus karena label tab sudah menyebut
+                 isinya, dan daftar rincian di samping grafiknya sudah menandai
+                 kategori mana yang paling besar. -->
             <div x-show="analisisTab === 'kategori'" x-cloak>
-                <div class="mb-4">
-                    <h2 class="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Pengeluaran per Kategori</h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400">Lihat di mana uangmu paling banyak terpakai.</p>
-                </div>
-
-                <div class="h-56 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                <div class="h-64 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
                      x-show="isLoading">
                     <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
                 </div>
@@ -674,46 +669,6 @@
                         <li x-show="categoryLegend().length === 0" class="px-2 py-4 text-center text-xs text-neutral-400 dark:text-neutral-500">Belum ada data pengeluaran.</li>
                     </ul>
                 </div>
-            </div>
-        </section>
-
-        <!-- RECENT TRANSACTIONS (compact, half width).
-             Desktop xl+: side by side dengan kartu Analisis.
-             Mobile/tablet (< xl): disembunyikan — isinya cuma 5 item yang
-             sama persis dengan tabel Riwayat di bawah, jadi kalau ditumpuk
-             hanya membuat halaman makin panjang tanpa informasi baru. -->
-        <section class="hidden xl:flex bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden flex-col">
-            <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
-                <div>
-                    <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Transaksi Terakhir</h2>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">5 aktivitas terbaru</p>
-                </div>
-                <a href="#riwayat"
-                   class="inline-flex items-center gap-1 px-3 py-1.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl text-xs font-semibold transition">
-                    Lihat semua
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </a>
-            </div>
-            <div class="divide-y divide-neutral-100 dark:divide-[#262626]">
-                @forelse ($transactions ?? [] as $item)
-                    @if ($loop->index >= 5) @break @endif
-                    <div class="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-neutral-50 dark:hover:bg-[#262626]/50 transition">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0 {{ ($item->type ?? 'income') == 'income' ? 'bg-green-600' : 'bg-red-600' }}"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-sm text-neutral-900 dark:text-neutral-50 truncate">{{ $item->title ?? $item->nama ?? $item->kategori }}</p>
-                            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ $item->category ?? 'Lainnya' }} · {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}</p>
-                        </div>
-                        <p class="font-bold text-sm whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
-                           data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
-                            {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
-                        </p>
-                    </div>
-                @empty
-                    <div class="py-10 text-center">
-                        <p class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Tidak ada transaksi</p>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
-                    </div>
-                @endforelse
             </div>
         </section>
         </div>
