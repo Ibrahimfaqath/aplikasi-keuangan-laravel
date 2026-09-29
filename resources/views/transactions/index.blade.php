@@ -336,8 +336,12 @@
                             datasets: [{
                                 data: entries.map(e => e.value),
                                 backgroundColor: entries.map((_, i) => palette[i % palette.length]),
-                                borderWidth: 2,
-                                borderColor: isDark ? '#0A0A0A' : '#ffffff',
+                                // Gap antar irisan dibuat lewat borderColor = warna
+                                // kartu, bukan bg halaman. Kalau pakai bg halaman
+                                // (#0A0A0A) di dark mode, celahnya muncul sebagai
+                                // ring gelap di atas kartu #171717.
+                                borderWidth: 3,
+                                borderColor: isDark ? '#171717' : '#ffffff',
                             }]
                         },
                         options: {
@@ -661,9 +665,9 @@
                     <div class="h-60 w-full sm:w-1/2 shrink-0">
                         <canvas id="categoryChart"></canvas>
                     </div>
-                    <ul class="w-full sm:flex-1 min-w-0 space-y-0.5 max-h-60 overflow-y-auto" aria-label="Rincian kategori">
+                    <ul class="w-full sm:flex-1 min-w-0 space-y-1.5 max-h-60 overflow-y-auto" aria-label="Rincian kategori">
                         <template x-for="item in categoryLegend()" :key="item.label">
-                            <li class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-[#262626]/60 transition">
+                            <li class="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-[#262626]/60 transition">
                                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="'background-color: ' + item.color"></span>
                                 <span class="flex-1 min-w-0 truncate text-xs font-medium text-neutral-600 dark:text-neutral-300" x-text="item.label"></span>
                                 <span class="text-xs font-bold tabular-nums text-neutral-900 dark:text-neutral-50" x-text="item.pct + '%'"></span>
@@ -699,7 +703,7 @@
 
         <!-- FILTER -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
-            <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+            <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
@@ -712,7 +716,7 @@
                 <div class="lg:col-span-2">
                     <x-custom-select name="type" id="filterType" label="Filter berdasarkan tipe transaksi"
                         :options="['' => 'Semua Tipe', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran']"
-                        :selected="request('type', '')" />
+                        :selected="request('type', '')" onchange="applyFilters" />
                 </div>
 
                 <div class="lg:col-span-2">
@@ -721,13 +725,13 @@
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
                     <x-custom-select name="category" id="filterCategory" label="Filter berdasarkan kategori"
-                        :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" />
+                        :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" onchange="applyFilters" />
                 </div>
 
                 <div class="lg:col-span-2">
                     <x-custom-select name="period" id="filterPeriod" label="Filter berdasarkan periode waktu"
                         :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
-                        :selected="request('period', 'all')" />
+                        :selected="request('period', 'all')" onchange="applyFilters" />
                 </div>
 
                 <div class="lg:col-span-2 flex gap-2">

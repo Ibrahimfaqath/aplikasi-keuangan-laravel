@@ -187,6 +187,14 @@ window.toggleTheme = function () {
     window.setTheme(effectiveDark(getSavedTheme()) ? 'light' : 'dark');
 };
 
+// Dipanggil dari x-custom-select lewat prop `onchange` di halaman transaksi.
+// Choosenya langsung men-submit form filter, jadi tidak perlu pencet tombol
+// "Filter" lagi. Tombolnya tetap ada untuk kasus ketik pencarian.
+window.applyFilters = function () {
+    const form = document.getElementById('filterForm');
+    if (form) form.submit();
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
 
