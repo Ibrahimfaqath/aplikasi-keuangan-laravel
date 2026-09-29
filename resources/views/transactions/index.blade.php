@@ -155,6 +155,11 @@
                     // isi tabel.
                     window.addEventListener('filters-applied', (e) => {
                         const d = e.detail || {};
+                        // Penting: `isLoading` controlling skeleton tabel. Kalau
+                        // tidak di-clear di sini, setiap filter subsequent akan
+                        // menampilkan skeleton tanpa pernah tampil lagi -- karena
+                        // isLoading hanya di-reset sekali saat Chart.js load.
+                        this.isLoading = false;
                         if (d.stats) {
                             this.totalBalance = Number(d.stats.totalBalance) || 0;
                             this.totalIncome = Number(d.stats.totalIncome) || 0;
@@ -793,10 +798,10 @@
                         :selected="request('period', 'all')" onchange="applyFilters" />
                 </div>
 
-                {{-- Tidak ada tombol submit lagi: setiap dropdown langsung
-                     menerapkan filter, dan pencarian ter-debounce di app.js.
-                     Kolom ini jadi tempat tombol reset + live region. --}}
-                <div class="lg:col-span-2 flex gap-2 items-center justify-end">
+                {{-- Kolom harus berjumlah pas 12, kalau tidak tombol Reset akan
+                     terdorong ke baris sendiri dan terlihat berantakan:
+                     3 (cari) + 4 (tipe) + 2 (kategori) + 2 (periode) + 1 (reset). --}}
+                <div class="lg:col-span-1 flex gap-2 items-center justify-end">
                     <a id="filterReset" href="{{ route('transactions.index') }}" title="Reset filter" aria-label="Reset semua filter"
                        class="inline-flex items-center justify-center h-[38px] w-[38px] sm:h-[42px] sm:w-[42px] shrink-0 bg-white dark:bg-[#262626] text-neutral-500 dark:text-neutral-400 border border-neutral-300 dark:border-[#333333] rounded-xl text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] hover:text-neutral-900 transition {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
