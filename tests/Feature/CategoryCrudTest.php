@@ -150,4 +150,90 @@ class CategoryCrudTest extends TestCase
             ->assertDatabaseHas('categories', ['user_id' => null, 'name' => 'Gaji', 'type' => 'income'])
             ->assertDatabaseHas('categories', ['user_id' => null, 'name' => 'Makanan & Minuman', 'type' => 'expense']);
     }
+
+    public function test_index_menampilkan_kategori_bawaan_bahkan_tanpa_seeder(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('categories.index'));
+
+        $response->assertOk();
+        $response->assertSee('Gaji');
+        $response->assertSee('Makanan & Minuman');
+        $response->assertSee('Belum pernah dipakai');
+        $response->assertViewHas('stats', fn (array $stats) => $stats['total'] === count(Transaction::INCOME_CATEGORIES) + count(Transaction::EXPENSE_CATEGORIES));
+    }
+
+    public function test_index_menampilkan_kategori_bawaan_dan_custom_beserta_pemakaiannya(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        foreach (['Jualan Distro', 'Jualan Kaos'] as $title) {
+            Transaction::create([
+                'user_id' => $user->id,
+                'title' => $title,
+                'category' => 'Jualan Online',
+                'amount' => 50000,
+                'type' => 'income',
+                'transaction_date' => Carbon::now()->format('Y-m-d'),
+            ]);
+        }
+
+        $response = $this->actingAs($user)->get(route('categories.index'));
+
+        $response->assertOk();
+        $response->assertSee('Jualan Online');
+        $response->assertSee('Dipakai di 2 transaksi');
+        $bawaan = count(Transaction::INCOME_CATEGORIES) + count(Transaction::EXPENSE_CATEGORIES);
+
+        $response->assertViewHas('stats', fn (array $stats) => $stats['total'] === $bawaan + 1
+            && $stats['custom'] === 1
+            && $stats['used'] === 1
+            && $stats['unused'] === $bawaan);
+    }
+
+    public function test_index_tidak_membocorkan_kategori_custom_user_lain(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+
+        Category::create([
+            'user_id' => $owner->id,
+            'name' => 'Rahasia Bos',
+            'type' => 'expense',
+        ]);
+
+        $this->actingAs($other)
+            ->get(route('categories.index'))
+            ->assertOk()
+            ->assertDontSee('Rahasia Bos');
+    }
+
+    public function test_available_category_falls_back_to_built_in_list(): void
+    {
+        $income = Category::availableFor(null, 'income');
+
+        $this->assertSame(Transaction::categoriesFor('income'), array_column($income, 'name'));
+        $this->assertTrue($income[0]['is_global']);
+        $this->assertNull($income[0]['id']);
+    }
+
+    public function test_available_category_uses_seeded_global_rows_when_present(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        $income = Category::availableFor($user->id, 'income');
+
+        $this->assertSame(Transaction::INCOME_CATEGORIES, array_column($income, 'name'));
+        $this->assertNotNull($income[0]['id']);
+        $this->assertTrue($income[0]['is_global']);
+    }
 }

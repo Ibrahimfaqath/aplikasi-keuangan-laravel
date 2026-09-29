@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Transaction;
 use App\Services\DemoMode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,15 +11,45 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
+    /**
+     * Halaman Kelola Kategori: kategori bawaan aplikasi + kategori custom
+     * milik user, dikelompokkan per jenis transaksi, lengkap dengan berapa
+     * kali tiap kategori dipakai di transaksi.
+     */
     public function index()
     {
-        $categories = Category::where('user_id', Auth::id())
-            ->orderBy('type')
-            ->orderBy('name')
-            ->get();
+        $userId = Auth::id();
+
+        $income = Category::availableFor($userId, 'income');
+        $expense = Category::availableFor($userId, 'expense');
+
+        // Berapa kali tiap kategori dipakai. Satu query GROUP BY, memakai
+        // index (user_id, category) yang sudah ada di tabel transactions.
+        $usage = Transaction::where('user_id', $userId)
+            ->whereNotNull('category')
+            ->selectRaw('category, COUNT(*) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category')
+            ->map(fn ($total) => (int) $total)
+            ->all();
+
+        $all = array_merge($income, $expense);
+        $names = array_column($all, 'name');
+
+        // Hanya kategori yang masih terdaftar ikut dihitung, supaya angka
+        // ringkasan konsisten dengan yang tampil di layar.
+        $listed = array_intersect_key($usage, array_flip($names));
 
         return view('categories.index', [
-            'categories' => $categories,
+            'income' => $income,
+            'expense' => $expense,
+            'usage' => $usage,
+            'stats' => [
+                'total' => count($all),
+                'custom' => count(array_filter($all, fn ($item) => ! $item['is_global'])),
+                'used' => count($listed),
+                'unused' => count($all) - count($listed),
+            ],
         ]);
     }
 
