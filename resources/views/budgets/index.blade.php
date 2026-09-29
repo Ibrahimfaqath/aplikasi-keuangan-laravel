@@ -70,11 +70,13 @@
     @php
         $isDemo = \App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user());
         $now        = \Carbon\Carbon::now();
-        $percentage = $budget?->amount > 0 ? min(100, round(($monthlyExpense / $budget->amount) * 100)) : 0;
-        $remaining  = ($budget?->amount ?? 0) - $monthlyExpense;
-        $isOver     = $remaining < 0;
-        $daysLeft   = max(1, $now->daysInMonth - $now->day + 1);
-        $daily      = $remaining > 0 ? floor($remaining / $daysLeft) : 0;
+        $summary    = new \App\Services\BudgetSummaryService;
+        // Rumus sama dengan kartu dashboard (BudgetSummaryService::progress).
+        $p          = $summary->progress((float) ($budget?->amount ?? 0), (float) $monthlyExpense, $now);
+        $percentage = $p['percentage'];
+        $remaining  = $p['remaining'];
+        $isOver     = $p['isOver'];
+        $daily      = $p['daily'];
         $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
     @endphp
 
@@ -200,11 +202,11 @@
             <div class="divide-y divide-neutral-100 dark:divide-[#262626]">
                 @forelse($categoryBudgets as $cb)
                     @php
-                        $spent      = $categorySpent[$cb->category] ?? 0;
-                        $cPct       = $cb->amount > 0 ? min(100, round(($spent / $cb->amount) * 100)) : 0;
-                        $cRemaining = $cb->amount - $spent;
-                        $cOver      = $cRemaining < 0;
-                        $cBar       = $cOver ? 'bg-red-500' : ($cPct >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
+                        $spent = $categorySpent[$cb->category] ?? 0;
+                        $cp    = $summary->progress((float) $cb->amount, (float) $spent, $now);
+                        $cPct  = $cp['percentage'];
+                        $cOver = $cp['isOver'];
+                        $cBar  = $cOver ? 'bg-red-500' : ($cPct >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
                     @endphp
                     <div class="px-5 py-4">
                         <div class="flex items-center justify-between gap-2">

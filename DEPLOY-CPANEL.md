@@ -110,6 +110,11 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 - ✅ Tambah transaksi + upload bukti (cek gambarnya tampil)
 - ✅ Export PDF & Excel
 - ✅ Set anggaran bulanan
+- ✅ `/budgets` terbuka (dari sidebar **Anggaran** atau tombol "Kelola" di kartu ringkasan `/transactions`)
+
+> Kartu anggaran di `/transactions` sengaja hanya ringkasan. Semua pengelolaan
+> anggaran (ubah batas, hapus, pindah bulan) ada di `/budgets` — jangan expects
+> form edit langsung di dashboard.
 
 ## Catatan Penting
 
@@ -123,7 +128,9 @@ Buka `https://domain-kamu.com` — harusnya diarahkan ke halaman login. Coba:
 - **Upload bukti transaksi**: disk `public` diarahkan langsung ke folder docroot `/finance.almahir.cloud/storage` lewat `app/Providers/AppServiceProvider.php` (aktif hanya saat `APP_ENV=production`). Jadi `storage:link` **tidak diperlukan** dan tidak akan melayani upload. Pastikan folder `/finance.almahir.cloud/storage` bisa ditulis web server.
 - **`app/Providers/AppServiceProvider.php` ikut di-deploy** — isinya aman untuk lokal maupun produksi karena konfigurasi storage docroot hanya aktif ketika `APP_ENV=production`.
 - **`APP_DEBUG=false`** di produksi. `APP_KEY` produksi harus **berbeda dari lokal** (jangan pakai key yang sama dengan `.env` development).
-- **Aset build** hasil `npm run build` harus identik di dua tempat: `/laravel_finance/public/build/` (untuk resolve manifest `@vite`) dan `/finance.almahir.cloud/build/` (yang dilayani web). Keduanya harus di-mirror manual via FTP (docroot pakai `--delete`), karena cPanel Git Deploy tidak menyentuh docroot.
+- **Aset build** hasil `npm run build` harus identik di dua tempat: `/laravel_finance/public/build/` (untuk resolve manifest `@vite`) dan `/finance.almahir.cloud/build/` (yang dilayani web). Keduanya harus di-mirror manual via FTP, karena cPanel Git Deploy tidak menyentuh docroot.
+  - **Aset lama wajib dihapus** di kedua lokasi, bukan cuma ditimpa. Nama file Vite ber-hash (`assets/app-XXXXXXXX.css`, `app-XXXXXXXX.js`), jadi upload baru tidak otomatis menggantikan yang lama. Kalau file lama ikut tertinggal, `manifest.json` bisa menunjuk hash baru sementara tag HTML masih memuat hash lama (atau sebaliknya) dan hasilnya 404 aset.
+  - ⚠️ `lftp mirror` pada mesin ini **berbalik arah** (mencoba mengunduh file server ke lokal) dan gagal dengan `550 Permission denied` / `Login failed`. Gunakan `put` per file + `rm` eksplisit untuk aset lama, atau panggil `mirror` dengan arah yang benar secara eksplisit.
 - **`.htaccess`** yang dipakai web ada di docroot subdomain (`/finance.almahir.cloud/.htaccess`) dan berisi handler PHP cPanel `ea-php83`.
 - **HTTPS**: pastikan SSL aktif; gunakan URL `https://finance.almahir.cloud` langsung.
 - **Update berikutnya**: upload ulang folder yang berubah (`app/`, `routes/`, `resources/`, `config/`, `database/seeders/`, `public/build`, dan `composer.lock` jika dependency berubah), lalu **mirror `public/build` ke docroot** `/finance.almahir.cloud/build` juga. Detail lengkap ada di bagian **Cara Update Aplikasi (Tanpa Upload Ulang Penuh)** di bawah.
@@ -140,7 +147,15 @@ Deploy otomatis GitHub → cPanel **tidak aktif** di server ini (tidak ada `.git
 2. Upload file yang berubah ke `/laravel_finance` (folder `app/`, `routes/`, `resources/`, `config/`, `database/seeders/`, `tests/`, `public/build/`, dll). **Jangan pernah upload `.env`.**
 3. Mirror aset build ke **dua** lokasi:
    - `/laravel_finance/public/build/` — untuk resolve manifest `@vite`
-   - `/finance.almahir.cloud/build/` — yang dilayani web; pakai `--delete` agar aset lama terhapus
+   - `/finance.almahir.cloud/build/` — yang dilayani web
+
+   > ⚠️ Yang **harus dihapus** setelah upload: file build ber-hash lama di kedua lokasi
+   > (mis. `assets/app-0xXmFqWl.css` setelah hash baru dipakai). Vite tidak pernah
+   > menimpa nama file lama, jadi aset lama yang tertinggal bisa membuat halaman
+   > meminta aset yang sudah tidak ada.
+   >
+   > Di mesin ini `lftp mirror` arahnya terbalik dan gagal (`550`), jadi andalkan
+   > `put` eksplisit + `rm` untuk file lama, bukan `mirror`.
 4. Bersihkan cache di server. Kalau **cPanel Terminal/SSH** tersedia:
    ```bash
    cd /home3/almahir/ibrahim_projects/laravel_finance
@@ -222,7 +237,9 @@ sebagai pemilik.
 2. **Halaman live**: `/` dan `/login` balas HTTP 200 dan memuat nama file aset terbaru (mis. `app-XXXXXXXX.css`), bukan hash lama.
 3. **Fitur baru berjalan**: uji alur terkait (mis. tombol "Coba Demo" di `/login` → redirect ke `/transactions` + badge "Mode Demo").
 4. **Cache bersih**: pastikan `storage/framework/views/` hanya berisi `.gitignore` sebelum request pertama pasca-deploy.
-5. **Git sinkron**: `git log --oneline -1 origin/main` menunjuk commit yang di-deploy (untuk jejak perubahan).
+5. **Aset lama hilang**: `curl https://finance.almahir.cloud/build/assets/<hash-lama>.css` harus balas **404**, bukan 200. Kalau masih 200, aset lama belum terhapus di docroot.
+6. **Halaman anggaran**: `/budgets` balas 302 ke `/login` (atau 200 bila sudah login) — bukan 404/500.
+7. **Git sinkron**: `git log --oneline -1 origin/main` menunjuk commit yang di-deploy (untuk jejak perubahan).
 
 ## Alternatif: Deployment via Git (cPanel Git Version Control)
 

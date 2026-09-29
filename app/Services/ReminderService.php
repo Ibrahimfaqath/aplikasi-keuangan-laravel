@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Budget;
 use App\Models\Transaction;
 use Carbon\Carbon;
 
@@ -59,36 +58,19 @@ class ReminderService
      */
     private function budgetReminders(int $userId): array
     {
-        $monthStart = $this->now->copy()->startOfMonth()->format('Y-m-d');
-        $monthEnd = $this->now->copy()->endOfMonth()->format('Y-m-d');
+        $budgetService = new BudgetSummaryService;
 
-        $budgets = Budget::query()
-            ->where('user_id', $userId)
-            ->where('month', $this->now->month)
-            ->where('year', $this->now->year)
-            ->orderByRaw("CASE WHEN category = '' THEN 0 ELSE 1 END, category")
-            ->get();
+        $budgets = $budgetService->budgetsForMonth($userId, $this->now);
 
         if ($budgets->isEmpty()) {
             return [];
         }
 
-        // Pengeluaran bulan berjalan per kategori (sekali query untuk semua budget).
-        $categorySpent = Transaction::query()
-            ->where('user_id', $userId)
-            ->where('type', 'expense')
-            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-            ->select('category')
-            ->selectRaw('COALESCE(SUM(amount), 0) as total')
-            ->groupBy('category')
-            ->pluck('total', 'category');
+        // Pengeluaran per kategori sekali query untuk semua budget.
+        $categorySpent = $budgetService->categorySpending($userId, $this->now);
 
         // Pengeluaran keseluruhan bulan berjalan untuk anggaran global (category='').
-        $overallSpent = (float) Transaction::query()
-            ->where('user_id', $userId)
-            ->where('type', 'expense')
-            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-            ->sum('amount');
+        $overallSpent = $budgetService->monthlyExpense($userId, $this->now);
 
         $items = [];
         $dashboard = route('transactions.index');
@@ -99,6 +81,8 @@ class ReminderService
                 : (float) ($categorySpent[$budget->category] ?? 0);
 
             $limit = (float) $budget->amount;
+            // Rasio mentah (bukan percentage yg di-cap 100) — pesan reminder
+            // menampilkan angka aslinya, jadi presisi di sini penting.
             $pct = $limit > 0 ? $spent / $limit : 0.0;
             $label = $budget->category === ''
                 ? 'Anggaran bulanan'

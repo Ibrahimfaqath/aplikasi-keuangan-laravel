@@ -512,12 +512,13 @@
 
             @if($budget)
                 @php
-                    $now        = \Carbon\Carbon::now();
-                    $percentage = $budget->amount > 0 ? min(100, round(($monthlyExpense / $budget->amount) * 100)) : 0;
-                    $remaining  = $budget->amount - $monthlyExpense;
-                    $isOver     = $remaining < 0;
-                    $daysLeft   = max(1, $now->daysInMonth - $now->day + 1);
-                    $daily      = $remaining > 0 ? floor($remaining / $daysLeft) : 0;
+                    $now = \Carbon\Carbon::now();
+                    // Rumus sama dengan halaman /budgets (BudgetSummaryService::progress).
+                    $p = (new \App\Services\BudgetSummaryService)->progress((float) $budget->amount, (float) $monthlyExpense, $now);
+                    $percentage = $p['percentage'];
+                    $remaining  = $p['remaining'];
+                    $isOver     = $p['isOver'];
+                    $daily      = $p['daily'];
                     // Progress semantic: calm neutral, amber saat ≥80%, red saat over
                     $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
                 @endphp

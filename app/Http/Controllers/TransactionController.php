@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Exports\TransactionsExport;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
-use App\Models\Budget;
-use App\Models\Category;
 use App\Models\Transaction;
+use App\Services\BudgetSummaryService;
 use App\Services\DemoMode;
 use App\Services\ReportingService;
 use App\Services\TransactionParser;
@@ -60,47 +59,19 @@ class TransactionController extends Controller
 
         $now = Carbon::now();
 
-        // Semua baris anggaran bulan berjalan: keseluruhan (category='') + per kategori.
-        $budgets = Budget::where('user_id', Auth::id())
-            ->where('month', $now->month)
-            ->where('year', $now->year)
-            ->orderByRaw("CASE WHEN category = '' THEN 0 ELSE 1 END, category")
-            ->get();
-
-        $budget = $budgets->firstWhere('category', '') ?: null;
-        $categoryBudgets = $budgets->where('category', '!==', '')->values();
-
-        // Perf: whereBetween memakai index (user_id, type, transaction_date),
-        // sedangkan whereMonth()/whereYear() membungkus kolom dengan fungsi SQL
-        // sehingga index tidak terpakai. Hasilnya identik untuk kolom DATE.
-        $monthStart = $now->copy()->startOfMonth()->format('Y-m-d');
-        $monthEnd = $now->copy()->endOfMonth()->format('Y-m-d');
-        $monthlyExpense = Transaction::where('user_id', Auth::id())
-            ->where('type', 'expense')
-            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-            ->sum('amount');
-
-        // Pengeluaran bulan berjalan per kategori, untuk progress anggaran kategori.
-        $categorySpent = Transaction::where('user_id', Auth::id())
-            ->where('type', 'expense')
-            ->whereNotNull('category')
-            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
-            ->select('category')
-            ->selectRaw('SUM(amount) as total')
-            ->groupBy('category')
-            ->pluck('total', 'category')
-            ->map(fn ($total) => (float) $total)
-            ->toArray();
+        // Kartu anggaran di dashboard sengaja ringkas: batas keseluruhan, jumlah
+        // anggaran per kategori, dan pengeluaran bulan ini. Perhitungan per
+        // kategori + daftar kategori hidup di /budgets (BudgetController::index).
+        $budgetService = new BudgetSummaryService;
+        $budgets = $budgetService->split($budgetService->budgetsForMonth(Auth::id(), $now));
 
         return view('transactions.index', array_merge([
             'transactions' => $transactions,
             'filters' => $filters,
-            'budget' => $budget,
-            'categoryBudgets' => $categoryBudgets,
-            'categorySpent' => $categorySpent,
-            'monthlyExpense' => $monthlyExpense,
+            'budget' => $budgets['overall'],
+            'categoryBudgets' => $budgets['categories'],
+            'monthlyExpense' => $budgetService->monthlyExpense(Auth::id(), $now),
             'categoryExpenses' => $categoryExpenses,
-            'expenseCategories' => Category::namesFor(Auth::id(), 'expense'),
             'trendData' => $trendData,
         ], $stats));
     }
