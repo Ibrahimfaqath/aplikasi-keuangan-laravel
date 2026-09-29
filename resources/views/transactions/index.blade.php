@@ -489,14 +489,12 @@
              yang ramah alih-alih gugusan kartu angka nol & grafik kosong.
              Semua konten analitik baru muncul penuh setelah data cukup. -->
         @if ($transactions->total() >= 5 || request('search') || request('type') || request('category') || request('period'))
-        <!-- ANGGARAN + ANALISIS berdampingan.
-             Anggaran ditekan jadi kartu kecil karena isinya cuma satu pertanyaan
-             ("berapa sisa, dan berapa pace-nya") — pengelolaan penuhnya ada di
-             /budgets. Analisis pindah ke sebelahnya supaya grafik dapat lebar
-             tanpa menambah tinggi halaman.
+        <!-- ANGGARAN + ANALISIS, masing-masing separuh lebar (lg:grid-cols-2).
+             Anggaran tetap ringkas: hanya batas, terpakai, sisa, dan pace
+             harian — pengelolaan penuhnya ada di /budgets.
              "Transaksi Terakhir" dihapus: isinya persis 5 baris pertama tabel
              Riwayat di bawah, jadi tidak menambah informasi apa pun. -->
-        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] items-start gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
 
         <!-- ANGGARAN (ringkas) -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 shadow-sm">
@@ -537,34 +535,39 @@
                         <p class="text-[11px] font-medium {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400' }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-0.5 text-2xl font-bold tracking-tight leading-tight tabular-nums privacy-target {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}"
+                        <p class="mt-0.5 text-2xl sm:text-3xl font-bold tracking-tight leading-tight tabular-nums privacy-target {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}"
                            data-amount="{{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}">
                             {{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}
                         </p>
                     </div>
-                    <p class="flex-shrink-0 text-lg font-bold tabular-nums leading-none pb-0.5 {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}">{{ $percentage }}%</p>
+                    <p class="flex-shrink-0 text-xl sm:text-2xl font-bold tabular-nums leading-none pb-1 {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-900 dark:text-neutral-50' }}">{{ $percentage }}%</p>
                 </div>
 
-                <div class="mt-2.5 w-full h-1.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
+                <div class="mt-3 w-full h-2.5 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
                     <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
                 </div>
 
-                {{-- Batas & terpakai dirapatkan jadi satu baris: tiga kolom
-                     sebelumnya hanya memakan tinggi kartu, bukan menambah
-                     informasi baru. --}}
-                <p class="mt-3 flex items-baseline justify-between gap-3 text-[11px] text-neutral-400 dark:text-neutral-500">
-                    <span class="min-w-0 truncate">dari <span class="privacy-target font-semibold text-neutral-600 dark:text-neutral-300" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</span></span>
-                    <span class="flex-shrink-0">terpakai <span class="privacy-target font-semibold text-neutral-600 dark:text-neutral-300" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</span></span>
-                </p>
+                {{-- Tiga angka dikasih lebar sama rata; kartu ini sudah selebar
+                     Analisis, jadi muat tanpa dipadatkan. --}}
+                <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Batas</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Terpakai</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</p>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">Sisa / hari</p>
+                        <p class="mt-0.5 text-sm font-bold text-neutral-900 dark:text-neutral-50 break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</p>
+                    </div>
+                </div>
 
                 @if($isOver)
-                <p class="mt-3 pt-3 border-t border-neutral-200 dark:border-[#333333] text-[11px] font-semibold text-red-700 dark:text-red-400">
+                <p class="mt-3 text-xs font-semibold text-red-700 dark:text-red-400">
                     Batas bulan ini terlampaui —
                     <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">kelola anggaran</a>.
-                </p>
-                @else
-                <p class="mt-3 pt-3 border-t border-neutral-200 dark:border-[#333333] text-[11px] text-neutral-500 dark:text-neutral-400">
-                    Butuh <span class="privacy-target font-semibold text-neutral-700 dark:text-neutral-200" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</span>/hari sampai {{ $now->copy()->endOfMonth()->isoFormat('D MMMM') }}.
                 </p>
                 @endif
             @elseif($categoryBudgets->isNotEmpty())
