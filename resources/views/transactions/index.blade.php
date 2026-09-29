@@ -736,7 +736,7 @@
         <!-- FILTER -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
             <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-                <div class="lg:col-span-4 relative">
+                <div class="lg:col-span-3 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -745,10 +745,37 @@
                            class="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
                 </div>
 
-                <div class="lg:col-span-2">
-                    <x-custom-select name="type" id="filterType" label="Filter berdasarkan tipe transaksi"
-                        :options="['' => 'Semua Tipe', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran']"
-                        :selected="request('type', '')" onchange="applyFilters" />
+                {{-- Tipe memakai segoup radio asli, bukan tombol JS: tetap ikut
+                     submit kalau JS mati, panah kiri/kanan langsung memindah
+                     pilihan, dan terbaca screen reader sebagai radiogroup. --}}
+                <div class="lg:col-span-4">
+                    <fieldset>
+                        <legend class="sr-only">Filter berdasarkan tipe transaksi</legend>
+                        <div class="flex w-full gap-1 p-1 rounded-xl bg-neutral-100 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333]">
+                            @php
+                                $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
+                                $currentType = (string) request('type', '');
+                            @endphp
+                            @foreach ($typeFilters as $typeValue => $typeLabel)
+                                @php $typeId = 'filterType' . ($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
+                                {{-- Tiap pasangan input+label dibungkus div sendiri.
+                                     Kalau tidak, `peer-checked` akan menimpa label
+                                     berikutnya begitu satu radio aktif. --}}
+                                <div class="flex-1 min-w-0">
+                                    <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
+                                           class="peer sr-only" @checked($currentType === (string) $typeValue)
+                                           onchange="applyFilters">
+                                    <label for="{{ $typeId }}"
+                                           class="block px-1.5 sm:px-2 py-2 text-center text-xs sm:text-sm font-semibold rounded-lg cursor-pointer select-none truncate text-neutral-500 dark:text-neutral-400 transition
+                                                  peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
+                                                  dark:peer-checked:bg-[#171717] dark:peer-checked:text-neutral-50
+                                                  peer-focus-visible:ring-2 peer-focus-visible:ring-neutral-900 dark:peer-focus-visible:ring-neutral-100">
+                                        {{ $typeLabel }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </fieldset>
                 </div>
 
                 <div class="lg:col-span-2">

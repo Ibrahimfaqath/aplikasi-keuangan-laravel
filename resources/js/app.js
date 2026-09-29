@@ -204,7 +204,9 @@ window.toggleTheme = function () {
 (function () {
     const DEBOUNCE_MS = 350;
     const KEYS = ['search', 'type', 'category', 'period'];
-    const SELECTS = { type: 'filterType', category: 'filterCategory', period: 'filterPeriod' };
+    // Tipe TIDAK ada di sini: sejak diubah jadi segoup radio native, nilainya
+    // diambil langsung dari FormData (sudah sinkron, tidak ada balapan Alpine).
+    const SELECTS = { category: 'filterCategory', period: 'filterPeriod' };
     // Pilihan "Semua ..." = keadaan netral, dipakai oleh tombol reset dan
     // untuk membuang parameter kosong dari URL.
     const DEFAULTS = { search: '', type: '', category: '', period: 'all' };
@@ -235,7 +237,8 @@ window.toggleTheme = function () {
         // dan donat masih menampilkan data filter yang lama.
         //
         // Membaca langsung dari state Alpine menutup celah balapan itu, karena
-        // nilainya sudah benar pada saat itu juga.
+        // nilainya sudah benar pada saat itu juga. Radio `type` tidak punya
+        // masalah ini dan tetap dibaca lewat FormData seperti aslinya.
         for (const key in SELECTS) {
             const d = selectData(SELECTS[key]);
             fd.set(key, d && typeof d.value === 'string' ? d.value : DEFAULTS[key]);
@@ -266,10 +269,22 @@ window.toggleTheme = function () {
         if (btn) btn.classList.toggle('hidden', !hasFilters(p));
     }
 
+    // Segoup radio Tipe butuh perlakuan sendiri: ia native, jadi cukup dengan
+    // menyetel `checked`, tidak ada state Alpine yang perlu disinkronkan.
+    function syncTypeRadio(want) {
+        const f = $('filterForm');
+        if (!f) return;
+        f.querySelectorAll('input[type="radio"][name="type"]').forEach(function (r) {
+            r.checked = r.value === (want || '');
+        });
+    }
+
     function syncControls(p) {
         const s = $('filterSearch');
         const wantSearch = p.get('search') || DEFAULTS.search;
         if (s && s.value !== wantSearch) s.value = wantSearch;
+
+        syncTypeRadio(p.has('type') ? p.get('type') : DEFAULTS.type);
 
         for (const key in SELECTS) {
             // Tanpa `|| DEFAULTS[key]`, popstate ke URL yang tidak memuat
@@ -377,6 +392,7 @@ window.toggleTheme = function () {
                 e.preventDefault();
                 if (timer) { clearTimeout(timer); timer = null; }
                 if (search) search.value = DEFAULTS.search;
+                syncTypeRadio(DEFAULTS.type);
                 for (const key in SELECTS) {
                     const d = selectData(SELECTS[key]);
                     if (d && typeof d.setValue === 'function') d.setValue(DEFAULTS[key]);
