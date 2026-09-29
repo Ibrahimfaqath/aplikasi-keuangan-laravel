@@ -318,7 +318,15 @@ window.toggleTheme = function () {
         const table = $('riwayatTable');
         if (table) table.setAttribute('aria-busy', 'true');
 
-        const qs = params.toString();
+        // `partial` adalah penanda endpoint, bukan bagian dari state filter.
+        // Link pagination dihasilkan dari query string request parsial, jadi
+        // ia ikut membawa `partial=1`. Kalau tidak dibuang, URL yang di-push
+        // ke history (dan yang dishare user) akan memicu render JSON saat
+        // dibuka ulang sebagai halaman penuh.
+        const clean = new URLSearchParams(params);
+        clean.delete('partial');
+
+        const qs = clean.toString();
         const url = window.location.pathname + (qs ? '?' + qs : '');
         const endpoint = url + (qs ? '&' : '?') + 'partial=1';
 
@@ -404,11 +412,16 @@ window.toggleTheme = function () {
         // Pagination: hanya link di dalam <nav role="navigation">, supaya link
         // lain di tabel (edit/hapus) dan header (Tambah/Sampah) tidak ikut
         // dicuri.
+        //
+        // Listener dipasang pada wadah #riwayat (delegasi), bukan pada <nav>-nya.
+        // Setiap filter mengganti isi #riwayatTable lewat innerHTML, sehingga <nav>
+        // lama ikut terbuang beserta listener-nya -- tanpa delegasi, pagination
+        // berikutnya jatuh ke navigasi penuh dan menampilkan JSON `partial=1`.
         const riwayat = $('riwayat');
-        const nav = riwayat && riwayat.querySelector('nav[role="navigation"]');
-        if (nav) {
-            nav.addEventListener('click', function (e) {
-                const a = e.target.closest('a[href]');
+        if (riwayat) {
+            riwayat.addEventListener('click', function (e) {
+                const target = e.target && e.target.closest ? e.target : null;
+                const a = target && target.closest('nav[role="navigation"] a[href]');
                 if (!a || a.target === '_blank') return;
                 const u = new URL(a.href, window.location.origin);
                 if (u.origin !== window.location.origin) return;

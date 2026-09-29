@@ -769,7 +769,7 @@
                                 <div class="flex-1 min-w-0">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
                                            class="peer sr-only" @checked($currentType === (string) $typeValue)
-                                           onchange="applyFilters">
+                                           onchange="applyFilters()">
                                     <label for="{{ $typeId }}"
                                            class="block px-1.5 sm:px-2 py-2 text-center text-xs sm:text-sm font-semibold rounded-lg cursor-pointer select-none truncate text-neutral-500 dark:text-neutral-400 transition
                                                   peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
