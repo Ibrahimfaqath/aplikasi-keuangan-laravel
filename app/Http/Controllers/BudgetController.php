@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Budget;
 use App\Models\Category;
+use App\Models\Transaction;
 use App\Services\AmountFormatter;
 use App\Services\DemoMode;
 use Carbon\Carbon;
@@ -14,6 +15,54 @@ use Illuminate\Validation\Rule;
 class BudgetController extends Controller
 {
     public function __construct(private AmountFormatter $amountFormatter) {}
+
+    /**
+     * Halaman kelola anggaran: ringkasan bulan berjalan + anggaran per kategori.
+     * Dashboard hanya menampilkan versi ringkas — semua aksi (atur/ubah/hapus)
+     * dilakukan di sini.
+     */
+    public function index(Request $request)
+    {
+        $now = Carbon::now();
+
+        // Semua baris anggaran bulan berjalan: keseluruhan (category='') + per kategori.
+        $budgets = Budget::where('user_id', Auth::id())
+            ->where('month', $now->month)
+            ->where('year', $now->year)
+            ->orderByRaw("CASE WHEN category = '' THEN 0 ELSE 1 END, category")
+            ->get();
+
+        $budget = $budgets->firstWhere('category', '') ?: null;
+        $categoryBudgets = $budgets->where('category', '!==', '')->values();
+
+        // whereBetween memakai index (user_id, type, transaction_date).
+        $monthStart = $now->copy()->startOfMonth()->format('Y-m-d');
+        $monthEnd = $now->copy()->endOfMonth()->format('Y-m-d');
+        $monthlyExpense = Transaction::where('user_id', Auth::id())
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+            ->sum('amount');
+
+        // Pengeluaran bulan berjalan per kategori, untuk progress anggaran kategori.
+        $categorySpent = Transaction::where('user_id', Auth::id())
+            ->where('type', 'expense')
+            ->whereNotNull('category')
+            ->whereBetween('transaction_date', [$monthStart, $monthEnd])
+            ->select('category')
+            ->selectRaw('SUM(amount) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category')
+            ->map(fn ($total) => (float) $total)
+            ->toArray();
+
+        return view('budgets.index', [
+            'budget' => $budget,
+            'categoryBudgets' => $categoryBudgets,
+            'categorySpent' => $categorySpent,
+            'monthlyExpense' => $monthlyExpense,
+            'expenseCategories' => Category::namesFor(Auth::id(), 'expense'),
+        ]);
+    }
 
     /**
      * Menyimpan (membuat atau memperbarui) anggaran pengeluaran.

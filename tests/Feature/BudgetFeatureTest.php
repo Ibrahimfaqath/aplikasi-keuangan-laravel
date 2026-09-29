@@ -218,7 +218,7 @@ class BudgetFeatureTest extends TestCase
         $this->assertDatabaseCount('budgets', 0);
     }
 
-    public function test_dashboard_shows_category_budget_progress(): void
+    public function test_budget_page_shows_category_budget_progress(): void
     {
         $user = User::factory()->create();
 
@@ -240,12 +240,24 @@ class BudgetFeatureTest extends TestCase
             'transaction_date' => $now->format('Y-m-d'),
         ]);
 
-        $response = $this->actingAs($user)->get(route('transactions.index'));
+        $response = $this->actingAs($user)->get(route('budgets.index'));
 
         $response->assertOk();
         $response->assertSee('Anggaran per Kategori');
-        $response->assertSee('Makanan & Minuman');
+        $response->assertSee('Makanan &amp; Minuman', false);
         $response->assertSee('dari Rp 1 juta');
+    }
+
+    public function test_dashboard_budget_card_links_to_budget_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('transactions.index'));
+
+        $response->assertOk();
+        // Kartu anggaran di dashboard sengaja ringkas — aksi penuh ada di /budgets.
+        $response->assertSee(route('budgets.index'), false);
+        $response->assertSee('Kelola');
     }
 
     public function test_guest_cannot_set_budget(): void

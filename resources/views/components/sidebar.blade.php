@@ -59,6 +59,13 @@ $sbGroups = [
             'active' => request()->routeIs('transactions.import') || request()->routeIs('transactions.import-*'),
             'icon' => '<path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>',
         ],
+        [
+            'label' => 'Anggaran',
+            'href' => route('budgets.index'),
+            'active' => request()->routeIs('budgets.*'),
+            // Sama dengan ikon kartu Anggaran di dashboard, biar kaitannya jelas.
+            'icon' => '<path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>',
+        ],
     ],
     'ANALISIS' => [
         [

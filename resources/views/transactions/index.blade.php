@@ -489,38 +489,25 @@
              yang ramah alih-alih gugusan kartu angka nol & grafik kosong.
              Semua konten analitik baru muncul penuh setelah data cukup. -->
         @if ($transactions->total() >= 5 || request('search') || request('type') || request('category') || request('period'))
-        <!-- ROW: BUDGET + INCOME VS EXPENSE (side by side di desktop) -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
-
-        <!-- BUDGET CARD -->
+        <!-- ANGGARAN (ringkas) — dashboard cuma cek-cepat; kelola penuh di /budget. -->
         <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm">
-            <div class="flex items-center justify-between gap-3 mb-4">
-                <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <div class="p-2.5 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 rounded-xl flex-shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
                     </div>
-                    <div>
-                        <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Anggaran Bulanan</h2>
+                    <div class="min-w-0">
+                        <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Anggaran</h2>
                         <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                     </div>
                 </div>
-                @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-                <span class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 dark:bg-[#262626] text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-xl text-xs font-semibold no-print"
-                      title="Mode demo terkunci — tidak bisa mengubah anggaran">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-                    Demo
-                </span>
-                @else
-                <button type="button" onclick="openBudgetModal()"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-100 dark:bg-[#262626] text-neutral-900 dark:text-neutral-100 border border-neutral-200 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-200 dark:hover:bg-[#333333] transition no-print">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    {{ $budget ? 'Ubah' : 'Atur' }}
-                </button>
-                @endif
+                <a href="{{ route('budgets.index') }}"
+                   class="inline-flex items-center gap-1 px-3 py-1.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-[#333333] rounded-xl text-xs font-semibold transition no-print">
+                    Kelola
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                </a>
             </div>
 
             @if($budget)
@@ -535,7 +522,7 @@
                     $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
                 @endphp
 
-                <div class="flex items-end justify-between gap-3">
+                <div class="flex items-end justify-between gap-3 mt-4">
                     <div class="min-w-0">
                         <p class="text-xs font-medium {{ $isOver ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400' }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
@@ -573,73 +560,24 @@
                 @if($isOver)
                 <p class="mt-3 flex items-start gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl px-3 py-2">
                     <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span>Pengeluaran sudah melewati batas bulan ini. Pertimbangkan untuk menyesuaikan anggaranmu.</span>
+                    <span>Pengeluaran sudah melewati batas bulan ini. Kelola di <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">halaman Anggaran</a>.</span>
                 </p>
                 @endif
-            @endif
-
-            @if($budget === null && $categoryBudgets->isEmpty())
-                <div class="flex flex-col items-center text-center py-6 px-4 bg-neutral-50 dark:bg-[#262626]/40 border border-dashed border-neutral-300 dark:border-[#333333] rounded-2xl">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Belum ada anggaran bulan ini</h3>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 max-w-xs">Tetapkan batas pengeluaran untuk mengontrol keuanganmu lebih disiplin.</p>
-                    <button type="button" onclick="openBudgetModal()"
-                            class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition no-print">
+            @elseif($categoryBudgets->isNotEmpty())
+                <p class="mt-4 px-4 py-3 text-xs font-medium text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-[#262626]/40 border border-neutral-200 dark:border-[#333333] rounded-xl">
+                    {{ $categoryBudgets->count() }} anggaran per kategori aktif, belum ada batas keseluruhan — lanjutkan di halaman Anggaran.
+                </p>
+            @else
+                <div class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-dashed border-neutral-300 dark:border-[#333333] bg-neutral-50 dark:bg-[#262626]/40 px-4 py-3">
+                    <p class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Belum ada anggaran bulan ini</p>
+                    <a href="{{ route('budgets.index') }}"
+                       class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition no-print">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Atur Anggaran
-                    </button>
-                </div>
-            @endif
-
-            @if($categoryBudgets->isNotEmpty())
-                <div class="mt-4 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                    <div class="flex items-center justify-between gap-3 mb-3">
-                        <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Anggaran per Kategori</p>
-                    </div>
-                    <div class="space-y-3">
-                        @foreach($categoryBudgets as $cb)
-                            @php
-                                $spent      = $categorySpent[$cb->category] ?? 0;
-                                $percentage = $cb->amount > 0 ? min(100, round(($spent / $cb->amount) * 100)) : 0;
-                                $remaining  = $cb->amount - $spent;
-                                $isOver     = $remaining < 0;
-                                $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-neutral-900 dark:bg-neutral-100');
-                            @endphp
-                            <div class="rounded-xl border border-neutral-200 dark:border-[#333333] bg-neutral-50/50 dark:bg-[#262626]/30 p-3">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <p class="text-xs font-bold text-neutral-900 dark:text-neutral-50">{{ $cb->category }}</p>
-                                    @unless (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-                                    <div class="flex items-center gap-1.5 no-print">
-                                        <button type="button" onclick="openBudgetModal({{ Js::from($cb->category) }}, {{ $cb->amount }})"
-                                                class="px-2.5 py-1 text-[11px] font-semibold text-neutral-600 dark:text-neutral-300 border border-neutral-300 dark:border-[#333333] rounded-lg hover:bg-neutral-100 dark:hover:bg-[#333333] transition">Ubah</button>
-                                        <form action="{{ route('budgets.destroy', $cb) }}" method="POST" onsubmit="return confirm('Hapus anggaran {{ addslashes($cb->category) }} bulan ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition">Hapus</button>
-                                        </form>
-                                    </div>
-                                    @endunless
-                                </div>
-                                <div class="w-full h-2 bg-neutral-200 dark:bg-[#262626] rounded-full overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-500 {{ $barColor }}" style="width: {{ $percentage }}%"></div>
-                                </div>
-                                <div class="flex items-center justify-between gap-2 mt-2">
-                                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}">{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}</p>
-                                    <p class="text-[11px] font-bold {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-neutral-600 dark:text-neutral-300' }}">
-                                        {{ $percentage }}%{{ $isOver ? ' · melebihi' : '' }}
-                                    </p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                        Atur
+                    </a>
                 </div>
             @endif
         </section>
-
-        </div>
 
         <!-- ANALISIS + TRANSAKSI TERAKHIR (side by side di desktop) -->
         <div class="grid grid-cols-1 xl:grid-cols-2 items-start gap-6 sm:gap-8">
@@ -1134,146 +1072,12 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
 
     </div>
 
-    <!-- BUDGET MODAL -->
-    <div id="budgetModal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
-        <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm transition-opacity" onclick="closeBudgetModal()"></div>
-
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-left shadow-sm transition-all sm:my-8 sm:w-full sm:max-w-md">
-
-                <div class="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-[#333333]">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 rounded-xl">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 id="budget-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50">Anggaran Bulanan</h3>
-                            <p class="text-xs text-neutral-500 dark:text-neutral-400">Atur batas pengeluaran bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeBudgetModal()" class="text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 p-1 rounded-lg">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-
-                <form action="{{ route('budgets.store') }}" method="POST" class="p-6 space-y-4" x-data="budgetForm({{ $budget?->amount ?? 0 }})">
-                    @csrf
-
-                    @if($monthlyExpense > 0)
-                    <div class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-[#262626]/60 border border-neutral-200 dark:border-[#333333] rounded-xl">
-                        <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Pengeluaran bulan ini</span>
-                        <span class="text-sm font-bold text-neutral-900 dark:text-neutral-50 privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</span>
-                    </div>
-                    @endif
-
-                    <div>
-                        <label for="budget-amount-input" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Batas Pengeluaran</label>
-                        <div class="relative rounded-xl shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 font-bold text-sm">Rp</div>
-                            <input type="text" inputmode="numeric" id="budget-amount-input" name="amount"
-                                   x-model="displayAmount" @input="amount = onAmountInput($event.target.value)"
-                                   placeholder="0" autocomplete="off"
-                                   class="w-full pl-10 pr-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-neutral-900 dark:text-neutral-50 font-bold text-base sm:text-lg tracking-tight placeholder-neutral-300 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition">
-                        </div>
-                        <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
-                    </div>
-
-                    <div>
-                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">Pilih cepat</p>
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="preset in presets" :key="preset">
-                                <button type="button" @click="setPreset(preset)"
-                                        class="px-3 py-1.5 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-full text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:border-neutral-900 dark:hover:border-neutral-100 hover:text-neutral-900 dark:hover:text-white transition"
-                                        x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(preset)">
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="budget-category" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Kategori</label>
-                            <select id="budget-category" name="category"
-                                    class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
-                                <option value="">Keseluruhan (semua pengeluaran)</option>
-                                @foreach($expenseCategories as $cat)
-                                    <option value="{{ $cat }}">{{ $cat }}</option>
-                                @endforeach
-                            </select>
-                            <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
-                        </div>
-                        <div>
-                            <label for="budget-months" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Berlaku Selama</label>
-                            <select id="budget-months" name="months"
-                                    class="w-full px-3 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
-                                @for($m = 1; $m <= 12; $m++)
-                                    <option value="{{ $m }}" @selected($m === 1)>{{ $m === 1 ? '1 Bulan Ini' : $m.' Bulan' }}</option>
-                                @endfor
-                            </select>
-                            <p class="mt-1.5 text-[11px] text-neutral-400 dark:text-neutral-500">Terapkan nominal yang sama ke beberapa bulan sekaligus.</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                        <button type="button" onclick="closeBudgetModal()" class="px-4 py-2 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-50 dark:hover:bg-[#333333] transition">Batal</button>
-                        <button type="submit"
-                                :disabled="!(parseFloat(amount) > 0)"
-                                class="px-5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed">Simpan Anggaran</button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
+<!-- BUDGET MODAL dipindah ke halaman /budget (resources/views/budgets/index.blade.php) -->
 
     <script>
-        function openBudgetModal(category = '', amount = null) {
-            document.getElementById('budgetModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            const catSel = document.getElementById('budget-category');
-            if (catSel) catSel.value = category || '';
-            const monSel = document.getElementById('budget-months');
-            if (monSel) monSel.value = '1';
-            if (amount) {
-                const input = document.getElementById('budget-amount-input');
-                const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-                setter.call(input, new Intl.NumberFormat('id-ID').format(Number(amount)));
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }
-        function closeBudgetModal() {
-            document.getElementById('budgetModal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeBudgetModal();
-                closeExportModal();
-            }
+            if (e.key === 'Escape' && typeof closeExportModal === 'function') closeExportModal();
         });
-
-        function budgetForm(initialAmount = 0) {
-            const init = Number(initialAmount) || 0;
-            return {
-                amount: init,
-                displayAmount: init > 0 ? new Intl.NumberFormat('id-ID').format(init) : '',
-                presets: [500000, 1000000, 2000000, 5000000, 10000000],
-
-                onAmountInput(value) {
-                    const digits = String(value).replace(/\D/g, '');
-                    this.amount = digits === '' ? 0 : parseInt(digits, 10);
-                    this.displayAmount = this.amount > 0 ? new Intl.NumberFormat('id-ID').format(this.amount) : '';
-                    return this.displayAmount;
-                },
-
-                setPreset(value) {
-                    this.amount = value;
-                    this.displayAmount = new Intl.NumberFormat('id-ID').format(value);
-                },
-            };
-        }
     </script>
 
     @include('components.export-modal')
