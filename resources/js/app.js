@@ -87,6 +87,12 @@ window.customSelect = function (config) {
                 window[this.onchange](this.value);
             }
         },
+        // Set nilai dari luar (sinkronisasi form saat tombol Back / reset).
+        // Sengaja tidak memanggil onchange supaya tidak memicu submit berulang.
+        setValue(v) {
+            this.value = v === null || v === undefined ? '' : String(v);
+            this.close();
+        },
         move(dir) {
             if (!this.open) {
                 this.openPanel();
@@ -187,13 +193,182 @@ window.toggleTheme = function () {
     window.setTheme(effectiveDark(getSavedTheme()) ? 'light' : 'dark');
 };
 
-// Dipanggil dari x-custom-select lewat prop `onchange` di halaman transaksi.
-// Choosenya langsung men-submit form filter, jadi tidak perlu pencet tombol
-// "Filter" lagi. Tombolnya tetap ada untuk kasus ketik pencarian.
-window.applyFilters = function () {
-    const form = document.getElementById('filterForm');
-    if (form) form.submit();
-};
+// ---------------------------------------------------------------------
+// FILTER TANPA RELOAD
+//
+// Server tetap sumber kebenaran: halaman penuh tetap dirender PHP, dan
+// `?partial=1` hanya mengembalikan potongan yang berubah (tabel, angka
+// Ringkasan, data donat). Kalau JS mati atau fetch gagal, form tetap
+// submit seperti biasa — tidak ada fitur yang hilang.
+// ---------------------------------------------------------------------
+(function () {
+    const DEBOUNCE_MS = 350;
+    const KEYS = ['search', 'type', 'category', 'period'];
+    const SELECTS = { type: 'filterType', category: 'filterCategory', period: 'filterPeriod' };
+
+    let seq = 0;        // penjaga race: hanya respons terakhir yang dipakai
+    let timer = null;
+    let inflight = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function currentParams() {
+        const f = $('filterForm');
+        return f ? new URLSearchParams(new FormData(f)) : new URLSearchParams();
+    }
+
+    function hasFilters(p) {
+        // 'all' adalah nilai default Periode, jadi bukan filter aktif. Kalau
+        // tidak dicek di sini, tombol reset akan muncul begitu saja begitu satu
+        // request terkirim (FormData selalu ikut membawa period=all).
+        return (p.get('search') || '') !== ''
+            || (p.get('type') || '') !== ''
+            || (p.get('category') || '') !== ''
+            || ((p.get('period') || '') !== '' && (p.get('period') || '') !== 'all');
+    }
+
+    function syncReset(p) {
+        const btn = $('filterReset');
+        if (btn) btn.classList.toggle('hidden', !hasFilters(p));
+    }
+
+    function syncControls(p) {
+        const s = $('filterSearch');
+        if (s && s.value !== (p.get('search') || '')) s.value = p.get('search') || '';
+        Object.keys(SELECTS).forEach((key) => {
+            const want = p.get(key) || '';
+            const el = $(SELECTS[key]);
+            const data = el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
+            if (data && typeof data.setValue === 'function' && data.value !== want) data.setValue(want);
+        });
+    }
+
+    function apply(data) {
+        const table = $('riwayatTable');
+        if (table && typeof data.tableHtml === 'string') table.innerHTML = data.tableHtml;
+
+        const count = $('riwayatCount');
+        if (count) count.textContent = data.total + ' transaksi tercatat';
+
+        const live = $('filterStatus');
+        if (live) live.textContent = data.total + ' transaksi ditemukan.';
+
+        window.dispatchEvent(new CustomEvent('filters-applied', { detail: data }));
+    }
+
+    function load(params, push) {
+        const mine = ++seq;
+        if (inflight) inflight.abort();
+        const ctrl = new AbortController();
+        inflight = ctrl;
+
+        const table = $('riwayatTable');
+        if (table) table.setAttribute('aria-busy', 'true');
+
+        const qs = params.toString();
+        const url = window.location.pathname + (qs ? '?' + qs : '');
+        const endpoint = url + (qs ? '&' : '?') + 'partial=1';
+
+        fetch(endpoint, {
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            signal: ctrl.signal,
+        })
+            .then((r) => {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            })
+            .then((data) => {
+                if (mine !== seq) return;            // respons basi — buang
+                apply(data);
+                if (push) window.history.pushState({ q: qs }, '', url);
+                syncReset(params);
+            })
+            .catch((err) => {
+                if (err && err.name === 'AbortError') return;
+                const f = $('filterForm');
+                if (f) f.submit();                    // fallback ke submit biasa
+            })
+            .finally(() => {
+                if (mine === seq && table) table.removeAttribute('aria-busy');
+            });
+    }
+
+    function run() {
+        const params = currentParams();
+        load(params, true);
+    }
+
+    // Dipanggil x-custom-select lewat prop `onchange`.
+    window.applyFilters = function () {
+        if (timer) { clearTimeout(timer); timer = null; }
+        run();
+    };
+
+    function init() {
+        const f = $('filterForm');
+        if (!f) return;
+
+        // Pencarian: debounce supaya tidak satu request per ketikan.
+        const search = $('filterSearch');
+        if (search) {
+            search.addEventListener('input', function () {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(function () { timer = null; run(); }, DEBOUNCE_MS);
+            });
+        }
+
+        // Reset: tanpa reload. form.reset() tidak menyentuh x-custom-select
+        // karena nilainya diikat Alpine, bukan properti DOM.
+        const reset = $('filterReset');
+        if (reset) {
+            reset.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (search) search.value = '';
+                Object.values(SELECTS).forEach(function (id) {
+                    const el = $(id);
+                    const data = el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
+                    if (data && typeof data.setValue === 'function') data.setValue('');
+                });
+                window.applyFilters();
+            });
+        }
+
+        // Pagination: hanya link di dalam <nav role="navigation">, supaya link
+        // lain di tabel (edit/hapus) dan header (Tambah/Sampah) tidak ikut
+        // dicuri.
+        const riwayat = $('riwayat');
+        const nav = riwayat && riwayat.querySelector('nav[role="navigation"]');
+        if (nav) {
+            nav.addEventListener('click', function (e) {
+                const a = e.target.closest('a[href]');
+                if (!a || a.target === '_blank') return;
+                const u = new URL(a.href, window.location.origin);
+                if (u.origin !== window.location.origin) return;
+                e.preventDefault();
+                const p = new URLSearchParams(u.search);
+                load(p, true);
+            });
+        }
+
+        // Tombol Back / Forward: kembalikan seluruh state dari URL.
+        window.addEventListener('popstate', function (e) {
+            const q = (e.state && e.state.q) || window.location.search.replace(/^\?/, '');
+            const p = new URLSearchParams(q);
+            syncControls(p);
+            syncReset(p);
+            load(p, false);
+        });
+
+        syncReset(currentParams());
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
     applyTheme();

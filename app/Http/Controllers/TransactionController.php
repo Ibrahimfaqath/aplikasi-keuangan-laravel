@@ -65,7 +65,9 @@ class TransactionController extends Controller
         $budgetService = new BudgetSummaryService;
         $budgets = $budgetService->split($budgetService->budgetsForMonth(Auth::id(), $now));
 
-        return view('transactions.index', array_merge([
+        $showAnalytics = $this->shouldShowAnalytics($request, $transactions);
+
+        $data = array_merge([
             'transactions' => $transactions,
             'filters' => $filters,
             'budget' => $budgets['overall'],
@@ -73,7 +75,54 @@ class TransactionController extends Controller
             'monthlyExpense' => $budgetService->monthlyExpense(Auth::id(), $now),
             'categoryExpenses' => $categoryExpenses,
             'trendData' => $trendData,
-        ], $stats));
+            'showAnalytics' => $showAnalytics,
+        ], $stats);
+
+        // Filter tanpa reload: halaman penuh tetap dirender server sebagai sumber
+        // kebenaran (jalan tanpa JS, shareable URL,first paint). `?partial=1`
+        // hanya mengembalikan potongan yang benar-benar berubah, supaya fetch
+        // bisa menimpanya tanpa bikin layout melompat.
+        //
+        // Penting: filter memengaruhi bukan hanya tabel, tapi juga angka
+        // Ringkasan dan grafik donat karena keduanya dihitung dari query yang
+        // sama. Kalau hanya tabel yang dikirim, kartu Ringkasan akan
+        // menampilkan angka filter sebelumnya — lebih membingungkan daripada
+        // reload biasa.
+        if ($request->boolean('partial')) {
+            return response()->json([
+                'stats' => [
+                    'totalBalance' => $data['totalBalance'] ?? 0,
+                    'totalIncome' => $data['totalIncome'] ?? 0,
+                    'totalExpense' => $data['totalExpense'] ?? 0,
+                ],
+                'categoryExpenses' => $categoryExpenses,
+                'showAnalytics' => $showAnalytics,
+                'total' => $transactions->total(),
+                'tableHtml' => view('transactions.partials.table', [
+                    'transactions' => $transactions,
+                ])->render(),
+            ]);
+        }
+
+        return view('transactions.index', $data);
+    }
+
+    /**
+     * Kartu anggaran + analisis disembunyikan saat data masih sedikit, supaya
+     * dashboard tidak dipenuhi angka nol. Begitu ada filter aktif, isinya
+     * ditampilkan walaupun hasil filter cuma sedikit.
+     *
+     * 'all' adalah nilai default Periode, jadi bukan filter aktif. Tanpa
+     * pengecualian ini, request apa pun yang menyertakan `period=all` (yang
+     * memang selalu dikirim mesin filter) akan memaksa blok ini tampil.
+     */
+    private function shouldShowAnalytics(Request $request, $transactions): bool
+    {
+        return $transactions->total() >= 5
+            || $request->filled('search')
+            || $request->filled('type')
+            || $request->filled('category')
+            || ($request->filled('period') && $request->input('period') !== 'all');
     }
 
     public function parseVoice(Request $request)
