@@ -205,6 +205,9 @@ window.toggleTheme = function () {
     const DEBOUNCE_MS = 350;
     const KEYS = ['search', 'type', 'category', 'period'];
     const SELECTS = { type: 'filterType', category: 'filterCategory', period: 'filterPeriod' };
+    // Pilihan "Semua ..." = keadaan netral, dipakai oleh tombol reset dan
+    // untuk membuang parameter kosong dari URL.
+    const DEFAULTS = { search: '', type: '', category: '', period: 'all' };
 
     let seq = 0;        // penjaga race: hanya respons terakhir yang dipakai
     let timer = null;
@@ -212,9 +215,40 @@ window.toggleTheme = function () {
 
     const $ = (id) => document.getElementById(id);
 
+    function selectData(id) {
+        const el = $(id);
+        return el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
+    }
+
     function currentParams() {
         const f = $('filterForm');
-        return f ? new URLSearchParams(new FormData(f)) : new URLSearchParams();
+        if (!f) return new URLSearchParams();
+
+        const fd = new FormData(f);
+        // PENTING: jangan percaya hidden input untuk nilai dropdown.
+        //
+        // x-custom-select mengikat nilainya secara reaktif (`:value="value"`),
+        // jadi yang tertulis di DOM baru menyusul di microtask berikutnya.
+        // Label di layar sudah ikut berubah duluan (itu getter), tapi
+        // FormData yang dibaca di sini masih membawa nilai SEBELUMNYA --
+        // hasilnya: dropdown menulis "Pemasukan" sementara tabel, Ringkasan,
+        // dan donat masih menampilkan data filter yang lama.
+        //
+        // Membaca langsung dari state Alpine menutup celah balapan itu, karena
+        // nilainya sudah benar pada saat itu juga.
+        for (const key in SELECTS) {
+            const d = selectData(SELECTS[key]);
+            fd.set(key, d && typeof d.value === 'string' ? d.value : DEFAULTS[key]);
+        }
+
+        // URL dijaga tetap ringkas: parameter yang kosong atau sama dengan
+        // pilihan default tidak perlu ikut.
+        const out = new URLSearchParams();
+        for (const key of KEYS) {
+            const v = (fd.get(key) || '').trim();
+            if (v !== '' && v !== DEFAULTS[key]) out.set(key, v);
+        }
+        return out;
     }
 
     function hasFilters(p) {
@@ -234,13 +268,17 @@ window.toggleTheme = function () {
 
     function syncControls(p) {
         const s = $('filterSearch');
-        if (s && s.value !== (p.get('search') || '')) s.value = p.get('search') || '';
-        Object.keys(SELECTS).forEach((key) => {
-            const want = p.get(key) || '';
-            const el = $(SELECTS[key]);
-            const data = el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
-            if (data && typeof data.setValue === 'function' && data.value !== want) data.setValue(want);
-        });
+        const wantSearch = p.get('search') || DEFAULTS.search;
+        if (s && s.value !== wantSearch) s.value = wantSearch;
+
+        for (const key in SELECTS) {
+            // Tanpa `|| DEFAULTS[key]`, popstate ke URL yang tidak memuat
+            // parameter akan mengembalikan Periode ke kosong, bukan "Semua
+            // Waktu" seperti semula.
+            const want = p.has(key) ? p.get(key) : DEFAULTS[key];
+            const d = selectData(SELECTS[key]);
+            if (d && typeof d.setValue === 'function' && d.value !== want) d.setValue(want);
+        }
     }
 
     function apply(data) {
@@ -286,8 +324,19 @@ window.toggleTheme = function () {
             })
             .catch((err) => {
                 if (err && err.name === 'AbortError') return;
-                const f = $('filterForm');
-                if (f) f.submit();                    // fallback ke submit biasa
+                // Fallback ke submit biasa. Tunggu satu siklus Alpine dulu:
+                // nilai dropdown baru saja berubah, dan hidden input-nya
+                // baru tersinkron setelah Alpine selesai flush. Tanpa
+                // penantian ini, form::__submit() membaca nilai lama.
+                const fallback = function () {
+                    const f = $('filterForm');
+                    if (f) f.submit();
+                };
+                if (window.Alpine && typeof window.Alpine.nextTick === 'function') {
+                    window.Alpine.nextTick(fallback);
+                } else {
+                    fallback();
+                }
             })
             .finally(() => {
                 if (mine === seq && table) table.removeAttribute('aria-busy');
@@ -319,17 +368,19 @@ window.toggleTheme = function () {
         }
 
         // Reset: tanpa reload. form.reset() tidak menyentuh x-custom-select
-        // karena nilainya diikat Alpine, bukan properti DOM.
+        // karena nilainya diikat Alpine, bukan properti DOM. Setiap dropdown
+        // dikembalikan ke pilihan "Semua ...", bukan ke string kosong, supaya
+        // Periode kembali ke "Semua Waktu" dan tidak menyisakan nilai aneh.
         const reset = $('filterReset');
         if (reset) {
             reset.addEventListener('click', function (e) {
                 e.preventDefault();
-                if (search) search.value = '';
-                Object.values(SELECTS).forEach(function (id) {
-                    const el = $(id);
-                    const data = el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
-                    if (data && typeof data.setValue === 'function') data.setValue('');
-                });
+                if (timer) { clearTimeout(timer); timer = null; }
+                if (search) search.value = DEFAULTS.search;
+                for (const key in SELECTS) {
+                    const d = selectData(SELECTS[key]);
+                    if (d && typeof d.setValue === 'function') d.setValue(DEFAULTS[key]);
+                }
                 window.applyFilters();
             });
         }
