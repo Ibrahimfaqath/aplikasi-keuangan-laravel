@@ -401,7 +401,7 @@
         </div>
 
         <div x-show="isLoading"
-             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl shadow-sm">
             <div class="relative space-y-5">
                 <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
                 <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
@@ -426,7 +426,7 @@
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm">
+                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl shadow-sm">
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
@@ -497,7 +497,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
 
         <!-- ANGGARAN (ringkas) -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 shadow-sm">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0">
                     <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center flex-shrink-0">
@@ -590,7 +590,7 @@
              mobile tetap pendek. Di desktop kini duduk di sebelah kanan kartu
              Anggaran, jadi grafiknya jauh lebih lega. Subjudul ikut berubah
              mengikuti tab aktif — tidak ada dua lapis judul yang mengulang info. -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="min-w-0">
                     <h2 class="text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">Analisis</h2>
@@ -677,7 +677,7 @@
         </div>
 
         @else
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-6 sm:p-8 shadow-sm text-center">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-6 sm:p-8 shadow-sm text-center">
             <div class="mx-auto w-14 h-14 rounded-2xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
             </div>
@@ -698,7 +698,7 @@
         @endif
 
         <!-- FILTER -->
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl p-4 sm:p-5 shadow-sm no-print">
+        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
             <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-4 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
@@ -744,7 +744,7 @@
         </section>
 
         <!-- TABLE TRANSACTIONS -->
-        <section id="riwayat" class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden">
+        <section id="riwayat" class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl shadow-sm overflow-hidden">
 
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
                 <div>
