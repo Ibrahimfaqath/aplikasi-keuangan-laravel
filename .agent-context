@@ -1,0 +1,4 @@
+WORKTREE_DIR=/home/ibrahim/Magang/keuangan-pribadi-agent-sampah
+PARENT_BRANCH=main
+AGENT_BRANCH=agent/sampah
+SOURCE_REPO=/home/ibrahim/Magang/keuangan-pribadi

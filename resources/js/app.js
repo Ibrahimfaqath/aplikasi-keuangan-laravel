@@ -301,7 +301,13 @@ window.toggleTheme = function () {
         if (table && typeof data.tableHtml === 'string') table.innerHTML = data.tableHtml;
 
         const count = $('riwayatCount');
-        if (count) count.textContent = data.total + ' transaksi tercatat';
+        if (count) {
+            // Kalimat default-nya milik dashboard. Halaman lain (mis. Sampah)
+            // punya konteks berbeda, jadi kalimatnya bisa ditimpa lewat
+            // data-count-suffix tanpa menambah cabang di sini.
+            const suffix = count.dataset.countSuffix || ' transaksi tercatat';
+            count.textContent = data.total + suffix;
+        }
 
         const live = $('filterStatus');
         if (live) live.textContent = data.total + ' transaksi ditemukan.';

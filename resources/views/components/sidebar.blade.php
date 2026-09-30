@@ -36,10 +36,19 @@
 </script>
 
 @php
-$sbActive = 'bg-neutral-900 text-white dark:bg-[#262626] dark:text-neutral-50 shadow-sm';
-$sbIdle = 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50';
-$sbIconSvg = 'class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
-$sbGroups = [
+    $sbActive = 'bg-neutral-900 text-white dark:bg-[#262626] dark:text-neutral-50 shadow-sm';
+    $sbIdle = 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50';
+    $sbIconSvg = 'class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+
+    // Berapa transaksi yang menunggu dipulihkan. Tanpa angka ini, user tidak
+    // tahu ada yang nyangkut di Sampah sampai ia membuka menunya sendiri.
+    // Satu COUNT() yang dilayani index (user_id, deleted_at) — murah, dan
+    // nilainya benar terus (dipakai juga untuk menentukan tampil/tidaknya badge).
+    $trashCount = Auth::check()
+        ? \App\Models\Transaction::onlyTrashed()->where('user_id', Auth::id())->count()
+        : 0;
+
+    $sbGroups = [
     'UTAMA' => [
         [
             'label' => 'Dashboard',
@@ -99,6 +108,10 @@ $sbGroups = [
             'href' => route('transactions.trashed'),
             'active' => request()->routeIs('transactions.trashed'),
             'icon' => '<path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>',
+            // 0 = tidak ada yang nyangkut, jadi menu dianggap "bersih" dan
+            // badge-nya disembunyikan. Angka 0 yang ditampilkan cuma menambah
+            // kebisingan visual di sidebar.
+            'badge' => $trashCount > 0 ? $trashCount : null,
         ],
         [
             'label' => 'Profil & Pengaturan',
@@ -160,11 +173,16 @@ $sbGroups = [
                         </button>
                         @else
                         <a href="{{ $item['href'] }}"
-                           title="{{ $item['label'] }}"
+                           title="{{ $item['label'] }}{{ ! empty($item['badge']) ? ' ('.$item['badge'].' menunggu dipulihkan)' : '' }}"
                            @if ($item['active']) aria-current="page" @endif
                            class="sb-link flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-semibold transition-colors duration-150 {{ $item['active'] ? $sbActive : $sbIdle }}">
                             <svg {!! $sbIconSvg !!}>{!! $item['icon'] !!}</svg>
                             <span class="sb-label truncate">{{ $item['label'] }}</span>
+                            @if (! empty($item['badge']))
+                            <span class="sb-label shrink-0 ml-auto min-w-[22px] px-1.5 py-0.5 rounded-md text-[11px] font-bold tabular-nums text-center
+                                         {{ $item['active'] ? 'bg-white/20 dark:bg-white/15' : 'bg-neutral-200 dark:bg-[#333333] text-neutral-600 dark:text-neutral-300' }}"
+                                  aria-label="{{ $item['badge'] }} transaksi menunggu dipulihkan">{{ $item['badge'] }}</span>
+                            @endif
                         </a>
                         @endif
                     @endforeach
@@ -344,6 +362,11 @@ $sbGroups = [
                                class="flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-semibold transition-colors duration-150 {{ $item['active'] ? $sbActive : $sbIdle }}">
                                 <svg {!! $sbIconSvg !!}>{!! $item['icon'] !!}</svg>
                                 <span class="truncate">{{ $item['label'] }}</span>
+                                @if (! empty($item['badge']))
+                                <span class="shrink-0 ml-auto min-w-[22px] px-1.5 py-0.5 rounded-md text-[11px] font-bold tabular-nums text-center
+                                             {{ $item['active'] ? 'bg-white/20 dark:bg-white/15' : 'bg-neutral-200 dark:bg-[#333333] text-neutral-600 dark:text-neutral-300' }}"
+                                      aria-label="{{ $item['badge'] }} transaksi menunggu dipulihkan">{{ $item['badge'] }}</span>
+                                @endif
                             </a>
                             @endif
                         @endforeach
