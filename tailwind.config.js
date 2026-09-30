@@ -25,18 +25,46 @@ const radius = {
     '--tab-radius': '0.125rem',
 };
 
+// Semantic color: gelap di tema terang, terang di tema gelap.
+//
+// Ini bukan sekadar selera. Komponen `alert` daisyUI mencampur warnanya dengan
+// base-100, jadi pada permukaan gelap warna pastel terang + teks gelap = kontras
+// pecah. Pola di bawah membuat warna semantic selalu terbaca sebagai TEKS di
+// kedua mode: >= 600 (gelap) di terang, 400 (terang) di gelap. Nilai 400/600 ini
+// juga sama dengan yang dipakai kode lama (`text-green-600 dark:text-green-400`),
+// jadi hasil akhirnya tidak berbeda dari desain sebelumnya.
+//
+// Dipakai sebagai `text-{semantic}` untuk ikon/aksen dan `bg-{semantic}/10` untuk
+// latar halus — bukan sebagai latar pekat. Lihat components/flash.blade.php.
+const semanticLight = {
+    info: '#0284c7', // sky-600
+    success: '#16a34a', // green-600
+    warning: '#d97706', // amber-600
+    error: '#dc2626', // red-600
+};
+
+const semanticDark = {
+    info: '#38bdf8', // sky-400
+    success: '#4ade80', // green-400
+    warning: '#fbbf24', // amber-400
+    error: '#f87171', // red-400
+};
+
 // Terang. `lofi` = monokrom dengan tombol hampir hitam (#0D0D0D), paling dekat
 // dengan karakter app ini.
 const lofi = {
     ...daisyuiThemes.lofi,
     ...radius,
+    ...semanticLight,
 };
 
-// Gelap. Dua koreksi dari tema `black` bawaan:
-//  1. base-100 > base-200 (surface lebih TERANG dari latar).
-//     Bawaannya kebalik (#000 < #141414) sehingga kartu terlihat "tenggelam".
-//  2. Semantic color disamakan dengan pastel `lofi`. Bawaannya neon murni
-//     (#008000 / #ffff00 / #ff0000) sehingga mode gelap jadi karakter berbeda.
+// Gelap. Tiga koreksi dari tema `black` bawaan:
+//  1. base-100 > base-200 > base-300 (surface paling terang dulu). Bawaannya
+//     #000 < #141414, jadi kartu terlihat "tenggelam". Susunan ini juga
+//     mengikuti tema `dark` resmi daisyUI (#1d232a > #191e24 > #15191e).
+//  2. Semantic color memakai palet terang (lihat catatan di atas), bukan neon
+//     murni bawaan black (#008000 / #ffff00 / #ff0000).
+//  3. Radius mengikuti tema terang supaya tidak berubah saat toggle.
 const black = {
     ...daisyuiThemes.black,
     ...radius,
@@ -44,10 +72,7 @@ const black = {
     'base-200': '#0d0d0d', // latar halaman (sebelumnya #0A0A0A)
     'base-300': '#2e2e2e', // border + hover (sebelumnya #333333)
     'base-content': '#e5e5e5', // teks utama    (sebelumnya #FAFAFA)
-    info: daisyuiThemes.lofi.info,
-    success: daisyuiThemes.lofi.success,
-    warning: daisyuiThemes.lofi.warning,
-    error: daisyuiThemes.lofi.error,
+    ...semanticDark,
 };
 
 

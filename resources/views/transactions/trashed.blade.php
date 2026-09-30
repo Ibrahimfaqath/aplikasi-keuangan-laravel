@@ -182,56 +182,34 @@
 
     <x-sidebar title="Sampah" :back="route('transactions.index')" minimal />
 
-    {{-- Toast sukses. Kalau flash 'undo_restore' ikut ada, tombol "Urungkan"
-         muncul di sini: pemulihan adalah aksi yang bisa dibatalkan, jadi
-         jalur pembatalannya harus ikut ada. Tanpa itu, user yang salah
-         klik perlu 3 langkah lagi hanya untuk membatalkan 1 klik. --}}
-    @if(session('success'))
-    <div id="toast-success" x-data="{ show: true }" x-show="show"
-         x-init="setTimeout(() => show = false, {{ session('undo_restore') ? 12000 : 5000 }})"
-         class="fixed top-20 right-6 z-50 flex items-start sm:items-center w-full max-w-sm p-4 bg-white dark:bg-[#171717] rounded-2xl shadow-sm border border-neutral-200 dark:border-[#333333]">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 mt-0.5 sm:mt-0 bg-green-50 text-green-600 border border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20 rounded-xl">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="ml-3 min-w-0 flex-1">
-            <div class="text-xs font-semibold text-neutral-700 dark:text-neutral-200">{{ session('success') }}</div>
-            @if(session('undo_restore'))
-                <div class="mt-2 flex items-center gap-2">
-                    {{-- "Urungkan" = kirim balik ke Sampah. Logikanya berbalik
-                         dengan pemulihan, jadi bunyinya menjelaskan itu,
-                         bukan sekadar "Undo" yang kabur. --}}
-                    <form action="{{ route('transactions.destroy', session('undo_restore')['id']) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-lg text-[11px] font-semibold transition">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11a5 5 0 010 10h-4M3 10l4-4m-4 4l4 4"/></svg>
-                            Urungkan
-                        </button>
-                    </form>
-                    <span class="text-[11px] text-neutral-400 dark:text-neutral-500">kembalikan ke Sampah</span>
-                </div>
+    {{-- Notifikasi. Slot `undo` hanya dirender kalau flash 'undo_restore' ada:
+         pemulihan adalah aksi yang bisa dibatalkan, jadi jalur pembatalannya
+         harus ikut tampil. Tanpa itu, user yang salah klik perlu 3 langkah lagi
+         hanya untuk membatalkan 1 klik. Isi slot: submit balik ke Sampah —
+         logikanya berbalik dengan pemulihan, jadi bunyinya menjelaskan itu,
+         bukan sekadar "Undo" yang kabur. --}}
+    <x-flash :undo-id="session('undo_restore')['id'] ?? null">
+        {{-- Isi slot TIDAK bisa memakai variabel lokal halaman (mis. $undoId):
+             Blade mengekstrak isi slot ke closure terpisah sehingga scope-nya
+             terpisah. Karena itu nilainya diambil lagi dari session di sini —
+             dengan `?? null` supaya tidak error saat flash-nya kosong.
+             Muncul/tidaknya area undo tetap dikendalikan :undo-id di atas. --}}
+        <x-slot:undo>
+            @if (session('undo_restore')['id'] ?? null)
+                <form action="{{ route('transactions.destroy', session('undo_restore')['id']) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11a5 5 0 010 10h-4M3 10l4-4m-4 4l4 4" />
+                        </svg>
+                        Urungkan
+                    </button>
+                </form>
+                <span class="text-[11px] opacity-70">kembalikan ke Sampah</span>
             @endif
-        </div>
-        <button @click="show = false" aria-label="Tutup notifikasi"
-                class="ml-2 p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div id="toast-error" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 8000)"
-         class="fixed top-20 right-6 z-50 flex items-center w-full max-w-sm p-4 bg-white dark:bg-[#171717] rounded-2xl shadow-sm border border-red-200 dark:border-red-500/30">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 rounded-xl">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div class="ml-3 text-xs font-semibold text-neutral-700 dark:text-neutral-200">{{ session('error') }}</div>
-        <button @click="show = false" class="ml-auto p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-    </div>
-    @endif
+        </x-slot:undo>
+    </x-flash>
 
     {{-- $hasActiveFilters dihitung di controller (TransactionController::trashed),
          supaya partial yang di-render ulang lewat ?partial=1 memakai definisi

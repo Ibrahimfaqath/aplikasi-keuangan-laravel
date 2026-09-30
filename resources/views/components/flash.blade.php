@@ -1,6 +1,12 @@
 @props([
     // Flash `status` dari form profil (profile-updated / password-updated).
     'status' => null,
+    // Id transaksi yang bisa dikembalikan ke Sampah (dari flash 'undo_restore').
+    // Diteruskan sebagai nilai, BUKAN dibaca dari session di dalam slot: isi slot
+    // dievaluasi lebih dulu oleh Blade (bersifat eager, bukan lazy), jadi
+    // `session('undo_restore')['id']` di dalam slot akan dieksekusi dan error 500
+    // walau flash-nya kosong — persis yang terjadi di halaman Sampah.
+    'undoId' => null,
 ])
 
 {{--
@@ -30,9 +36,22 @@
     // (`alert-{{ $variant }}`). Tailwind memindai file sumber sebagai TEKS, jadi
     // kelas yang dirangkai tidak pernah terlihat dan ikut ter-purge — komponennya
     // jadi tanpa warna sama sekali. Karena itu di sini disimpan nama kelas utuh.
-    $alertClass = [
-        'success' => 'alert alert-success',
-        'error' => 'alert alert-error',
+    //
+    // Warna juga TIDAK memakai modifier `alert-success` / `alert-error`: komponen
+    // alert daisyUI mencampur warnanya dengan base-100, sehingga kontrasnya
+    // sulit diprediksi di mode gelap. Yang dipakai `alert` di sini hanya
+    // bentuk & tata letak (padding, jarak, radius); warna latar dan teks
+    // ditentukan eksplisit lewat token semantic, sehingga kontrasnya pasti di
+    // kedua mode.
+    $theme = [
+        'success' => [
+            'box' => 'border-success/30 bg-success/10',
+            'icon' => 'text-success',
+        ],
+        'error' => [
+            'box' => 'border-error/30 bg-error/10',
+            'icon' => 'text-error',
+        ],
     ];
 
     $items = [];
@@ -53,25 +72,25 @@
         ];
     }
 
-    $hasUndo = session('undo_restore') && ! $undo->isEmpty();
+    $hasUndo = $undoId !== null;
 @endphp
 
 @if ($items)
     <div class="toast toast-top toast-end z-50 mt-20 w-full max-w-sm space-y-2">
         @foreach ($items as $item)
             <div
-                class="{{ $alertClass[$item['variant']] }} border shadow-sm"
+                class="alert border shadow-sm {{ $theme[$item['variant']]['box'] }} text-base-content"
                 x-data="{ show: true }"
                 x-show="show"
                 x-cloak
                 x-init="setTimeout(() => show = false, {{ $hasUndo ? 12000 : $item['ms'] }})"
             >
                 @if ($item['variant'] === 'success')
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="{{ $theme[$item['variant']]['icon'] }} h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 @else
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="{{ $theme[$item['variant']]['icon'] }} h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 @endif
