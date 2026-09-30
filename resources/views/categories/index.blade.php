@@ -114,8 +114,8 @@
     @endphp
 
 
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8"
-         x-data="categoryPage(@js($itemsPayload), @js($usage), @js($editable), @js(\App\Support\CategoryStyle::COLORS), @js(\App\Support\CategoryStyle::ICONS))"
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8"
+         x-data="categoryPage(@js($itemsPayload), @js($usage), @js($editable), @js(\App\Support\CategoryStyle::COLORS), @js(\App\Support\CategoryStyle::iconDSet()))"
          @keydown.escape.window="if (deleteId !== null) { closeDelete() } else { closeModal() }">
 
         @if ($isDemo)
@@ -212,64 +212,83 @@
                       x-text="search.trim() === '' ? countOf('{{ $type }}') : visibleCount('{{ $type }}') + '/' + countOf('{{ $type }}')"></span>
             </div>
 
-            <ul class="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+            <ul class="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
                 x-show="visibleCount('{{ $type }}') > 0">
                 @foreach ($group['items'] as $item)
                 <li x-show="matches('{{ $type }}', @js($item['name']))"
-                    class="group flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-[#262626] px-3.5 py-3 hover:border-neutral-300 dark:hover:border-[#3f3f3f] hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] transition-colors">
+                    class="group relative flex items-start gap-3 rounded-xl border border-neutral-200 dark:border-[#262626] px-3.5 py-3 hover:border-neutral-300 dark:hover:border-[#3f3f3f] hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] transition-colors">
                     <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ \App\Support\CategoryStyle::colorClasses($item['color']) }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">{!! \App\Support\CategoryStyle::iconPath($item['icon']) !!}</svg>
                     </span>
 
+                    {{-- Nama dapat lebar penuh baris pertamanya; badge pindah ke
+                         baris meta. Sebelumnya badge berdiri di kanan baris yang
+                         sama, dan begitu kartu jadi sempit (grid makin lebar)
+                         nama terpotong & tumpang tindih dengan badge. --}}
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-snug line-clamp-2" title="{{ $item['name'] }}">{{ $item['name'] }}</p>
-                        @php($used = $usage[$item['name']] ?? 0)
-                        @if ($used > 0)
-                        {{-- Angka pemakaian dulu cuma teks mati. Sekarang link ke
-                             /transactions yang sudah mendukung filter kategori. --}}
-                        <a href="{{ route('transactions.index', ['category' => $item['name']]) }}"
-                           class="mt-0.5 inline-flex items-center gap-1 text-[11px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:underline underline-offset-2 transition"
-                           title="Lihat {{ $used }} transaksi memakai {{ $item['name'] }}">
-                            Dipakai di {{ $used }} transaksi
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                        </a>
-                        @else
-                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Belum pernah dipakai</p>
-                        @endif
+                        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-snug line-clamp-2 break-words" title="{{ $item['name'] }}">{{ $item['name'] }}</p>
+
+                        <div class="mt-1 flex items-center gap-x-2 gap-y-1 flex-wrap min-w-0">
+                            @php($used = $usage[$item['name']] ?? 0)
+                            @if ($used > 0)
+                            {{-- Dulu teks mati. Sekarang link ke /transactions yang
+                                 sudah mendukung filter kategori. --}}
+                            <a href="{{ route('transactions.index', ['category' => $item['name']]) }}"
+                               class="inline-flex items-center gap-0.5 text-[11px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:underline underline-offset-2 transition whitespace-nowrap"
+                               title="Lihat {{ $used }} transaksi memakai {{ $item['name'] }}">
+                                {{ $used }} transaksi
+                                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                            @else
+                            <span class="text-[11px] text-neutral-500 dark:text-neutral-400 whitespace-nowrap">Belum dipakai</span>
+                            @endif
+
+                            @if ($item['is_global'])
+                            <span class="inline-flex shrink-0 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-md px-1.5 py-0.5"
+                                  title="Kategori bawaan — selalu tersedia, tidak bisa diubah atau dihapus">Bawaan</span>
+                            @else
+                            <span class="inline-flex shrink-0 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-md px-1.5 py-0.5"
+                                  title="Kategori buatanmu — bisa diubah atau dihapus">Custom</span>
+                            @endif
+                        </div>
                     </div>
 
-                    @if ($item['is_global'])
-                    <span class="hidden sm:inline-flex shrink-0 self-start mt-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-md px-1.5 py-0.5"
-                          title="Kategori bawaan — selalu tersedia, tidak bisa diubah atau dihapus">Bawaan</span>
-                    @else
-                    <span class="hidden sm:inline-flex shrink-0 self-start mt-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-md px-1.5 py-0.5"
-                          title="Kategori buatanmu — bisa diubah atau dihapus">Custom</span>
-                    @endif
-
                     @unless ($isDemo)
-                    {{-- Aksi ubah & hapus muncul saat hover/fokus supaya kartu yang
-                         cuma dibaca tetap bersih. Pakai opacity (bukan hidden)
-                         supaya tetap bisa dijangkau keyboard & screen reader. --}}
-                    <div class="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                        @unless ($item['is_global'])
+                    {{-- Aksi ubah & hapus muncul saat hover/fokus supaya kartu
+                         yang cuma dibaca tetap bersih.
+                         absolutely-positioned dengan menghitung itself: kalau tetap di
+                         flow, dua tombol 32px ini memakan ~68px yang tidak
+                         pernah terlihat sampai hover — Persis ruang yang
+                         membuat nama kategori terpotong di kartu sempit.
+                         Ditumpuk absolute + backdrop netral supaya teks di
+                         bawahnya tidak pernah kelihatan menembus. --}}
+                    @unless ($item['is_global'])
+                    <div class="relative shrink-0 flex items-center gap-0.5
+                                sm:absolute sm:right-2 sm:top-2 sm:shrink
+                                sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100
+                                transition-opacity">
+                        {{-- Backdrop hanya di sm+: di mobile tombolnya memang
+                             terlihat, jadi tidak ada yang perlu disamarkan. --}}
+                        <span class="hidden sm:block absolute inset-0 -z-10 rounded-lg bg-neutral-50 dark:bg-[#1c1c1c] group-hover:bg-neutral-100/95 dark:group-hover:bg-[#262626]/95"></span>
+
                         <button type="button" @click='editCategory(@js($item['id']))'
-                                class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-lg transition"
+                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-white dark:hover:bg-[#333333] rounded-lg transition"
                                 title="Ubah kategori {{ $item['name'] }}" aria-label="Ubah kategori {{ $item['name'] }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </button>
-                        {{-- Sengaja BUKAN <form> di sini. Kalau formnya ada,
-                             klik akan tetap terkirim ke server begitu JS gagal
-                             dimuat — menghapus kategori tanpa konfirmasi sama
-                             sekali. Tombol mati lebih baik daripada diam-diam
-                             menghapus. Pengiriman yang sungguhan dilakukan
-                             oleh form tersembunyi #deleteForm. --}}
+
+                        {{-- Sengaja BUKAN <form>. Kalau formnya ada, klik tetap
+                             terkirim ke server begitu JS gagal dimuat — menghapus
+                             kategori tanpa konfirmasi sama sekali. Tombol mati
+                             lebih baik daripada diam-diam menghapus. Pengiriman
+                             sungguhan dilakukan form tersembunyi #deleteForm. --}}
                         <button type="button" @click="askDelete(@js($item['id']), @js($item['name']), {{ $used }})"
-                                class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition"
+                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-[#333333] rounded-lg transition"
                                 title="Hapus kategori {{ $item['name'] }}" aria-label="Hapus kategori {{ $item['name'] }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-1-1h-4a2 2 0 00-1 1v3M4 7h16"/></svg>
                         </button>
-                        @endunless
                     </div>
+                    @endunless
                     @endunless
                 </li>
                 @endforeach
@@ -294,7 +313,7 @@
             </button>
         </div>
 
-        <p class="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-6 px-4 leading-relaxed">
+        <p class="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-6 px-4 max-w-xl mx-auto leading-relaxed">
             Kategori bawaan selalu tersedia dan tidak bisa dihapus. Menghapus kategori custom
             tidak menghapus riwayat — kategori lama tetap tersimpan pada tiap transaksi.
         </p>
@@ -314,7 +333,7 @@
                             {{-- Pratinjau langsung warna + ikon yang dipilih, supaya
                                 ikumu jadi terasa sebelum disimpan. --}}
                             <span class="p-2.5 rounded-xl shrink-0" :class="appearanceClass()">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconPath()"/></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconD()"/></svg>
                             </span>
                             <div>
                                 <h3 id="category-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50" x-text="isEditing() ? 'Ubah Kategori' : 'Tambah Kategori'"></h3>
@@ -338,7 +357,7 @@
                                    placeholder="Contoh: Jualan Online" autocomplete="off"
                                    maxlength="50" required
                                    class="w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border rounded-xl text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 transition"
-                                   :class="isDuplicate() || $errors->has('name')
+                                   :class="isDuplicate() || nameError
                                        ? 'border-red-400 dark:border-red-500/60'
                                        : 'border-neutral-300 dark:border-[#333333] focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900'">
                             <div class="mt-1.5 min-h-[16px]">
@@ -393,7 +412,7 @@
                                             :class="icon === key
                                                 ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
                                                 : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626]'">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key] || iconSet.defaultIcon"/></svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key]"/></svg>
                                     </button>
                                 </template>
                             </div>
@@ -477,6 +496,10 @@
                 editingOriginalType: @js(old('type', 'income')),
                 editingUsed: 0,
                 name: @js(old('name', '')),
+                // Hasil $errors->has('name') harus jadi boolean JS, bukan teks
+                // PHP: Blade tidak mengevaluasi PHP di dalam atribut HTML biasa,
+                // jadi `$errors->has(...)` akan masuk mentah ke parser Alpine.
+                nameError: @js($errors->has('name')),
                 type: @js(old('type', 'income')),
                 color: @js(old('color', 'green')),
                 icon: @js(old('icon', 'tag')),
@@ -587,7 +610,7 @@
                     return this.palette[this.color] || this.palette.neutral || '';
                 },
 
-                iconPath() {
+                iconD() {
                     return this.iconSet[this.icon] || this.iconSet.tag || '';
                 },
 
@@ -597,12 +620,31 @@
                     return this.isEditing() && this.type !== this.editingOriginalType;
                 },
 
-                // Mode edit: kategori yang sedang diedit tidak boleh
-                // dianggap bentrok dengan dirinya sendiri.
+                // Id kategori milik user untuk sebuah nama + jenis, atau null
+                // kalau nama itu bukan kategori custom (mis. kategori bawaan).
+                ownIdFor(name, type) {
+                    const row = this.editable.find((r) => r.name === name && r.type === type);
+                    return row ? row.id : null;
+                },
+
+                // Mode edit: kategori yang sedang diedit bukan bentrok dengan
+                // dirinya sendiri. Tanpa pengecualian ini, `canSubmit()` selalu
+                // false begitu modal dibuka — tombol Simpan mati dan tidak ada
+                // satupun edit yang bisa disimpan kecuali kalau namanya diganti.
                 isDuplicate() {
                     const name = this.name.trim().toLowerCase();
                     if (name === '') return false;
-                    return (this.items[this.type] || []).some((item) => String(item).trim().toLowerCase() === name);
+
+                    return (this.items[this.type] || []).some((item) => {
+                        if (String(item).trim().toLowerCase() !== name) return false;
+                        if (!this.isEditing()) return true;
+                        // Number() di kedua sisi: editingId datang sebagai
+                        // number dari editCategory(), tapi sebagai string
+                        // setelah halaman dimuat ulang karena validasi gagal
+                        // (nilai old() selalu string). Tanpa ini, !== selalu
+                        // true dan tombol Simpan mati lagi.
+                        return Number(this.ownIdFor(item, this.type)) !== Number(this.editingId);
+                    });
                 },
 
                 canSubmit() {

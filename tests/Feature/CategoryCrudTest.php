@@ -162,7 +162,7 @@ class CategoryCrudTest extends TestCase
         $response->assertOk();
         $response->assertSee('Gaji');
         $response->assertSee('Makanan & Minuman');
-        $response->assertSee('Belum pernah dipakai');
+        $response->assertSee('Belum dipakai');
         $response->assertViewHas('stats', fn (array $stats) => $stats['total'] === count(Transaction::INCOME_CATEGORIES) + count(Transaction::EXPENSE_CATEGORIES));
     }
 
@@ -192,7 +192,7 @@ class CategoryCrudTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Jualan Online');
-        $response->assertSee('Dipakai di 2 transaksi');
+        $response->assertSee('2 transaksi');
         $bawaan = count(Transaction::INCOME_CATEGORIES) + count(Transaction::EXPENSE_CATEGORIES);
 
         $response->assertViewHas('stats', fn (array $stats) => $stats['total'] === $bawaan + 1
@@ -620,5 +620,121 @@ class CategoryCrudTest extends TestCase
             // false = jangan escape; yang dicari path SVG mentah, bukan
             // versi HTML-escaped-nya.
             ->assertSee(trim(CategoryStyle::iconPath('piggy')), false);
+    }
+
+    // ---- Regression guard ----
+    // Tiga bug di halaman ini lolos dari test biasa karena gejalanya hanya
+    // muncul di browser (parsing Alpine, atribut SVG, tombol disabled).
+    // Guard di bawah menangkap ketiganya di level render.
+
+    public function test_tidak_ada_php_yang_bocor_ke_binding_alpine(): void
+    {
+        $user = User::factory()->create();
+
+        $html = $this->actingAs($user)->get(route('categories.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Blade hanya mengevaluasi PHP di dalam {{ }} / {!! !!} / @php.
+        // `$errors->has('x')` yang ditulis polos di nilai atribut akan masuk
+        // mentah ke parser Alpine dan melempar SyntaxError ("Unexpected
+        // token '>'") setiap kali halaman dimuat.
+        //
+        // Hanya nilai atribut yang dicek: `$errors` boleh muncul di dalam
+        // komentar JS, karena komentar tidak pernah dieksekusi.
+        preg_match_all('/=\s*"([^"]*)"/', $html, $matches);
+
+        foreach ($matches[1] as $value) {
+            foreach (['$errors', '$stats', '$usage', '$isDemo', '$groups'] as $variable) {
+                $this->assertStringNotContainsString(
+                    $variable,
+                    $value,
+                    "PHP  {$variable} bocor ke nilai atribut HTML: ".trim(substr($value, 0, 90))
+                );
+            }
+        }
+    }
+
+    public function test_payload_ikon_ke_alpine_hanya_path_data(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        $html = $this->actingAs($user)->get(route('categories.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Ikon disimpan sebagai markup `<path .../>` utuh, tapi Alpine
+        // mengikat nilainya ke atribut `d`. Kalau yang dikirim markup, hasil
+        //nya `d="<path ..."` — tidak valid, dan preview di modal maupun
+        //seluruh ikon di picker tidak tergambar.
+        //
+        // Di dalam HTML, `<` pada payload JS ter-escape jadi \u003C, jadi
+        // cukup cari sisa-sisa markup SVG di halaman.
+        $this->assertStringNotContainsString(
+            'u003Cpath',
+            $html,
+            'markup SVG masuk ke payload Alpine; Alpine butuh atribut d polos, bukan <path>'
+        );
+
+        // Ikon juga harus benar-benar terkirim, bukan kosong diam-diam.
+        $this->assertStringContainsString('iconD()', $html);
+        $this->assertStringContainsString('iconSet[key]', $html);
+    }
+
+    public function test_atribut_d_pada_svg_bersifat_path_data(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        $html = $this->actingAs($user)->get(route('categories.index'))
+            ->assertOk()
+            ->getContent();
+
+        // Ikon disimpan sebagai markup <path> utuh, tapi Alpine mengikat
+        // nilainya ke atribut `d`. Kalau yang diikat markup, hasilnya
+        // d="<path ..." — tidak valid, dan ikonnya tidak tergambar.
+        // Setiap atribut d harus diawali moveto (M/m).
+        preg_match_all('/\sd="([^"]*)"/', $html, $matches);
+
+        $this->assertNotEmpty($matches[1]);
+
+        foreach ($matches[1] as $d) {
+            $d = trim($d);
+            $this->assertMatchesRegularExpression(
+                '/^[Mm]/',
+                $d,
+                'atribut d harus diawali moveto (M/m), bukan markup: '.substr($d, 0, 60)
+            );
+        }
+    }
+
+    public function test_semua_kategori_bawaan_punya_warna_dan_ikon_valid(): void
+    {
+        $this->seed(CategorySeeder::class);
+
+        $globals = Category::whereNull('user_id')->get();
+
+        $this->assertCount(15, $globals);
+
+        foreach ($globals as $category) {
+            $this->assertContains($category->color, array_keys(CategoryStyle::COLORS));
+            $this->assertContains($category->icon, array_keys(CategoryStyle::ICONS));
+        }
+    }
+
+    public function test_icon_d_set_terisi_untuk_seluruh_kunci(): void
+    {
+        $set = CategoryStyle::iconDSet();
+
+        $this->assertSame(array_keys(CategoryStyle::ICONS), array_keys($set));
+
+        foreach ($set as $key => $d) {
+            $this->assertMatchesRegularExpression(
+                '/^[Mm]/',
+                $d,
+                "ikon {$key} tidak menghasilkan path data yang valid"
+            );
+        }
     }
 }

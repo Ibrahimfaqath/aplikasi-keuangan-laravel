@@ -144,11 +144,50 @@ class CategoryStyle
     }
 
     /**
-     * Path SVG untuk sebuah key ikon.
+     * Path SVG untuk sebuah key ikon, dalam bentuk markup utuh
+     * (`<path .../>`) — untuk `{!! !!}` di Blade.
      */
     public static function iconPath(?string $icon): string
     {
         return self::ICONS[$icon] ?? self::ICONS[self::DEFAULT_ICON];
+    }
+
+    /**
+     * Isi atribut `d` untuk sebuah key ikon, digabung jadi satu string.
+     *
+     * Dipakai Alpine untuk preview di modal dan untuk ikon di picker.
+     * Bentuknya harus `d` polos, BUKAN markup: mengikat markup ke
+     * atribut `d` akan menghasilkan `d="<path ..."` yang tidak valid
+     * dan ikonnya tidak akan tergambar sama sekali.
+     *
+     * Beberapa ikon punya lebih dari satu subpath; `d` memang boleh
+     * memuat banyak subpath dalam satu atribut, jadi digabung dengan
+     * spasi aman untuk ikon stroke ini.
+     */
+    public static function iconD(?string $icon): string
+    {
+        preg_match_all('/\sd="([^"]+)"/', self::iconPath($icon), $matches);
+
+        return implode(' ', $matches[1]);
+    }
+
+    /**
+     * Versi ICONS untuk dikirim ke browser: key -> atribut `d` polos.
+     * Diturunkan dari ICONS, jadi tidak ada sumber kedua yang bisa
+     * berbeda sendiri.
+     *
+     * @return array<string, string>
+     */
+    public static function iconDSet(): array
+    {
+        $set = [];
+
+        foreach (self::ICONS as $key => $markup) {
+            preg_match_all('/\sd="([^"]+)"/', $markup, $matches);
+            $set[$key] = implode(' ', $matches[1]);
+        }
+
+        return $set;
     }
 
     /**
