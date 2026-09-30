@@ -6,6 +6,11 @@ export default {
     content: [
         './resources/views/**/*.blade.php',
         './resources/js/**/*.js',
+        // Peta warna kategori (kelas bg-{warna}-50 dst.) hidup di
+        // app/Support/CategoryStyle.php supaya bisa dipakai migration,
+        // seeder, dan Blade sekaligus. Tanpa glob ini Tailwind akan
+        // purge seluruh kelas itu dan kartu kategori kehilangan warna.
+        './app/**/*.php',
     ],
     theme: {
         extend: {

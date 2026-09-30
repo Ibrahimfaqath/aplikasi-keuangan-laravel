@@ -86,48 +86,37 @@
             ],
         ];
 
-        // Warna + ikon per kategori, konsisten dengan chip di tabel transaksi.
-        $tones = [
-            'green' => 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400',
-            'violet' => 'bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400',
-            'orange' => 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400',
-            'blue' => 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
-            'amber' => 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
-            'neutral' => 'bg-neutral-100 text-neutral-500 dark:bg-[#262626] dark:text-neutral-300',
-        ];
-        $categoryTone = [
-            'Gaji' => 'green', 'Bonus' => 'green', 'Bisnis' => 'green', 'Hadiah' => 'green',
-            'Investasi' => 'violet', 'Belanja' => 'violet', 'Hiburan' => 'violet',
-            'Makanan & Minuman' => 'orange', 'Transportasi' => 'blue',
-            'Tagihan & Utilitas' => 'amber', 'Kesehatan' => 'amber', 'Pendidikan' => 'blue', 'Keluarga' => 'blue',
-        ];
-        $categoryIcon = [
-            'Gaji' => '<path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>',
-            'Bonus' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a1 1 0 110-4h14a1 1 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>',
-            'Bisnis' => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>',
-            'Investasi' => '<path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>',
-            'Hadiah' => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>',
-            'Makanan & Minuman' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path stroke-linecap="round" stroke-linejoin="round" d="M7 2v20"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
-            'Transportasi' => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.707.293V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>',
-            'Tagihan & Utilitas' => '<path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
-            'Belanja' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
-            'Hiburan' => '<path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/>',
-            'Kesehatan' => '<path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>',
-            'Pendidikan' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
-            'Keluarga' => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
-        ];
-        // Fallback untuk kategori tanpa ikon khusus (mis. kategori custom & "Lainnya").
-        $defaultCategoryIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.569 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"/>';
-
         $itemsPayload = [
             'income' => array_column($income, 'name'),
             'expense' => array_column($expense, 'name'),
         ];
+
+        // Data siap-edit untuk tiap kategori custom, dikirim ke Alpine
+        // supaya form edit tidak perlu round-trip ke server.
+        $editable = [];
+
+        foreach (['income' => $income, 'expense' => $expense] as $type => $rows) {
+            foreach ($rows as $row) {
+                if ($row['is_global']) {
+                    continue;
+                }
+
+                $editable[] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'type' => $type,
+                    'color' => $row['color'],
+                    'icon' => $row['icon'],
+                    'used' => $usage[$row['name']] ?? 0,
+                ];
+            }
+        }
     @endphp
 
+
     <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8"
-         x-data="categoryPage(@js($itemsPayload), @js($usage))"
-         @keydown.escape.window="closeCategoryModal()">
+         x-data="categoryPage(@js($itemsPayload), @js($usage), @js($editable), @js(\App\Support\CategoryStyle::COLORS), @js(\App\Support\CategoryStyle::ICONS))"
+         @keydown.escape.window="if (deleteId !== null) { closeDelete() } else { closeModal() }">
 
         @if ($isDemo)
         <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-5">
@@ -148,7 +137,7 @@
                 </p>
             </div>
             @unless ($isDemo)
-            <button type="button" onclick="openCategoryModal()"
+            <button type="button" @click="openCreate()"
                     class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Tambah Kategori
@@ -199,7 +188,7 @@
                                 ? 'bg-white dark:bg-[#171717] text-neutral-900 dark:text-neutral-50 shadow-sm'
                                 : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50'">
                         {{ $filter['label'] }}
-                        <span class="opacity-60" x-text="countOf('{{ $filter['key'] }}')"></span>
+                        <span class="opacity-60" x-text="matchCount('{{ $filter['key'] }}')"></span>
                     </button>
                     @endforeach
                 </div>
@@ -227,87 +216,121 @@
                 x-show="visibleCount('{{ $type }}') > 0">
                 @foreach ($group['items'] as $item)
                 <li x-show="matches('{{ $type }}', @js($item['name']))"
-                    class="flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-[#262626] px-3.5 py-3 hover:border-neutral-300 dark:hover:border-[#3f3f3f] hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] transition-colors">
-                    <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ $tones[$categoryTone[$item['name']] ?? 'neutral'] }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">{!! ($categoryIcon[$item['name']] ?? $defaultCategoryIcon) !!}</svg>
+                    class="group flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-[#262626] px-3.5 py-3 hover:border-neutral-300 dark:hover:border-[#3f3f3f] hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] transition-colors">
+                    <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ \App\Support\CategoryStyle::colorClasses($item['color']) }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">{!! \App\Support\CategoryStyle::iconPath($item['icon']) !!}</svg>
                     </span>
 
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-snug line-clamp-2" title="{{ $item['name'] }}">{{ $item['name'] }}</p>
-                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                            @php($used = $usage[$item['name']] ?? 0)
-                            {{ $used > 0 ? 'Dipakai di '.$used.' transaksi' : 'Belum pernah dipakai' }}
-                        </p>
+                        @php($used = $usage[$item['name']] ?? 0)
+                        @if ($used > 0)
+                        {{-- Angka pemakaian dulu cuma teks mati. Sekarang link ke
+                             /transactions yang sudah mendukung filter kategori. --}}
+                        <a href="{{ route('transactions.index', ['category' => $item['name']]) }}"
+                           class="mt-0.5 inline-flex items-center gap-1 text-[11px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:underline underline-offset-2 transition"
+                           title="Lihat {{ $used }} transaksi memakai {{ $item['name'] }}">
+                            Dipakai di {{ $used }} transaksi
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                        @else
+                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Belum pernah dipakai</p>
+                        @endif
                     </div>
 
                     @if ($item['is_global'])
                     <span class="hidden sm:inline-flex shrink-0 self-start mt-0.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-md px-1.5 py-0.5"
-                          title="Kategori bawaan — selalu tersedia, tidak bisa dihapus">Bawaan</span>
+                          title="Kategori bawaan — selalu tersedia, tidak bisa diubah atau dihapus">Bawaan</span>
                     @else
                     <span class="hidden sm:inline-flex shrink-0 self-start mt-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-md px-1.5 py-0.5"
-                          title="Kategori buatanmu — bisa dihapus">Custom</span>
+                          title="Kategori buatanmu — bisa diubah atau dihapus">Custom</span>
                     @endif
 
-                    @unless ($item['is_global'])
-                    <form action="{{ route('categories.destroy', $item['id']) }}" method="POST" class="shrink-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                                onclick="return confirm({{ \Illuminate\Support\Js::from('Hapus kategori "'.$item['name'].'"? Transaksi yang sudah tercatat tetap aman, hanya pilihannya yang hilang dari form.') }})"
+                    @unless ($isDemo)
+                    {{-- Aksi ubah & hapus muncul saat hover/fokus supaya kartu yang
+                         cuma dibaca tetap bersih. Pakai opacity (bukan hidden)
+                         supaya tetap bisa dijangkau keyboard & screen reader. --}}
+                    <div class="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                        @unless ($item['is_global'])
+                        <button type="button" @click='editCategory(@js($item['id']))'
+                                class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-lg transition"
+                                title="Ubah kategori {{ $item['name'] }}" aria-label="Ubah kategori {{ $item['name'] }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        {{-- Sengaja BUKAN <form> di sini. Kalau formnya ada,
+                             klik akan tetap terkirim ke server begitu JS gagal
+                             dimuat — menghapus kategori tanpa konfirmasi sama
+                             sekali. Tombol mati lebih baik daripada diam-diam
+                             menghapus. Pengiriman yang sungguhan dilakukan
+                             oleh form tersembunyi #deleteForm. --}}
+                        <button type="button" @click="askDelete(@js($item['id']), @js($item['name']), {{ $used }})"
                                 class="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition"
                                 title="Hapus kategori {{ $item['name'] }}" aria-label="Hapus kategori {{ $item['name'] }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-1-1h-4a2 2 0 00-1 1v3M4 7h16"/></svg>
                         </button>
-                    </form>
+                        @endunless
+                    </div>
                     @endunless
                 </li>
                 @endforeach
             </ul>
-
-            <div class="px-4 sm:px-5 py-10 text-center" x-show="visibleCount('{{ $type }}') === 0" x-cloak>
-                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-100 dark:bg-[#262626] text-neutral-400 dark:text-neutral-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-                </span>
-                <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mt-3">Tidak ada kategori yang cocok</p>
-                <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">Coba kata kunci lain, atau tampilkan semua kategori lagi.</p>
-                <button type="button" @click="resetFilters()"
-                        class="mt-3 px-3.5 py-1.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-[11px] font-semibold text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100 transition">
-                    Tampilkan semua
-                </button>
-            </div>
         </section>
         @endforeach
+
+        {{-- Satu empty state untuk dua seksi sekaligus. Sebelumnya tiap seksi
+             punya blok kosong sendiri, jadi mengetik kata kunci yang tidak cocok
+             memunculkan dua kartu kosong identik bertumpuk dan halaman terlihat
+             rusak. --}}
+        <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm px-4 sm:px-5 py-10 text-center mb-5"
+             x-show="totalVisible() === 0" x-cloak>
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-100 dark:bg-[#262626] text-neutral-400 dark:text-neutral-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+            </span>
+            <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mt-3">Tidak ada kategori yang cocok</p>
+            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">Coba kata kunci lain, atau tampilkan semua kategori lagi.</p>
+            <button type="button" @click="resetFilters()"
+                    class="mt-3 px-3.5 py-1.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-[11px] font-semibold text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100 transition">
+                Tampilkan semua
+            </button>
+        </div>
 
         <p class="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-6 px-4 leading-relaxed">
             Kategori bawaan selalu tersedia dan tidak bisa dihapus. Menghapus kategori custom
             tidak menghapus riwayat — kategori lama tetap tersimpan pada tiap transaksi.
         </p>
 
-        {{-- Modal tambah kategori (di dalam scope Alpine halaman) --}}
+        {{-- Modal tambah / ubah kategori.
+             Satu form untuk dua keperluan: aksi "Tambah" buka dalam mode
+             tambah (action = store), tombol ubah di tiap kartu membuka
+             mode ubah (action = update ke kategori itu). --}}
         <div id="categoryModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
-            <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm" onclick="closeCategoryModal()"></div>
+            <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm" @click="closeModal()"></div>
 
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
                 <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-left shadow-sm w-full sm:max-w-md">
 
                     <div class="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-[#333333]">
                         <div class="flex items-center gap-3">
-                            <span class="p-2.5 bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 rounded-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M17 7h.01M12 3v18M5 12h14"/></svg>
+                            {{-- Pratinjau langsung warna + ikon yang dipilih, supaya
+                                ikumu jadi terasa sebelum disimpan. --}}
+                            <span class="p-2.5 rounded-xl shrink-0" :class="appearanceClass()">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconPath()"/></svg>
                             </span>
                             <div>
-                                <h3 id="category-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50">Tambah Kategori</h3>
-                                <p class="text-xs text-neutral-500 dark:text-neutral-400">Langsung tersedia di form transaksi &amp; asisten AI</p>
+                                <h3 id="category-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50" x-text="isEditing() ? 'Ubah Kategori' : 'Tambah Kategori'"></h3>
+                                <p class="text-xs text-neutral-500 dark:text-neutral-400" x-text="isEditing() ? 'Transaksi & anggaran lama ikut mengikuti perubahan ini.' : 'Langsung tersedia di form transaksi & asisten AI'"></p>
                             </div>
                         </div>
-                        <button type="button" onclick="closeCategoryModal()" aria-label="Tutup"
+                        <button type="button" @click="closeModal()" aria-label="Tutup"
                                 class="text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 p-1 rounded-lg">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
 
-                    <form action="{{ route('categories.store') }}" method="POST" class="p-6 space-y-4">
+                    <form :action="formAction()" method="POST" class="p-6 space-y-4">
                         @csrf
+                        <template x-if="isEditing()"><input type="hidden" name="_method" value="PATCH"></template>
+                        <input type="hidden" name="editing_id" :value="editingId">
 
                         <div>
                             <label for="category-name" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Nama Kategori</label>
@@ -333,7 +356,7 @@
                             <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]" role="radiogroup" aria-label="Jenis Transaksi">
                                 @foreach (['income' => 'Pemasukan', 'expense' => 'Pengeluaran'] as $value => $label)
                                 <label class="relative flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-white dark:has-[:checked]:bg-[#171717] has-[:checked]:text-neutral-900 dark:has-[:checked]:text-neutral-50 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50">
-                                    <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only" {{ old('type', 'income') === $value ? 'checked' : '' }} required>
+                                    <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only" required>
                                     <span class="text-xs sm:text-sm font-bold">{{ $label }}</span>
                                 </label>
                                 @endforeach
@@ -343,28 +366,133 @@
                             @enderror
                         </div>
 
+                        {{-- Warna & ikon --}}
+                        <div>
+                            <span class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Warna</span>
+                            <div class="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Warna kategori">
+                                <template x-for="key in colorKeys" :key="key">
+                                    <button type="button" @click="color = key" :aria-pressed="color === key" role="radio"
+                                            :aria-label="'Warna ' + key"
+                                            :title="key"
+                                            class="w-7 h-7 rounded-lg flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+                                            :class="[palette[key] || '', color === key ? 'ring-2 ring-neutral-900 dark:ring-neutral-50 ring-offset-2 dark:ring-offset-[#171717]' : '']">
+                                        <svg class="w-3.5 h-3.5" x-show="color === key" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                            <input type="hidden" name="color" :value="color">
+                        </div>
+
+                        <div>
+                            <span class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Ikon</span>
+                            <div class="grid grid-cols-8 gap-1 max-h-32 overflow-y-auto p-1 -m-1" role="radiogroup" aria-label="Ikon kategori">
+                                <template x-for="key in iconKeys" :key="key">
+                                    <button type="button" @click="icon = key" :aria-pressed="icon === key" role="radio"
+                                            :aria-label="'Ikon ' + key" :title="key"
+                                            class="w-8 h-8 rounded-lg flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+                                            :class="icon === key
+                                                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+                                                : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626]'">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key] || iconSet.defaultIcon"/></svg>
+                                    </button>
+                                </template>
+                            </div>
+                            <input type="hidden" name="icon" :value="icon">
+                        </div>
+
+                        {{-- Peringatan kalau ganti jenis akan ikut memindahkan
+                             transaksi — ini keputusan yang cukup besar, jadi
+                            harus terlihat, bukan diam-diam terjadi. --}}
+                        <div x-show="retypeWarning()" x-cloak
+                             class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3">
+                            <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+                            <p class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+                                <span x-text="editingUsed > 0 ? editingUsed + ' transaksi ikut dipindahkan jenisnya.' : 'Jenis kategori akan berubah.'"></span>
+                                Riwayat nominalnya tetap sama.
+                            </p>
+                        </div>
+
                         <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                            <button type="button" onclick="closeCategoryModal()"
+                            <button type="button" @click="closeModal()"
                                     class="px-4 py-2 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-50 dark:hover:bg-[#333333] transition">Batal</button>
                             <button type="submit" :disabled="! canSubmit()"
-                                    class="px-5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed">Simpan Kategori</button>
+                                    class="px-5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
+                                    x-text="isEditing() ? 'Simpan Perubahan' : 'Simpan Kategori'"></button>
                         </div>
                     </form>
 
                 </div>
             </div>
         </div>
+
+        {{-- Dialog konfirmasi hapus. Mengganti confirm() bawaan browser yang
+             tampilannya beda jauh dari sisa UI (dan tidak bisa di-style). --}}
+        <div id="deleteModal" class="fixed inset-0 z-[70] hidden overflow-y-auto" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title">
+            <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm" @click="closeDelete()"></div>
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative w-full sm:max-w-sm rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-left shadow-sm overflow-hidden">
+                    <div class="p-6">
+                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-1-1h-4a2 2 0 00-1 1v3M4 7h16"/></svg>
+                        </span>
+                        <h3 id="delete-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50 mt-4">Hapus kategori ini?</h3>
+                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-2 leading-relaxed">
+                            <span class="font-semibold text-neutral-900 dark:text-neutral-50" x-text="deleteName"></span>
+                            akan hilang dari pilihan di form transaksi.
+                        </p>
+                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-2 leading-relaxed">
+                            <span x-show="deleteUsed > 0"
+                                  x-text="'Transaksi yang sudah tercatat (' + deleteUsed + ') tetap utuh — kategorinya tersimpan di riwayat, hanya pilihannya yang hilang.'"></span>
+                            <span x-show="deleteUsed === 0">Kategori ini belum dipakai transaksi apa pun, jadi tidak ada riwayat yang tersentuh.</span>
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-neutral-50 dark:bg-[#1c1c1c] border-t border-neutral-200 dark:border-[#333333]">
+                        <button type="button" @click="closeDelete()"
+                                class="px-4 py-2 bg-white dark:bg-[#171717] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] transition">Batal</button>
+                        <button type="button" @click="confirmDelete()"
+                                class="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 text-white rounded-xl text-xs font-semibold shadow-sm transition">Ya, hapus</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        function categoryPage(items, usage) {
+        function categoryPage(items, usage, editable, palette, iconSet) {
             return {
                 items: items,
                 usage: usage,
+                editable: editable,
+                palette: palette,
+                iconSet: iconSet,
+                colorKeys: Object.keys(palette),
+                iconKeys: Object.keys(iconSet),
+
                 search: '',
                 tab: 'all',
+
+                // state form
+                mode: @js(old('editing_id') ? 'edit' : 'create'),
+                editingId: @js(old('editing_id')),
+                editingOriginalType: @js(old('type', 'income')),
+                editingUsed: 0,
                 name: @js(old('name', '')),
                 type: @js(old('type', 'income')),
+                color: @js(old('color', 'green')),
+                icon: @js(old('icon', 'tag')),
+
+                // state dialog hapus
+                deleteId: null,
+                deleteName: '',
+                deleteUsed: 0,
+
+                // Server menolak simpan (mis. nama bentrok) -&gt; buka lagi
+                // modalnya dengan isian user tetap utuh, jangan dibuang.
+                init() {
+                    if (this.mode === 'edit') {
+                        this.openModal();
+                    }
+                },
 
                 countOf(type) {
                     return type === 'all'
@@ -382,11 +510,95 @@
                     return (this.items[type] || []).filter((name) => this.matches(type, name)).length;
                 },
 
+                // Jumlah yang benar-benar terlihat di layar, untuk empty state
+                // global (dua seksi bisa kosong bareng).
+                totalVisible() {
+                    return this.visibleCount('income') + this.visibleCount('expense');
+                },
+
+                // Angka di tombol filter. Sebelumnya pakai countOf() yang
+                // mengabaikan search, sementara badge header pakai
+                // visibleCount() yang ikut — jadi dua angka di satu layar
+                // artinya beda. Sekarang keduanya sama.
+                matchCount(key) {
+                    if (key === 'all') return this.totalVisible();
+                    return this.visibleCount(key);
+                },
+
                 resetFilters() {
                     this.search = '';
                     this.tab = 'all';
                 },
 
+                // ---- form ----
+                isEditing() {
+                    return this.mode === 'edit';
+                },
+
+                formAction() {
+                    return this.isEditing()
+                        ? @js(route('categories.update', ['category' => 0])).replace(/\/0$/, '/' + this.editingId)
+                        : @js(route('categories.store'));
+                },
+
+                openCreate() {
+                    this.mode = 'create';
+                    this.editingId = null;
+                    this.editingUsed = 0;
+                    this.name = '';
+                    this.type = 'income';
+                    this.color = 'green';
+                    this.icon = 'tag';
+                    this.openModal();
+                },
+
+                editCategory(id) {
+                    const item = this.editable.find((row) => row.id === id);
+                    if (!item) return;
+
+                    this.mode = 'edit';
+                    this.editingId = item.id;
+                    this.editingOriginalType = item.type;
+                    this.editingUsed = item.used;
+                    this.name = item.name;
+                    this.type = item.type;
+                    this.color = item.color;
+                    this.icon = item.icon;
+                    this.openModal();
+                },
+
+                openModal() {
+                    const modal = document.getElementById('categoryModal');
+                    if (!modal) return;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    const input = document.getElementById('category-name');
+                    if (input) window.setTimeout(() => { input.focus(); input.select(); }, 50);
+                },
+
+                closeModal() {
+                    const modal = document.getElementById('categoryModal');
+                    if (!modal) return;
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                },
+
+                appearanceClass() {
+                    return this.palette[this.color] || this.palette.neutral || '';
+                },
+
+                iconPath() {
+                    return this.iconSet[this.icon] || this.iconSet.tag || '';
+                },
+
+                // Peringatan "ikut berubah jenisnya" hanya relevan saat
+                // kategori yang dipakai transaksi benar-benar dipindah jenisnya.
+                retypeWarning() {
+                    return this.isEditing() && this.type !== this.editingOriginalType;
+                },
+
+                // Mode edit: kategori yang sedang diedit tidak boleh
+                // dianggap bentrok dengan dirinya sendiri.
                 isDuplicate() {
                     const name = this.name.trim().toLowerCase();
                     if (name === '') return false;
@@ -396,31 +608,45 @@
                 canSubmit() {
                     return this.name.trim() !== '' && ! this.isDuplicate();
                 },
+
+                // ---- hapus ----
+                askDelete(id, name, used) {
+                    this.deleteId = id;
+                    this.deleteName = name;
+                    this.deleteUsed = used;
+                    const modal = document.getElementById('deleteModal');
+                    if (!modal) return;
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                },
+
+                closeDelete() {
+                    const modal = document.getElementById('deleteModal');
+                    if (!modal) return;
+                    modal.classList.add('hidden');
+                    this.deleteId = null;
+                    if (document.getElementById('categoryModal').classList.contains('hidden')) {
+                        document.body.style.overflow = '';
+                    }
+                },
+
+                confirmDelete() {
+                    if (this.deleteId === null) return;
+                    const form = document.getElementById('deleteForm');
+                    if (!form) return;
+                    form.action = @js(route('categories.destroy', ['category' => 0])).replace(/\/0$/, '/' + this.deleteId);
+                    form.submit();
+                },
             };
         }
-
-        function openCategoryModal() {
-            const modal = document.getElementById('categoryModal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            const input = document.getElementById('category-name');
-            if (input) window.setTimeout(() => input.focus(), 50);
-        }
-
-        function closeCategoryModal() {
-            const modal = document.getElementById('categoryModal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        // Gagal validasi (kategori bentrok / nama kosong) -> buka lagi modalnya
-        // supaya isian user tidak hilang.
-        @if ($errors->has('name') || $errors->has('type'))
-            window.addEventListener('DOMContentLoaded', openCategoryModal);
-        @endif
     </script>
+
+    {{-- Form hapus yang dipakai dialog konfirmasi. Satu form, action diisi
+         Alpine saat konfirmasi ditekan, lalu di-submit. --}}
+    <form id="deleteForm" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
     @include('components.export-modal')
 

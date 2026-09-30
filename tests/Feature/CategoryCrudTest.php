@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Budget;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\DemoMode;
+use App\Support\CategoryStyle;
 use Carbon\Carbon;
 use Database\Seeders\CategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -235,5 +237,388 @@ class CategoryCrudTest extends TestCase
         $this->assertSame(Transaction::INCOME_CATEGORIES, array_column($income, 'name'));
         $this->assertNotNull($income[0]['id']);
         $this->assertTrue($income[0]['is_global']);
+    }
+
+    // ---- ubah kategori (rename / ganti jenis / ganti tampilan) ----
+
+    public function test_rename_menarik_transaksi_lama_ikut_berganti(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Makananan',
+            'type' => 'expense',
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'title' => 'Kopi',
+            'category' => 'Makananan',
+            'amount' => 25000,
+            'type' => 'expense',
+            'transaction_date' => Carbon::now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Makanan',
+                'type' => 'expense',
+            ])
+            ->assertRedirect(route('categories.index'));
+
+        // Ini inti dari fitur: tanpa cascade, transaksi lama akan nempel ke
+        // "Makananan" selamanya dan kategorinya jadi yatim.
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $user->id,
+            'title' => 'Kopi',
+            'category' => 'Makanan',
+        ]);
+
+        $this->assertDatabaseMissing('transactions', ['category' => 'Makananan']);
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Makanan',
+        ]);
+    }
+
+    public function test_rename_menarik_anggaran_kategori_ikut_berganti(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'expense',
+        ]);
+
+        Budget::create([
+            'user_id' => $user->id,
+            'amount' => 500000,
+            'month' => Carbon::now()->month,
+            'year' => Carbon::now()->year,
+            'category' => 'Jualan Online',
+        ]);
+
+        // Anggaran keseluruhan (category = '') TIDAK boleh ikut berubah.
+        Budget::create([
+            'user_id' => $user->id,
+            'amount' => 2000000,
+            'month' => Carbon::now()->month,
+            'year' => Carbon::now()->year,
+            'category' => '',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Jualan Resmi',
+                'type' => 'expense',
+            ]);
+
+        $this->assertDatabaseHas('budgets', [
+            'user_id' => $user->id,
+            'category' => 'Jualan Resmi',
+        ]);
+
+        $this->assertDatabaseHas('budgets', [
+            'user_id' => $user->id,
+            'category' => '',
+        ]);
+    }
+
+    public function test_rename_tidak_menyentuh_transaksi_user_lain(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+
+        $category = Category::create([
+            'user_id' => $owner->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        Transaction::create([
+            'user_id' => $other->id,
+            'title' => 'Jualan',
+            'category' => 'Jualan Online',
+            'amount' => 50000,
+            'type' => 'income',
+            'transaction_date' => Carbon::now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($owner)->patch(route('categories.update', $category->id), [
+            'name' => 'Jualan Resmi',
+            'type' => 'income',
+        ]);
+
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $other->id,
+            'category' => 'Jualan Online',
+        ]);
+    }
+
+    public function test_ganti_jenis_memindahkan_transaksi(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Refund',
+            'type' => 'expense',
+        ]);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'title' => 'Refund Tokopedia',
+            'category' => 'Refund',
+            'amount' => 75000,
+            'type' => 'expense',
+            'transaction_date' => Carbon::now()->format('Y-m-d'),
+        ]);
+
+        $this->actingAs($user)->patch(route('categories.update', $category->id), [
+            'name' => 'Refund',
+            'type' => 'income',
+        ]);
+
+        $this->assertDatabaseHas('transactions', [
+            'user_id' => $user->id,
+            'category' => 'Refund',
+            'type' => 'income',
+        ]);
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'type' => 'income']);
+    }
+
+    public function test_ganti_jenis_ditolak_saat_ada_anggaran(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Belanja',
+            'type' => 'expense',
+        ]);
+
+        Budget::create([
+            'user_id' => $user->id,
+            'amount' => 500000,
+            'month' => Carbon::now()->month,
+            'year' => Carbon::now()->year,
+            'category' => 'Belanja',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Belanja',
+                'type' => 'income',
+            ])
+            ->assertSessionHasErrors('type');
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'type' => 'expense']);
+    }
+
+    public function test_simpan_tanpa_ubah_nama_tidak_ditolak_sebagai_duplikat(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        // Cuma ganti warna — nama tidak disentuh sama sekali.
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Jualan Online',
+                'type' => 'income',
+                'color' => 'violet',
+            ])
+            ->assertRedirect(route('categories.index'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Jualan Online',
+            'color' => 'violet',
+        ]);
+    }
+
+    public function test_rename_ke_nama_yang_sudah_terpakai_ditolak(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+        Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Resmi',
+            'type' => 'income',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'jualan resmi',
+                'type' => 'income',
+            ])
+            ->assertSessionHasErrors('name');
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Jualan Online']);
+    }
+
+    public function test_tidak_bisa_ubah_kategori_user_lain(): void
+    {
+        $owner = User::factory()->create();
+        $attacker = User::factory()->create();
+        $category = Category::create([
+            'user_id' => $owner->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        $this->actingAs($attacker)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Dibajak',
+                'type' => 'income',
+            ])
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Jualan Online']);
+    }
+
+    public function test_tidak_bisa_ubah_kategori_bawaan(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+        $global = Category::whereNull('user_id')->where('name', 'Gaji')->firstOrFail();
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $global->id), [
+                'name' => 'Gaji Bulanan',
+                'type' => 'income',
+            ])
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('categories', ['id' => $global->id, 'name' => 'Gaji']);
+    }
+
+    public function test_demo_user_tidak_bisa_ubah_kategori(): void
+    {
+        $user = User::factory()->create(['email' => config('demo.email')]);
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('categories.update', $category->id), [
+                'name' => 'Hack',
+                'type' => 'income',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('error', DemoMode::ERROR);
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id, 'name' => 'Jualan Online']);
+    }
+
+    public function test_warna_dan_ikon_disimpan_saat_buat_kategori(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/categories', [
+            'name' => 'Jualan Online',
+            'type' => 'income',
+            'color' => 'violet',
+            'icon' => 'piggy',
+        ])->assertRedirect(route('categories.index'));
+
+        $this->assertDatabaseHas('categories', [
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'color' => 'violet',
+            'icon' => 'piggy',
+        ]);
+    }
+
+    public function test_warna_di_luar_palet_ditolak(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/categories', [
+            'name' => 'Jualan Online',
+            'type' => 'income',
+            'color' => 'ungu-tua',
+        ])->assertSessionHasErrors('color');
+    }
+
+    public function test_kategori_tanpa_warna_tetap_dapat_warna_dan_ikon(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        $income = Category::availableFor($user->id, 'income');
+        $gaji = collect($income)->firstWhere('name', 'Gaji');
+
+        // Bawaan harus dapat warna yang sudah ditentukan, bukan fallback.
+        $this->assertSame('green', $gaji['color']);
+        $this->assertSame('wallet', $gaji['icon']);
+
+        $expense = Category::availableFor($user->id, 'expense');
+        $lainnya = collect($expense)->firstWhere('name', 'Lainnya');
+
+        // "Lainnya" tidak punya warna khusus, tapi TIDAK BOLEH jadi netral
+        // yang indistinguishable dari "kategori tanpa identitas".
+        $this->assertNotSame('neutral', $lainnya['color']);
+        $this->assertNotEmpty($lainnya['icon']);
+    }
+
+    public function test_kategori_custom_tanpa_pilihan_warna_tetap_berwarna(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/categories', [
+            'name' => 'Jualan Online',
+            'type' => 'income',
+        ]);
+
+        $row = Category::where('user_id', $user->id)->where('name', 'Jualan Online')->firstOrFail();
+
+        $this->assertNotSame('neutral', $row->color);
+        $this->assertNotEmpty($row->icon);
+    }
+
+    public function test_seeder_kategori_bawaan_tidak_menggandakan_baris(): void
+    {
+        // Regresi: seeder lama memakai insertOrIgnore, tapi index unik
+        // (user_id, name, type) tidak berlaku untuk user_id NULL sehingga
+        // setiap deploy menambah 15 baris duplikat.
+        $this->seed(CategorySeeder::class);
+        $this->seed(CategorySeeder::class);
+        $this->seed(CategorySeeder::class);
+
+        $expected = count(Transaction::INCOME_CATEGORIES) + count(Transaction::EXPENSE_CATEGORIES);
+
+        $this->assertDatabaseCount('categories', $expected);
+    }
+
+    public function test_index_menampilkan_warna_dan_ikon_kategori_custom(): void
+    {
+        $user = User::factory()->create();
+        $this->seed(CategorySeeder::class);
+
+        Category::create([
+            'user_id' => $user->id,
+            'name' => 'Jualan Online',
+            'type' => 'income',
+            'color' => 'violet',
+            'icon' => 'piggy',
+        ]);
+
+        $this->actingAs($user)->get(route('categories.index'))
+            ->assertOk()
+            ->assertSee('bg-violet-50')
+            // false = jangan escape; yang dicari path SVG mentah, bukan
+            // versi HTML-escaped-nya.
+            ->assertSee(trim(CategoryStyle::iconPath('piggy')), false);
     }
 }
