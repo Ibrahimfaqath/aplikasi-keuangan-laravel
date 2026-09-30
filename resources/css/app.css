@@ -11,12 +11,16 @@
         background-color: rgb(255 255 255 / 0.18);
     }
 
-    /* Cegah flash: base background mengikuti spec */
-    html {
-        background-color: #FAFAFA;
-    }
-    html.dark {
-        background-color: #0A0A0A;
+    /* Latar halaman mengikuti tema daisyUI (base-200), bukan hex manual.
+       PENTING: daisyUI base menyetel background di `:root, [data-theme]`
+       dengan spesifisitas (0,1,0). Aturan `html { ... }` (0,0,1) KALAH di
+       cascade, jadi kita harus pakai selektor yang sama atau lebih tinggi.
+       `:root[data-theme]` (0,2,0) menang mutlak dan tidak bergantung urutan
+       layer; `:root` tetap ditulis sebagai jaring pengaman bila data-theme
+       somehow belum terpasang. */
+    :root,
+    :root[data-theme] {
+        @apply bg-base-200;
     }
 
     /* Sembunyikan elemen Alpine sebelum diinisialisasi (mencegah flash) */
@@ -163,13 +167,9 @@
     background: #333333;
 }
 
-/* Active state untuk opsi tema tersegmentasi (disinkron via JS) */
+/* Active state untuk opsi tema tersegmentasi (disinkron via JS).
+       Ikut tema: terang = kartu putih di atasAbu terang, gelap = kartu hitam. */
 .theme-opt-active {
-    background: #FFFFFF;
-    color: #171717;
+    @apply bg-base-100 text-base-content;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
-}
-.dark .theme-opt-active {
-    background: #0A0A0A;
-    color: #FAFAFA;
 }

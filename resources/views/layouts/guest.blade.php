@@ -25,19 +25,7 @@
         <title>{{ $title ?? 'dompetku — Aplikasi Keuangan Pribadi' }}</title>
 
         <!-- Theme Init (cegah flash terang/gelap) -->
-        <script>
-            (function() {
-                try {
-                    var savedTheme = localStorage.getItem('theme');
-                    // Default gelap (#0A0A0A) — mode terang hanya jika user memilihnya
-                    var isDark = savedTheme !== 'light';
-                    if (isDark) {
-                        document.documentElement.classList.add('dark');
-                    }
-                    document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
-                } catch (e) {}
-            })();
-        </script>
+        @include('partials.theme-boot')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>

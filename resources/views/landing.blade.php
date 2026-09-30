@@ -24,18 +24,7 @@
     <title>dompetku — Kelola Keuangan Pribadi</title>
 
     <!-- Theme Init -->
-    <script>
-        (function() {
-            try {
-                var savedTheme = localStorage.getItem('theme');
-                var isDark = savedTheme !== 'light';
-                if (isDark) {
-                    document.documentElement.classList.add('dark');
-                }
-                document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
-            } catch (e) {}
-        })();
-    </script>
+    @include('partials.theme-boot')
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>

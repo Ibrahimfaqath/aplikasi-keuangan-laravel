@@ -5,16 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <title>Terlalu Banyak Permintaan - dompetku</title>
-    <script>
-        (function initTheme() {
-            try {
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme !== 'light') document.documentElement.classList.add('dark');
-            } catch (e) {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
+    @include('partials.theme-boot')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-full flex items-center justify-center px-4 py-12 bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">

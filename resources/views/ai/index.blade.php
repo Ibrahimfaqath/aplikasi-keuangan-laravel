@@ -5,14 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>AI Assistant - dompetku</title>
-    <script>
-        (function() {
-            var savedTheme = localStorage.getItem('theme');
-            var isDark = savedTheme !== 'light';
-            if (isDark) document.documentElement.classList.add('dark');
-            document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
-        })();
-    </script>
+    @include('partials.theme-boot')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased flex flex-col">

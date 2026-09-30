@@ -168,15 +168,29 @@ function syncThemeUI(saved) {
     } catch (e) {}
 }
 
-function applyTheme() {
-    const saved = getSavedTheme();
-    const isDark = effectiveDark(saved);
-    document.documentElement.classList.toggle('dark', isDark);
-    // Monochrome spec: light #FAFAFA, dark #0A0A0A
-    document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
+// Dipanggil dengan mode ('light'|'dark') setelah localStorage ditulis, atau
+// TANPA argumen pada load pertama — di kasus itu partial theme-boot sudah
+// menyelesaikan mode sebelum paint, jadi kita baca dari DOM.
+//
+// Penting: jangan menebak ulang dari localStorage di sini. Dulu applyTheme()
+// membaca localStorage sendiri, padahal partial sudah menyetel .dark — dua
+// sumber kebenaran. Kalau keduanya menyimpang, halaman berkedip dalam mode
+// yang salah lalu melompat (flash yang justru paling islaskan oleh boot script).
+function applyTheme(mode) {
+    const root = document.documentElement;
+    const isDark = mode ? mode === 'dark' : root.classList.contains('dark');
+    root.classList.toggle('dark', isDark);
+    // Komponen daisyUI membaca `data-theme`, bukan kelas `.dark`.
+    // Harus ikut diset di sini, bukan hanya di partial theme-boot (yang hanya
+    // jalan sekali saat load) — kalau tidak, toggle akan terlihat seperti
+    // tidak bekerja untuk btn/card/input.
+    root.setAttribute('data-theme', isDark ? 'black' : 'lofi');
+    // Latar halaman TIDAK di set manual di sini: daisyUI sudah memberi
+    // background lewat `:root[data-theme]` (lihat app.css). Menulis
+    // style.backgroundColor akan menimpa tema dan menyisakan sisa lighten.
     // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
     window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
-    syncThemeUI(saved);
+    syncThemeUI(isDark ? 'dark' : 'light');
 }
 
 // Dipakai kontrol Appearance via onclick="window.setTheme('dark')" dsb.
@@ -185,7 +199,7 @@ window.setTheme = function (mode) {
     try {
         localStorage.setItem('theme', mode);
     } catch (e) {}
-    applyTheme();
+    applyTheme(mode);
 };
 
 // Toggle langsung Light <-> Dark untuk [data-theme-toggle] (tanpa dropdown).

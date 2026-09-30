@@ -20,19 +20,7 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <title>Anggaran - dompetku</title>
 
-    <script>
-        (function initTheme() {
-            try {
-                const savedTheme = localStorage.getItem('theme');
-                const isDark = savedTheme !== 'light';
-                if (isDark) document.documentElement.classList.add('dark');
-                document.documentElement.style.backgroundColor = isDark ? '#0A0A0A' : '#FAFAFA';
-            } catch (e) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.style.backgroundColor = '#0A0A0A';
-            }
-        })();
-    </script>
+    @include('partials.theme-boot')
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
