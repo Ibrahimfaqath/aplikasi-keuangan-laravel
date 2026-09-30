@@ -11,20 +11,85 @@ use Illuminate\Support\Facades\DB;
 class ReportingService
 {
     /**
+     * Kolom tanggal yang boleh dipakai sebagai dasar filter periode.
+     *
+     * Dipakai sebagai whitelist, bukan sekadar default: nama kolom masuk ke
+     * SQL, jadi tidak boleh datang dari request.
+     */
+    private const DATE_COLUMNS = ['transaction_date', 'deleted_at'];
+
+    /**
+     * Arti setiap kode periode, dalam satu tempat.
+     *
+     * Dipakai dua kolom sekaligus: `transaction_date` (kapan transaksinya)
+     * dan `deleted_at` (kapan dibuang ke Sampah). Keduanya menjawab pertanyaan
+     * berbeda, jadi keduanya membaca definisi yang sama di sini.
+     *
+     * `$openEnded` menandai periode yang sengaja TIDAK dibatasi atas (dulu
+     * `whereDate('>=', ...)` tanpa batas), sehingga transaksi bertanggal
+     * ke depan tetap ikut terhitung seperti sebelumnya.
+     *
+     * @return array{start: Carbon, end: Carbon, openEnded: bool}|null null = tanpa batas
+     */
+    private function periodRange(string $period): ?array
+    {
+        $today = Carbon::today();
+
+        return match ($period) {
+            'today' => ['start' => $today, 'end' => $today, 'openEnded' => false],
+            'yesterday' => ['start' => $today->copy()->subDay(), 'end' => $today->copy()->subDay(), 'openEnded' => false],
+            '7_days' => ['start' => $today->copy()->subDays(6), 'end' => $today, 'openEnded' => true],
+            '30_days' => ['start' => $today->copy()->subDays(29), 'end' => $today, 'openEnded' => true],
+            'this_month' => [
+                'start' => $today->copy()->startOfMonth(),
+                'end' => $today->copy()->endOfMonth(),
+                'openEnded' => false,
+            ],
+            'last_month' => [
+                'start' => $today->copy()->subMonthNoOverflow()->startOfMonth(),
+                'end' => $today->copy()->subMonthNoOverflow()->endOfMonth(),
+                'openEnded' => false,
+            ],
+            'this_year' => [
+                'start' => $today->copy()->startOfYear(),
+                'end' => $today->copy()->endOfYear(),
+                'openEnded' => false,
+            ],
+            default => null,
+        };
+    }
+
+    /**
      * Membuat query transaksi milik user yang diberikan, difilter sesuai parameter.
      *
      * @param  array  $filters  search, type, period, start_date, end_date
      * @param  bool  $onlyTrashed  true = hanya transaksi di Sampah (soft-deleted)
+     * @param  string  $dateColumn  kolom yang dipakai filter periode:
+     *                              'transaction_date' (default) atau 'deleted_at'
+     *                              untuk pertanyaan "kapan dibuang ke Sampah".
      * @return Builder
      */
-    public function getFilteredQuery(array $filters, ?int $userId = null, bool $onlyTrashed = false)
-    {
+    public function getFilteredQuery(
+        array $filters,
+        ?int $userId = null,
+        bool $onlyTrashed = false,
+        string $dateColumn = 'transaction_date',
+    ) {
         $userId = $userId ?? request()->user()?->id;
 
         // Tanpa user yang jelas, jangan bocorkan data: kembalikan query kosong.
         if (! $userId) {
             return ($onlyTrashed ? Transaction::onlyTrashed() : Transaction::query())->whereRaw('1 = 0');
         }
+
+        // Nama kolom masuk ke SQL — hanya terima yang sudah dikenal.
+        if (! in_array($dateColumn, self::DATE_COLUMNS, true)) {
+            $dateColumn = 'transaction_date';
+        }
+
+        // Kolom DATE disimpan sebagai 'Y-m-d'; kolom DATETIME butuh jam-menit
+        // agar batas akhirnya tidak memotong baris di hari yang sama.
+        $format = $dateColumn === 'deleted_at' ? 'Y-m-d H:i:s' : 'Y-m-d';
 
         $query = $onlyTrashed
             ? Transaction::onlyTrashed()->where('user_id', $userId)
@@ -44,66 +109,38 @@ class ReportingService
             $query->where('category', $filters['category']);
         }
 
-        $allowedPeriods = ['today', 'yesterday', '7_days', '30_days', 'this_month', 'last_month', 'this_year', 'custom', 'all'];
         $period = $filters['period'] ?? 'all';
-        if (! in_array($period, $allowedPeriods, true)) {
-            $period = 'all';
-        }
-        $today = Carbon::today();
+        $range = $this->periodRange(is_string($period) ? $period : 'all');
 
-        switch ($period) {
-            case 'today':
-                $query->whereDate('transaction_date', $today);
-                break;
-            case 'yesterday':
-                $query->whereDate('transaction_date', Carbon::yesterday());
-                break;
-            case '7_days':
-                $query->whereDate('transaction_date', '>=', $today->copy()->subDays(6));
-                break;
-            case '30_days':
-                $query->whereDate('transaction_date', '>=', $today->copy()->subDays(29));
-                break;
-            case 'this_month':
-                // Perf: whereBetween memakai index range, sedangkan whereMonth()/
-                // whereYear() membungkus kolom dengan fungsi SQL sehingga index
-                // (user_id, transaction_date) tidak terpakai. Hasil identik (DATE).
-                $query->whereBetween('transaction_date', [
-                    $today->copy()->startOfMonth()->format('Y-m-d'),
-                    $today->copy()->endOfMonth()->format('Y-m-d'),
+        if ($range) {
+            // Perf: rentang membuat index (user_id, transaction_date) terpakai,
+            // sedangkan whereMonth()/whereYear() membungkus kolom dengan fungsi
+            // SQL sehingga index tidak bisa dipakai. Hasilnya identik.
+            if ($range['openEnded']) {
+                $query->whereDate($dateColumn, '>=', $range['start']->format($format));
+            } else {
+                $query->whereBetween($dateColumn, [
+                    $range['start']->copy()->startOfDay()->format($format),
+                    $range['end']->copy()->endOfDay()->format($format),
                 ]);
-                break;
-            case 'last_month':
-                $lastMonth = $today->copy()->subMonth();
-                $query->whereBetween('transaction_date', [
-                    $lastMonth->copy()->startOfMonth()->format('Y-m-d'),
-                    $lastMonth->copy()->endOfMonth()->format('Y-m-d'),
-                ]);
-                break;
-            case 'this_year':
-                $query->whereBetween('transaction_date', [
-                    $today->copy()->startOfYear()->format('Y-m-d'),
-                    $today->copy()->endOfYear()->format('Y-m-d'),
-                ]);
-                break;
-            case 'custom':
-                if (! empty($filters['start_date'])) {
-                    try {
-                        $start = Carbon::parse($filters['start_date'])->format('Y-m-d');
-                        $query->whereDate('transaction_date', '>=', $start);
-                    } catch (\Throwable $e) {
-                        // Abaikan tanggal invalid, jangan 500.
-                    }
+            }
+        } elseif ($period === 'custom') {
+            if (! empty($filters['start_date'])) {
+                try {
+                    $start = Carbon::parse($filters['start_date'])->startOfDay()->format($format);
+                    $query->whereDate($dateColumn, '>=', $start);
+                } catch (\Throwable $e) {
+                    // Abaikan tanggal invalid, jangan 500.
                 }
-                if (! empty($filters['end_date'])) {
-                    try {
-                        $end = Carbon::parse($filters['end_date'])->format('Y-m-d');
-                        $query->whereDate('transaction_date', '<=', $end);
-                    } catch (\Throwable $e) {
-                        // Abaikan tanggal invalid, jangan 500.
-                    }
+            }
+            if (! empty($filters['end_date'])) {
+                try {
+                    $end = Carbon::parse($filters['end_date'])->endOfDay()->format($format);
+                    $query->whereDate($dateColumn, '<=', $end);
+                } catch (\Throwable $e) {
+                    // Abaikan tanggal invalid, jangan 500.
                 }
-                break;
+            }
         }
 
         return $query;

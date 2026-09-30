@@ -45,6 +45,18 @@ Route::middleware('auth')->group(function () {
 
     // Sampah (soft-delete): lihat, pulihkan, dan hapus permanen.
     Route::get('/transactions/trashed', [TransactionController::class, 'trashed'])->name('transactions.trashed');
+
+    // Aksi massal Sampah. WAJIB didaftarkan SEBELUM route {transaction} di
+    // bawah: `POST /transactions/trashed/restore` kalau tidak, akan dicocokkan
+    // lebih dulu oleh `/transactions/{transaction}/restore` dengan
+    // {transaction} = "trashed" -- lalu controller.findOrFail("trashed")
+    // membalas 404, bukan menjalankan aksi massal.
+    Route::prefix('transactions/trashed')->group(function () {
+        Route::post('/restore', [TransactionController::class, 'bulkRestore'])->name('transactions.bulk-restore');
+        Route::post('/destroy', [TransactionController::class, 'bulkDestroy'])->name('transactions.bulk-destroy');
+        Route::post('/empty', [TransactionController::class, 'emptyTrash'])->name('transactions.empty-trash');
+    });
+
     Route::post('/transactions/{transaction}/restore', [TransactionController::class, 'restore'])->name('transactions.restore');
     Route::delete('/transactions/{transaction}/force-destroy', [TransactionController::class, 'forceDestroy'])->name('transactions.force-destroy');
 

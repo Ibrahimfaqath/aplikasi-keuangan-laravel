@@ -252,6 +252,11 @@ class TransactionController extends Controller
 
     /**
      * Halaman Sampah: daftar transaksi yang di-soft-delete, berikut statistiknya.
+     *
+     * Bedanya dari /transactions: filter periode di sini menjawab "kapan
+     * dibuang ke Sampah", bukan "kapan transaksinya terjadi" — jadi kolom
+     * yang disaring adalah `deleted_at`. Transaksi yang masih aktif tidak
+     * mungkin muncul di sini karena query-nya dibatasi `onlyTrashed()`.
      */
     public function trashed(Request $request)
     {
@@ -259,7 +264,7 @@ class TransactionController extends Controller
 
         $filters = $request->only(['search', 'type', 'category', 'period', 'start_date', 'end_date']);
 
-        $query = $reportingService->getFilteredQuery($filters, Auth::id(), true);
+        $query = $reportingService->getFilteredQuery($filters, Auth::id(), true, 'deleted_at');
         $stats = $reportingService->getStatistics($query);
 
         $transactions = $query->orderBy('deleted_at', 'desc')
@@ -267,10 +272,50 @@ class TransactionController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('transactions.trashed', array_merge([
+        // Dua kondisi yang harus dibedakan: Sampah memang tidak ada isinya,
+        // atau isinya tidak cocok dengan filter. Kalau keduanya memakai pesan
+        // yang sama, user mengira datanya hilang padahal masih ada.
+        $hasActiveFilters = $this->hasActiveFilters($filters);
+
+        $data = array_merge([
             'transactions' => $transactions,
             'filters' => $filters,
-        ], $stats));
+            'hasActiveFilters' => $hasActiveFilters,
+            // Demo read-only: seluruh kontrol tulis disembunyikan, bukan
+            // dikunci satu per satu. Server tetap menolak aksinya apa pun yang
+            // lolos (DemoMode::warn), jadi ini hanya lapisan antarmuka.
+            'trashLocked' => DemoMode::isEnabled() && DemoMode::isDemoUser(Auth::user()),
+        ], $stats);
+
+        // Filter tanpa reload, pola yang sama dengan /transactions: server
+        // tetap merender halaman penuh sebagai sumber kebenaran, `?partial=1`
+        // hanya mengembalikan potongan yang berubah.
+        if ($request->boolean('partial')) {
+            return response()->json([
+                'total' => $transactions->total(),
+                'tableHtml' => view('transactions.partials.trash-table', [
+                    'transactions' => $transactions,
+                    'hasActiveFilters' => $hasActiveFilters,
+                ])->render(),
+            ]);
+        }
+
+        return view('transactions.trashed', $data);
+    }
+
+    /**
+     * Filter aktif = ada nilai yang bukan pilihan netral.
+     *
+     * 'all' adalah nilai default Periode, jadi bukan filter aktif. Tanpa
+     * pengecualian ini, `period=all` — yang memang selalu ikut terkirim
+     * bersama filter lain — akan membuat tombol reset muncul sia-sia.
+     */
+    private function hasActiveFilters(array $filters): bool
+    {
+        return ($filters['search'] ?? '') !== ''
+            || ($filters['type'] ?? '') !== ''
+            || ($filters['category'] ?? '') !== ''
+            || (($filters['period'] ?? '') !== '' && ($filters['period'] ?? '') !== 'all');
     }
 
     /**
@@ -285,7 +330,14 @@ class TransactionController extends Controller
         $transaction = Transaction::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
         $transaction->restore();
 
-        return redirect()->route('transactions.trashed')->with('success', 'Transaksi berhasil dipulihkan.');
+        return redirect()->route('transactions.trashed')
+            ->with('success', 'Transaksi berhasil dipulihkan.')
+            // Satu item = satu transaksi; kalau 40 item dipulihkan sekaligus,
+            // "Urungkan" jadi tidak bermakna (user tidak ingat mana yang salah).
+            ->with('undo_restore', [
+                'id' => $transaction->id,
+                'title' => $transaction->title,
+            ]);
     }
 
     /**
@@ -299,13 +351,172 @@ class TransactionController extends Controller
 
         $transaction = Transaction::onlyTrashed()->where('user_id', Auth::id())->findOrFail($id);
 
-        if ($transaction->image && Storage::disk('public')->exists($transaction->image)) {
-            Storage::disk('public')->delete($transaction->image);
-        }
-
+        $this->deleteReceipt($transaction->image);
         $transaction->forceDelete();
 
         return redirect()->route('transactions.trashed')->with('success', 'Transaksi dihapus permanen.');
+    }
+
+    /**
+     * Pulihkan beberapa transaksi sekaligus.
+     *
+     * Dipisah dari `restore()` tunggal karena bulk-or-nothing di sini berarti
+     * satu id nakal tidak boleh membatalkan 39 pemulihan yang berhasil — dan
+     * keamanannya tetap sama: id selalu difilter `user_id` + `onlyTrashed`.
+     */
+    public function bulkRestore(Request $request)
+    {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
+        $ids = $this->selectedTrashedIds($request);
+
+        if ($ids === []) {
+            return redirect()->route('transactions.trashed')
+                ->with('error', 'Tidak ada transaksi yang dipilih.');
+        }
+
+        $restored = 0;
+        foreach ($this->trashedQuery($ids)->get() as $transaction) {
+            $transaction->restore();
+            $restored++;
+        }
+
+        return redirect()->route('transactions.trashed')
+            ->with('success', $restored.' transaksi berhasil dipulihkan.');
+    }
+
+    /**
+     * Hapus permanen beberapa transaksi terpilih.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
+        $ids = $this->selectedTrashedIds($request);
+
+        if ($ids === []) {
+            return redirect()->route('transactions.trashed')
+                ->with('error', 'Tidak ada transaksi yang dipilih.');
+        }
+
+        $destroyed = 0;
+        foreach ($this->trashedQuery($ids)->get() as $transaction) {
+            $this->deleteReceipt($transaction->image);
+            $transaction->forceDelete();
+            $destroyed++;
+        }
+
+        return redirect()->route('transactions.trashed')
+            ->with('success', $destroyed.' transaksi dihapus permanen.');
+    }
+
+    /**
+     * Kosongkan Sampah: hapus permanen SELURUH isi Sampah milik user ini.
+     *
+     * Karena jangkauan tidak ditentukan user, aksi paling berbahaya di halaman
+     * ini tidak cukup dengan satu klik. Ia menuntut konfirmasi yang diketik
+     * sendiri, supaya tidak bisa terjadi karena jari meleset.
+     */
+    public function emptyTrash(Request $request)
+    {
+        if (DemoMode::isDemoUser(Auth::user())) {
+            return DemoMode::warn();
+        }
+
+        if ($request->input('confirm') !== self::EMPTY_TRASH_CONFIRMATION) {
+            return redirect()->route('transactions.trashed')
+                ->with('error', 'Kosongkan Sampah dibatalkan — konfirmasi tidak cocok.');
+        }
+
+        $destroyed = 0;
+        foreach ($this->trashedQuery()->cursor() as $transaction) {
+            $this->deleteReceipt($transaction->image);
+            $transaction->forceDelete();
+            $destroyed++;
+        }
+
+        return redirect()->route('transactions.trashed')
+            ->with('success', $destroyed.' transaksi dihapus permanen. Sampah sekarang kosong.');
+    }
+
+    /**
+     * Kata yang harus diketik ulang untuk mengonfirmasi Kosongkan Sampah.
+     */
+    public const EMPTY_TRASH_CONFIRMATION = 'HAPUS';
+
+    /**
+     * Batas jumlah id dalam satu permintaan bulk.
+     *
+     * Tidak ada halaman yang menampilkan lebih dari ini, jadi angka ini hanya
+     * menahan form yang dibuat-buat. `array_slice` diam-diam memotong sisanya
+     * supaya user tidak mendapat error 500.
+     */
+    private const MAX_BULK_IDS = 500;
+
+    /**
+     * Id terpilih dari form, sudah dibatasi jumlah dan dibuang duplikatnya.
+     *
+     * Bentuknya bisa berupa array (`ids[]=1&ids[]=2`) maupun satu string CSV
+     * (`ids=1,2`). Yang kedua dipakai toolbar bulk: ia menuliskan pilihan dari
+     * state Alpine lewat satu hidden input, bukan menyalin ulang seluruh blok
+     * checkbox ke setiap form.
+     *
+     * Duplikat itu hal yang nyata, bukan rekaan: checkbox desktop dan mobile
+     * memakai `ids[]` yang sama, jadi satu transaksi bisa terkirim dua kali.
+     *
+     * @return array<int, int>
+     */
+    private function selectedTrashedIds(Request $request): array
+    {
+        $ids = $request->input('ids', []);
+
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+
+        if (! is_array($ids)) {
+            return [];
+        }
+
+        $ids = array_values(array_unique(array_filter(
+            array_map('intval', $ids),
+            fn (int $id) => $id > 0,
+        )));
+
+        return array_slice($ids, 0, self::MAX_BULK_IDS);
+    }
+
+    /**
+     * Query transaksi di Sampah milik user ini saja.
+     *
+     * Dua klausa di bawah ini adalah batas keamanan, bukan sekadar filter: id
+     * dari form tidak boleh bisa menyentuh baris orang lain, dan tidak boleh
+     * menyentuh transaksi yang masih aktif.
+     */
+    private function trashedQuery(?array $ids = null)
+    {
+        $query = Transaction::onlyTrashed()->where('user_id', Auth::id());
+
+        if ($ids !== null && $ids !== []) {
+            $query->whereIn('id', $ids);
+        }
+
+        return $query->orderByDesc('deleted_at')->orderByDesc('id');
+    }
+
+    /**
+     * Hapus bukti foto dari storage. Bukti sengaja TIDAK dihapus saat soft
+     * delete justru supaya restore tidak kehilangan lampiran.
+     */
+    private function deleteReceipt(?string $path): void
+    {
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     private function storeAndOptimizeImage(UploadedFile $file): string
