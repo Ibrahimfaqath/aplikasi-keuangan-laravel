@@ -156,18 +156,6 @@ function effectiveDark(saved) {
     return saved !== 'light';
 }
 
-function syncThemeUI(saved) {
-    try {
-        document.querySelectorAll('[data-theme-option]').forEach((el) => {
-            const on = el.getAttribute('data-theme-option') === saved;
-            el.setAttribute('aria-checked', String(on));
-            el.classList.toggle('theme-opt-active', on);
-            const check = el.querySelector('[data-theme-check]');
-            if (check) check.classList.toggle('hidden', !on);
-        });
-    } catch (e) {}
-}
-
 // Dipanggil dengan mode ('light'|'dark') setelah localStorage ditulis, atau
 // TANPA argumen pada load pertama — di kasus itu partial theme-boot sudah
 // menyelesaikan mode sebelum paint, jadi kita baca dari DOM.
@@ -175,7 +163,7 @@ function syncThemeUI(saved) {
 // Penting: jangan menebak ulang dari localStorage di sini. Dulu applyTheme()
 // membaca localStorage sendiri, padahal partial sudah menyetel .dark — dua
 // sumber kebenaran. Kalau keduanya menyimpang, halaman berkedip dalam mode
-// yang salah lalu melompat (flash yang justru paling islaskan oleh boot script).
+// yang salah lalu melompat (flash yang justru paling ingin dihindari oleh boot script.
 function applyTheme(mode) {
     const root = document.documentElement;
     const isDark = mode ? mode === 'dark' : root.classList.contains('dark');
@@ -190,7 +178,6 @@ function applyTheme(mode) {
     // style.backgroundColor akan menimpa tema dan menyisakan sisa lighten.
     // Beri tahu komponen lain (mis. grafik di dashboard) agar ikut menyesuaikan
     window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
-    syncThemeUI(isDark ? 'dark' : 'light');
 }
 
 // Dipakai kontrol Appearance via onclick="window.setTheme('dark')" dsb.

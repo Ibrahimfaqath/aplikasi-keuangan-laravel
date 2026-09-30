@@ -13,31 +13,37 @@ import daisyuiThemes from 'daisyui/src/theming/themes.js';
  * tampilan gelap secara berarti.
  */
 
-// Terang. `lofi` = monokrom dengan tombol hampir hitam (#0D0D0D),
-// jadi paling dekat dengan karakter app ini. RADIUS DIPATIH 0 supaya
-// sama dengan tema gelap — kalau tidak, gaya sudut ikut berubah saat
-// user toggle tema.
-const lofi = {
-    ...daisyuiThemes.lofi,
-    '--rounded-box': '0',
-    '--rounded-btn': '0',
-    '--rounded-badge': '0',
-    '--tab-radius': '0',
+// Radius dipakai bersama oleh kedua tema. Nilai diambil dari tema `lofi`
+// bawaan daisyUI, lalu DITEBALKAN di sini (tidak diambil dengan
+// `daisyuiThemes.lofi[...]`) supaya ke dua tema dijamin sama: `black`
+// bawaannya 0 (siku) sementara `lofi` 0.25rem, dan kalau dibiarkan begitu
+// gaya sudut akan ikut berubah setiap kali user toggle tema.
+const radius = {
+    '--rounded-box': '0.25rem',
+    '--rounded-btn': '0.125rem',
+    '--rounded-badge': '0.125rem',
+    '--tab-radius': '0.125rem',
 };
 
-// Gelap. Dua koreksi penting dari tema `black` bawaan:
-//  1. base-100 > base-200 (kartu lebih TERANG dari latar).
+// Terang. `lofi` = monokrom dengan tombol hampir hitam (#0D0D0D), paling dekat
+// dengan karakter app ini.
+const lofi = {
+    ...daisyuiThemes.lofi,
+    ...radius,
+};
+
+// Gelap. Dua koreksi dari tema `black` bawaan:
+//  1. base-100 > base-200 (surface lebih TERANG dari latar).
 //     Bawaannya kebalik (#000 < #141414) sehingga kartu terlihat "tenggelam".
-//  2. Semantic color dinormalkan ke pastel yang sama dengan `lofi`.
-//     Bawaannya neon murni (#008000 / #ffff00 / #ff0000) dan mode terang
-//     akan jadi karakter yang berbeda.
+//  2. Semantic color disamakan dengan pastel `lofi`. Bawaannya neon murni
+//     (#008000 / #ffff00 / #ff0000) sehingga mode gelap jadi karakter berbeda.
 const black = {
     ...daisyuiThemes.black,
+    ...radius,
     'base-100': '#1c1c1c', // surface kartu  (sebelumnya #171717)
     'base-200': '#0d0d0d', // latar halaman (sebelumnya #0A0A0A)
     'base-300': '#2e2e2e', // border + hover (sebelumnya #333333)
     'base-content': '#e5e5e5', // teks utama    (sebelumnya #FAFAFA)
-    // Samakan dengan palet `lofi` — kalem, bukan menyala.
     info: daisyuiThemes.lofi.info,
     success: daisyuiThemes.lofi.success,
     warning: daisyuiThemes.lofi.warning,
@@ -59,23 +65,13 @@ export default {
         // purge seluruh kelas itu dan kartu kategori kehilangan warna.
         './app/**/*.php',
     ],
+    // Tidak ada `theme.extend` warna/shadow lagi. Semua permukaan, border,
+    // dan bayangan diambil dari komponen daisyUI (card, modal-box, btn, alert)
+    // atau token temanya (base-100/200/300, base-content, primary, ...).
+    // Menulis hex sendiri berarti keluar dari sistem dan hasilnya tidak
+    // konsisten antar halaman.
     theme: {
-        extend: {
-            colors: {
-                // Alias semantik monochrome agar konsisten di seluruh UI.
-                // Light: bg #FAFAFA, card #FFFFFF, text #111111
-                // Dark: bg #0A0A0A, card #171717, secondary #262626, border #333333
-                ink: {
-                    DEFAULT: '#111111',
-                    soft: '#171717',
-                    muted: '#262626',
-                },
-            },
-            boxShadow: {
-                // Shadow sangat subtle — prioritaskan border + whitespace
-                card: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
-            },
-        },
+        extend: {},
     },
     plugins: [daisyui],
     daisyui: {
