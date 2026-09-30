@@ -33,6 +33,10 @@ Thumbs.db
 
 # File tool AI eksternal
 .aider*
+# Metadata worktree/agent: berisi path absolut mesin ini, tidak berguna
+# (dan membingungkan) untuk siapa pun yang clone repo ini.
+/.agent-context
+/.agent-parent-branch
 
 # Sandbox belajar LangChain (tidak untuk deploy/produksi)
 /langchain-svc/node_modules

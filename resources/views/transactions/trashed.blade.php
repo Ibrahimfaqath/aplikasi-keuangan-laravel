@@ -172,7 +172,7 @@
                 </label>
                 <input type="text" id="emptyTrashConfirm" x-model="emptyTrashConfirm" autocomplete="off"
                        spellcheck="false" autocapitalize="characters"
-                       :placeholder="\App\Http\Controllers\TransactionController::EMPTY_TRASH_CONFIRMATION"
+                       placeholder="{{ \App\Http\Controllers\TransactionController::EMPTY_TRASH_CONFIRMATION }}"
                        class="mt-1.5 w-full px-3 py-2.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-sm text-neutral-900 dark:text-neutral-100 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
             </div>
 
