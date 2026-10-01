@@ -35,39 +35,39 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('head')
     </head>
-    <body class="font-sans text-neutral-900 dark:text-neutral-100 antialiased">
+    <body class="font-sans text-base-content antialiased">
 
-        <div class="relative min-h-screen flex flex-col overflow-hidden bg-neutral-50 dark:bg-[#0A0A0A]">
+        <div class="relative min-h-screen flex flex-col overflow-hidden bg-base-200">
 
             <!-- Latar dekoratif monokrom -->
             <div class="pointer-events-none absolute inset-0" aria-hidden="true">
                 <div class="dot-grid absolute -inset-x-4 -inset-y-4 opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_72%)]"></div>
-                <div class="absolute -top-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-neutral-200/70 dark:bg-[#262626]/50 blur-3xl"></div>
-                <div class="absolute -bottom-48 -right-28 h-[26rem] w-[26rem] rounded-full bg-neutral-200/50 dark:bg-[#262626]/30 blur-3xl"></div>
+                <div class="absolute -top-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-base-300/50 blur-3xl"></div>
+                <div class="absolute -bottom-48 -right-28 h-[26rem] w-[26rem] rounded-full bg-base-300/30 blur-3xl"></div>
             </div>
 
             <!-- Top brand -->
             <div class="relative z-10 w-full px-6 pt-7 sm:px-8">
                 <a href="/" class="inline-flex w-max items-center gap-2.5 group" aria-label="dompetku — kembali ke halaman utama">
                     <x-application-logo class="h-9 w-9 rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105" />
-                    <span class="text-base font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">dompetku</span>
+                    <span class="text-base font-extrabold tracking-tight text-base-content">dompetku</span>
                 </a>
             </div>
 
             <!-- Kartu utama -->
             <main class="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6">
                 <div class="w-full {{ $wide ? 'max-w-2xl' : 'max-w-md' }}">
-                    <div class="rounded-3xl border border-neutral-200/80 dark:border-[#262626] bg-white dark:bg-[#171717] p-6 shadow-xl shadow-neutral-900/[0.04] dark:shadow-black/40 sm:p-8">
+                    <div class="card border border-base-300 bg-base-100 p-6 shadow-xl sm:p-8">
                         @if ($title)
                             <div class="mb-6">
                                 @isset($icon)
-                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-neutral-200 dark:border-[#333333] bg-neutral-100 dark:bg-[#262626] text-neutral-900 dark:text-neutral-100">
+                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content">
                                         {{ $icon }}
                                     </div>
                                 @endisset
-                                <h1 class="text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">{{ $title }}</h1>
+                                <h1 class="text-2xl font-extrabold tracking-tight text-base-content">{{ $title }}</h1>
                                 @if ($subtitle)
-                                    <p class="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">{{ $subtitle }}</p>
+                                    <p class="mt-1.5 text-sm text-base-content/60">{{ $subtitle }}</p>
                                 @endif
                             </div>
                         @endif
@@ -78,7 +78,7 @@
             </main>
 
             <footer class="relative z-10 pb-8 text-center">
-                <p class="text-xs text-neutral-400 dark:text-neutral-500">© {{ date('Y') }} dompetku — Keuangan pribadi yang aman dan privat.</p>
+                <p class="text-xs text-base-content/40">© {{ date('Y') }} dompetku — Keuangan pribadi yang aman dan privat.</p>
             </footer>
         </div>
     </body>

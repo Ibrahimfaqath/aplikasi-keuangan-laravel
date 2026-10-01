@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-neutral-50 dark:bg-[#0A0A0A]">
+<html lang="id" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -25,7 +25,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">
+{{-- Permukaan & teks halaman sekarang berasal dari token tema daisyUI
+     (resources/css/app.css + tailwind.config.js), jadi <html>/<body> tidak
+     perlu warna manual lagi. --}}
+<body class="app-shell-content min-h-full font-sans antialiased text-base-content">
 
     <x-sidebar title="Pencadangan & Restore" :back="route('transactions.index')" minimal />
 
@@ -45,90 +48,127 @@
 
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-5 sm:p-6 mb-6">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">Cadangkan Sekarang</h2>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 mb-4">
-                Simpan seluruh database ke satu file <code class="text-neutral-700 dark:text-neutral-300">.sql</code>. Aman untuk diunduh kapan pun.
+        <section class="card bg-base-100 border border-base-300 shadow-sm p-5 sm:p-6 mb-6">
+            <h2 class="card-title text-sm font-bold uppercase tracking-wider">Cadangkan Sekarang</h2>
+            <p class="text-xs text-base-content/60 mt-0.5 mb-4">
+                Simpan seluruh database ke satu file <code class="font-mono text-base-content">.sql</code>. Aman untuk diunduh kapan pun.
             </p>
 
             <form method="POST" action="{{ route('backups.store') }}"
                   onsubmit="return confirm('Buat backup baru sekarang? Proses biasanya hanya beberapa detik.')">
                 @csrf
-                <button type="submit"
-                        class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
+                {{-- BUKAN btn-error: aksi ini menambah file baru, bukan menimpa
+                     atau menghapus data — warna merah akan menyesatkan. --}}
+                <button type="submit" class="btn btn-neutral btn-block">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>
                     Buat Backup Sekarang
                 </button>
             </form>
 
-            <p class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-3 leading-relaxed">
+            <p class="text-[11px] text-base-content/50 mt-3 leading-relaxed">
                 Otomatis: backup dibuat tiap hari pukul 03:00 WIB dan 30 file terakhir dipertahankan.
                 Pastikan <strong>cron</strong> di cPanel sudah diaktifkan — lihat <em>Petunjuk Cron</em> di bawah.
             </p>
         </section>
 
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50">File Backup</h2>
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">{{ $backups->count() }} file</span>
+        {{-- Ringkasan. `stats` untuk baris tile, `stat-title`/`stat-value` untuk
+             tipologi label/angka. Semuanya angka yang sudah ada di halaman ini
+             (jumlah file, batas retensi, sisa disk) — tidak ada data baru. --}}
+        <div class="stats stats-vertical sm:stats-horizontal w-full bg-base-100 border border-base-300 shadow-sm mb-6">
+            <div class="stat">
+                <div class="stat-title text-[11px] font-semibold uppercase tracking-wider">File tersimpan</div>
+                <div class="stat-value text-xl tabular-nums">{{ $backups->count() }}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title text-[11px] font-semibold uppercase tracking-wider">Batas retensi</div>
+                <div class="stat-value text-xl tabular-nums">{{ $retentionKeep }}</div>
+            </div>
+            <div class="stat">
+                <div class="stat-title text-[11px] font-semibold uppercase tracking-wider">Ruang disk tersisa</div>
+                <div class="stat-value text-xl tabular-nums">
+                    @if ($diskFree !== null && $diskFree !== false)
+                    {{ $humanSize((int) $diskFree) }}
+                    @else
+                    &mdash;
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <section class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-base-300">
+                <h2 class="card-title text-sm font-bold uppercase tracking-wider">File Backup</h2>
+                <span class="badge badge-ghost badge-sm font-medium">{{ $backups->count() }} file</span>
             </div>
 
-            <ul class="divide-y divide-neutral-100 dark:divide-[#262626]">
-                @forelse ($backups as $backup)
-                <li class="flex items-center gap-3 px-5 py-3">
-                    <span class="flex-shrink-0 w-9 h-9 rounded-xl bg-violet-50 text-violet-600 border border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                    </span>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-xs font-bold text-neutral-900 dark:text-neutral-50 truncate">{{ $backup['filename'] }}</p>
-                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $backup['created_at'] }} &middot; {{ $humanSize($backup['size']) }}</p>
-                    </div>
-                    <a href="{{ route('backups.download', $backup['filename']) }}"
-                       class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-[#333333] text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-[#262626] transition">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                        Unduh
-                    </a>
-                </li>
-                @empty
-                <li class="px-6 py-10 text-center">
-                    <p class="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Belum ada backup.</p>
-                    <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-1">Klik "Buat Backup Sekarang" untuk membuat file pertama.</p>
-                </li>
-                @endforelse
-            </ul>
-
-            @if ($diskFree !== null && $diskFree !== false)
-            <div class="px-5 py-3 border-t border-neutral-100 dark:border-[#262626] text-[11px] text-neutral-400 dark:text-neutral-500">
-                Ruang disk tersisa: {{ $humanSize((int) $diskFree) }}
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr class="text-[11px] uppercase tracking-wider text-base-content/50">
+                            <th>File</th>
+                            <th>Dibuat</th>
+                            <th>Ukuran</th>
+                            <th class="text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($backups as $backup)
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <span class="flex-shrink-0 w-9 h-9 rounded-box bg-info/10 text-info border border-info/20 flex items-center justify-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                    </span>
+                                    <span class="min-w-0 block text-xs font-bold text-base-content">{{ $backup['filename'] }}</span>
+                                </div>
+                            </td>
+                            <td class="text-xs text-base-content/60 whitespace-nowrap">{{ $backup['created_at'] }}</td>
+                            <td><span class="badge badge-ghost badge-sm font-semibold">{{ $humanSize($backup['size']) }}</span></td>
+                            <td class="text-right">
+                                <a href="{{ route('backups.download', $backup['filename']) }}" class="btn btn-outline btn-xs">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                                    Unduh
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="py-10 text-center">
+                                <p class="text-sm font-semibold text-base-content/60">Belum ada backup.</p>
+                                <p class="text-xs text-base-content/50 mt-1">Klik "Buat Backup Sekarang" untuk membuat file pertama.</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            @endif
         </section>
 
         <div class="grid gap-4 mt-6">
-            <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-5 sm:p-6">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50 mb-3">Petunjuk Cron Otomatis</h2>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+            <section class="card bg-base-100 border border-base-300 shadow-sm p-5 sm:p-6">
+                <h2 class="card-title text-sm font-bold uppercase tracking-wider mb-3">Petunjuk Cron Otomatis</h2>
+                <p class="text-xs text-base-content/60 leading-relaxed">
                     Backup otomatis dijalankan Laravel Scheduler lewat <strong>satu</strong> baris cron. Buka
                     <strong>cPanel &rarr; Cron Jobs</strong> lalu tambahkan:
                 </p>
-                <pre class="mt-3 p-3 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200 dark:border-[#262626] rounded-xl text-[11px] leading-relaxed overflow-x-auto text-neutral-700 dark:text-neutral-300">{{ $cronCommand }}</pre>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-3 leading-relaxed">
-                    Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Bagian <code class="text-neutral-700 dark:text-neutral-300">cd</code> wajib ada — cPanel menjalankan cron dari home directory, jadi tanpa itu <code class="text-neutral-700 dark:text-neutral-300">php artisan</code> tidak ditemukan dan backup diam-diam tidak jalan. Kode rahasia & data tidak pernah bocor — backup disimpan di <code class="text-neutral-700 dark:text-neutral-300">{{ $backupDir }}</code> (di luar area web).
+                <pre class="mt-3 p-3 bg-base-200 border border-base-300 rounded-box text-[11px] leading-relaxed overflow-x-auto font-mono text-base-content/80">{{ $cronCommand }}</pre>
+                <p class="text-xs text-base-content/60 mt-3 leading-relaxed">
+                    Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Bagian <code class="font-mono text-base-content">cd</code> wajib ada — cPanel menjalankan cron dari home directory, jadi tanpa itu <code class="font-mono text-base-content">php artisan</code> tidak ditemukan dan backup diam-diam tidak jalan. Kode rahasia & data tidak pernah bocor — backup disimpan di <code class="font-mono text-base-content">{{ $backupDir }}</code> (di luar area web).
                 </p>
             </section>
 
-            <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-5 sm:p-6">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-neutral-50 mb-3">Cara Restore</h2>
-                <ol class="list-decimal ml-5 space-y-1.5 text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                    <li>Unduh file <code class="text-neutral-800 dark:text-neutral-200">{{ $backups->first()['filename'] ?? 'dompetku-...sql' }}</code> di atas, lalu simpan salinan di tempat aman.</li>
-                    <li>Untuk pemulihan penuh buka <strong>phpMyAdmin</strong> di cPanel &rarr; database <code class="text-neutral-800 dark:text-neutral-200">almahir_keuangan</code> &rarr; tab <em>Import</em> &rarr; pilih file <code class="text-neutral-800 dark:text-neutral-200">.sql</code>.</li>
-                    <li>File backup sudah berisi <code class="text-neutral-800 dark:text-neutral-200">DROP TABLE IF EXISTS</code>, jadi aman diimpor di atas data lama.</li>
+            <section class="card bg-base-100 border border-base-300 shadow-sm p-5 sm:p-6">
+                <h2 class="card-title text-sm font-bold uppercase tracking-wider mb-3">Cara Restore</h2>
+                <ol class="list-decimal ml-5 space-y-1.5 text-xs text-base-content/70 leading-relaxed">
+                    <li>Unduh file <code class="font-mono font-semibold text-base-content">{{ $backups->first()['filename'] ?? 'dompetku-...sql' }}</code> di atas, lalu simpan salinan di tempat aman.</li>
+                    <li>Untuk pemulihan penuh buka <strong>phpMyAdmin</strong> di cPanel &rarr; database <code class="font-mono font-semibold text-base-content">almahir_keuangan</code> &rarr; tab <em>Import</em> &rarr; pilih file <code class="font-mono font-semibold text-base-content">.sql</code>.</li>
+                    <li>File backup sudah berisi <code class="font-mono font-semibold text-base-content">DROP TABLE IF EXISTS</code>, jadi aman diimpor di atas data lama.</li>
                     <li>Praktik terbaik: coba restore ke database uji di komputer lokal sebelum benar-benar butuh.</li>
                 </ol>
             </section>
         </div>
 
-        <p class="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-6 px-4 leading-relaxed">
+        <p class="text-[11px] text-base-content/50 text-center mt-6 px-4 leading-relaxed">
             Backup tersimpan maksimal {{ $retentionKeep }} file. Unduh dan simpan salinan di luar server
             (laptop/cloud) untuk perlindungan berlapis terhadap kegagalan disk.
         </p>

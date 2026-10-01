@@ -19,12 +19,12 @@
         </div>
 
         <div class="mt-6 space-y-4">
-            <x-primary-button class="w-full">
+            <x-primary-button class="btn-block">
                 {{ __('Kirim Tautan Reset') }}
             </x-primary-button>
 
-            <p class="text-center text-sm text-neutral-500 dark:text-neutral-400">
-                Sudah ingat? <a class="font-semibold text-neutral-900 hover:underline dark:text-neutral-100" href="{{ route('login') }}">Kembali ke Masuk</a>
+            <p class="text-center text-sm text-base-content/60">
+                Sudah ingat? <a class="link-hover font-semibold text-base-content hover:underline" href="{{ route('login') }}">Kembali ke Masuk</a>
             </p>
         </div>
     </form>

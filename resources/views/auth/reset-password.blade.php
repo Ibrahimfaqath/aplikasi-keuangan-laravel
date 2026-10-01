@@ -33,7 +33,7 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <x-primary-button class="w-full">
+        <x-primary-button class="btn-block">
             {{ __('Simpan Kata Sandi Baru') }}
         </x-primary-button>
     </form>

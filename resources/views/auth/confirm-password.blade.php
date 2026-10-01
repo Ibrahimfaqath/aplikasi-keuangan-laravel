@@ -16,7 +16,7 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <x-primary-button class="w-full">
+        <x-primary-button class="btn-block">
             {{ __('Konfirmasi') }}
         </x-primary-button>
     </form>

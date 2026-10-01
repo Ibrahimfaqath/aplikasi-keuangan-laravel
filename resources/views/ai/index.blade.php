@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-neutral-50 dark:bg-[#0A0A0A]">
+<html lang="id" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +8,21 @@
     @include('partials.theme-boot')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased flex flex-col">
+
+{{-- Permukaan & teks halaman sekarang berasal dari token tema daisyUI
+     (resources/css/app.css + tailwind.config.js), jadi <html>/<body> tidak
+     perlu warna manual lagi. --}}
+<body class="app-shell-content min-h-full font-sans antialiased text-base-content flex flex-col">
 
     <x-sidebar title="Asisten AI" :back="route('transactions.index')" minimal />
 
     <div class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 flex flex-col" x-data="aiFullChat()" x-init="init()">
         <!-- Header -->
-        <div class="flex items-center justify-end gap-3 mb-4 pb-4 border-b border-neutral-200 dark:border-[#333333]">
+        <div class="flex items-center justify-end gap-3 mb-4 pb-4 border-b border-base-300">
             @if(count($messages) > 0)
             <form action="{{ route('ai.clear') }}" method="POST">
                 @csrf @method('DELETE')
-                <button type="submit" class="px-3 py-1.5 bg-white dark:bg-transparent text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-[#333333] text-xs font-semibold rounded-xl hover:bg-neutral-100 dark:hover:bg-[#262626] transition">
+                <button type="submit" class="btn btn-outline btn-sm">
                     Bersihkan Riwayat
                 </button>
             </form>
@@ -26,18 +30,21 @@
         </div>
 
         <!-- Chat Box -->
+        {{-- Gelembung pesan sengaja TIDAK memakai radius tema (rounded-box
+             0.25rem) supaya siluet percakapan tetap membulat seperti aslinya;
+            Warnanya cukup lewat token surface. --}}
         <div x-ref="chatContainer" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" style="max-height: 60vh;">
             @forelse($messages as $msg)
             <div class="{{ $msg['role'] === 'user' ? 'flex justify-end' : 'flex gap-3' }}">
                 @if($msg['role'] === 'assistant')
-                <div class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
+                <div class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
                 @endif
-                <div class="{{ $msg['role'] === 'user' ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]' : 'bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-neutral-900 dark:text-neutral-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]' }}">
+                <div class="{{ $msg['role'] === 'user' ? 'bg-base-content text-base-100 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]' : 'bg-base-100 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]' }}">
                     <p class="text-sm whitespace-pre-wrap break-words">{!! nl2br(e($msg['text'])) !!}</p>
                 </div>
             </div>
             @empty
-            <div class="text-center py-12 text-neutral-400 text-sm">
+            <div class="text-center py-12 text-base-content/40 text-sm">
                 Belum ada percakapan. Ketik pesan di bawah untuk mulai!
             </div>
             @endforelse
@@ -46,12 +53,12 @@
         <!-- Area Konfirmasi Transaksi -->
         <div x-show="showConfirm"
              x-transition
-             class="mb-4 p-4 bg-white dark:bg-[#171717] border border-neutral-900 dark:border-neutral-100 rounded-2xl">
-            <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-2 flex items-center gap-1.5">
+             class="card bg-base-100 border border-base-content/40 shadow-sm p-4 mb-4">
+            <p class="card-title text-sm font-semibold mb-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 Konfirmasi Transaksi
             </p>
-            <div class="space-y-1 text-sm text-neutral-600 dark:text-neutral-300">
+            <div class="space-y-1 text-sm text-base-content/70">
                 <p><span class="font-medium">Judul:</span> <span x-text="pendingTransaction?.title"></span></p>
                 <p><span class="font-medium">Jumlah:</span> <span x-text="'Rp ' + formatNumber(pendingTransaction?.amount)"></span></p>
                 <p><span class="font-medium">Jenis:</span> <span x-text="pendingTransaction?.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span></p>
@@ -62,26 +69,31 @@
                 <button @click="confirmTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-[2.75rem] bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white text-sm font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900">
+                        class="btn btn-primary btn-sm">
                     <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <svg x-show="confirming" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    {{-- `loading loading-spinner` menggantikan SVG spinner lama; binding
+                         x-show-nya tetap sama. --}}
+                    <span x-show="confirming" class="loading loading-spinner w-4 h-4"></span>
                     <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
                 </button>
                 <button @click="cancelTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-[2.75rem] bg-white dark:bg-transparent hover:bg-neutral-100 dark:hover:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] text-sm font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
+                        class="btn btn-outline btn-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     <span>Batal</span>
                 </button>
             </div>
         </div>
 
-        <!-- Input Form -->
-        <form @submit.prevent="send()" class="flex gap-2 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] p-2 rounded-2xl shadow-sm">
+        {{-- Composer. Tetap <input type="text">, BUKAN textarea: mengganti ke
+             textarea mengubah perilaku tombol Enter (mengirim pesan), dan itu
+             di luar tujuan restyle ini. Input pakai `input-ghost` supaya tidak
+             ada border ganda di dalam card composer. --}}
+        <form @submit.prevent="send()" class="card flex-row items-center gap-2 bg-base-100 border border-base-300 shadow-sm p-2">
             <input type="text" x-model="input" placeholder="Contoh: Beli makan siang 25 ribu..."
-                   class="flex-1 px-4 py-2 bg-transparent text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none" :disabled="loading">
-            <button type="submit" :disabled="loading || !input.trim()" class="px-5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white text-sm font-semibold rounded-xl transition disabled:opacity-50">
+                   class="input input-ghost input-sm flex-1 placeholder:text-base-content/40" :disabled="loading">
+            <button type="submit" :disabled="loading || !input.trim()" class="btn btn-primary btn-sm">
                 <span x-show="!loading">Kirim</span>
                 <span x-show="loading" class="inline-block animate-pulse">•••</span>
             </button>
@@ -125,18 +137,21 @@
                 const emptyMsg = container.querySelector('.text-center');
                 if (emptyMsg) emptyMsg.remove();
 
+                // Kelas di string HTML di bawah harus PERSIS sama dengan gelembung
+                // di Blade (dan tetap literal, bukan dirangkai), supaya pesan yang
+                // dirender server dan yang dikirim dari sini tidak berbeda tampilan.
                 if (role === 'user') {
                     div.className = 'flex justify-end';
                     div.innerHTML = `
-                        <div class="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                        <div class="bg-base-content text-base-100 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
                             <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
                         </div>
                     `;
                 } else {
                     div.className = 'flex gap-3';
                     div.innerHTML = `
-                        <div class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
-                        <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-neutral-900 dark:text-neutral-100 rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                        <div class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
+                        <div class="bg-base-100 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
                             <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
                         </div>
                     `;

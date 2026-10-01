@@ -38,13 +38,13 @@
         </div>
 
         <!-- Submit -->
-        <x-primary-button class="w-full">
+        <x-primary-button class="btn-block">
             {{ __('Daftar Gratis') }}
         </x-primary-button>
 
-        <p class="text-center text-sm text-neutral-500 dark:text-neutral-400">
+        <p class="text-center text-sm text-base-content/60">
             Sudah punya akun?
-            <a class="font-semibold text-neutral-900 hover:underline dark:text-neutral-100" href="{{ route('login') }}">Masuk</a>
+            <a class="link-hover font-semibold text-base-content hover:underline" href="{{ route('login') }}">Masuk</a>
         </p>
     </form>
 </x-guest-layout>

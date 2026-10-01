@@ -47,6 +47,17 @@
 }
 
 @layer utilities {
+    /* Tekstur titik halus untuk latar halaman publik (landing & auth).
+       Warnanya diturunkan dari token tema, bukan hex, supaya otomatis
+       mengikuti light/dark. */
+    .dot-grid {
+        background-image: radial-gradient(
+            color-mix(in oklch, var(--bc, #171717) 9%, transparent) 1px,
+            transparent 1px
+        );
+        background-size: 24px 24px;
+    }
+
     /* Ayunan kecil untuk ikon chatbot AI. */
     @keyframes bounce {
         0%,

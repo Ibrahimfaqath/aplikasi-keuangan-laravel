@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-neutral-50 dark:bg-[#0A0A0A]">
+<html lang="id" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -25,7 +25,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="app-shell-content min-h-full bg-neutral-50 dark:bg-[#0A0A0A] text-neutral-900 dark:text-neutral-100 font-sans antialiased">
+{{-- Permukaan & teks halaman sekarang berasal dari token tema daisyUI
+     (resources/css/app.css + tailwind.config.js), jadi <html>/<body> tidak
+     perlu warna manual lagi. --}}
+<body class="app-shell-content min-h-full font-sans antialiased text-base-content">
 
     <x-sidebar title="Kelola Kategori" :back="route('transactions.index')" minimal />
 
@@ -85,11 +88,16 @@
          @keydown.escape.window="if (deleteId !== null) { closeDelete() } else { closeModal() }">
 
         @if ($isDemo)
-        <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-5">
-            <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-            <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">
+        {{-- `alert` dipinjam untuk bentuk + radius-nya saja, tata letaknya tetap
+             baris (utility `flex` menimpa grid bawaan daisyUI). Warnanya lewat
+             token semantic — lihat alasannya di components/flash.blade.php:
+             modifier alert-warning/warning dicampur base-100 sehingga kontrasnya
+             pecah di mode gelap. --}}
+        <div class="alert flex items-start gap-2.5 p-3.5 mb-5 border border-warning/30 bg-warning/10 text-base-content">
+            <svg class="w-4 h-4 mt-0.5 shrink-0 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+            <p class="text-xs font-semibold text-warning">
                 Mode demo — daftar kategori hanya bisa dilihat, bukan diubah.
-                <a href="{{ route('register') }}" class="underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200">Daftar gratis</a> untuk mencoba menambah kategori.
+                <a href="{{ route('register') }}" class="link">Daftar gratis</a> untuk mencoba menambah kategori.
             </p>
         </div>
         @endif
@@ -97,62 +105,69 @@
         {{-- Judul halaman + aksi utama --}}
         <div class="flex flex-wrap items-start justify-between gap-3 mb-5">
             <div class="min-w-0">
-                <h2 class="text-lg font-bold tracking-tight text-neutral-900 dark:text-neutral-50">Kategori Transaksi</h2>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed max-w-md">
+                <h2 class="text-lg font-bold tracking-tight text-base-content">Kategori Transaksi</h2>
+                <p class="text-xs text-base-content/60 mt-1 leading-relaxed max-w-md">
                     Kategori bawaan sudah siap dipakai. Tambah kategori sendiri untuk menyesuaikan catatanmu.
                 </p>
             </div>
             @unless ($isDemo)
-            <button type="button" @click="openCreate()"
-                    class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+            <button type="button" @click="openCreate()" class="btn btn-neutral btn-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Tambah Kategori
             </button>
             @endunless
         </div>
 
-        {{-- Ringkasan --}}
+        {{-- Ringkasan. `card` untuk permukaan, `stat-title`/`stat-value`/
+             `stat-desc` untuk tipografi triplet (label / angka / catatan);
+             ukuran tetap dikunci lewat utility supaya tile tetap padat. --}}
         <div class="grid grid-cols-3 gap-2.5 mb-5">
-            <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-3.5">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Total</p>
-                <p class="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mt-1">{{ $stats['total'] }}</p>
-                <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 leading-snug">
+            <div class="card bg-base-100 border border-base-300 shadow-sm p-3.5">
+                <p class="stat-title text-[10px] font-bold uppercase tracking-wider">Total</p>
+                <p class="stat-value text-xl mt-1">{{ $stats['total'] }}</p>
+                <p class="stat-desc text-[11px] mt-0.5 leading-snug">
                     {{ $stats['total'] - $stats['custom'] }} bawaan<br>{{ $stats['custom'] }} custom
                 </p>
             </div>
-            <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-3.5">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Terpakai</p>
-                <p class="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mt-1">{{ $stats['used'] }}</p>
-                <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">dari {{ $stats['total'] }} kategori</p>
+            <div class="card bg-base-100 border border-base-300 shadow-sm p-3.5">
+                <p class="stat-title text-[10px] font-bold uppercase tracking-wider">Terpakai</p>
+                <p class="stat-value text-xl mt-1">{{ $stats['used'] }}</p>
+                <p class="stat-desc text-[11px] mt-0.5">dari {{ $stats['total'] }} kategori</p>
             </div>
-            <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-3.5">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Belum dipakai</p>
-                <p class="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mt-1">{{ $stats['unused'] }}</p>
-                <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">tanpa transaksi</p>
+            <div class="card bg-base-100 border border-base-300 shadow-sm p-3.5">
+                <p class="stat-title text-[10px] font-bold uppercase tracking-wider">Belum dipakai</p>
+                <p class="stat-value text-xl mt-1">{{ $stats['unused'] }}</p>
+                <p class="stat-desc text-[11px] mt-0.5">tanpa transaksi</p>
             </div>
         </div>
 
         {{-- Cari + saring jenis --}}
-        <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm p-3 mb-5">
+        <div class="card bg-base-100 border border-base-300 shadow-sm p-3 mb-5">
             <div class="flex flex-col sm:flex-row gap-2.5">
                 <div class="relative flex-1 min-w-0">
-                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                     <input type="text" x-model="search" placeholder="Cari kategori..." aria-label="Cari kategori"
-                           class="w-full pl-10 pr-9 py-2.5 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition">
+                           class="input input-bordered w-full pl-10 pr-9 text-xs sm:text-sm placeholder-neutral-400">
                     <button type="button" x-show="search !== ''" @click="search = ''" x-cloak
                             aria-label="Hapus pencarian"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white rounded-lg transition">
+                            class="btn btn-ghost btn-xs btn-circle absolute right-2 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
 
-                <div class="flex gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]" role="group" aria-label="Saring jenis kategori">
+                {{-- Segmented control -> `tabs tabs-boxed`. `tabs-boxed` sudah
+                     menata himself (latar base-200, radius, padding 1) dan
+                     memberi state aktif ke anaknya, jadi cabang Alpine hanya
+                     perlu menyalakan `tab-active`. Kedua cabang tetap string
+                     LITERAL — bukan dirangkai dari variabel, kalau tidak akan
+                     ikut ter-purge. --}}
+                <div class="tabs tabs-boxed w-full sm:w-auto sm:inline-grid" role="group" aria-label="Saring jenis kategori">
                     @foreach ([['key' => 'all', 'label' => 'Semua'], ['key' => 'income', 'label' => 'Masuk'], ['key' => 'expense', 'label' => 'Keluar']] as $filter)
                     <button type="button" @click="tab = '{{ $filter['key'] }}'" :aria-pressed="tab === '{{ $filter['key'] }}'"
-                            class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap"
+                            class="tab px-3 text-xs font-semibold whitespace-nowrap"
                             :class="tab === '{{ $filter['key'] }}'
-                                ? 'bg-white dark:bg-[#171717] text-neutral-900 dark:text-neutral-50 shadow-sm'
-                                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50'">
+                                ? 'tab-active'
+                                : ''">
                         {{ $filter['label'] }}
                         <span class="opacity-60" x-text="matchCount('{{ $filter['key'] }}')"></span>
                     </button>
@@ -163,18 +178,18 @@
 
         {{-- Daftar kategori --}}
         @foreach ($groups as $type => $group)
-        <section class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm overflow-hidden mb-5"
+        <section class="card bg-base-100 border border-base-300 shadow-sm overflow-hidden mb-5"
                  x-show="tab === 'all' || tab === '{{ $type }}'">
-            <div class="flex items-center gap-3 px-4 sm:px-5 py-4 border-b border-neutral-200 dark:border-[#333333]">
-                <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ $type === 'income' ? 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' }}">
+            <div class="flex items-center gap-3 px-4 sm:px-5 py-4 border-b border-base-300">
+                <span class="w-9 h-9 shrink-0 rounded-box flex items-center justify-center {{ $type === 'income' ? 'bg-success/10 text-success' : 'bg-error/10 text-error' }}">
                     <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">{!! $group['icon'] !!}</svg>
                 </span>
                 <div class="min-w-0">
-                    <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">{{ $group['title'] }}</h3>
-                    <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">{{ $group['desc'] }}</p>
+                    <h3 class="text-sm font-bold text-base-content">{{ $group['title'] }}</h3>
+                    <p class="text-[11px] text-base-content/60 mt-0.5 truncate">{{ $group['desc'] }}</p>
                 </div>
                 {{-- Tanpa pencarian cukup totalnya; saat searching tampil "cocok/total". --}}
-                <span class="ml-auto shrink-0 text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-[#262626] rounded-full px-2.5 py-1"
+                <span class="badge badge-ghost badge-sm ml-auto shrink-0 font-semibold"
                       x-text="search.trim() === '' ? countOf('{{ $type }}') : visibleCount('{{ $type }}') + '/' + countOf('{{ $type }}')"></span>
             </div>
 
@@ -182,8 +197,8 @@
                 x-show="visibleCount('{{ $type }}') > 0">
                 @foreach ($group['items'] as $item)
                 <li x-show="matches('{{ $type }}', @js($item['name']))"
-                    class="group relative flex items-start gap-3 rounded-xl border border-neutral-200 dark:border-[#262626] px-3.5 py-3 hover:border-neutral-300 dark:hover:border-[#3f3f3f] hover:bg-neutral-50 dark:hover:bg-[#1c1c1c] transition-colors">
-                    <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ \App\Support\CategoryStyle::colorClasses($item['color']) }}">
+                    class="card group flex-row items-start gap-3 bg-base-100 border border-base-300 px-3.5 py-3 hover:border-base-content/30 hover:bg-base-200 transition-colors">
+                    <span class="w-9 h-9 shrink-0 rounded-box flex items-center justify-center {{ \App\Support\CategoryStyle::colorClasses($item['color']) }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">{!! \App\Support\CategoryStyle::iconPath($item['icon']) !!}</svg>
                     </span>
 
@@ -192,7 +207,7 @@
                          sama, dan begitu kartu jadi sempit (grid makin lebar)
                          nama terpotong & tumpang tindih dengan badge. --}}
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 leading-snug line-clamp-2 break-words" title="{{ $item['name'] }}">{{ $item['name'] }}</p>
+                        <p class="text-sm font-semibold text-base-content leading-snug line-clamp-2 break-words" title="{{ $item['name'] }}">{{ $item['name'] }}</p>
 
                         <div class="mt-1 flex items-center gap-x-2 gap-y-1 flex-wrap min-w-0">
                             @php($used = $usage[$item['name']] ?? 0)
@@ -200,20 +215,20 @@
                             {{-- Dulu teks mati. Sekarang link ke /transactions yang
                                  sudah mendukung filter kategori. --}}
                             <a href="{{ route('transactions.index', ['category' => $item['name']]) }}"
-                               class="inline-flex items-center gap-0.5 text-[11px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:underline underline-offset-2 transition whitespace-nowrap"
+                               class="link inline-flex items-center gap-0.5 text-[11px] text-base-content/60 whitespace-nowrap"
                                title="Lihat {{ $used }} transaksi memakai {{ $item['name'] }}">
                                 {{ $used }} transaksi
                                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                             </a>
                             @else
-                            <span class="text-[11px] text-neutral-500 dark:text-neutral-400 whitespace-nowrap">Belum dipakai</span>
+                            <span class="text-[11px] text-base-content/60 whitespace-nowrap">Belum dipakai</span>
                             @endif
 
                             @if ($item['is_global'])
-                            <span class="inline-flex shrink-0 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-md px-1.5 py-0.5"
+                            <span class="badge badge-ghost badge-sm shrink-0 text-[10px] uppercase tracking-wider text-base-content/50"
                                   title="Kategori bawaan — selalu tersedia, tidak bisa diubah atau dihapus">Bawaan</span>
                             @else
-                            <span class="inline-flex shrink-0 text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-md px-1.5 py-0.5"
+                            <span class="badge badge-primary badge-sm shrink-0 text-[10px] uppercase tracking-wider"
                                   title="Kategori buatanmu — bisa diubah atau dihapus">Custom</span>
                             @endif
                         </div>
@@ -235,10 +250,10 @@
                                 transition-opacity">
                         {{-- Backdrop hanya di sm+: di mobile tombolnya memang
                              terlihat, jadi tidak ada yang perlu disamarkan. --}}
-                        <span class="hidden sm:block absolute inset-0 -z-10 rounded-lg bg-neutral-50 dark:bg-[#1c1c1c] group-hover:bg-neutral-100/95 dark:group-hover:bg-[#262626]/95"></span>
+                        <span class="hidden sm:block absolute inset-0 -z-10 rounded-btn bg-base-100 group-hover:bg-base-200/95"></span>
 
                         <button type="button" @click='editCategory(@js($item['id']))'
-                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-white dark:hover:bg-[#333333] rounded-lg transition"
+                                class="btn btn-ghost btn-sm btn-square text-base-content/60 hover:text-base-content"
                                 title="Ubah kategori {{ $item['name'] }}" aria-label="Ubah kategori {{ $item['name'] }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         </button>
@@ -249,7 +264,7 @@
                              lebih baik daripada diam-diam menghapus. Pengiriman
                              sungguhan dilakukan form tersembunyi #deleteForm. --}}
                         <button type="button" @click="askDelete(@js($item['id']), @js($item['name']), {{ $used }})"
-                                class="w-8 h-8 flex items-center justify-center text-neutral-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-[#333333] rounded-lg transition"
+                                class="btn btn-ghost btn-sm btn-square text-base-content/60 hover:bg-error/10 hover:text-error"
                                 title="Hapus kategori {{ $item['name'] }}" aria-label="Hapus kategori {{ $item['name'] }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-1-1h-4a2 2 0 00-1 1v3M4 7h16"/></svg>
                         </button>
@@ -266,20 +281,19 @@
              punya blok kosong sendiri, jadi mengetik kata kunci yang tidak cocok
              memunculkan dua kartu kosong identik bertumpuk dan halaman terlihat
              rusak. --}}
-        <div class="bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] rounded-2xl shadow-sm px-4 sm:px-5 py-10 text-center mb-5"
+        <div class="card items-center bg-base-100 border border-base-300 shadow-sm px-4 sm:px-5 py-10 text-center mb-5"
              x-show="totalVisible() === 0" x-cloak>
-            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-100 dark:bg-[#262626] text-neutral-400 dark:text-neutral-500">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-box bg-base-200 text-base-content/40">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
             </span>
-            <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-200 mt-3">Tidak ada kategori yang cocok</p>
-            <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">Coba kata kunci lain, atau tampilkan semua kategori lagi.</p>
-            <button type="button" @click="resetFilters()"
-                    class="mt-3 px-3.5 py-1.5 bg-white dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-[11px] font-semibold text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100 transition">
+            <p class="text-xs font-semibold text-base-content mt-3">Tidak ada kategori yang cocok</p>
+            <p class="text-[11px] text-base-content/60 mt-1">Coba kata kunci lain, atau tampilkan semua kategori lagi.</p>
+            <button type="button" @click="resetFilters()" class="btn btn-sm mt-3">
                 Tampilkan semua
             </button>
         </div>
 
-        <p class="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-6 px-4 max-w-xl mx-auto leading-relaxed">
+        <p class="text-[11px] text-base-content/50 text-center mt-6 px-4 max-w-xl mx-auto leading-relaxed">
             Kategori bawaan selalu tersedia dan tidak bisa dihapus. Menghapus kategori custom
             tidak menghapus riwayat — kategori lama tetap tersimpan pada tiap transaksi.
         </p>
@@ -287,158 +301,165 @@
         {{-- Modal tambah / ubah kategori.
              Satu form untuk dua keperluan: aksi "Tambah" buka dalam mode
              tambah (action = store), tombol ubah di tiap kartu membuka
-             mode ubah (action = update ke kategori itu). --}}
-        <div id="categoryModal" class="fixed inset-0 z-[60] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
-            <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm" @click="closeModal()"></div>
+             mode ubah (action = update ke kategori itu).
 
-            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-left shadow-sm w-full sm:max-w-md">
+             Dibangun di atas `modal`/`modal-box` daisyUI. `.modal` sudah
+             tersembunyi secara bawaan dan hanya tampil saat elementnya punya
+             kelas `modal-open`, jadi openModal()/closeModal() di <script>
+             me-toggle `modal-open` — bukan `hidden`. Id dan nama yang dipakai
+             JS tetap sama persis. `p-0` karena isi bawah sudah membawa
+             padding sendiri. --}}
+        <div id="categoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="category-modal-title">
+            <div class="modal-box p-0 sm:max-w-md">
 
-                    <div class="flex items-center justify-between p-6 border-b border-neutral-200 dark:border-[#333333]">
-                        <div class="flex items-center gap-3">
-                            {{-- Pratinjau langsung warna + ikon yang dipilih, supaya
-                                ikumu jadi terasa sebelum disimpan. --}}
-                            <span class="p-2.5 rounded-xl shrink-0" :class="appearanceClass()">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconD()"/></svg>
-                            </span>
-                            <div>
-                                <h3 id="category-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50" x-text="isEditing() ? 'Ubah Kategori' : 'Tambah Kategori'"></h3>
-                                <p class="text-xs text-neutral-500 dark:text-neutral-400" x-text="isEditing() ? 'Transaksi & anggaran lama ikut mengikuti perubahan ini.' : 'Langsung tersedia di form transaksi & asisten AI'"></p>
-                            </div>
+                <div class="flex items-center justify-between p-6 border-b border-base-300">
+                    <div class="flex items-center gap-3">
+                        {{-- Pratinjau langsung warna + ikon yang dipilih, supaya
+                            ikumu jadi terasa sebelum disimpan. --}}
+                        <span class="p-2.5 rounded-box shrink-0" :class="appearanceClass()">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconD()"/></svg>
+                        </span>
+                        <div>
+                            <h3 id="category-modal-title" class="text-base font-bold text-base-content" x-text="isEditing() ? 'Ubah Kategori' : 'Tambah Kategori'"></h3>
+                            <p class="text-xs text-base-content/60" x-text="isEditing() ? 'Transaksi & anggaran lama ikut mengikuti perubahan ini.' : 'Langsung tersedia di form transaksi & asisten AI'"></p>
                         </div>
-                        <button type="button" @click="closeModal()" aria-label="Tutup"
-                                class="text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 p-1 rounded-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
                     </div>
+                    <button type="button" @click="closeModal()" aria-label="Tutup"
+                            class="btn btn-ghost btn-sm btn-circle text-base-content/40">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
 
-                    <form :action="formAction()" method="POST" class="p-6 space-y-4">
-                        @csrf
-                        <template x-if="isEditing()"><input type="hidden" name="_method" value="PATCH"></template>
-                        <input type="hidden" name="editing_id" :value="editingId">
+                <form :action="formAction()" method="POST" class="p-6 space-y-4">
+                    @csrf
+                    <template x-if="isEditing()"><input type="hidden" name="_method" value="PATCH"></template>
+                    <input type="hidden" name="editing_id" :value="editingId">
 
-                        <div>
-                            <label for="category-name" class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Nama Kategori</label>
-                            <input type="text" name="name" id="category-name" x-model="name" value="{{ old('name') }}"
-                                   placeholder="Contoh: Jualan Online" autocomplete="off"
-                                   maxlength="50" required
-                                   class="w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border rounded-xl text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 transition"
-                                   :class="isDuplicate() || nameError
-                                       ? 'border-red-400 dark:border-red-500/60'
-                                       : 'border-neutral-300 dark:border-[#333333] focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900'">
-                            <div class="mt-1.5 min-h-[16px]">
-                                @error('name')
-                                    <p class="text-[11px] font-semibold text-red-600 dark:text-red-400">{{ $message }}</p>
-                                @else
-                                    <p x-show="isDuplicate()" x-cloak class="text-[11px] font-semibold text-red-600 dark:text-red-400">Kategori ini sudah dipakai pada jenis transaksi tersebut.</p>
-                                    <p x-show="! isDuplicate()" class="text-[11px] text-neutral-400 dark:text-neutral-500">Maksimal 50 karakter · tersisa <span x-text="50 - name.length"></span></p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div>
-                            <span class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Jenis Transaksi</span>
-                            <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]" role="radiogroup" aria-label="Jenis Transaksi">
-                                @foreach (['income' => 'Pemasukan', 'expense' => 'Pengeluaran'] as $value => $label)
-                                <label class="relative flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-white dark:has-[:checked]:bg-[#171717] has-[:checked]:text-neutral-900 dark:has-[:checked]:text-neutral-50 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50">
-                                    <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only" required>
-                                    <span class="text-xs sm:text-sm font-bold">{{ $label }}</span>
-                                </label>
-                                @endforeach
-                            </div>
-                            @error('type')
-                                <p class="text-[11px] font-semibold text-red-600 dark:text-red-400 mt-1.5">{{ $message }}</p>
+                    <div>
+                        <label for="category-name" class="block text-xs font-semibold text-base-content/70 mb-2">Nama Kategori</label>
+                        <input type="text" name="name" id="category-name" x-model="name" value="{{ old('name') }}"
+                               placeholder="Contoh: Jualan Online" autocomplete="off"
+                               maxlength="50" required
+                               class="input w-full text-sm placeholder-neutral-400"
+                               :class="isDuplicate() || nameError
+                                   ? 'input-error'
+                                   : 'input-bordered'">
+                        <div class="mt-1.5 min-h-[16px]">
+                            @error('name')
+                                <p class="text-[11px] font-semibold text-error">{{ $message }}</p>
+                            @else
+                                <p x-show="isDuplicate()" x-cloak class="text-[11px] font-semibold text-error">Kategori ini sudah dipakai pada jenis transaksi tersebut.</p>
+                                <p x-show="! isDuplicate()" class="text-[11px] text-base-content/50">Maksimal 50 karakter · tersisa <span x-text="50 - name.length"></span></p>
                             @enderror
                         </div>
+                    </div>
 
-                        {{-- Warna & ikon --}}
-                        <div>
-                            <span class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Warna</span>
-                            <div class="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Warna kategori">
-                                <template x-for="key in colorKeys" :key="key">
-                                    <button type="button" @click="color = key" :aria-pressed="color === key" role="radio"
-                                            :aria-label="'Warna ' + key"
-                                            :title="key"
-                                            class="w-7 h-7 rounded-lg flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
-                                            :class="[palette[key] || '', color === key ? 'ring-2 ring-neutral-900 dark:ring-neutral-50 ring-offset-2 dark:ring-offset-[#171717]' : '']">
-                                        <svg class="w-3.5 h-3.5" x-show="color === key" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    </button>
-                                </template>
-                            </div>
-                            <input type="hidden" name="color" :value="color">
+                    <div>
+                        <span class="block text-xs font-semibold text-base-content/70 mb-2">Jenis Transaksi</span>
+                        {{-- Radio asli (bukan button) tetap dipakai supaya nilanya
+                             ikut form; hanya tampilannya yang jadi `tab`. Warna aktif
+                             dijaga `has-[:checked]:` karena input-nya sr-only. --}}
+                        <div class="tabs tabs-boxed grid-cols-2 w-full" role="radiogroup" aria-label="Jenis Transaksi">
+                            @foreach (['income' => 'Pemasukan', 'expense' => 'Pengeluaran'] as $value => $label)
+                            <label class="tab h-10 cursor-pointer select-none text-base-content/60 hover:text-base-content has-[:checked]:bg-primary has-[:checked]:text-primary-content">
+                                <input type="radio" name="type" value="{{ $value }}" x-model="type" class="sr-only" required>
+                                <span class="text-xs sm:text-sm font-bold">{{ $label }}</span>
+                            </label>
+                            @endforeach
                         </div>
+                        @error('type')
+                            <p class="text-[11px] font-semibold text-error mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        <div>
-                            <span class="block text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-2">Ikon</span>
-                            <div class="grid grid-cols-8 gap-1 max-h-32 overflow-y-auto p-1 -m-1" role="radiogroup" aria-label="Ikon kategori">
-                                <template x-for="key in iconKeys" :key="key">
-                                    <button type="button" @click="icon = key" :aria-pressed="icon === key" role="radio"
-                                            :aria-label="'Ikon ' + key" :title="key"
-                                            class="w-8 h-8 rounded-lg flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
-                                            :class="icon === key
-                                                ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                                                : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626]'">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key]"/></svg>
-                                    </button>
-                                </template>
-                            </div>
-                            <input type="hidden" name="icon" :value="icon">
+                    {{-- Warna & ikon --}}
+                    <div>
+                        <span class="block text-xs font-semibold text-base-content/70 mb-2">Warna</span>
+                        <div class="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Warna kategori">
+                            <template x-for="key in colorKeys" :key="key">
+                                <button type="button" @click="color = key" :aria-pressed="color === key" role="radio"
+                                        :aria-label="'Warna ' + key"
+                                        :title="key"
+                                        class="btn btn-xs btn-square h-7 w-7 border-0"
+                                        :class="[palette[key] || '', color === key ? 'ring-2 ring-base-content ring-offset-2 ring-offset-base-100' : '']">
+                                    <svg class="w-3.5 h-3.5" x-show="color === key" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                </button>
+                            </template>
                         </div>
+                        <input type="hidden" name="color" :value="color">
+                    </div>
 
-                        {{-- Peringatan kalau ganti jenis akan ikut memindahkan
-                             transaksi — ini keputusan yang cukup besar, jadi
-                            harus terlihat, bukan diam-diam terjadi. --}}
-                        <div x-show="retypeWarning()" x-cloak
-                             class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3">
-                            <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
-                            <p class="text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-                                <span x-text="editingUsed > 0 ? editingUsed + ' transaksi ikut dipindahkan jenisnya.' : 'Jenis kategori akan berubah.'"></span>
-                                Riwayat nominalnya tetap sama.
-                            </p>
+                    <div>
+                        <span class="block text-xs font-semibold text-base-content/70 mb-2">Ikon</span>
+                        <div class="grid grid-cols-8 gap-1 max-h-32 overflow-y-auto p-1 -m-1" role="radiogroup" aria-label="Ikon kategori">
+                            <template x-for="key in iconKeys" :key="key">
+                                <button type="button" @click="icon = key" :aria-pressed="icon === key" role="radio"
+                                        :aria-label="'Ikon ' + key" :title="key"
+                                        class="btn btn-xs btn-square h-8 w-8"
+                                        :class="icon === key
+                                            ? 'btn-neutral'
+                                            : 'btn-ghost text-base-content/60'">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key]"/></svg>
+                                </button>
+                            </template>
                         </div>
+                        <input type="hidden" name="icon" :value="icon">
+                    </div>
 
-                        <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200 dark:border-[#333333]">
-                            <button type="button" @click="closeModal()"
-                                    class="px-4 py-2 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-50 dark:hover:bg-[#333333] transition">Batal</button>
-                            <button type="submit" :disabled="! canSubmit()"
-                                    class="px-5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
-                                    x-text="isEditing() ? 'Simpan Perubahan' : 'Simpan Kategori'"></button>
-                        </div>
-                    </form>
+                    {{-- Peringatan kalau ganti jenis akan ikut memindahkan
+                         transaksi — ini keputusan yang cukup besar, jadi
+                        harus terlihat, bukan diam-diam terjadi. --}}
+                    <div x-show="retypeWarning()" x-cloak
+                         class="alert flex items-start gap-2.5 p-3 border border-warning/30 bg-warning/10 text-base-content">
+                        <svg class="w-4 h-4 mt-0.5 shrink-0 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+                        <p class="text-[11px] font-semibold text-warning">
+                            <span x-text="editingUsed > 0 ? editingUsed + ' transaksi ikut dipindahkan jenisnya.' : 'Jenis kategori akan berubah.'"></span>
+                            Riwayat nominalnya tetap sama.
+                        </p>
+                    </div>
 
-                </div>
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-base-300">
+                        <button type="button" @click="closeModal()" class="btn btn-outline btn-sm">Batal</button>
+                        <button type="submit" :disabled="! canSubmit()"
+                                class="btn btn-neutral btn-sm disabled:opacity-40"
+                                x-text="isEditing() ? 'Simpan Perubahan' : 'Simpan Kategori'"></button>
+                    </div>
+                </form>
             </div>
+
+            {{-- Overlay + penutup klik-tubuh. `modal-backdrop` membentang penuh
+                 di dalam grid `.modal`, jadi klik di luar kotak tetap kena
+                 elemen ini (sama seperti components/modal.blade.php). --}}
+            <div class="modal-backdrop bg-neutral-950/60 backdrop-blur-sm" @click="closeModal()"></div>
         </div>
 
         {{-- Dialog konfirmasi hapus. Mengganti confirm() bawaan browser yang
-             tampilannya beda jauh dari sisa UI (dan tidak bisa di-style). --}}
-        <div id="deleteModal" class="fixed inset-0 z-[70] hidden overflow-y-auto" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title">
-            <div class="fixed inset-0 bg-neutral-900/60 dark:bg-black/70 backdrop-blur-sm" @click="closeDelete()"></div>
-            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <div class="relative w-full sm:max-w-sm rounded-2xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] text-left shadow-sm overflow-hidden">
-                    <div class="p-6">
-                        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-1-1h-4a2 2 0 00-1 1v3M4 7h16"/></svg>
-                        </span>
-                        <h3 id="delete-modal-title" class="text-base font-bold text-neutral-900 dark:text-neutral-50 mt-4">Hapus kategori ini?</h3>
-                        <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-2 leading-relaxed">
-                            <span class="font-semibold text-neutral-900 dark:text-neutral-50" x-text="deleteName"></span>
-                            akan hilang dari pilihan di form transaksi.
-                        </p>
-                        <p class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-2 leading-relaxed">
-                            <span x-show="deleteUsed > 0"
-                                  x-text="'Transaksi yang sudah tercatat (' + deleteUsed + ') tetap utuh — kategorinya tersimpan di riwayat, hanya pilihannya yang hilang.'"></span>
-                            <span x-show="deleteUsed === 0">Kategori ini belum dipakai transaksi apa pun, jadi tidak ada riwayat yang tersentuh.</span>
-                        </p>
-                    </div>
-                    <div class="flex items-center justify-end gap-3 px-6 py-4 bg-neutral-50 dark:bg-[#1c1c1c] border-t border-neutral-200 dark:border-[#333333]">
-                        <button type="button" @click="closeDelete()"
-                                class="px-4 py-2 bg-white dark:bg-[#171717] text-neutral-700 dark:text-neutral-200 border border-neutral-300 dark:border-[#333333] rounded-xl text-xs font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] transition">Batal</button>
-                        <button type="button" @click="confirmDelete()"
-                                class="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 text-white rounded-xl text-xs font-semibold shadow-sm transition">Ya, hapus</button>
-                    </div>
+             tampilannya beda jauh dari sisa UI (dan tidak bisa di-style).
+             Visibilitas lewat `modal-open`, sama seperti #categoryModal. --}}
+        <div id="deleteModal" class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-modal-title">
+            <div class="modal-box p-0 sm:max-w-sm">
+                <div class="p-6">
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-box bg-error/10 text-error">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2.25 2.25 0 0116.138 21H7.862a2.25 2.25 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </span>
+                    <h3 id="delete-modal-title" class="text-base font-bold text-base-content mt-4">Hapus kategori ini?</h3>
+                    <p class="text-xs text-base-content/70 mt-2 leading-relaxed">
+                        <span class="font-semibold text-base-content" x-text="deleteName"></span>
+                        akan hilang dari pilihan di form transaksi.
+                    </p>
+                    <p class="text-[11px] text-base-content/60 mt-2 leading-relaxed">
+                        <span x-show="deleteUsed > 0"
+                              x-text="'Transaksi yang sudah tercatat (' + deleteUsed + ') tetap utuh — kategorinya tersimpan di riwayat, hanya pilihannya yang hilang.'"></span>
+                        <span x-show="deleteUsed === 0">Kategori ini belum dipakai transaksi apa pun, jadi tidak ada riwayat yang tersentuh.</span>
+                    </p>
+                </div>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 bg-base-200 border-t border-base-300">
+                    <button type="button" @click="closeDelete()" class="btn btn-outline btn-sm">Batal</button>
+                    <button type="button" @click="confirmDelete()" class="btn btn-error btn-sm">Ya, hapus</button>
                 </div>
             </div>
+
+            <div class="modal-backdrop bg-neutral-950/60 backdrop-blur-sm" @click="closeDelete()"></div>
         </div>
     </div>
 
@@ -556,10 +577,15 @@
                     this.openModal();
                 },
 
+                // daisyUI `.modal` tersembunyi secara bawaan (pointer-events:
+                // none, opacity 0) dan baru tampil saat elementnya dapat kelas
+                // `modal-open`. Karena itu buka/tutup di sini TIDAK memakai
+                // `hidden` — hanya `modal-open`. Id tetap sama, jadi tidak ada
+                // selector yang perlu berubah.
                 openModal() {
                     const modal = document.getElementById('categoryModal');
                     if (!modal) return;
-                    modal.classList.remove('hidden');
+                    modal.classList.add('modal-open');
                     document.body.style.overflow = 'hidden';
                     const input = document.getElementById('category-name');
                     if (input) window.setTimeout(() => { input.focus(); input.select(); }, 50);
@@ -568,7 +594,7 @@
                 closeModal() {
                     const modal = document.getElementById('categoryModal');
                     if (!modal) return;
-                    modal.classList.add('hidden');
+                    modal.classList.remove('modal-open');
                     document.body.style.overflow = '';
                 },
 
@@ -624,16 +650,18 @@
                     this.deleteUsed = used;
                     const modal = document.getElementById('deleteModal');
                     if (!modal) return;
-                    modal.classList.remove('hidden');
+                    modal.classList.add('modal-open');
                     document.body.style.overflow = 'hidden';
                 },
 
                 closeDelete() {
                     const modal = document.getElementById('deleteModal');
                     if (!modal) return;
-                    modal.classList.add('hidden');
+                    modal.classList.remove('modal-open');
                     this.deleteId = null;
-                    if (document.getElementById('categoryModal').classList.contains('hidden')) {
+                    // Scroll body baru dilepas kalau #categoryModal juga sudah
+                    // tutup — dua modal ini bisa bertumpuk.
+                    if (! document.getElementById('categoryModal').classList.contains('modal-open')) {
                         document.body.style.overflow = '';
                     }
                 },
