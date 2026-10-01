@@ -5,7 +5,7 @@
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333] text-neutral-500 dark:text-neutral-400 text-xs font-semibold">
+                        <tr class="bg-base-200/40 border-b border-base-300 text-base-content/60 text-xs font-semibold">
                             <th class="py-3.5 px-4">Tanggal</th>
                             <th class="py-3.5 px-4">Bukti</th>
                             <th class="py-3.5 px-4">Keterangan</th>
@@ -14,7 +14,7 @@
                             <th class="py-3.5 px-4 text-center no-print">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-neutral-100 dark:divide-[#262626] text-xs sm:text-sm">
+                    <tbody class="divide-y divide-base-300 text-xs sm:text-sm">
                         @php
                             $items = $transactions ?? $transaksi ?? [];
                             // Soft semantic icon pills — restrained: income green, investasi violet,
@@ -25,7 +25,7 @@
                                 'orange'  => 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20',
                                 'blue'    => 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
                                 'amber'   => 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
-                                'neutral' => 'bg-neutral-100 text-neutral-600 border-neutral-200 dark:bg-[#262626] dark:text-neutral-300 dark:border-[#333333]',
+                                'neutral' => 'bg-base-300 text-base-content/70 border-base-300',
                             ];
                             $catPillMap = [
                                 'Gaji' => 'green', 'Bonus' => 'green', 'Bisnis' => 'green',
@@ -54,8 +54,8 @@
                             $defaultCat = ['path' => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/>'];
                         @endphp
                         @forelse ($items as $item)
-                        <tr class="hover:bg-neutral-50 dark:hover:bg-[#262626]/50 transition">
-                            <td class="py-4 px-4 font-medium text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
+                        <tr class="hover:bg-base-300/50 transition">
+                            <td class="py-4 px-4 font-medium text-base-content/60 whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($item->transaction_date ?? $item->created_at)->format('d M Y') }}
                             </td>
                             <td class="py-4 px-4">
@@ -64,20 +64,20 @@
                                     <a href="{{ asset('storage/' . $item->image) }}" target="_blank">
                                         <img src="{{ asset('storage/' . $item->image) }}"
                                              loading="lazy"
-                                             class="w-8 h-8 rounded-lg object-cover border border-neutral-200 dark:border-[#333333]"
+                                             class="w-8 h-8 rounded-lg object-cover border border-base-300"
                                              alt="Bukti">
                                     </a>
                                     @else
                                     {{-- Placeholder netral: kolom Bukti hanya bicara soal struk,
                                          identitas kategori sudah diwakili pill Kategori. --}}
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-neutral-200 dark:border-[#333333] text-neutral-300 dark:text-neutral-600"
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-base-300 text-base-content/50"
                                          title="Tidak ada bukti">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
                                     </div>
                                     @endif
                                 </div>
                             </td>
-                            <td class="py-4 px-4 font-semibold text-neutral-900 dark:text-neutral-50">
+                            <td class="py-4 px-4 font-semibold text-base-content">
                                 <span class="block max-w-[150px] truncate lg:max-w-[170px] xl:max-w-[240px]" title="{{ $item->title ?? $item->nama ?? $item->kategori }}">
                                     {{ $item->title ?? $item->nama ?? $item->kategori }}
                                 </span>
@@ -98,12 +98,12 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                             </td>
                             <td class="py-4 px-4 text-center no-print">
                                 <div class="inline-flex items-center gap-1">
-                                    <a href="{{ route('transactions.edit', $item->id) }}" class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-lg transition" title="Edit">
+                                    <a href="{{ route('transactions.edit', $item->id) }}" class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-base-300 rounded-lg transition" title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </a>
                                     <form action="{{ route('transactions.destroy', $item->id) }}" method="POST" class="inline">
                                         @csrf @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-[#262626] rounded-lg transition" title="Hapus">
+                                        <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-base-300 rounded-lg transition" title="Hapus">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </form>
@@ -113,11 +113,11 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                         @empty
                         <tr>
                             <td colspan="6" class="py-16 text-center">
-                                <div class="w-12 h-12 mx-auto mb-3 bg-neutral-100 dark:bg-[#262626] text-neutral-500 dark:text-neutral-400 rounded-xl flex items-center justify-center">
+                                <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-base-content/60 rounded-xl flex items-center justify-center">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
-                                <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Tidak ada transaksi</h3>
-                                <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
+                                <h3 class="text-sm font-bold text-base-content">Tidak ada transaksi</h3>
+                                <p class="text-xs text-base-content/60 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
                             </td>
                         </tr>
                         @endforelse
@@ -125,7 +125,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                 </table>
             </div>
 
-            <div class="block md:hidden divide-y divide-neutral-100 dark:divide-[#262626]">
+            <div class="block md:hidden divide-y divide-base-300">
                 @forelse ($items as $item)
                 <div class="p-4" x-data="{ open: false }">
                     <div class="flex items-center text-xs">
@@ -145,7 +145,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                         <a href="{{ asset('storage/' . $item->image) }}" target="_blank">
                             <img src="{{ asset('storage/' . $item->image) }}"
                                  loading="lazy"
-                                 class="w-12 h-12 rounded-xl object-cover border border-neutral-200 dark:border-[#333333]"
+                                 class="w-12 h-12 rounded-xl object-cover border border-base-300"
                                  alt="Bukti transaksi">
                         </a>
                         @else
@@ -156,10 +156,10 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                         @endif
 
                         <div class="flex-1 min-w-0">
-                            <p class="font-semibold text-neutral-900 dark:text-neutral-50 truncate text-sm sm:text-base">
+                            <p class="font-semibold text-base-content truncate text-sm sm:text-base">
                                 {{ $item->title ?? $item->nama ?? $item->kategori }}
                             </p>
-                            <p class="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5">
+                            <p class="text-[11px] font-medium text-base-content/60 mt-0.5">
                                 {{ $item->category ?? 'Lainnya' }}
                             </p>
                         </div>
@@ -169,7 +169,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                                data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
                                 {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                             </p>
-                            <svg class="w-4 h-4 text-neutral-400 dark:text-neutral-500 transition-transform duration-200"
+                            <svg class="w-4 h-4 text-base-content/40 transition-transform duration-200"
                                  :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
@@ -183,21 +183,21 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                          x-transition:leave="transition ease-in duration-150"
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="no-print flex items-center justify-end gap-2 pt-3 mt-3 border-t border-neutral-100 dark:border-[#262626]">
+                         class="no-print flex items-center justify-end gap-2 pt-3 mt-3 border-t border-base-300">
                         @if(!empty($item->image))
-                        <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-lg text-xs font-semibold transition">
+                        <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/80 rounded-lg text-xs font-semibold transition">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             <span>Bukti</span>
                         </a>
                         @endif
-                        <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-lg text-xs font-semibold transition">
+                        <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/80 rounded-lg text-xs font-semibold transition">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Edit</span>
                         </a>
 
                         <form action="{{ route('transactions.destroy', $item->id) }}" method="POST" class="inline">
                             @csrf @method('DELETE')
-                            <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-lg text-xs font-semibold transition">
+                            <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-lg text-xs font-semibold transition">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 <span>Hapus</span>
                             </button>
@@ -206,17 +206,17 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                 </div>
                 @empty
                 <div class="py-16 text-center">
-                    <div class="w-12 h-12 mx-auto mb-3 bg-neutral-100 dark:bg-[#262626] text-neutral-500 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-neutral-500 rounded-xl flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
-                    <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Tidak ada transaksi</h3>
-                    <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
+                    <h3 class="text-sm font-bold text-base-content">Tidak ada transaksi</h3>
+                    <p class="text-xs text-base-content/60 mt-1">Mulai catat transaksi pertamamu sekarang.</p>
                 </div>
                 @endforelse
             </div>
 
             @if(isset($transactions) && method_exists($transactions, 'links') && $transactions->hasPages())
-            <div class="px-6 py-3 border-t border-neutral-200 dark:border-[#333333] bg-neutral-50 dark:bg-[#0A0A0A]">
+            <div class="px-6 py-3 border-t border-base-300 bg-base-200">
                 {{ $transactions->links('vendor.pagination.tailwind') }}
             </div>
             @endif

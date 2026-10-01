@@ -36,8 +36,8 @@
 </script>
 
 @php
-    $sbActive = 'bg-neutral-900 text-white dark:bg-[#262626] dark:text-neutral-50 shadow-sm';
-    $sbIdle = 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50';
+    $sbActive = 'bg-base-content text-base-100 shadow-sm';
+    $sbIdle = 'text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50';
     $sbIconSvg = 'class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 
     // Berapa transaksi yang menunggu dipulihkan. Tanpa angka ini, user tidak
@@ -128,20 +128,20 @@
      x-effect="document.body.style.overflow = drawer ? 'hidden' : ''">
 
     <!-- ============ DESKTOP SIDEBAR (fixed, collapsible) ============ -->
-    <aside class="sb-aside hidden lg:flex fixed inset-y-0 left-0 z-40 w-[256px] flex-col bg-white dark:bg-[#0A0A0A] border-r border-neutral-200 dark:border-[#262626] transition-all duration-200"
+    <aside class="sb-aside hidden lg:flex fixed inset-y-0 left-0 z-40 w-[256px] flex-col bg-base-100 border-r border-base-300 transition-all duration-200"
            aria-label="Navigasi utama dompetku">
 
         <!-- Brand FIXED (tidak ikut scroll) -->
         <div class="sb-brand-row flex items-center gap-2.5 px-4 h-16 shrink-0">
             <a href="{{ route('transactions.index') }}" class="flex items-center gap-2.5 min-w-0" aria-label="dompetku — ke Dashboard">
-                <span class="w-9 h-9 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
+                <span class="w-9 h-9 rounded-xl bg-base-content text-base-100 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>
                     </svg>
                 </span>
                 <span class="sb-brand-text min-w-0">
-                    <span class="block font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 leading-tight">dompetku</span>
-                    <span class="block text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">Keuangan Pribadi</span>
+                    <span class="block font-extrabold tracking-tight text-base-content leading-tight">dompetku</span>
+                    <span class="block text-[11px] text-base-content/60 leading-tight">Keuangan Pribadi</span>
                     @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
                     <span class="sb-badge mt-1 inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
@@ -151,7 +151,7 @@
                 </span>
             </a>
         </div>
-        <div class="mx-4 border-t border-neutral-200 dark:border-[#262626] shrink-0"></div>
+        <div class="mx-4 border-t border-base-300 shrink-0"></div>
 
         <!-- SATU area scroll: nav + utilities (brand & profile fixed) -->
         <div class="sb-nav flex-1 overflow-y-auto min-h-0">
@@ -160,7 +160,7 @@
         <nav class="px-4 py-4 space-y-6" aria-label="Menu aplikasi">
             @foreach ($sbGroups as $groupLabel => $items)
             <div>
-                <p class="sb-section-label px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{{ $groupLabel }}</p>
+                <p class="sb-section-label px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">{{ $groupLabel }}</p>
                 <div class="space-y-1">
                     @foreach ($items as $item)
                         @if (($item['action'] ?? null) === 'export')
@@ -180,7 +180,7 @@
                             <span class="sb-label truncate">{{ $item['label'] }}</span>
                             @if (! empty($item['badge']))
                             <span class="sb-label shrink-0 ml-auto min-w-[22px] px-1.5 py-0.5 rounded-md text-[11px] font-bold tabular-nums text-center
-                                         {{ $item['active'] ? 'bg-white/20 dark:bg-white/15' : 'bg-neutral-200 dark:bg-[#333333] text-neutral-600 dark:text-neutral-300' }}"
+                                         {{ $item['active'] ? 'bg-base-content/10' : 'bg-base-300 text-base-content/70' }}"
                                   aria-label="{{ $item['badge'] }} transaksi menunggu dipulihkan">{{ $item['badge'] }}</span>
                             @endif
                         </a>
@@ -193,11 +193,11 @@
 
             <!-- Bottom utilities (ikut scroll bersama nav) -->
             <div class="px-4 pt-2 pb-4">
-                <p class="sb-section-label px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Utilitas</p>
+                <p class="sb-section-label px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">Utilitas</p>
                 <div class="space-y-1">
                 <button type="button" data-privacy-toggle
                         aria-label="Sembunyikan atau tampilkan saldo" title="Sembunyikan / tampilkan saldo"
-                        class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg data-lock-open class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     <svg data-lock-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     <span class="sb-label truncate" data-privacy-label>Sembunyikan Saldo</span>
@@ -205,7 +205,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" aria-label="Keluar dari akun" title="Keluar dari akun"
-                            class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                            class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span class="sb-label truncate">Keluar</span>
                     </button>
@@ -215,49 +215,49 @@
         </div>
 
         <!-- Profile fixed di bawah (tidak ikut scroll) -->
-        <div class="shrink-0 border-t border-neutral-200 dark:border-[#262626] p-3">
+        <div class="shrink-0 border-t border-base-300 p-3">
             <a href="{{ route('profile.edit') }}" title="Profil & Pengaturan"
-               class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 min-w-0">
-                <span class="w-10 h-10 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold shrink-0" aria-hidden="true">
+               class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 min-w-0">
+                <span class="w-10 h-10 rounded-xl bg-base-content text-base-100 flex items-center justify-center text-sm font-bold shrink-0" aria-hidden="true">
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </span>
                 <span class="sb-user-meta min-w-0 flex-1">
-                    <span class="block text-sm font-bold text-neutral-900 dark:text-neutral-50 truncate">{{ Auth::user()->name ?? 'Pengguna' }}</span>
-                    <span class="block text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ Auth::user()->email ?? 'Personal Account' }}</span>
+                    <span class="block text-sm font-bold text-base-content truncate">{{ Auth::user()->name ?? 'Pengguna' }}</span>
+                    <span class="block text-[11px] text-base-content/60 truncate">{{ Auth::user()->email ?? 'Personal Account' }}</span>
                 </span>
-                <svg class="w-4 h-4 shrink-0 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                <svg class="w-4 h-4 shrink-0 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
             </a>
         </div>
     </aside>
 
     <!-- ============ MOBILE TOPBAR ============ -->
-    <header class="lg:hidden sticky top-0 z-40 bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-neutral-200 dark:border-[#262626]">
+    <header class="lg:hidden sticky top-0 z-40 bg-white/90 bg-base-200/90 backdrop-blur-xl border-b border-base-300">
         <div class="flex items-center gap-2 px-4 h-16">
             <button type="button" @click="drawer = true" :aria-expanded="drawer" aria-controls="mobile-drawer"
                     aria-label="Buka menu navigasi"
-                    class="p-2 -ml-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                    class="p-2 -ml-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 
             @if ($minimal)
             <a href="{{ $back ?: route('transactions.index') }}" aria-label="Kembali"
-               class="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+               class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             </a>
-            <h1 class="flex-1 min-w-0 text-base font-bold tracking-tight text-neutral-900 dark:text-neutral-50 truncate">{{ $title }}</h1>
+            <h1 class="flex-1 min-w-0 text-base font-bold tracking-tight text-base-content truncate">{{ $title }}</h1>
             <div class="ml-auto flex items-center gap-1.5">
                 <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                        class="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
             </div>
             @else
             <a href="{{ route('transactions.index') }}" class="flex items-center gap-2 min-w-0" aria-label="dompetku — ke Dashboard">
-                <span class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
+                <span class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
                 </span>
-                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50 truncate">dompetku</span>
+                <span class="font-extrabold tracking-tight text-base-content truncate">dompetku</span>
                 @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
                 <span class="inline-flex shrink-0 items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Demo</span>
                 @endif
@@ -266,12 +266,12 @@
                 <x-notification-bell />
 
                 <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                        class="p-2 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
                 <a href="{{ route('transactions.create') }}" aria-label="Tambah transaksi"
-                   class="w-10 h-10 rounded-xl bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                   class="w-10 h-10 rounded-xl bg-base-content hover:bg-base-content/80 text-base-100 flex items-center justify-center shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16m8-8H4"/></svg>
                 </a>
             </div>
@@ -280,14 +280,14 @@
     </header>
 
     <!-- ============ DESKTOP TOPBAR ============ -->
-    <header class="hidden lg:flex sticky top-0 z-30 h-16 items-center gap-2 px-6 xl:px-8 bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-neutral-200 dark:border-[#262626]">
+    <header class="hidden lg:flex sticky top-0 z-30 h-16 items-center gap-2 px-6 xl:px-8 bg-white/90 bg-base-200/90 backdrop-blur-xl border-b border-base-300">
         <button type="button" data-sb-collapse onclick="toggleSidebarCollapse(this)"
                 aria-expanded="true" aria-label="Toggle sidebar" title="Tampilkan / sembunyikan sidebar"
-                class="p-2.5 -ml-2.5 rounded-xl text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                class="p-2.5 -ml-2.5 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
             <svg class="sb-ico-collapse w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             <svg class="sb-ico-expand w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
         </button>
-        <h1 class="text-base font-bold tracking-tight text-neutral-900 dark:text-neutral-50 truncate">{{ $title }}</h1>
+        <h1 class="text-base font-bold tracking-tight text-base-content truncate">{{ $title }}</h1>
         @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
         <span class="inline-flex items-center gap-1 rounded-lg bg-amber-100 dark:bg-amber-500/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400" title="Mode demo — data tidak bisa diubah">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>
@@ -300,7 +300,7 @@
             @endunless
 
             <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                    class="flex items-center gap-2 h-10 px-3 rounded-xl border border-neutral-200 dark:border-[#262626] bg-white dark:bg-[#171717] text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                    class="flex items-center gap-2 h-10 px-3 rounded-xl border border-base-300 bg-base-100 text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                 <svg class="w-[18px] h-[18px] hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 <svg class="w-[18px] h-[18px] block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 <span class="hidden lg:inline text-sm font-semibold">Tema</span>
@@ -320,7 +320,7 @@
              x-transition:leave-end="opacity-0"></div>
 
         <div id="mobile-drawer"
-             class="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-white dark:bg-[#0A0A0A] border-r border-neutral-200 dark:border-[#262626] shadow-sm flex flex-col overflow-y-auto"
+             class="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-base-100 border-r border-base-300 shadow-sm flex flex-col overflow-y-auto"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="-translate-x-full"
              x-transition:enter-end="translate-x-0"
@@ -328,16 +328,16 @@
              x-transition:leave-start="translate-x-0"
              x-transition:leave-end="-translate-x-full">
 
-            <div class="flex items-center gap-2.5 px-4 h-16 shrink-0 border-b border-neutral-200 dark:border-[#262626]">
-                <span class="w-8 h-8 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center shrink-0">
+            <div class="flex items-center gap-2.5 px-4 h-16 shrink-0 border-b border-base-300">
+                <span class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.273 5.625A4.483 4.483 0 0 1 5.25 4.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 3H5.25a3 3 0 0 0-2.977 2.625ZM2.273 8.625A4.483 4.483 0 0 1 5.25 7.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 6H5.25a3 3 0 0 0-2.977 2.625ZM2.273 11.625A4.483 4.483 0 0 1 5.25 10.5h13.5c1.141 0 2.183.425 2.977 1.125A3 3 0 0 0 18.75 9H5.25a3 3 0 0 0-2.977 2.625ZM5.25 12a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3v-3a3 3 0 0 0-3-3H5.25ZM15 16.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
                 </span>
-                <span class="font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">dompetku</span>
+                <span class="font-extrabold tracking-tight text-base-content">dompetku</span>
                 @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
                 <span class="inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Demo</span>
                 @endif
                 <button type="button" @click="drawer = false" aria-label="Tutup menu"
-                        class="ml-auto p-2 rounded-xl text-neutral-500 hover:bg-neutral-100 dark:hover:bg-[#262626] hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="ml-auto p-2 rounded-xl text-neutral-500 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -345,7 +345,7 @@
             <nav class="flex-1 overflow-y-auto px-4 py-4 space-y-6" aria-label="Menu aplikasi">
                 @foreach ($sbGroups as $groupLabel => $items)
                 <div>
-                    <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{{ $groupLabel }}</p>
+                    <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">{{ $groupLabel }}</p>
                     <div class="space-y-1">
                         @foreach ($items as $item)
                             @if (($item['action'] ?? null) === 'export')
@@ -364,7 +364,7 @@
                                 <span class="truncate">{{ $item['label'] }}</span>
                                 @if (! empty($item['badge']))
                                 <span class="shrink-0 ml-auto min-w-[22px] px-1.5 py-0.5 rounded-md text-[11px] font-bold tabular-nums text-center
-                                             {{ $item['active'] ? 'bg-white/20 dark:bg-white/15' : 'bg-neutral-200 dark:bg-[#333333] text-neutral-600 dark:text-neutral-300' }}"
+                                             {{ $item['active'] ? 'bg-base-content/10' : 'bg-base-300 text-base-content/70' }}"
                                       aria-label="{{ $item['badge'] }} transaksi menunggu dipulihkan">{{ $item['badge'] }}</span>
                                 @endif
                             </a>
@@ -375,7 +375,7 @@
                 @endforeach
 
                 <div>
-                    <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Tampilan</p>
+                    <p class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">Tampilan</p>
                     <div class="space-y-1">
                         <button type="button" data-privacy-toggle
                                 class="w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-semibold transition-colors duration-150 {{ $sbIdle }} text-left">
@@ -387,20 +387,20 @@
                 </div>
             </nav>
 
-            <div class="p-4 border-t border-neutral-200 dark:border-[#262626] space-y-3">
+            <div class="p-4 border-t border-base-300 space-y-3">
                 <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold shrink-0" aria-hidden="true">
+                    <span class="w-10 h-10 rounded-xl bg-base-content text-base-100 flex items-center justify-center text-sm font-bold shrink-0" aria-hidden="true">
                         {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                     </span>
                     <span class="min-w-0">
-                        <span class="block text-sm font-bold text-neutral-900 dark:text-neutral-50 truncate">{{ Auth::user()->name ?? 'Pengguna' }}</span>
-                        <span class="block text-[11px] text-neutral-500 dark:text-neutral-400 truncate">{{ Auth::user()->email ?? 'Personal Account' }}</span>
+                        <span class="block text-sm font-bold text-base-content truncate">{{ Auth::user()->name ?? 'Pengguna' }}</span>
+                        <span class="block text-[11px] text-base-content/60 truncate">{{ Auth::user()->email ?? 'Personal Account' }}</span>
                     </span>
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center justify-center gap-2 px-3 min-h-[44px] rounded-xl text-sm font-semibold bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-[#333333] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                            class="w-full flex items-center justify-center gap-2 px-3 min-h-[44px] rounded-xl text-sm font-semibold bg-base-200 text-base-content/80 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span>Keluar</span>
                     </button>

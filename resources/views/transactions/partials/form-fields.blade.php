@@ -21,19 +21,19 @@
     </div>
     @endif
 
-    <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+    <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
         Jenis Transaksi
     </label>
 
-    <div class="grid grid-cols-2 gap-1 p-1 bg-neutral-100 dark:bg-[#262626] rounded-xl border border-neutral-200 dark:border-[#333333]"
+    <div class="grid grid-cols-2 gap-1 p-1 bg-base-200 rounded-xl border border-base-300"
          role="radiogroup" aria-label="Jenis Transaksi">
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
             <input type="radio" name="type" value="income" class="sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
             <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
         </label>
 
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
             <input type="radio" name="type" value="expense" class="sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
             <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
@@ -47,14 +47,14 @@
     @enderror
 </div>
 
-<main class="bg-white dark:bg-[#171717] rounded-2xl border border-neutral-200 dark:border-[#333333] shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
+<main class="bg-base-100 rounded-2xl border border-base-300 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
 
     <div class="space-y-2">
-        <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+        <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
             Nominal Transaksi
         </label>
         <div class="relative rounded-xl shadow-sm">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500 font-bold text-base sm:text-lg">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40 font-bold text-base sm:text-lg">
                 Rp
             </div>
             <input
@@ -66,7 +66,7 @@
                 required
                 min="1"
                 step="any"
-                class="w-full pl-12 pr-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-neutral-900 dark:text-neutral-50 font-extrabold text-base sm:text-lg placeholder-neutral-300 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
+                class="w-full pl-12 pr-4 py-3 bg-base-200 border border-base-300 rounded-xl text-base-content font-extrabold text-base sm:text-lg placeholder:text-base-content/40 dark:placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
             >
         </div>
         @error('amount')
@@ -79,7 +79,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="space-y-2">
-            <label for="transaction_date" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+            <label for="transaction_date" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
                 Tanggal
             </label>
             <div class="relative">
@@ -89,9 +89,9 @@
                     id="transaction_date"
                     value="{{ $dateValue }}"
                     required
-                    class="date-field w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('transaction_date') border-red-400 @enderror"
+                    class="date-field w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('transaction_date') border-red-400 @enderror"
                 >
-                <svg class="date-field-icon pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <svg class="date-field-icon pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
             </div>
@@ -104,7 +104,7 @@
         </div>
 
         <div class="space-y-2">
-            <label for="title" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+            <label for="title" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
                 Keterangan / Judul
             </label>
             <input
@@ -114,7 +114,7 @@
                 value="{{ $titleValue }}"
                 placeholder="Contoh: Gaji Bulanan, Beli Kopi"
                 required
-                class="w-full px-4 py-3 bg-neutral-50 dark:bg-[#262626] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('title') border-red-400 @enderror"
+                class="w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('title') border-red-400 @enderror"
             >
             @error('title')
                 <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
@@ -126,7 +126,7 @@
     </div>
 
     <div class="space-y-2">
-        <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+        <label for="category" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
             Kategori
         </label>
         <input type="hidden" name="category" id="category" value="{{ $categoryValue }}">
@@ -153,8 +153,8 @@
                 $selected = $categoryValue == $cat;
                 $active = $selected ? ' active' : '';
                 return '<button type="button" data-category="' . e($cat) . '"' .
-                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-neutral-50 dark:bg-[#262626]/60 border-neutral-200 dark:border-[#333333] text-neutral-700 dark:text-neutral-200 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
-                    '<span class="w-8 h-8 rounded-lg bg-neutral-200 dark:bg-[#333333] flex items-center justify-center transition">' .
+                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-base-200/60 border-base-300 text-base-content/80 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
+                    '<span class="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center transition">' .
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                     '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
             };
@@ -184,13 +184,13 @@
     <div x-data="{ open: @json(isset($transaction) && $transaction->image) }" class="space-y-3">
         <button type="button" @click="open = !open"
                 aria-expanded="false" :aria-expanded="open.toString()"
-                class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-200 dark:border-[#333333] bg-neutral-50 dark:bg-[#262626]/50 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#262626] transition">
+                class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-base-300 bg-base-200/50 text-base-content/80 hover:bg-base-300 transition">
             <span class="flex items-center gap-2.5 min-w-0">
-                <svg class="w-4 h-4 shrink-0 text-neutral-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Fitur Lanjutan</span>
-                <span class="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500">(opsional)</span>
+                <svg class="w-4 h-4 shrink-0 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-sm font-semibold text-base-content">Fitur Lanjutan</span>
+                <span class="text-[11px] font-semibold text-base-content/40">(opsional)</span>
             </span>
-            <span class="flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
+            <span class="flex items-center gap-1 text-xs text-base-content/40">
                 <span class="hidden sm:inline">Suara · Bukti foto</span>
                 <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </span>
@@ -200,18 +200,18 @@
 
     <!-- Web Speech API Input Suara (Lokal Bawaan Browser) -->
     <div x-data="voiceInput()" class="space-y-2">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
             Input Cepat via Suara <span class="text-neutral-400 font-normal lowercase">(Bawaan Browser)</span>
         </label>
         <button type="button" @click="toggleVoice()"
-                :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-neutral-100 dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 border-neutral-200 dark:border-[#333333]'"
+                :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-base-200 text-base-content/80 border-base-300'"
                 class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
             </svg>
             <span x-text="recording ? 'Merekam... Ucapkan transaksi (mis: Beli nasi goreng 25 ribu)' : 'Mulai Catat dengan Suara'" x-cloak>Mulai Catat dengan Suara</span>
         </button>
-        <p x-show="voiceResult" x-cloak class="text-xs text-neutral-900 dark:text-neutral-100 font-semibold flex items-center gap-1">
+        <p x-show="voiceResult" x-cloak class="text-xs text-base-content font-semibold flex items-center gap-1">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
             Terdengar: <span x-text="voiceResult"></span>
         </p>
@@ -219,14 +219,14 @@
 
     <!-- Upload Gambar -->
     <div class="space-y-2">
-        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
             Upload Bukti Transaksi <span class="text-neutral-400 font-normal lowercase">(opsional)</span>
         </label>
 
         <div class="grid grid-cols-2 gap-3">
             <button type="button"
                     id="btnGallery"
-                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl border border-neutral-200 dark:border-[#333333] font-medium text-sm transition">
+                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-xl border border-base-300 font-medium text-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -235,7 +235,7 @@
 
             <button type="button"
                     id="btnCamera"
-                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-100 dark:bg-[#262626] hover:bg-neutral-200 dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl border border-neutral-200 dark:border-[#333333] font-medium text-sm transition">
+                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-xl border border-base-300 font-medium text-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -247,38 +247,38 @@
         <input type="file" name="image" id="fileInput" accept="image/*" class="hidden">
 
         <div id="dropZone"
-             class="relative border-2 border-dashed border-neutral-300 dark:border-[#333333] hover:border-neutral-900 dark:hover:border-neutral-100 rounded-xl p-6 text-center bg-neutral-50 dark:bg-[#262626]/40 hover:bg-neutral-100 dark:hover:bg-[#262626] transition cursor-pointer hidden md:block">
+             class="relative border-2 border-dashed border-base-300 hover:border-neutral-900 dark:hover:border-neutral-100 rounded-xl p-6 text-center bg-base-200/40 hover:bg-base-300 transition cursor-pointer hidden md:block">
 
             <div id="uploadPlaceholder" class="space-y-2">
-                <div class="w-12 h-12 mx-auto bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 mx-auto bg-base-content text-base-100 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                    <span class="text-neutral-900 dark:text-white font-bold">Klik</span> atau tarik gambar ke sini
+                <p class="text-xs font-semibold text-base-content/80">
+                    <span class="text-base-content font-bold">Klik</span> atau tarik gambar ke sini
                 </p>
-                <p class="text-xs text-neutral-400 dark:text-neutral-500">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
+                <p class="text-xs text-base-content/40">PNG, JPG, JPEG — maks 20MB (otomatis dikompres)</p>
             </div>
         </div>
 
         <div id="previewContainer" class="hidden">
-            <div class="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717]">
+            <div class="relative overflow-hidden rounded-xl border border-base-300 bg-base-100">
                 <img id="imagePreview" src="#" alt="Preview bukti transaksi"
-                     class="w-full max-h-80 object-contain bg-neutral-50 dark:bg-[#0A0A0A]">
-                <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-neutral-200 dark:border-[#333333]">
+                     class="w-full max-h-80 object-contain bg-base-200">
+                <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-base-300">
                     <div class="flex items-center gap-2 min-w-0">
-                        <svg class="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-base-content flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                         <div class="min-w-0">
-                            <p id="fileName" class="text-xs font-bold text-neutral-900 dark:text-neutral-100 truncate"></p>
-                            <p id="fileSize" class="text-xs text-neutral-500 dark:text-neutral-400 font-semibold"></p>
+                            <p id="fileName" class="text-xs font-bold text-base-content truncate"></p>
+                            <p id="fileSize" class="text-xs text-base-content/60 font-semibold"></p>
                         </div>
                     </div>
                     <button type="button"
                             id="removeFileBtn"
-                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-[#333333] hover:bg-neutral-900 hover:text-white dark:hover:bg-neutral-100 dark:hover:text-neutral-900 rounded-lg transition flex-shrink-0">
+                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-base-content border border-base-300 hover:bg-neutral-900 hover:text-white dark:hover:bg-neutral-100 dark:hover:text-neutral-900 rounded-lg transition flex-shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -298,18 +298,18 @@
         </div>
     </div>
 
-    <div class="sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 border-t border-neutral-200 dark:border-[#333333] bg-white dark:bg-[#171717] rounded-b-2xl"
+    <div class="sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 border-t border-base-300 bg-base-100 rounded-b-2xl"
          style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
-        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-[#262626] text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-neutral-300 dark:border-[#333333] rounded-xl text-xs sm:text-sm font-semibold transition">
+        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-base-300 rounded-xl text-xs sm:text-sm font-semibold transition">
             Batal
         </a>
         @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-        <span class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-neutral-100 dark:bg-[#262626] text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-[#333333] rounded-xl text-xs sm:text-sm font-semibold cursor-not-allowed">
+        <span class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-base-200 text-base-content/40 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold cursor-not-allowed">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
             Simpan Terkunci (Mode Demo)
         </span>
         @else
-        <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
+        <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>

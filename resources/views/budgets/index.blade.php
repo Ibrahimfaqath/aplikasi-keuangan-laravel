@@ -267,7 +267,7 @@
                         <input type="text" inputmode="numeric" id="budget-amount-input" name="amount"
                                x-model="displayAmount" @input="amount = onAmountInput($event.target.value)"
                                placeholder="0" autocomplete="off"
-                               class="input input-bordered w-full pl-10 pr-4 font-bold text-base sm:text-lg tracking-tight placeholder-neutral-300">
+                               class="input input-bordered w-full pl-10 pr-4 font-bold text-base sm:text-lg tracking-tight placeholder:text-base-content/40">
                     </div>
                     <p class="mt-1.5 text-[11px] text-base-content/50">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
                 </div>

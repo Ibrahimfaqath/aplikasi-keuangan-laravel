@@ -13,7 +13,7 @@
     <div class="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center
                 {{ ($hasActiveFilters ?? false)
                     ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
-                    : 'bg-neutral-100 dark:bg-[#262626] text-neutral-500 dark:text-neutral-400' }}">
+                    : 'bg-base-200 text-base-content/60' }}">
         @if ($hasActiveFilters ?? false)
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
         @else
@@ -22,23 +22,23 @@
     </div>
 
     @if ($hasActiveFilters ?? false)
-        <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Tidak ada yang cocok</h3>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+        <h3 class="text-sm font-bold text-base-content">Tidak ada yang cocok</h3>
+        <p class="text-xs text-base-content/60 mt-1">
             Tidak ada transaksi di Sampah yang cocok dengan filter aktif.
             Data kamu tetap aman — coba longgarkan filter untuk melihatnya.
         </p>
         <a href="{{ route('transactions.trashed') }}"
-           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-neutral-900 hover:bg-black dark:bg-neutral-100 dark:hover:bg-white dark:text-neutral-900 text-white rounded-xl text-xs font-semibold transition">
+           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs font-semibold transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             Reset filter
         </a>
     @else
-        <h3 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Sampah kosong</h3>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+        <h3 class="text-sm font-bold text-base-content">Sampah kosong</h3>
+        <p class="text-xs text-base-content/60 mt-1">
             Belum ada transaksi yang dihapus. Kalau ada, bakalan muncul di sini dan masih bisa dipulihkan.
         </p>
         <a href="{{ route('transactions.index') }}"
-           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-[#262626] dark:hover:bg-[#333333] text-neutral-700 dark:text-neutral-200 rounded-xl text-xs font-semibold transition">
+           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/80 rounded-xl text-xs font-semibold transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             Lihat transaksi
         </a>

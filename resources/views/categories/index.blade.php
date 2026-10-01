@@ -147,7 +147,7 @@
                 <div class="relative flex-1 min-w-0">
                     <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                     <input type="text" x-model="search" placeholder="Cari kategori..." aria-label="Cari kategori"
-                           class="input input-bordered w-full pl-10 pr-9 text-xs sm:text-sm placeholder-neutral-400">
+                           class="input input-bordered w-full pl-10 pr-9 text-xs sm:text-sm placeholder:text-base-content/40">
                     <button type="button" x-show="search !== ''" @click="search = ''" x-cloak
                             aria-label="Hapus pencarian"
                             class="btn btn-ghost btn-xs btn-circle absolute right-2 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content">
@@ -340,7 +340,7 @@
                         <input type="text" name="name" id="category-name" x-model="name" value="{{ old('name') }}"
                                placeholder="Contoh: Jualan Online" autocomplete="off"
                                maxlength="50" required
-                               class="input w-full text-sm placeholder-neutral-400"
+                               class="input w-full text-sm placeholder:text-base-content/40"
                                :class="isDuplicate() || nameError
                                    ? 'input-error'
                                    : 'input-bordered'">
