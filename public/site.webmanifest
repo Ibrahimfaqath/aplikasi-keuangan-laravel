@@ -1,23 +1,23 @@
 {
-    "name": "dompetku — Aplikasi Keuangan Pribadi",
-    "short_name": "dompetku",
-    "description": "Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.",
-    "lang": "id",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#f8fafc",
-    "theme_color": "#2563eb",
-    "icons": [
-        {
-            "src": "/apple-touch-icon.png",
-            "sizes": "180x180",
-            "type": "image/png"
-        },
-        {
-            "src": "/favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any"
-        }
-    ]
+  "name": "dompetku — Aplikasi Keuangan Pribadi",
+  "short_name": "dompetku",
+  "description": "Catat pemasukan, pengeluaran, dan atur anggaran bulanan dengan mudah.",
+  "lang": "id",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }
