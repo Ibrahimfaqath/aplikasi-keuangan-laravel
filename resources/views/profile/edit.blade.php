@@ -92,7 +92,7 @@
 
                 <div class="pt-3 border-t border-base-300 flex items-center gap-3">
                     @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-                    <span class="btn btn-sm cursor-not-allowed bg-base-200 text-base-content/40">
+                    <span class="btn btn-sm btn-disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         Terkunci
                     </span>
@@ -145,7 +145,7 @@
 
                 <div class="pt-3 border-t border-base-300 flex items-center gap-3">
                     @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-                    <span class="btn btn-sm cursor-not-allowed bg-base-200 text-base-content/40">
+                    <span class="btn btn-sm btn-disabled">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         Terkunci
                     </span>
@@ -175,7 +175,7 @@
                 <div class="px-3.5 py-2.5">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-base-content/60 mb-2">Tema Tampilan</span>
                     <button type="button" data-theme-toggle
-                            class="w-full flex items-center gap-3 px-3 py-2 rounded-btn text-sm font-semibold text-base-content/70 hover:bg-base-200 transition-colors text-left"
+                            class="btn btn-ghost w-full justify-start gap-3 btn-sm font-semibold"
                             aria-label="Ganti tema terang atau gelap">
                         <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         <svg class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -184,7 +184,7 @@
                 </div>
 
                 <button type="button" data-privacy-toggle
-                        class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-btn text-sm font-semibold text-base-content/70 hover:bg-base-200 transition-colors text-left"
+                        class="btn btn-ghost w-full justify-start gap-3 font-semibold"
                         aria-label="Sembunyikan atau tampilkan saldo">
                     <svg data-lock-open class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
@@ -198,7 +198,7 @@
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-btn text-sm font-semibold text-base-content/70 hover:bg-base-200 transition-colors text-left">
+                            class="btn btn-ghost w-full justify-start gap-3 font-semibold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
@@ -217,12 +217,12 @@
             <div class="p-6">
                 {{-- `alert` untuk bentuk + radius, warna netral (bukan error):
                      kartu ini memperingatkan, tombolnya yang destruktif. --}}
-                <div class="alert flex items-start gap-3 p-3 bg-base-200 border border-base-300 mb-4">
+                <div class="alert flex items-start gap-3 p-3 bg-base-100 border border-base-300 mb-4">
                     <svg class="w-4 h-4 text-base-content flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     <p class="text-xs font-medium text-base-content/70">Semua transaksi, anggaran, dan data kamu akan dihapus permanen.</p>
                 </div>
                 @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-                <span class="btn btn-sm cursor-not-allowed bg-base-200 text-base-content/40">
+                <span class="btn btn-sm btn-disabled">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     Terkunci (Mode Demo)
                 </span>

@@ -81,7 +81,7 @@
         'orange'  => 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
         'blue'    => 'border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400',
         'amber'   => 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-        'neutral' => 'border-base-300 bg-base-200 text-base-content/70',
+        'neutral' => 'border-base-300 bg-base-100 text-base-content/70',
     ];
     $catPillMap = [
         'Gaji' => 'green', 'Bonus' => 'green', 'Bisnis' => 'green',
@@ -115,7 +115,7 @@
 <div class="hidden md:block overflow-x-auto">
     <table class="table table-zebra">
         <thead>
-            <tr class="!bg-base-200 border-b border-base-300 text-base-content/60 text-xs font-semibold uppercase tracking-wider">
+            <tr class="!bg-base-100 border-b border-base-300 text-base-content/60 text-xs font-semibold uppercase tracking-wider">
                 <th class="py-3.5 pl-4 pr-0 w-10">
                     <input type="checkbox" x-model="allSelected" :indeterminate="someSelected"
                            aria-label="Pilih semua transaksi di halaman ini"
@@ -132,7 +132,7 @@
         </thead>
         <tbody class="text-xs sm:text-sm">
             @forelse ($groups as $groupName => $groupItems)
-                <tr class="!bg-base-200">
+                <tr class="!bg-base-100 border-y border-base-300">
                     <td colspan="8" class="py-2 px-4 text-[11px] font-bold uppercase tracking-wider text-base-content/60">
                         {{ $groupName }}
                     </td>
@@ -143,7 +143,7 @@
                         $amountText = \App\Services\AmountFormatter::compact($item->amount);
                         $signedAmount = ($item->type === 'income' ? '+' : '−').' '.$amountText;
                     @endphp
-                    <tr class="transition hover:!bg-base-200"
+                    <tr class="transition hover:!bg-base-300/40"
                         data-trash-item
                         data-trash-title="{{ $item->title }}"
                         data-trash-amount="{{ $signedAmount }}"
@@ -162,7 +162,7 @@
                                              alt="Bukti {{ $item->title }}">
                                     </a>
                                 @else
-                                    <div class="flex h-8 w-8 items-center justify-center rounded-box border border-dashed border-base-300 text-base-content/30" title="Tidak ada bukti">
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-box border border-dashed border-base-300 text-base-content/60" title="Tidak ada bukti">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
                                     </div>
                                 @endif
@@ -179,7 +179,7 @@
                         </td>
                         <td class="py-4 px-4 text-right font-extrabold whitespace-nowrap privacy-target {{ $item->type === 'income' ? 'text-success' : 'text-error' }}"
                             data-amount="{{ $signedAmount }}">{{ $signedAmount }}</td>
-                        <td class="py-4 px-4 font-medium text-base-content/50 whitespace-nowrap"
+                        <td class="py-4 px-4 font-medium text-base-content/60 whitespace-nowrap"
                             title="{{ $deletedAt->format('d M Y, H:i') }}">
                             <time datetime="{{ $deletedAt->toIso8601String() }}">{{ $deletedAt->diffForHumans() }}</time>
                         </td>
@@ -195,7 +195,7 @@
                                      itu `.btn` memaksa min-height 3rem dan baris
                                      tabel jadi tidak seragam. --}}
                                 @if ($isDemo)
-                                    <span class="btn btn-ghost btn-xs cursor-not-allowed bg-base-200 text-base-content/40" title="Mode demo terkunci">Pulihkan</span>
+                                    <span class="btn btn-ghost btn-xs btn-disabled" title="Mode demo terkunci">Pulihkan</span>
                                 @else
                                     <form action="{{ route('transactions.restore', $item->id) }}" method="POST" class="inline">
                                         @csrf
@@ -209,7 +209,7 @@
                                 @endif
 
                                 @if ($isDemo)
-                                    <span class="btn btn-ghost btn-xs cursor-not-allowed text-base-content/40" title="Mode demo terkunci">Hapus</span>
+                                    <span class="btn btn-ghost btn-xs cursor-not-allowed text-base-content/60" title="Mode demo terkunci">Hapus</span>
                                 @else
                                     <button type="button"
                                             @click="askForceDestroy($el)"
@@ -218,7 +218,7 @@
                                             data-amount="{{ $signedAmount }}"
                                             aria-label="Hapus permanen transaksi {{ $item->title }}"
                                             title="Hapus permanen"
-                                            class="btn btn-ghost btn-xs text-base-content/40 hover:bg-error/10 hover:text-error">
+                                            class="btn btn-ghost btn-xs text-base-content/60 hover:bg-error/10 hover:text-error">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                         Hapus
                                     </button>
@@ -253,7 +253,7 @@
      kedua meluber. --}}
 <div class="block md:hidden divide-y divide-base-300">
     @forelse ($groups as $groupName => $groupItems)
-        <div class="bg-base-200 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-base-content/60">
+        <div class="border-y border-base-300 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-base-content/60">
             {{ $groupName }}
         </div>
         @foreach ($groupItems as $item)
@@ -282,14 +282,14 @@
                  @keydown.enter.prevent="toggleSelection('{{ $item->id }}')"
                  @keydown.space.prevent="toggleSelection('{{ $item->id }}')"
                  :aria-pressed="isSelected('{{ $item->id }}') ? 'true' : 'false'"
-                 :class="isSelected('{{ $item->id }}') && 'bg-base-200 ring-2 ring-base-content rounded-box'">
+                 :class="isSelected('{{ $item->id }}') && 'bg-base-100 ring-2 ring-base-content rounded-box'">
                 <div class="flex items-center gap-3">
                     @if(! empty($item->image))
                         <a href="{{ asset('storage/' . $item->image) }}" target="_blank" rel="noopener" class="flex-shrink-0" @click.stop>
                             <img src="{{ asset('storage/' . $item->image) }}" loading="lazy" class="w-12 h-12 rounded-box object-cover border border-base-300" alt="Bukti {{ $item->title }}">
                         </a>
                     @else
-                        <div class="flex-shrink-0 w-12 h-12 rounded-box border border-dashed border-base-300 text-base-content/30 flex items-center justify-center" title="Tidak ada bukti">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-box border border-dashed border-base-300 text-base-content/60 flex items-center justify-center" title="Tidak ada bukti">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
                         </div>
                     @endif
@@ -306,7 +306,7 @@
 
                 <div class="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-base-300">
                     <time datetime="{{ $deletedAt->toIso8601String() }}"
-                          class="text-[11px] font-medium text-base-content/50"
+                          class="text-[11px] font-medium text-base-content/60"
                           title="{{ $deletedAt->format('d M Y, H:i') }}">
                         Dihapus {{ $deletedAt->diffForHumans() }}
                     </time>
@@ -315,8 +315,8 @@
                          membalik pilihan, itu akan terasa seperti bug. --}}
                     <div class="inline-flex items-center gap-2" @click.stop>
                         @if ($isDemo)
-                            <span class="btn btn-ghost btn-xs cursor-not-allowed bg-base-200 text-base-content/40" title="Mode demo terkunci">Pulihkan</span>
-                            <span class="btn btn-ghost btn-xs cursor-not-allowed text-base-content/40" title="Mode demo terkunci">Hapus</span>
+                            <span class="btn btn-ghost btn-xs btn-disabled" title="Mode demo terkunci">Pulihkan</span>
+                            <span class="btn btn-ghost btn-xs cursor-not-allowed text-base-content/60" title="Mode demo terkunci">Hapus</span>
                         @else
                             <form action="{{ route('transactions.restore', $item->id) }}" method="POST" class="inline">
                                 @csrf
@@ -332,7 +332,7 @@
                                     data-title="{{ $item->title }}"
                                     data-amount="{{ $signedAmount }}"
                                     aria-label="Hapus permanen transaksi {{ $item->title }}"
-                                    class="btn btn-ghost btn-xs text-base-content/40 hover:bg-error/10 hover:text-error">
+                                    class="btn btn-ghost btn-xs text-base-content/60 hover:bg-error/10 hover:text-error">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                                 Hapus
                             </button>
@@ -354,9 +354,9 @@
      di daisyUI v4 (lihat daftar kelas terverifikasi), dan tautan di dalamnya
      harus tetap berupa <a> asli supaya mesin filter di app.js bisa menangkap
      klik lewat delegasi di #riwayat. Yang dipinjam hanya permukaan footer:
-     bg-base-200 + border-base-300. --}}
+     bg-base-100 + border-base-300. --}}
 @if ($paginator && method_exists($paginator, 'links') && $paginator->hasPages())
-    <div class="px-6 py-3 border-t border-base-300 bg-base-200">
+    <div class="px-6 py-3 border-t border-base-300">
         {{ $paginator->links('vendor.pagination.tailwind') }}
     </div>
 @endif

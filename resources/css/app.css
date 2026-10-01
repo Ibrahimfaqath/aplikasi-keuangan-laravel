@@ -15,7 +15,17 @@
  */
 
 @layer base {
-    /* Latar halaman mengikuti tema daisyUI (base-200).
+    /* Latar halaman HITAM PENUH (base-100), bukan base-200.
+
+       Permintaan: tidak ada lagi warna abu-abu sebagai bidang. Pemisahan
+       antar bagian entrusted ke GARIS RATIS (border-base-300), bukan ke
+       isian abu. Efeknya kartu, sidebar, dan halaman semuanya hitam pekat
+       dan yang membedakan hanya garis tipis -- terlihat lebih bersih dan
+       tidak "berabu".
+
+       base-200 daisyUI (#141414) sengaja tidak dipakai sebagai latar:
+       önceleng fill abu tipis di layar OLED, dan itulah yang bikin halaman
+       terasa tidak nyaman dilihat.
 
        PENTING: daisyUI base menyetel background di `:root, [data-theme]`
        dengan spesifisitas (0,1,0). Aturan `html { ... }` (0,0,1) KALAH di
@@ -25,7 +35,7 @@
        jaring pengaman bila data-theme somehow belum terpasang. */
     :root,
     :root[data-theme] {
-        @apply bg-base-200;
+        @apply bg-base-100;
     }
 
     /* Sembunyikan elemen Alpine sebelum diinisialisasi (mencegah flash) */
@@ -92,8 +102,13 @@ html .sb-link {
    utama, dan avatar, jadi di sini disamakan supaya sidebar tidak jadi satu
   -satunya tempat dengan gaya active yang berbeda. */
 .menu li > .active {
-    background-color: var(--bc);
-    color: var(--b1);
+    /* Item menu aktif TIDAK memakai isian base-content: di tema `black` itu
+       abu terang (#d6d6d6) dan jadi blok paling "berabu" di seluruh sidebar.
+       Diganti angkat-gesit halus (base-300) + garis aksen kiri + teks
+       terang -- tetap jelas aktif, tapi Warnanya menyatu dengan hitam. */
+    background-color: var(--b3);
+    color: var(--bc);
+    box-shadow: inset 2px 0 0 0 var(--bc);
 }
 
 @media (min-width: 1024px) {

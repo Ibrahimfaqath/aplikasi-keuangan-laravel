@@ -65,7 +65,7 @@
                 </button>
             </form>
 
-            <p class="text-[11px] text-base-content/50 mt-3 leading-relaxed">
+            <p class="text-[11px] text-base-content/60 mt-3 leading-relaxed">
                 Otomatis: backup dibuat tiap hari pukul 03:00 WIB dan 30 file terakhir dipertahankan.
                 Pastikan <strong>cron</strong> di cPanel sudah diaktifkan — lihat <em>Petunjuk Cron</em> di bawah.
             </p>
@@ -104,7 +104,7 @@
             <div class="overflow-x-auto">
                 <table class="table table-zebra">
                     <thead>
-                        <tr class="text-[11px] uppercase tracking-wider text-base-content/50">
+                        <tr class="text-[11px] uppercase tracking-wider text-base-content/60">
                             <th>File</th>
                             <th>Dibuat</th>
                             <th>Ukuran</th>
@@ -135,7 +135,7 @@
                         <tr>
                             <td colspan="4" class="py-10 text-center">
                                 <p class="text-sm font-semibold text-base-content/60">Belum ada backup.</p>
-                                <p class="text-xs text-base-content/50 mt-1">Klik "Buat Backup Sekarang" untuk membuat file pertama.</p>
+                                <p class="text-xs text-base-content/60 mt-1">Klik "Buat Backup Sekarang" untuk membuat file pertama.</p>
                             </td>
                         </tr>
                         @endforelse
@@ -151,7 +151,7 @@
                     Backup otomatis dijalankan Laravel Scheduler lewat <strong>satu</strong> baris cron. Buka
                     <strong>cPanel &rarr; Cron Jobs</strong> lalu tambahkan:
                 </p>
-                <pre class="mt-3 p-3 bg-base-200 border border-base-300 rounded-box text-[11px] leading-relaxed overflow-x-auto font-mono text-base-content/80">{{ $cronCommand }}</pre>
+                <pre class="mt-3 p-3 bg-base-100 border border-base-300 rounded-box text-[11px] leading-relaxed overflow-x-auto font-mono text-base-content/80">{{ $cronCommand }}</pre>
                 <p class="text-xs text-base-content/60 mt-3 leading-relaxed">
                     Jadwal harian 03:00 WIB akan dipicu sendiri oleh baris ini. Bagian <code class="font-mono text-base-content">cd</code> wajib ada — cPanel menjalankan cron dari home directory, jadi tanpa itu <code class="font-mono text-base-content">php artisan</code> tidak ditemukan dan backup diam-diam tidak jalan. Kode rahasia & data tidak pernah bocor — backup disimpan di <code class="font-mono text-base-content">{{ $backupDir }}</code> (di luar area web).
                 </p>
@@ -168,7 +168,7 @@
             </section>
         </div>
 
-        <p class="text-[11px] text-base-content/50 text-center mt-6 px-4 leading-relaxed">
+        <p class="text-[11px] text-base-content/60 text-center mt-6 px-4 leading-relaxed">
             Backup tersimpan maksimal {{ $retentionKeep }} file. Unduh dan simpan salinan di luar server
             (laptop/cloud) untuk perlindungan berlapis terhadap kegagalan disk.
         </p>

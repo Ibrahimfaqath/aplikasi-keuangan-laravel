@@ -64,7 +64,7 @@
                     Tindakan ini tidak bisa dibatalkan — transaksi dan bukti fotonya langsung hilang dari Sampah.
                 </p>
 
-                <div class="mt-4 p-3 rounded-box bg-base-200 border border-base-300">
+                <div class="mt-4 p-3 rounded-box bg-base-100 border border-base-300">
                     <p class="font-semibold text-sm text-base-content truncate" x-text="forceTarget ? forceTarget.title : ''"></p>
                     {{-- Kelas di :class tetap LITERAL per cabang. Kalau dirangkai,
                          Tailwind tidak pernah memindainya dan warnanya hilang. --}}
@@ -73,12 +73,12 @@
                        x-text="forceTarget ? forceTarget.amount : ''"></p>
                 </div>
 
-                <p class="mt-3 text-[11px] text-base-content/50">
+                <p class="mt-3 text-[11px] text-base-content/60">
                     Kalau ternyata tidak sengaja, mending <span class="font-semibold text-base-content/70">Pulihkan</span> &mdash; datamu tetap ada di Sampah.
                 </p>
             </div>
 
-            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300 bg-base-200">
+            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300">
                 <button type="button" x-on:click="$dispatch('close-modal', 'konfirmasi-hapus-permanen')"
                         class="btn btn-outline btn-sm">
                     Batal
@@ -111,7 +111,7 @@
                     Transaksi dan bukti fotonya langsung hilang dari Sampah, dan tidak bisa dipulihkan lagi.
                 </p>
 
-                <div class="mt-4 max-h-40 overflow-y-auto rounded-box bg-base-200 border border-base-300 divide-y divide-base-300">
+                <div class="mt-4 max-h-40 overflow-y-auto rounded-box bg-base-100 border border-base-300 divide-y divide-base-300">
                     <template x-for="item in selectedItems" :key="item.id">
                         <div class="flex items-center justify-between gap-3 px-3 py-2">
                             <span class="text-xs font-medium text-base-content/70 truncate" x-text="item.title"></span>
@@ -121,7 +121,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300 bg-base-200">
+            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300">
                 <button type="button" x-on:click="$dispatch('close-modal', 'konfirmasi-hapus-terpilih')"
                         class="btn btn-outline btn-sm">
                     Batal
@@ -165,7 +165,7 @@
                        class="input input-bordered w-full mt-1.5">
             </div>
 
-            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300 bg-base-200">
+            <div class="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 border-t border-base-300">
                 <button type="button" x-on:click="$dispatch('close-modal', 'kosongkan-sampah'); emptyTrashConfirm = ''"
                         class="btn btn-outline btn-sm">
                     Batal
@@ -244,7 +244,7 @@
                     <p class="{{ $statLabel }}">Di Sampah</p>
                     <p class="{{ $statClass }} text-base-content">{{ $transactions->total() }} transaksi</p>
                     @if ($hasActiveFilters)
-                        <p class="stat-desc mt-0.5 text-[11px] text-base-content/50">sesuai filter aktif</p>
+                        <p class="stat-desc mt-0.5 text-[11px] text-base-content/60">sesuai filter aktif</p>
                     @endif
                 </div>
                 <div class="stat min-w-0 py-4 px-0 sm:px-4 sm:py-0">
@@ -273,11 +273,11 @@
                      resources/js/app.js membacanya dengan document.getElementById. --}}
                 <div class="lg:col-span-3 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi di Sampah</label>
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/60">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari di Sampah..." autocomplete="off"
-                           class="input input-bordered h-10 w-full pl-11 text-sm placeholder:text-base-content/40">
+                           class="input input-bordered h-10 w-full pl-11 text-sm placeholder:text-base-content/60">
                 </div>
 
                 {{-- Tipe memakai segoup radio asli, sama seperti di /transactions:
@@ -290,7 +290,7 @@
                 <div class="lg:col-span-4">
                     <fieldset>
                         <legend class="sr-only">Filter berdasarkan tipe transaksi</legend>
-                        <div class="tabs tabs-boxed grid-cols-3 h-10 w-full" role="group">
+                        <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-3 h-10 w-full" role="group">
                             @php
                                 $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
                                 $currentType = (string) request('type', '');
@@ -301,7 +301,7 @@
                                      lebih dari satu tab sekaligus. --}}
                                 @php $typeId = 'trashType'.($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
                                 <label for="{{ $typeId }}"
-                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
+                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
                                            class="sr-only" @checked($currentType === (string) $typeValue)
                                            onchange="applyFilters()">
@@ -369,7 +369,7 @@
                         {{-- Satu-satunya aksi tanpa pilih-items, jadi yang paling
                              berbahaya. Tombolnya sengaja dibuat kecil dan redup. --}}
                         <button type="button" @click="openEmptyTrash()"
-                                class="btn btn-ghost btn-sm text-base-content/40 hover:bg-error/10 hover:text-error">
+                                class="btn btn-ghost btn-sm text-base-content/60 hover:bg-error/10 hover:text-error">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2.25 2.25 0 0116.138 21H7.862a2.25 2.25 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             Kosongkan
                         </button>

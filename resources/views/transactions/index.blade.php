@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-base-200"
+<html lang="id" class="h-full"
       x-data="dashboardApp()"
       x-init="initDashboard()">
 
@@ -58,7 +58,7 @@
     </style>
 </head>
 
-<body class="app-shell-content min-h-full bg-base-200 text-base-content font-sans antialiased flex flex-col">
+<body class="app-shell-content min-h-full text-base-content font-sans antialiased flex flex-col">
 
     <script>
         function dashboardApp() {
@@ -396,7 +396,7 @@
         </div>
 
         <div x-show="isLoading"
-             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 lg:border-0 rounded-2xl shadow-sm">
+             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-2xl shadow-sm">
             <div class="relative space-y-5">
                 <div class="h-3 w-20 skeleton"></div>
                 <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
@@ -406,7 +406,7 @@
                         <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                         <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 skeleton"></div>
                     </div>
-                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-200/80 bg-base-200/50 py-3 md:contents">
+                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-100/80 bg-base-100/50 py-3 md:contents">
                         <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
                             <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                             <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 skeleton"></div>
@@ -421,7 +421,7 @@
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 lg:border-0 rounded-2xl shadow-sm">
+                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-2xl shadow-sm">
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
@@ -451,7 +451,7 @@
                  dan teks rata kiri. Panel memakai `md:contents` agar kotaknya
                  meniadakan diri sendiri di desktop dan kedua anaknya kembali
                  menjadi grid item langsung (padding kolomnya yang berlaku). -->
-            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-base-300 dark:md:divide-[#333333] mt-5 pt-5 border-t border-base-300">
+            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-base-300 mt-5 pt-5 border-t border-base-300">
 
                 <div class="min-w-0 text-center md:text-left md:pr-3 lg:pr-6">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Saldo</p>
@@ -461,7 +461,7 @@
                        x-text="rupiahCompact(totalBalance)"></p>
                 </div>
 
-                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-200/80 bg-base-200/50 py-3 md:contents">
+                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-100/80 bg-base-100/50 py-3 md:contents">
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
                         <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-success privacy-target"
@@ -496,7 +496,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
 
         <!-- ANGGARAN (ringkas) -->
-        <section class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl p-4 shadow-sm">
+        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0">
                     <div class="w-8 h-8 rounded-lg bg-info/10 text-info border border-info/30 flex items-center justify-center flex-shrink-0">
@@ -550,15 +550,15 @@
                      Analisis, jadi muat tanpa dipadatkan. --}}
                 <div class="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-base-300">
                     <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-base-content/40">Batas</p>
+                        <p class="text-[11px] font-medium text-base-content/60">Batas</p>
                         <p class="mt-0.5 text-sm font-bold text-base-content break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($budget->amount) }}">{{ \App\Services\AmountFormatter::compact($budget->amount) }}</p>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-base-content/40">Terpakai</p>
+                        <p class="text-[11px] font-medium text-base-content/60">Terpakai</p>
                         <p class="mt-0.5 text-sm font-bold text-base-content break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</p>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[11px] font-medium text-base-content/40">Sisa / hari</p>
+                        <p class="text-[11px] font-medium text-base-content/60">Sisa / hari</p>
                         <p class="mt-0.5 text-sm font-bold text-base-content break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($daily) }}">{{ \App\Services\AmountFormatter::compact($daily) }}</p>
                     </div>
                 </div>
@@ -570,12 +570,12 @@
                 </p>
                 @endif
             @elseif($categoryBudgets->isNotEmpty())
-                <p class="mt-3.5 px-3 py-2.5 text-[11px] text-base-content/60 bg-base-200/40 border border-base-300 rounded-lg">
+                <p class="mt-3.5 px-3 py-2.5 text-[11px] text-base-content/60 bg-base-100/40 border border-base-300 rounded-lg">
                     {{ $categoryBudgets->count() }} anggaran per kategori aktif, belum ada batas keseluruhan —
                     <a href="{{ route('budgets.index') }}" class="font-semibold text-base-content/80 underline underline-offset-2">lanjutkan di halaman Anggaran</a>.
                 </p>
             @else
-                <div class="mt-3.5 flex items-center justify-between gap-3 rounded-lg border border-dashed border-base-300 bg-base-200/40 px-3 py-2.5">
+                <div class="mt-3.5 flex items-center justify-between gap-3 rounded-lg border border-dashed border-base-300 bg-base-100/40 px-3 py-2.5">
                     <p class="text-[11px] font-semibold text-base-content/70">Belum ada anggaran bulan ini</p>
                     <a href="{{ route('budgets.index') }}"
                        class="btn btn-primary btn-xs no-print shrink-0">
@@ -589,7 +589,7 @@
              mobile tetap pendek. Di desktop kini duduk di sebelah kanan kartu
              Anggaran, jadi grafiknya jauh lebih lega. Subjudul ikut berubah
              mengikuti tab aktif — tidak ada dua lapis judul yang mengulang info. -->
-        <section class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="min-w-0">
                     <h2 class="text-base font-semibold tracking-tight text-base-content">Analisis</h2>
@@ -599,17 +599,17 @@
                 {{-- Pola segmented control yang sama dengan baris filter:
                      `tabs tabs-boxed` menata latar, radius, dan state aktif.
                      h-8 supaya setinggi btn-sm di header kartu. --}}
-                <div class="tabs tabs-boxed grid-cols-2 h-8 no-print flex-shrink-0 self-start sm:self-auto"
+                <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-2 h-8 no-print flex-shrink-0 self-start sm:self-auto"
                      role="tablist" aria-label="Tampilan analisis">
                     <button type="button" role="tab" @click="setAnalisisTab('tren')"
                             class="tab h-full px-3 text-xs font-semibold"
-                            :class="analisisTab === 'tren' ? 'tab-active' : ''"
+                            :class="analisisTab === 'tren' ? '!bg-base-300 !text-base-content' : ''"
                             :aria-selected="analisisTab === 'tren'">
                         Tren
                     </button>
                     <button type="button" role="tab" @click="setAnalisisTab('kategori')"
                             class="tab h-full px-3 text-xs font-semibold"
-                            :class="analisisTab === 'kategori' ? 'tab-active' : ''"
+                            :class="analisisTab === 'kategori' ? '!bg-base-300 !text-base-content' : ''"
                             :aria-selected="analisisTab === 'kategori'">
                         Kategori
                     </button>
@@ -620,23 +620,23 @@
                  tombol periode yang sedang aktif. -->
             <div x-show="analisisTab === 'tren'" x-cloak>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                    <div class="tabs tabs-boxed grid-cols-3 h-8 no-print"
+                    <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-3 h-8 no-print"
                          role="tablist" aria-label="Periode grafik">
                         <button type="button" role="tab" @click="setTrendPeriod('week')"
                                 class="tab h-full px-2 text-xs font-semibold"
-                                :class="trendPeriod === 'week' ? 'tab-active' : ''"
+                                :class="trendPeriod === 'week' ? '!bg-base-300 !text-base-content' : ''"
                                 :aria-selected="trendPeriod === 'week'">
                             Minggu
                         </button>
                         <button type="button" role="tab" @click="setTrendPeriod('month')"
                                 class="tab h-full px-2 text-xs font-semibold"
-                                :class="trendPeriod === 'month' ? 'tab-active' : ''"
+                                :class="trendPeriod === 'month' ? '!bg-base-300 !text-base-content' : ''"
                                 :aria-selected="trendPeriod === 'month'">
                             Bulan
                         </button>
                         <button type="button" role="tab" @click="setTrendPeriod('year')"
                                 class="tab h-full px-2 text-xs font-semibold"
-                                :class="trendPeriod === 'year' ? 'tab-active' : ''"
+                                :class="trendPeriod === 'year' ? '!bg-base-300 !text-base-content' : ''"
                                 :aria-selected="trendPeriod === 'year'">
                             Tahun
                         </button>
@@ -649,7 +649,7 @@
 
                 <div class="h-64 sm:h-72 flex items-center justify-center skeleton"
                      x-show="isLoading">
-                    <span class="text-base-content/40 text-sm">Memuat grafik...</span>
+                    <span class="text-base-content/60 text-sm">Memuat grafik...</span>
                 </div>
 
                 <div class="h-64 sm:h-72" x-show="!isLoading">
@@ -663,7 +663,7 @@
             <div x-show="analisisTab === 'kategori'" x-cloak>
                 <div class="h-64 sm:h-72 flex items-center justify-center skeleton"
                      x-show="isLoading">
-                    <span class="text-base-content/40 text-sm">Memuat grafik...</span>
+                    <span class="text-base-content/60 text-sm">Memuat grafik...</span>
                 </div>
 
                 <div class="flex-col sm:flex-row flex items-center gap-4" x-show="!isLoading">
@@ -678,7 +678,7 @@
                                 <span class="text-xs font-bold tabular-nums text-base-content" x-text="item.pct + '%'"></span>
                             </li>
                         </template>
-                        <li x-show="categoryLegend().length === 0" class="px-2 py-4 text-center text-xs text-base-content/40">Belum ada data pengeluaran.</li>
+                        <li x-show="categoryLegend().length === 0" class="px-2 py-4 text-center text-xs text-base-content/60">Belum ada data pengeluaran.</li>
                     </ul>
                 </div>
             </div>
@@ -688,7 +688,7 @@
         </div>
 
         <div x-show="!showAnalytics" x-cloak>
-        <section class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl p-6 sm:p-8 shadow-sm text-center">
+        <section class="bg-base-100 border border-base-300 rounded-2xl p-6 sm:p-8 shadow-sm text-center">
             <div class="mx-auto w-14 h-14 rounded-2xl bg-base-content text-base-100 flex items-center justify-center">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
             </div>
@@ -704,16 +704,16 @@
                     Import CSV
                 </a>
             </div>
-            <p class="mt-4 text-xs text-base-content/40">Saldo di atas otomatis terisi setiap kamu mencatat transaksi.</p>
+            <p class="mt-4 text-xs text-base-content/60">Saldo di atas otomatis terisi setiap kamu mencatat transaksi.</p>
         </section>
         </div>
 
         <!-- FILTER -->
-        <section class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
+        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
             <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-3 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/60">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." autocomplete="off"
@@ -734,7 +734,7 @@
 
                              Pola ini identik dengan yang dipakai di /transactions/trashed
                              dan /categories — jangan dibuat ulang dengan div + peer. --}}
-                        <div class="tabs tabs-boxed grid-cols-3 h-10 w-full" role="group">
+                        <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-3 h-10 w-full" role="group">
                             @php
                                 $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
                                 $currentType = (string) request('type', '');
@@ -745,7 +745,7 @@
                                      lebih dari satu tab sekaligus. --}}
                                 @php $typeId = 'filterType' . ($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
                                 <label for="{{ $typeId }}"
-                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
+                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
                                            class="sr-only" @checked($currentType === (string) $typeValue)
                                            onchange="applyFilters()">
@@ -794,7 +794,7 @@
         </section>
 
         <!-- TABLE TRANSACTIONS -->
-        <section id="riwayat" class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl shadow-sm overflow-hidden">
+        <section id="riwayat" class="bg-base-100 border border-base-300 rounded-2xl shadow-sm overflow-hidden">
 
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-base-300">
                 <div>

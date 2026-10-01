@@ -37,7 +37,7 @@
     </head>
     <body class="font-sans text-base-content antialiased">
 
-        <div class="relative min-h-screen flex flex-col overflow-hidden bg-base-200">
+        <div class="relative min-h-screen flex flex-col overflow-hidden bg-base-100">
 
             <!-- Latar dekoratif monokrom -->
             <div class="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -61,7 +61,7 @@
                         @if ($title)
                             <div class="mb-6">
                                 @isset($icon)
-                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-base-300 bg-base-200 text-base-content">
+                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-base-300 bg-base-100 text-base-content">
                                         {{ $icon }}
                                     </div>
                                 @endisset
@@ -78,7 +78,7 @@
             </main>
 
             <footer class="relative z-10 pb-8 text-center">
-                <p class="text-xs text-base-content/40">© {{ date('Y') }} dompetku — Keuangan pribadi yang aman dan privat.</p>
+                <p class="text-xs text-base-content/60">© {{ date('Y') }} dompetku — Keuangan pribadi yang aman dan privat.</p>
             </footer>
         </div>
     </body>

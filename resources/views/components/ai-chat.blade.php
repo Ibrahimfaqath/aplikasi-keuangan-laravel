@@ -38,7 +38,7 @@
          @click.away="closeChat()">
 
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200/50">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-base-300">
             <div class="flex items-center gap-2">
                 <div class="avatar placeholder"><div class="w-8 h-8 rounded-box bg-base-content text-base-100"><span class="text-[10px] font-bold">AI</span></div></div>
                 <div>
@@ -48,14 +48,14 @@
             </div>
             <div class="flex items-center gap-1">
                 <a href="{{ route('ai.index') }}"
-                   class="p-1.5 text-base-content/40 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
+                   class="p-1.5 text-base-content/60 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
                    title="Buka Chat Penuh">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
                     </svg>
                 </a>
                 <button @click="closeChat()"
-                        class="p-1.5 text-base-content/40 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
+                        class="p-1.5 text-base-content/60 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
                         aria-label="Tutup chat">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -72,22 +72,22 @@
                     <template x-if="msg.role === 'assistant'">
                         <div class="avatar placeholder"><div class="w-7 h-7 rounded-box bg-base-content text-base-100"><span class="text-[10px] font-bold">AI</span></div></div>
                     </template>
-                    <div :class="msg.role === 'user' ? 'bg-base-content text-base-100 rounded-2xl rounded-tr-md px-3 py-2 max-w-[85%]' : 'bg-base-200 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-3 py-2 max-w-[85%]'">
+                    <div :class="msg.role === 'user' ? 'bg-base-content text-base-100 rounded-2xl rounded-tr-md px-3 py-2 max-w-[85%]' : 'bg-base-100 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-3 py-2 max-w-[85%]'">
                         <p class="text-xs whitespace-pre-wrap break-words" x-text="msg.text"></p>
                     </div>
                 </div>
             </template>
-            <div x-show="messages.length === 0" class="text-center py-8 text-base-content/40 text-xs">
-                <div class="w-10 h-10 mx-auto mb-2 bg-base-200 text-base-content/80 rounded-xl flex items-center justify-center">
+            <div x-show="messages.length === 0" class="text-center py-8 text-base-content/60 text-xs">
+                <div class="w-10 h-10 mx-auto mb-2 bg-base-100 border border-base-300 text-base-content/80 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                     </svg>
                 </div>
                 <p class="font-medium text-base-content/80">Tanya apa saja tentang keuanganmu</p>
-                <p class="text-[11px] text-base-content/40 mt-1">Contoh: "Berapa saldo saya?" atau "Catat makan 25 ribu"</p>
+                <p class="text-[11px] text-base-content/60 mt-1">Contoh: "Berapa saldo saya?" atau "Catat makan 25 ribu"</p>
             </div>
             <div x-show="loading" class="flex justify-start">
-                <div class="bg-base-200 border border-base-300 rounded-2xl rounded-tl-md px-4 py-2">
+                <div class="bg-base-100 border border-base-300 rounded-2xl rounded-tl-md px-4 py-2">
                     <span class="loading loading-dots loading-sm" role="status"></span>
                     <span class="sr-only">Asisten sedang mengetik</span>
                 </div>
@@ -97,7 +97,7 @@
         <!-- Area Konfirmasi -->
         <div x-show="showConfirm"
              x-transition
-             class="px-4 py-3 border-t border-base-300 bg-base-200/60">
+             class="px-4 py-3 border-t border-base-300">
             <p class="text-xs font-semibold text-base-content mb-2 flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 Konfirmasi Transaksi
@@ -127,7 +127,7 @@
         </div>
 
         <!-- Input -->
-        <form @submit.prevent="sendMessage()" class="flex gap-2 p-3 border-t border-base-300 bg-base-200/50">
+        <form @submit.prevent="sendMessage()" class="flex gap-2 p-3 border-t border-base-300">
             <input type="text"
                    x-model="input"
                    placeholder="Tanya atau catat transaksi..."

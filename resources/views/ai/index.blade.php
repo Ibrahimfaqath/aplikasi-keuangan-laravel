@@ -44,7 +44,7 @@
                 </div>
             </div>
             @empty
-            <div class="text-center py-12 text-base-content/40 text-sm">
+            <div class="text-center py-12 text-base-content/60 text-sm">
                 Belum ada percakapan. Ketik pesan di bawah untuk mulai!
             </div>
             @endforelse
@@ -92,7 +92,7 @@
              ada border ganda di dalam card composer. --}}
         <form @submit.prevent="send()" class="card flex-row items-center gap-2 bg-base-100 border border-base-300 shadow-sm p-2">
             <input type="text" x-model="input" placeholder="Contoh: Beli makan siang 25 ribu..."
-                   class="input input-ghost input-sm flex-1 placeholder:text-base-content/40" :disabled="loading">
+                   class="input input-ghost input-sm flex-1 placeholder:text-base-content/60" :disabled="loading">
             <button type="submit" :disabled="loading || !input.trim()" class="btn btn-primary btn-sm">
                 <span x-show="!loading">Kirim</span>
                 <span x-show="loading" class="inline-block animate-pulse">•••</span>

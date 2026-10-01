@@ -31,7 +31,7 @@
         <div class="card-body p-0 flex flex-col min-h-0">
             <div class="px-4 py-3 border-b border-base-300 flex items-center justify-between shrink-0">
                 <h2 class="card-title text-sm">Notifikasi</h2>
-                <span x-show="count > 0" class="text-[11px] font-semibold text-base-content/40">
+                <span x-show="count > 0" class="text-[11px] font-semibold text-base-content/60">
                     <span x-text="count"></span> pemberitahuan
                 </span>
             </div>
@@ -54,10 +54,10 @@
                 </template>
                 <div x-show="!loading && items.length === 0" class="px-4 py-6 text-center">
                     <p class="text-sm font-semibold text-base-content/60">Semua aman</p>
-                    <p class="text-xs text-base-content/40 mt-1">Tidak ada pengingat saat ini.</p>
+                    <p class="text-xs text-base-content/60 mt-1">Tidak ada pengingat saat ini.</p>
                 </div>
                 <div x-show="loading" class="px-4 py-6 text-center">
-                    <span class="loading loading-dots loading-sm text-base-content/40"></span>
+                    <span class="loading loading-dots loading-sm text-base-content/60"></span>
                     <p class="sr-only">Memuat…</p>
                 </div>
             </div>

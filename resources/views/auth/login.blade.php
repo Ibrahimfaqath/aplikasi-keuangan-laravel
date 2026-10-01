@@ -51,7 +51,7 @@
 
     @if (\App\Services\DemoMode::isEnabled())
     <div class="mt-6">
-        <div class="divider my-0 text-[11px] font-semibold uppercase tracking-wider text-base-content/40">atau</div>
+        <div class="divider my-0 text-[11px] font-semibold uppercase tracking-wider text-base-content/60">atau</div>
 
         <form method="POST" action="{{ route('demo.login') }}" class="mt-5">
             @csrf
@@ -61,7 +61,7 @@
                 Coba Demo Tanpa Daftar
             </button>
         </form>
-        <p class="mt-3 text-center text-xs text-base-content/40">
+        <p class="mt-3 text-center text-xs text-base-content/60">
             Masuk dengan data contoh. Tidak bisa di-ubah, aman untuk dicoba.
         </p>
     </div>

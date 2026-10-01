@@ -34,17 +34,19 @@ class DaisyUiGuardTest extends TestCase
      * harus lewat token tema (base-100/200/300, base-content, primary, ...)
      * yang otomatis benar di kedua mode.
      */
-    private const TERLARANG = [
-        'dark:bg-[#' => 'warna latar gelap ditulis sebagai hex — pakai token base-100 / base-200 / base-300',
-        'dark:text-[#' => 'warna teks gelap ditulis sebagai hex — pakai token base-content',
-        'dark:border-[#' => 'warna border gelap ditulis sebagai hex — pakai token base-300',
-        'dark:divide-[#' => 'warna pemisah gelap ditulis sebagai hex — pakai token base-300',
-        'dark:ring-[#' => 'warna ring gelap ditulis sebagai hex — pakai token base-content',
-        'dark:placeholder-[#' => 'warna placeholder gelap ditulis sebagai hex — pakai token base-content',
-        'bg-[#' => 'warna latar terang ditulis sebagai hex — pakai token base-100 / base-200',
-        'text-[#' => 'warna teks terang ditulis sebagai hex — pakai token base-content',
-        'border-[#' => 'warna border terang ditulis sebagai hex — pakai token base-300',
-    ];
+    /**
+     * Warna hex yang ditulis tangan di utilitas Tailwind mana pun.
+     *
+     * Dulu daftar ini hanya memuat `bg-[#`, `text-[#`, `border-[#` dan
+     * handful varian `dark:`. Akibatnya `divide-[#333333]` di
+     * transactions/index lolos padahal persis pelanggaran yang dimaksud --
+     * dan tidak ada satu pun punyek untuk `ring-[#`, `outline-[#`,
+     * `shadow-[#`, `from-[#`, `placeholder-[#`, dll.
+     *
+     * Sekarang satu regex menutup seluruh prefiks utilitas warna, dengan atau
+     * tanpa `dark:`.
+     */
+    private const PENOLAKAN_HEX = '/\b(?:dark:)?(?:bg|text|border|divide|ring|outline|shadow|from|via|to|decoration|accent|caret|fill|stroke|placeholder)-\[#[0-9a-fA-F]{3,8}\]/';
 
     /** Utilitas mati yang warnanya sudah diambil alih tema. */
     private const UTILITAS_MATI = [
@@ -141,34 +143,34 @@ class DaisyUiGuardTest extends TestCase
 
         foreach ($this->bladeFiles() as $path => $raw) {
             $source = $this->maskComments($raw);
+            $baris_all = explode("\n", $source);
 
-            foreach (self::TERLARANG as $pola => $alasan) {
-                $offset = 0;
+            if (! preg_match_all(self::PENOLAKAN_HEX, $source, $m, PREG_OFFSET_CAPTURE)) {
+                continue;
+            }
 
-                while (($offset = strpos($source, $pola, $offset)) !== false) {
-                    // `theme_color` di <meta> bukan gaya dan memang boleh hex.
-                    $baris = $this->locate($source, $offset);
-                    $konteks = explode("\n", $source)[$baris - 1] ?? '';
+            foreach ($m[0] as [$kelas, $offset]) {
+                $baris = $this->locate($source, $offset);
+                $konteks = $baris_all[$baris - 1] ?? '';
 
-                    if (! str_contains($konteks, '<meta')) {
-                        $bermasalah[] = sprintf(
-                            '%s:%d  %s  (%s)',
-                            $this->relative($path),
-                            $baris,
-                            $pola,
-                            $alasan
-                        );
-                    }
-
-                    $offset += strlen($pola);
+                // `theme-color` di dalam <meta> bukan gaya dan memang hex.
+                if (str_contains($konteks, '<meta')) {
+                    continue;
                 }
+
+                $bermasalah[] = sprintf(
+                    '%s:%d  %s  -- pakai token daisyUI, bukan hex',
+                    $this->relative($path),
+                    $baris,
+                    trim($kelas)
+                );
             }
         }
 
         $this->assertSame(
             [],
             $bermasalah,
-            "Ada warna hex yang ditulis tangan. Pakai token tema daisyUI:\n - ".implode("\n - ", $bermasalah)
+            "Warna hex ditulis tangan di utilitas Tailwind:\n - ".implode("\n - ", $bermasalah)
         );
     }
 
@@ -377,6 +379,67 @@ class DaisyUiGuardTest extends TestCase
             [],
             $bermasalah,
             "Segmented control tulis-tangan masih ada -- pakai tabs tabs-boxed + grid-cols-N:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
+    public function test_tidak_ada_bidang_abu_dan_teksnya_terbaca(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+            $baris_all = explode("\n", $source);
+
+            // (1) base-200 (#141414) DILARANG sebagai isian bidang. Dulu base-200 dipakai
+            //    lahardipakai sebagai latar halaman -- halaman jadi berabu dan
+            //     di layar OLED semua tampak seperti glow. Pemisahan antar bagian
+            //     sekarang dipercayakan ke garis rambut border-base-300.
+            if (preg_match_all('/\bbg-base-200(?:\/[0-9]+)?\b/', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$kelas, $offset]) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- latar/latar panel harus base-100 (hitam) + garis border-base-300',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        trim($kelas)
+                    );
+                }
+            }
+
+            // (2) Teks dengan opasitas rendah tidak terbaca di atas hitam.
+            //     base-content #d6d6d6 @40% = #555555 -> hanya 2.8:1, jauh di
+            //     bawah ambang WCAG AA 4.5:1. Hierarki dibedakan lewat ukuran &
+            //     bobot font, bukan denganTechnically redupkan teks.
+            if (preg_match_all('/\b(?:text|placeholder:text)-base-content\/(?:20|30|40|50)\b/', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$kelas, $offset]) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- minimal /60 (2.8:1 itu tidak terbaca di atas hitam)',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        trim($kelas)
+                    );
+                }
+            }
+        }
+
+        // (3) Latar halaman harus base-100.
+        $css = file_get_contents(base_path('resources/css/app.css'));
+
+        $this->assertDoesNotMatchRegularExpression(
+            '/@apply[^;]*\bbg-base-200\b/',
+            $css,
+            'Latar halaman tidak boleh base-200 (#141414) -- itu sumber abu-abu yang bikin halaman terasa tidak nyaman. Pakai base-100.'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/@apply\s+bg-base-100\b/',
+            $css,
+            'Latar halaman harus explicit base-100 (hitam penuh).'
+        );
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Ada bidang abu atau teks redup:\n - ".implode("\n - ", $bermasalah)
         );
     }
 

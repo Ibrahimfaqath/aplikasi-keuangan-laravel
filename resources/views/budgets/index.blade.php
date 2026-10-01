@@ -152,7 +152,7 @@
                 </p>
                 @endif
             @else
-                <div class="card items-center text-center py-6 px-4 mt-4 bg-base-200/40 border border-dashed border-base-300">
+                <div class="card items-center text-center py-6 px-4 mt-4 bg-base-100/40 border border-dashed border-base-300">
                     <div class="w-12 h-12 rounded-box bg-info/10 text-info border border-info/20 flex items-center justify-center mb-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -212,13 +212,13 @@
                 @empty
                     <div class="py-8 px-5 text-center">
                         <p class="text-xs text-base-content/60">Belum ada anggaran per kategori.</p>
-                        <p class="text-[11px] text-base-content/50 mt-0.5 px-6">Tambah anggaran khusus per kategori bila ingin mengendalikan pengeluaran tertentu (mis. "Makanan &amp; Minuman").</p>
+                        <p class="text-[11px] text-base-content/60 mt-0.5 px-6">Tambah anggaran khusus per kategori bila ingin mengendalikan pengeluaran tertentu (mis. "Makanan &amp; Minuman").</p>
                     </div>
                 @endforelse
             </div>
         </section>
 
-        <p class="text-[11px] text-base-content/50 text-center mt-6 px-4 leading-relaxed">
+        <p class="text-[11px] text-base-content/60 text-center mt-6 px-4 leading-relaxed">
             Anggaran dihitung ulang otomatis per bulan. Progress punya 3 status: aman, mendekati batas (80%), dan melebihi batas.
         </p>
     </div>
@@ -242,7 +242,7 @@
                         <p class="text-xs text-base-content/60">Atur batas pengeluaran bulan {{ \Carbon\Carbon::now()->isoFormat('MMMM YYYY') }}</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeBudgetModal()" class="btn btn-ghost btn-sm btn-circle text-base-content/40">
+                <button type="button" onclick="closeBudgetModal()" class="btn btn-ghost btn-sm btn-circle text-base-content/60">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -254,7 +254,7 @@
                 {{-- `stat` untuk pasangan label/nilai. `flex` menimpa
                      `display: inline-grid` bawaan daisyUI supaya label dan
                      nominal bisa berjajar, bukan bertumpuk. --}}
-                <div class="stat flex flex-row items-center justify-between gap-4 bg-base-200 border border-base-300 p-3.5">
+                <div class="stat flex flex-row items-center justify-between gap-4 bg-base-100 border border-base-300 p-3.5">
                     <span class="stat-title text-xs">Pengeluaran bulan ini</span>
                     <span class="stat-value text-sm whitespace-normal text-right privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}">{{ \App\Services\AmountFormatter::compact($monthlyExpense) }}</span>
                 </div>
@@ -263,13 +263,13 @@
                 <div>
                     <label for="budget-amount-input" class="block text-xs font-semibold text-base-content/70 mb-2">Batas Pengeluaran</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40 font-bold text-sm">Rp</div>
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/60 font-bold text-sm">Rp</div>
                         <input type="text" inputmode="numeric" id="budget-amount-input" name="amount"
                                x-model="displayAmount" @input="amount = onAmountInput($event.target.value)"
                                placeholder="0" autocomplete="off"
-                               class="input input-bordered w-full pl-10 pr-4 font-bold text-base sm:text-lg tracking-tight placeholder:text-base-content/40">
+                               class="input input-bordered w-full pl-10 pr-4 font-bold text-base sm:text-lg tracking-tight placeholder:text-base-content/60">
                     </div>
-                    <p class="mt-1.5 text-[11px] text-base-content/50">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
+                    <p class="mt-1.5 text-[11px] text-base-content/60">Ketik angka, otomatis diformat. Contoh: 1.500.000</p>
                 </div>
 
                 <div>
@@ -293,7 +293,7 @@
                                 <option value="{{ $cat }}">{{ $cat }}</option>
                             @endforeach
                         </select>
-                        <p class="mt-1.5 text-[11px] text-base-content/50">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
+                        <p class="mt-1.5 text-[11px] text-base-content/60">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
                     </div>
                     <div>
                         <label for="budget-months" class="block text-xs font-semibold text-base-content/70 mb-2">Berlaku Selama</label>
@@ -302,7 +302,7 @@
                                 <option value="{{ $m }}" @selected($m === 1)>{{ $m === 1 ? '1 Bulan Ini' : $m.' Bulan' }}</option>
                             @endfor
                         </select>
-                        <p class="mt-1.5 text-[11px] text-base-content/50">Terapkan nominal yang sama ke beberapa bulan sekaligus.</p>
+                        <p class="mt-1.5 text-[11px] text-base-content/60">Terapkan nominal yang sama ke beberapa bulan sekaligus.</p>
                     </div>
                 </div>
 

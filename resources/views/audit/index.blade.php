@@ -50,16 +50,16 @@
             'restored'      => ['label' => 'Pulihkan',      'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>', 'pill' => 'bg-warning/10 text-warning border-warning/20'],
             'force_deleted' => ['label' => 'Hapus permanen','icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>', 'pill' => 'bg-error/10 text-error border-error/20'],
             'auth.login'    => ['label' => 'Login',         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>', 'pill' => 'bg-success/10 text-success border-success/20'],
-            'auth.logout'   => ['label' => 'Logout',        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>', 'pill' => 'bg-base-200 text-base-content/70 border-base-300'],
-            'auth.register' => ['label' => 'Registrasi',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>', 'pill' => 'bg-base-200 text-base-content/70 border-base-300'],
+            'auth.logout'   => ['label' => 'Logout',        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>', 'pill' => 'bg-base-100 text-base-content/70 border-base-300'],
+            'auth.register' => ['label' => 'Registrasi',    'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>', 'pill' => 'bg-base-100 text-base-content/70 border-base-300'],
         ];
 
         // Peta warna per sumber (web/ai/demo/system). Belum dipakai di view ini —
         // label sumber di bawah dirender sebagai badge netral — tapi tetap
         // disimpan dengan token yang sama agar tidak ada warna hex tersisa.
         $sourcePill = [
-            'web'   => 'bg-base-200 text-base-content/70 border-base-300',
-            'ai'    => 'bg-base-200 text-base-content/70 border-base-300',
+            'web'   => 'bg-base-100 text-base-content/70 border-base-300',
+            'ai'    => 'bg-base-100 text-base-content/70 border-base-300',
             'demo'  => 'bg-warning/10 text-warning border-warning/20',
             'system'=> 'bg-info/10 text-info border-info/20',
         ];
@@ -141,7 +141,7 @@
             <ul class="divide-y divide-base-300">
                 @forelse ($logs as $log)
                 @php
-                    $meta = $actionMeta[$log->action] ?? ['label' => $log->actionLabel(), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>', 'pill' => 'bg-base-200 text-base-content/70 border-base-300'];
+                    $meta = $actionMeta[$log->action] ?? ['label' => $log->actionLabel(), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>', 'pill' => 'bg-base-100 text-base-content/70 border-base-300'];
                 @endphp
                 <li class="px-5 py-4">
                     <div class="flex items-start gap-3">
@@ -152,7 +152,7 @@
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                                 <span class="badge badge-sm text-[10px] font-bold uppercase tracking-wider {{ $meta['pill'] }}">{{ $meta['label'] }}</span>
                                 <span class="text-xs font-bold text-base-content">{{ $log->modelName() }}</span>
-                                <span class="badge badge-ghost badge-sm text-[10px] font-bold uppercase tracking-wider text-base-content/50">{{ $log->sourceLabel() }}</span>
+                                <span class="badge badge-ghost badge-sm text-[10px] font-bold uppercase tracking-wider text-base-content/60">{{ $log->sourceLabel() }}</span>
                             </div>
                             <p class="text-xs text-base-content/60 mt-1 leading-relaxed">{{ $log->description }}</p>
 
@@ -160,14 +160,14 @@
                             <div class="mt-2 flex flex-wrap gap-1.5">
                                 @foreach ($log->new_values as $key => $value)
                                 <span class="badge badge-ghost text-[11px] font-normal gap-1">
-                                    <span class="text-base-content/50">{{ $key }}</span>:
+                                    <span class="text-base-content/60">{{ $key }}</span>:
                                     <span class="font-semibold text-base-content">{{ $fmtValue($key, $value) }}</span>
                                 </span>
                                 @endforeach
                             </div>
                             @endif
 
-                            <p class="text-[11px] text-base-content/50 mt-2">
+                            <p class="text-[11px] text-base-content/60 mt-2">
                                 {{ $log->created_at ? $log->created_at->format('d M Y, H:i') : '—' }}
                                 @if($log->ip_address)
                                 <span class="mx-1">·</span>{{ $log->ip_address }}
@@ -178,7 +178,7 @@
                 </li>
                 @empty
                 <li class="py-12 px-6 text-center">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-box bg-base-200 text-base-content/40 mb-3">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-box border border-base-300 bg-base-100 text-base-content/60 mb-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <p class="text-sm font-semibold text-base-content mb-1">Belum ada aktivitas</p>
@@ -203,7 +203,7 @@
             @endif
         </section>
 
-        <p class="text-[11px] text-base-content/50 text-center mt-6 px-4 leading-relaxed">
+        <p class="text-[11px] text-base-content/60 text-center mt-6 px-4 leading-relaxed">
             Riwayat disimpan selama-lamanya dan tidak bisa diubah atau dihapus demi keamanan datamu.
         </p>
     </div>

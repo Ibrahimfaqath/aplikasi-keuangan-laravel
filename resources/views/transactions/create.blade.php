@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-base-200">
+<html lang="id" class="h-full">
 
 <head>
     <meta charset="UTF-8">
@@ -27,7 +27,7 @@
     @include('transactions.partials.form-styles')
 </head>
 
-<body class="app-shell-content min-h-full bg-base-200 text-base-content font-sans antialiased">
+<body class="app-shell-content min-h-full text-base-content font-sans antialiased">
 
     <x-sidebar title="Tambah Transaksi" :back="route('transactions.index')" minimal />
 

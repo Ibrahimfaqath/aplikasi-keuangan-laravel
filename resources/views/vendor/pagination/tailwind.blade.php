@@ -4,7 +4,7 @@
         <!-- MOBILE VIEW (HANYA BUTTON SEBELUMNYA & SELANJUTNYA) -->
         <div class="flex justify-between flex-1 sm:hidden gap-2">
             @if ($paginator->onFirstPage())
-                <span class="inline-flex items-center px-4 py-2 text-xs font-medium text-base-content/40 bg-base-200 border border-base-300 rounded-xl cursor-not-allowed">
+                <span class="inline-flex items-center px-4 py-2 text-xs font-medium text-base-content/60 bg-base-100 border border-base-300 rounded-xl cursor-not-allowed">
                     Sebelumnya
                 </span>
             @else
@@ -18,7 +18,7 @@
                     Selanjutnya
                 </a>
             @else
-                <span class="inline-flex items-center px-4 py-2 text-xs font-medium text-base-content/40 bg-base-200 border border-base-300 rounded-xl cursor-not-allowed">
+                <span class="inline-flex items-center px-4 py-2 text-xs font-medium text-base-content/60 bg-base-100 border border-base-300 rounded-xl cursor-not-allowed">
                     Selanjutnya
                 </span>
             @endif
@@ -47,7 +47,7 @@
                     <!-- Tombol Prev -->
                     @if ($paginator->onFirstPage())
                         <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
-                            <span class="relative inline-flex items-center justify-center p-2 rounded-xl border border-base-300 bg-base-200/40 text-base-content/50 cursor-not-allowed" aria-hidden="true">
+                            <span class="relative inline-flex items-center justify-center p-2 rounded-xl border border-base-300 bg-base-100/40 text-base-content/60 cursor-not-allowed" aria-hidden="true">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                             </span>
                         </span>
@@ -62,7 +62,7 @@
                         {{-- "Three Dots" Separator --}}
                         @if (is_string($element))
                             <span aria-disabled="true">
-                                <span class="relative inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-base-300 bg-base-100 text-xs font-medium text-base-content/40">{{ $element }}</span>
+                                <span class="relative inline-flex items-center justify-center px-3 py-1.5 rounded-xl border border-base-300 bg-base-100 text-xs font-medium text-base-content/60">{{ $element }}</span>
                             </span>
                         @endif
 
@@ -89,7 +89,7 @@
                         </a>
                     @else
                         <span aria-disabled="true" aria-label="{{ __('pagination.next') }}">
-                            <span class="relative inline-flex items-center justify-center p-2 rounded-xl border border-base-300 bg-base-200/40 text-base-content/50 cursor-not-allowed" aria-hidden="true">
+                            <span class="relative inline-flex items-center justify-center p-2 rounded-xl border border-base-300 bg-base-100/40 text-base-content/60 cursor-not-allowed" aria-hidden="true">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                             </span>
                         </span>

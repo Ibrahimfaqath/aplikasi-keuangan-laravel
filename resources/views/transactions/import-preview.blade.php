@@ -60,7 +60,7 @@
             <div class="overflow-x-auto">
                 <table class="table table-zebra">
                     <thead>
-                        <tr class="text-left text-[11px] uppercase tracking-wider text-base-content/50">
+                        <tr class="text-left text-[11px] uppercase tracking-wider text-base-content/60">
                             <th class="font-bold">Tanggal</th>
                             <th class="font-bold">Keterangan</th>
                             <th class="font-bold">Kategori</th>
@@ -99,14 +99,14 @@
         @if (count($invalid) > 0)
         <section class="card bg-base-100 border border-error/30 shadow-sm overflow-hidden mb-6">
             <div class="px-5 py-4 border-b border-base-300">
-                <h2 class="card-title text-sm font-bold uppercase tracking-wider">Transaksi Bermasalah <span class="text-base-content/40 normal-case">(tidak akan diimport)</span></h2>
+                <h2 class="card-title text-sm font-bold uppercase tracking-wider">Transaksi Bermasalah <span class="text-base-content/60 normal-case">(tidak akan diimport)</span></h2>
             </div>
             <div class="divide-y divide-base-300">
                 @foreach ($invalid as $item)
                 <div class="flex gap-3 px-5 py-3.5">
                     <span class="flex-shrink-0 w-9 h-9 rounded-box bg-error/10 text-error border border-error/20 flex items-center justify-center text-xs font-bold">{{ $item['row'] }}</span>
                     <div class="min-w-0">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/50">Baris #{{ $item['row'] }}</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60">Baris #{{ $item['row'] }}</p>
                         <ul class="mt-1 space-y-1">
                             @foreach ($item['errors'] as $error)
                             <li class="text-xs text-error flex items-start gap-1.5">

@@ -60,7 +60,7 @@
                  hanya untuk bentuk & radius-nya; luas/tinggi tetap utility. --}}
             <button type="button"
                     @click="$refs.fileInput.click()"
-                    class="card w-full border-2 border-dashed border-base-300 bg-base-100 hover:border-base-content/40 hover:bg-base-200/60 p-8 sm:p-10 text-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20">
+                    class="card w-full border-2 border-dashed border-base-300 bg-base-100 hover:border-base-content/40 hover:bg-base-300/40 p-8 sm:p-10 text-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content/20">
                 <div x-show="!fileName" class="space-y-3">
                     <div class="w-14 h-14 mx-auto rounded-box bg-base-content text-base-100 flex items-center justify-center">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
@@ -69,7 +69,7 @@
                         <p class="text-sm font-bold text-base-content">
                             <span class="font-bold">Klik</span> atau seret file CSV ke sini
                         </p>
-                        <p class="text-xs text-base-content/50 mt-1">CSV / TXT — maks 5MB dan 500 baris data</p>
+                        <p class="text-xs text-base-content/60 mt-1">CSV / TXT — maks 5MB dan 500 baris data</p>
                     </div>
                 </div>
                 <div x-show="fileName" x-cloak class="space-y-2">
@@ -77,7 +77,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     </div>
                     <p class="text-sm font-bold text-base-content truncate px-6" x-text="fileName"></p>
-                    <p class="text-xs text-base-content/50">Klik untuk mengganti file</p>
+                    <p class="text-xs text-base-content/60">Klik untuk mengganti file</p>
                 </div>
             </button>
             @error('file')
@@ -95,7 +95,7 @@
                 @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
                 {{-- `btn-disabled` hanya mematikan pointer-events, jadi tampilan
                      "terkunci"nya tetap dibentuk utility (latar + teks redup). --}}
-                <span class="btn btn-sm btn-disabled w-full sm:w-auto border-base-300 bg-base-200 text-base-content/40">
+                <span class="btn btn-sm btn-disabled w-full sm:w-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     Pratinjau Terkunci (Mode Demo)
                 </span>
@@ -112,14 +112,14 @@
 
         <div class="card bg-base-100 border border-base-300 shadow-sm p-5 sm:p-6 mt-8">
             <h2 class="card-title text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                <svg class="w-5 h-5 text-base-content/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
                 Format Kolom
             </h2>
             <p class="text-xs text-base-content/60 mb-4">Baris pertama harus nama kolom (koma atau titik koma). Kolom bisa berurutan bebas.</p>
             <div class="overflow-x-auto">
                 <table class="table table-zebra">
                     <thead>
-                        <tr class="text-left text-[11px] uppercase tracking-wider text-base-content/50">
+                        <tr class="text-left text-[11px] uppercase tracking-wider text-base-content/60">
                             <th class="font-bold">Kolom</th>
                             <th class="font-bold">Contoh</th>
                             <th class="font-bold">Catatan</th>
@@ -154,8 +154,8 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4 rounded-box bg-base-200/60 border border-base-300 px-3.5 py-3">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/50">Tips</p>
+            <div class="mt-4 rounded-box bg-base-100/60 border border-base-300 px-3.5 py-3">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60">Tips</p>
                 <p class="text-xs text-base-content/70 mt-1 leading-relaxed">
                     File CSV hasil <strong>Export Laporan (Excel/PDF)</strong> dan template di atas otomatis dikenali.
                     Paling mudah: unduh template, isi barisnya, lalu unggah kembali.
