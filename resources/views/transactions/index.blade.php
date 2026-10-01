@@ -398,7 +398,7 @@
                         <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                         <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 skeleton"></div>
                     </div>
-                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-neutral-100/80 bg-base-200/50 py-3 md:contents">
+                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-200/80 bg-base-200/50 py-3 md:contents">
                         <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
                             <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                             <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 skeleton"></div>
@@ -427,7 +427,7 @@
                         Tambah
                     </a>
                     <button type="button" data-privacy-toggle
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/70 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/70 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300"
                             aria-label="Sembunyikan saldo" title="Sembunyikan saldo">
                         <svg data-lock-open class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         <svg data-lock-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
@@ -443,7 +443,7 @@
                  dan teks rata kiri. Panel memakai `md:contents` agar kotaknya
                  meniadakan diri sendiri di desktop dan kedua anaknya kembali
                  menjadi grid item langsung (padding kolomnya yang berlaku). -->
-            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-neutral-200 dark:md:divide-[#333333] mt-5 pt-5 border-t border-base-300">
+            <div class="relative grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] md:divide-x md:divide-base-300 dark:md:divide-[#333333] mt-5 pt-5 border-t border-base-300">
 
                 <div class="min-w-0 text-center md:text-left md:pr-3 lg:pr-6">
                     <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Saldo</p>
@@ -453,7 +453,7 @@
                        x-text="rupiahCompact(totalBalance)"></p>
                 </div>
 
-                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-neutral-100/80 bg-base-200/50 py-3 md:contents">
+                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-200/80 bg-base-200/50 py-3 md:contents">
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
                         <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
@@ -591,12 +591,12 @@
                 <div class="inline-flex items-center gap-1 p-1 bg-base-200 border border-base-300 rounded-full no-print flex-shrink-0 self-start sm:self-auto">
                     <button type="button" @click="setAnalisisTab('tren')"
                             class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                            :class="analisisTab === 'tren' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                            :class="analisisTab === 'tren' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
                         Tren
                     </button>
                     <button type="button" @click="setAnalisisTab('kategori')"
                             class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                            :class="analisisTab === 'kategori' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                            :class="analisisTab === 'kategori' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
                         Kategori
                     </button>
                 </div>
@@ -609,17 +609,17 @@
                     <div class="inline-flex items-center gap-1 p-1 bg-base-200 border border-base-300 rounded-full no-print">
                         <button type="button" @click="setTrendPeriod('week')"
                                 class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'week' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                :class="trendPeriod === 'week' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
                             Minggu
                         </button>
                         <button type="button" @click="setTrendPeriod('month')"
                                 class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'month' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                :class="trendPeriod === 'month' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
                             Bulan
                         </button>
                         <button type="button" @click="setTrendPeriod('year')"
                                 class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'year' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100'">
+                                :class="trendPeriod === 'year' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
                             Tahun
                         </button>
                     </div>
@@ -699,7 +699,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." autocomplete="off"
-                           class="w-full pl-11 pr-4 py-2.5 bg-base-100 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100 focus:ring-1 focus:ring-neutral-900 dark:focus:ring-neutral-100 transition">
+                           class="w-full pl-11 pr-4 py-2.5 bg-base-100 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:border-base-content focus:border-base-content focus:ring-1 focus:ring-base-content dark:focus:ring-base-300 transition">
                 </div>
 
                 {{-- Tipe memakai segoup radio asli, bukan tombol JS: tetap ikut
@@ -724,9 +724,8 @@
                                            onchange="applyFilters()">
                                     <label for="{{ $typeId }}"
                                            class="block px-1.5 sm:px-2 py-2 text-center text-xs sm:text-sm font-semibold rounded-lg cursor-pointer select-none truncate text-base-content/60 transition
-                                                  peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
-                                                  dark:peer-checked:bg-[#171717] dark:peer-checked:text-neutral-50
-                                                  peer-focus-visible:ring-2 peer-focus-visible:ring-neutral-900 dark:peer-focus-visible:ring-neutral-100">
+                                                  peer-checked:bg-base-content peer-checked:text-base-100 peer-checked:shadow-sm
+                                                  peer-focus-visible:ring-2 peer-focus-visible:ring-base-content dark:peer-focus-visible:ring-base-300">
                                         {{ $typeLabel }}
                                     </label>
                                 </div>
@@ -764,7 +763,7 @@
                      3 (cari) + 4 (tipe) + 2 (kategori) + 2 (periode) + 1 (reset). --}}
                 <div class="lg:col-span-1 flex gap-2 items-center justify-end">
                     <a id="filterReset" href="{{ route('transactions.index') }}" title="Reset filter" aria-label="Reset semua filter"
-                       class="inline-flex items-center justify-center h-[38px] w-[38px] sm:h-[42px] sm:w-[42px] shrink-0 bg-base-100 text-base-content/60 border border-base-300 rounded-xl text-sm font-semibold hover:bg-neutral-100 dark:hover:bg-[#333333] hover:text-neutral-900 transition {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">
+                       class="inline-flex items-center justify-center h-[38px] w-[38px] sm:h-[42px] sm:w-[42px] shrink-0 bg-base-100 text-base-content/60 border border-base-300 rounded-xl text-sm font-semibold hover:bg-base-200 hover:bg-base-content/10 hover:text-base-content transition {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </a>
                     <p id="filterStatus" role="status" aria-live="polite" class="sr-only"></p>
@@ -782,7 +781,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                 <a href="{{ route('transactions.trashed') }}" title="Lihat transaksi di Sampah"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/70 rounded-xl text-xs font-semibold transition no-print">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/70 rounded-xl text-xs font-semibold transition no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                     Sampah
                 </a>

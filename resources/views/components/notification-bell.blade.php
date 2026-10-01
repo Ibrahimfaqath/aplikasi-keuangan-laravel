@@ -3,7 +3,7 @@
     <button type="button" @click="toggle()"
             :aria-expanded="open" aria-label="Notifikasi"
             aria-haspopup="true"
-            class="relative flex items-center justify-center w-10 h-10 rounded-xl border border-base-300 bg-base-100 text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+            class="relative flex items-center justify-center w-10 h-10 rounded-xl border border-base-300 bg-base-100 text-base-content/70 hover:bg-base-300 hover:text-base-content hover:text-base-content transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
         </svg>

@@ -37,7 +37,7 @@
 
 @php
     $sbActive = 'bg-base-content text-base-100 shadow-sm';
-    $sbIdle = 'text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50';
+    $sbIdle = 'text-base-content/60 hover:bg-base-300 hover:text-base-content hover:text-base-content';
     $sbIconSvg = 'class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 
     // Berapa transaksi yang menunggu dipulihkan. Tanpa angka ini, user tidak
@@ -197,7 +197,7 @@
                 <div class="space-y-1">
                 <button type="button" data-privacy-toggle
                         aria-label="Sembunyikan atau tampilkan saldo" title="Sembunyikan / tampilkan saldo"
-                        class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-base-content hover:text-base-content text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                     <svg data-lock-open class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     <svg data-lock-closed class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                     <span class="sb-label truncate" data-privacy-label>Sembunyikan Saldo</span>
@@ -205,7 +205,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" aria-label="Keluar dari akun" title="Keluar dari akun"
-                            class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                            class="sb-link w-full flex items-center gap-3 px-3 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 text-base-content/60 hover:bg-base-300 hover:text-base-content hover:text-base-content text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span class="sb-label truncate">Keluar</span>
                     </button>
@@ -217,7 +217,7 @@
         <!-- Profile fixed di bawah (tidak ikut scroll) -->
         <div class="shrink-0 border-t border-base-300 p-3">
             <a href="{{ route('profile.edit') }}" title="Profil & Pengaturan"
-               class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100 min-w-0">
+               class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300 min-w-0">
                 <span class="w-10 h-10 rounded-xl bg-base-content text-base-100 flex items-center justify-center text-sm font-bold shrink-0" aria-hidden="true">
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </span>
@@ -235,19 +235,19 @@
         <div class="flex items-center gap-2 px-4 h-16">
             <button type="button" @click="drawer = true" :aria-expanded="drawer" aria-controls="mobile-drawer"
                     aria-label="Buka menu navigasi"
-                    class="p-2 -ml-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                    class="p-2 -ml-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 
             @if ($minimal)
             <a href="{{ $back ?: route('transactions.index') }}" aria-label="Kembali"
-               class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+               class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-base-content hover:text-base-content transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             </a>
             <h1 class="flex-1 min-w-0 text-base font-bold tracking-tight text-base-content truncate">{{ $title }}</h1>
             <div class="ml-auto flex items-center gap-1.5">
                 <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
@@ -266,12 +266,12 @@
                 <x-notification-bell />
 
                 <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="p-2 rounded-xl text-base-content/70 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                     <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
                 <a href="{{ route('transactions.create') }}" aria-label="Tambah transaksi"
-                   class="w-10 h-10 rounded-xl bg-base-content hover:bg-base-content/80 text-base-100 flex items-center justify-center shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                   class="w-10 h-10 rounded-xl bg-base-content hover:bg-base-content/80 text-base-100 flex items-center justify-center shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16m8-8H4"/></svg>
                 </a>
             </div>
@@ -283,7 +283,7 @@
     <header class="hidden lg:flex sticky top-0 z-30 h-16 items-center gap-2 px-6 xl:px-8 bg-white/90 bg-base-200/90 backdrop-blur-xl border-b border-base-300">
         <button type="button" data-sb-collapse onclick="toggleSidebarCollapse(this)"
                 aria-expanded="true" aria-label="Toggle sidebar" title="Tampilkan / sembunyikan sidebar"
-                class="p-2.5 -ml-2.5 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                class="p-2.5 -ml-2.5 rounded-xl text-base-content/70 hover:bg-base-300 hover:text-base-content hover:text-base-content transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
             <svg class="sb-ico-collapse w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             <svg class="sb-ico-expand w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
         </button>
@@ -300,7 +300,7 @@
             @endunless
 
             <button type="button" data-theme-toggle aria-label="Ganti tema terang atau gelap" title="Ganti tema terang atau gelap"
-                    class="flex items-center gap-2 h-10 px-3 rounded-xl border border-base-300 bg-base-100 text-base-content/70 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                    class="flex items-center gap-2 h-10 px-3 rounded-xl border border-base-300 bg-base-100 text-base-content/70 hover:bg-base-300 hover:text-base-content hover:text-base-content transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                 <svg class="w-[18px] h-[18px] hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 <svg class="w-[18px] h-[18px] block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 <span class="hidden lg:inline text-sm font-semibold">Tema</span>
@@ -337,7 +337,7 @@
                 <span class="inline-flex items-center gap-1 rounded-md bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Demo</span>
                 @endif
                 <button type="button" @click="drawer = false" aria-label="Tutup menu"
-                        class="ml-auto p-2 rounded-xl text-neutral-500 hover:bg-base-300 hover:text-neutral-900 dark:hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                        class="ml-auto p-2 rounded-xl text-base-content/60 hover:bg-base-300 hover:text-base-content hover:text-base-content transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -400,7 +400,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="w-full flex items-center justify-center gap-2 px-3 min-h-[44px] rounded-xl text-sm font-semibold bg-base-200 text-base-content/80 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:focus-visible:ring-neutral-100">
+                            class="w-full flex items-center justify-center gap-2 px-3 min-h-[44px] rounded-xl text-sm font-semibold bg-base-200 text-base-content/80 hover:bg-base-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span>Keluar</span>
                     </button>

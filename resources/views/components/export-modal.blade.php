@@ -17,7 +17,7 @@
                         <p class="text-xs text-base-content/60">Pilih format & rentang waktu laporan keuangan</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeExportModal()" class="text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 p-1 rounded-lg">
+                <button type="button" onclick="closeExportModal()" class="text-base-content/40 hover:text-base-content dark:hover:text-base-content p-1 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -31,17 +31,17 @@
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/60 mb-2">Pilih Format Dokumentasi</label>
                     <div class="grid grid-cols-3 gap-3">
-                        <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 cursor-pointer hover:border-neutral-900 dark:hover:border-neutral-100 has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:border-neutral-900 dark:has-[:checked]:border-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 transition group">
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 cursor-pointer hover:border-base-content dark:hover:border-base-300 has-[:checked]:bg-base-content has-[:checked]:border-base-content has-[:checked]:text-base-100 transition group">
                             <input type="radio" name="export_format" value="pdf" class="sr-only" checked onchange="updateExportAction('/transactions/export-pdf')">
                             <svg class="w-6 h-6 mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                             <span class="text-xs font-bold">PDF Report</span>
                         </label>
-                        <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 cursor-pointer hover:border-neutral-900 dark:hover:border-neutral-100 has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:border-neutral-900 dark:has-[:checked]:border-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 transition group">
+                        <label class="relative flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 cursor-pointer hover:border-base-content dark:hover:border-base-300 has-[:checked]:bg-base-content has-[:checked]:border-base-content has-[:checked]:text-base-100 transition group">
                             <input type="radio" name="export_format" value="excel" class="sr-only" onchange="updateExportAction('/transactions/export-excel')">
                             <svg class="w-6 h-6 mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <span class="text-xs font-bold">Excel Spreadsheet</span>
                         </label>
-                        <button type="button" onclick="triggerPrintMode()" class="flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 hover:border-neutral-900 dark:hover:border-neutral-100 text-base-content transition">
+                        <button type="button" onclick="triggerPrintMode()" class="flex flex-col items-center justify-center p-3 rounded-xl border border-base-300 bg-base-200/50 hover:border-base-content dark:hover:border-base-300 text-base-content transition">
                             <svg class="w-6 h-6 mb-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             <span class="text-xs font-bold">Print Screen</span>
                         </button>
@@ -92,7 +92,7 @@
 
                 <!-- Submit Button with Loading State -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-base-300">
-                    <button type="button" onclick="closeExportModal()" class="px-4 py-2.5 bg-base-100 text-base-content/80 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold hover:bg-neutral-50 dark:hover:bg-[#333333] transition">
+                    <button type="button" onclick="closeExportModal()" class="px-4 py-2.5 bg-base-100 text-base-content/80 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold hover:bg-base-300 hover:bg-base-content/10 transition">
                         Batal
                     </button>
                     <button type="submit" id="btnSubmitExport" class="inline-flex items-center gap-2 px-5 py-2.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">

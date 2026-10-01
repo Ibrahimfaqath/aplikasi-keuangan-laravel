@@ -12,7 +12,7 @@
     <button @click="toggleChat()"
             type="button"
             aria-label="Buka AI Assistant"
-            class="flex items-center justify-center w-14 h-14 bg-base-content hover:bg-base-content/80 text-base-100 rounded-2xl shadow-sm hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:ring-offset-2 dark:focus:ring-offset-[#0A0A0A]"
+            class="flex items-center justify-center w-14 h-14 bg-base-content hover:bg-base-content/80 text-base-100 rounded-2xl shadow-sm hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:ring-offset-2 dark:focus:ring-offset-[#0A0A0A]"
             :class="isOpen ? 'scale-105' : ''">
 
         <!-- Icon Chat -->
@@ -48,14 +48,14 @@
             </div>
             <div class="flex items-center gap-1">
                 <a href="{{ route('ai.index') }}"
-                   class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 rounded-lg transition"
+                   class="p-1.5 text-base-content/40 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
                    title="Buka Chat Penuh">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
                     </svg>
                 </a>
                 <button @click="closeChat()"
-                        class="p-1.5 text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 rounded-lg transition"
+                        class="p-1.5 text-base-content/40 hover:text-base-content dark:hover:text-base-content rounded-lg transition"
                         aria-label="Tutup chat">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -77,7 +77,7 @@
                     </div>
                 </div>
             </template>
-            <div x-show="messages.length === 0" class="text-center py-8 text-neutral-400 text-xs">
+            <div x-show="messages.length === 0" class="text-center py-8 text-base-content/40 text-xs">
                 <div class="w-10 h-10 mx-auto mb-2 bg-base-200 text-base-content/80 rounded-xl flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
@@ -89,9 +89,9 @@
             <div x-show="loading" class="flex justify-start">
                 <div class="bg-base-200 border border-base-300 rounded-2xl rounded-tl-md px-4 py-2">
                     <span class="inline-flex gap-1">
-                        <span class="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
-                        <span class="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:150ms"></span>
-                        <span class="w-1.5 h-1.5 bg-neutral-400 rounded-full animate-bounce" style="animation-delay:300ms"></span>
+                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:0ms"></span>
+                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:150ms"></span>
+                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:300ms"></span>
                     </span>
                 </div>
             </div>
@@ -114,7 +114,7 @@
                 <button @click="confirmTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-base-content hover:bg-base-content/80 text-base-100 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900">
+                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-base-content hover:bg-base-content/80 text-base-100 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content">
                     <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     <svg x-show="confirming" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                     <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
@@ -122,7 +122,7 @@
                 <button @click="cancelTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-white dark:bg-transparent hover:bg-base-300 text-base-content/80 border border-base-300 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
+                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-white dark:bg-transparent hover:bg-base-300 text-base-content/80 border border-base-300 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/40">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     <span>Batal</span>
                 </button>
@@ -134,7 +134,7 @@
             <input type="text"
                    x-model="input"
                    placeholder="Tanya atau catat transaksi..."
-                   class="flex-1 px-3 py-2 bg-base-100 border border-base-300 rounded-xl text-xs text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100"
+                   class="flex-1 px-3 py-2 bg-base-100 border border-base-300 rounded-xl text-xs text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300"
                    :disabled="loading">
             <button type="submit"
                     :disabled="loading || !input.trim()"

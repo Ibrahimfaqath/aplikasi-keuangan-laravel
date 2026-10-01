@@ -27,13 +27,13 @@
 
     <div class="grid grid-cols-2 gap-1 p-1 bg-base-200 rounded-xl border border-base-300"
          role="radiogroup" aria-label="Jenis Transaksi">
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
             <input type="radio" name="type" value="income" class="sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
             <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
         </label>
 
-        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-neutral-900 dark:has-[:checked]:bg-neutral-100 has-[:checked]:text-white dark:has-[:checked]:text-neutral-900 has-[:checked]:shadow-sm text-base-content/60 hover:text-neutral-900 dark:hover:text-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900 dark:focus-within:ring-neutral-100">
+        <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
             <input type="radio" name="type" value="expense" class="sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
             <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
@@ -66,7 +66,7 @@
                 required
                 min="1"
                 step="any"
-                class="w-full pl-12 pr-4 py-3 bg-base-200 border border-base-300 rounded-xl text-base-content font-extrabold text-base sm:text-lg placeholder:text-base-content/40 dark:placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 transition @error('amount') border-red-400 bg-red-50/50 @enderror"
+                class="w-full pl-12 pr-4 py-3 bg-base-200 border border-base-300 rounded-xl text-base-content font-extrabold text-base sm:text-lg placeholder:text-base-content/40 dark:placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content transition @error('amount') border-red-400 bg-red-50/50 @enderror"
             >
         </div>
         @error('amount')
@@ -89,7 +89,7 @@
                     id="transaction_date"
                     value="{{ $dateValue }}"
                     required
-                    class="date-field w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('transaction_date') border-red-400 @enderror"
+                    class="date-field w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content focus:bg-white focus:bg-base-200 transition @error('transaction_date') border-red-400 @enderror"
                 >
                 <svg class="date-field-icon pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -114,7 +114,7 @@
                 value="{{ $titleValue }}"
                 placeholder="Contoh: Gaji Bulanan, Beli Kopi"
                 required
-                class="w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 font-medium focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-100 focus:border-neutral-900 focus:bg-white dark:focus:bg-[#262626] transition @error('title') border-red-400 @enderror"
+                class="w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 font-medium focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content focus:bg-white focus:bg-base-200 transition @error('title') border-red-400 @enderror"
             >
             @error('title')
                 <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
@@ -153,7 +153,7 @@
                 $selected = $categoryValue == $cat;
                 $active = $selected ? ' active' : '';
                 return '<button type="button" data-category="' . e($cat) . '"' .
-                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-base-200/60 border-base-300 text-base-content/80 hover:border-neutral-900 dark:hover:border-neutral-100' . $active . '">' .
+                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-base-200/60 border-base-300 text-base-content/80 hover:border-base-content dark:hover:border-base-300' . $active . '">' .
                     '<span class="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center transition">' .
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                     '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
@@ -201,7 +201,7 @@
     <!-- Web Speech API Input Suara (Lokal Bawaan Browser) -->
     <div x-data="voiceInput()" class="space-y-2">
         <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
-            Input Cepat via Suara <span class="text-neutral-400 font-normal lowercase">(Bawaan Browser)</span>
+            Input Cepat via Suara <span class="text-base-content/40 font-normal lowercase">(Bawaan Browser)</span>
         </label>
         <button type="button" @click="toggleVoice()"
                 :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-base-200 text-base-content/80 border-base-300'"
@@ -220,7 +220,7 @@
     <!-- Upload Gambar -->
     <div class="space-y-2">
         <label class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
-            Upload Bukti Transaksi <span class="text-neutral-400 font-normal lowercase">(opsional)</span>
+            Upload Bukti Transaksi <span class="text-base-content/40 font-normal lowercase">(opsional)</span>
         </label>
 
         <div class="grid grid-cols-2 gap-3">
@@ -247,7 +247,7 @@
         <input type="file" name="image" id="fileInput" accept="image/*" class="hidden">
 
         <div id="dropZone"
-             class="relative border-2 border-dashed border-base-300 hover:border-neutral-900 dark:hover:border-neutral-100 rounded-xl p-6 text-center bg-base-200/40 hover:bg-base-300 transition cursor-pointer hidden md:block">
+             class="relative border-2 border-dashed border-base-300 hover:border-base-content dark:hover:border-base-300 rounded-xl p-6 text-center bg-base-200/40 hover:bg-base-300 transition cursor-pointer hidden md:block">
 
             <div id="uploadPlaceholder" class="space-y-2">
                 <div class="w-12 h-12 mx-auto bg-base-content text-base-100 rounded-xl flex items-center justify-center">
@@ -278,7 +278,7 @@
                     </div>
                     <button type="button"
                             id="removeFileBtn"
-                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-base-content border border-base-300 hover:bg-neutral-900 hover:text-white dark:hover:bg-neutral-100 dark:hover:text-neutral-900 rounded-lg transition flex-shrink-0">
+                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-base-content border border-base-300 hover:bg-base-content hover:text-white dark:hover:bg-base-200 dark:hover:text-base-content rounded-lg transition flex-shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -300,7 +300,7 @@
 
     <div class="sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 border-t border-base-300 bg-base-100 rounded-b-2xl"
          style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
-        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-base-300 rounded-xl text-xs sm:text-sm font-semibold transition">
+        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-base-200 hover:bg-base-content/10 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold transition">
             Batal
         </a>
         @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))

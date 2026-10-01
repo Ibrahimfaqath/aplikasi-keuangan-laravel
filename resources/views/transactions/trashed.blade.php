@@ -395,7 +395,7 @@
                  x-transition:enter="transition ease-out duration-150"
                  x-transition:enter-start="opacity-0 -translate-y-1"
                  x-transition:enter-end="opacity-100 translate-y-0"
-                 class="alert flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-neutral text-neutral-100">
+                 class="alert flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-base-content text-base-100">
                 <p class="text-xs font-semibold" role="status" aria-live="polite">
                     <span x-text="selection.length"></span> dipilih
                     @if (($transactions->total() ?? 0) > 10)
@@ -405,7 +405,7 @@
 
                 <div class="flex items-center gap-2">
                     <button type="button" @click="clearSelection()"
-                            class="btn btn-ghost btn-sm text-neutral-100/70 hover:text-neutral-100">
+                            class="btn btn-ghost btn-sm text-base-content/70 hover:text-base-content">
                         Batal pilih
                     </button>
 

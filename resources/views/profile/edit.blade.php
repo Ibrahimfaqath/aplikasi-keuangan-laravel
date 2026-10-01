@@ -50,7 +50,7 @@
                  (dua kelas terpisah), bukan `avatar-placeholder`. --}}
             <div class="card bg-base-100 border border-base-300 shadow-sm flex-row items-center gap-4 p-6">
                 <div class="avatar placeholder">
-                    <div class="w-16 rounded-box bg-neutral text-neutral-100">
+                    <div class="w-16 rounded-box bg-base-content text-base-100">
                         <span class="text-2xl font-extrabold">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</span>
                     </div>
                 </div>

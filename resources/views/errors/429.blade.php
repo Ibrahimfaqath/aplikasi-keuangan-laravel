@@ -22,7 +22,7 @@
                 Kembali
             </a>
             <a href="{{ route('transactions.index') }}"
-               class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-neutral-100 dark:hover:bg-[#333333] border border-base-300 rounded-xl text-sm font-semibold transition">
+               class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-base-200 hover:bg-base-content/10 border border-base-300 rounded-xl text-sm font-semibold transition">
                 Ke Dashboard
             </a>
         </div>

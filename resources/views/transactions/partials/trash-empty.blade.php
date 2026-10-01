@@ -38,7 +38,7 @@
             Belum ada transaksi yang dihapus. Kalau ada, bakalan muncul di sini dan masih bisa dipulihkan.
         </p>
         <a href="{{ route('transactions.index') }}"
-           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-neutral-100 hover:bg-base-300 dark:hover:bg-[#333333] text-base-content/80 rounded-xl text-xs font-semibold transition">
+           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/80 rounded-xl text-xs font-semibold transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             Lihat transaksi
         </a>

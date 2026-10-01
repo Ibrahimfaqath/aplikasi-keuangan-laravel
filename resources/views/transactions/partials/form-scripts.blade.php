@@ -200,17 +200,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     dropZone.addEventListener('dragover', function(e) {
         e.preventDefault();
-        this.classList.add('border-neutral-900', 'bg-neutral-100');
+        this.classList.add('border-base-content', 'bg-base-200');
     });
 
     dropZone.addEventListener('dragleave', function(e) {
         e.preventDefault();
-        this.classList.remove('border-neutral-900', 'bg-neutral-100');
+        this.classList.remove('border-base-content', 'bg-base-200');
     });
 
     dropZone.addEventListener('drop', function(e) {
         e.preventDefault();
-        this.classList.remove('border-neutral-900', 'bg-neutral-100');
+        this.classList.remove('border-base-content', 'bg-base-200');
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
