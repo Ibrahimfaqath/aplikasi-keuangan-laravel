@@ -62,18 +62,12 @@
                  khusus tidak pernah tampil. -->
             <div>
                 <label for="modalPeriod" class="label-text text-base-content/60 mb-1.5">Periode Laporan</label>
-                <select id="modalPeriod" name="period" onchange="toggleCustomDates(this.value)"
-                        class="select select-bordered select-sm w-full">
-                    <option value="all" selected>Semua Transaksi</option>
-                    <option value="today">Hari Ini</option>
-                    <option value="yesterday">Kemarin</option>
-                    <option value="7_days">7 Hari Terakhir</option>
-                    <option value="30_days">30 Hari Terakhir</option>
-                    <option value="this_month">Bulan Ini</option>
-                    <option value="last_month">Bulan Lalu</option>
-                    <option value="this_year">Tahun Ini</option>
-                    <option value="custom">Rentang Tanggal Khusus</option>
-                </select>
+                <x-select-dropdown id="modalPeriod" name="period"
+                                       :options="['all' => 'Semua Transaksi', 'today' => 'Hari Ini', 'yesterday' => 'Kemarin', '7_days' => '7 Hari Terakhir', '30_days' => '30 Hari Terakhir', 'this_month' => 'Bulan Ini', 'last_month' => 'Bulan Lalu', 'this_year' => 'Tahun Ini', 'custom' => 'Rentang Tanggal Khusus']"
+                                       value="all"
+                                       placeholder="Semua Transaksi"
+                                       label="Periode laporan"
+                                       on-change="toggleCustomDates(this.value)" />
             </div>
 
             <!-- Rentang khusus, hanya tampil saat periode = "custom" -->
@@ -92,11 +86,12 @@
                  form export, bukan ke filter halaman. -->
             <div>
                 <label for="modalType" class="label-text text-base-content/60 mb-1.5">Tipe Transaksi</label>
-                <select id="modalType" name="type" class="select select-bordered select-sm w-full">
-                    <option value="">Semua Tipe (Pemasukan &amp; Pengeluaran)</option>
-                    <option value="income">Hanya Pemasukan</option>
-                    <option value="expense">Hanya Pengeluaran</option>
-                </select>
+                <x-select-dropdown id="modalType" name="type"
+                                       :options="['' => 'Semua Tipe (Pemasukan & Pengeluaran)', 'income' => 'Hanya Pemasukan', 'expense' => 'Hanya Pengeluaran']"
+                                       value=""
+                                       placeholder="Semua Tipe"
+                                       label="Tipe transaksi"
+                                       :on-change="''" />
             </div>
 
             <div class="modal-action mt-0 pt-4 border-t border-base-300">

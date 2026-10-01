@@ -382,6 +382,45 @@ class DaisyUiGuardTest extends TestCase
         );
     }
 
+    public function test_tidak_ada_select_native_pakai_dropdown_daisyui(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+
+            // <select> dirender oleh sistem operasi: yang muncul saat diklik
+            // adalah daftar BERWARNA PUTIH milik OS, satu-satunya bidang terang
+            // yang tidak bisa mengikuti tema. Di aplikasi yang seluruhnya hitam
+            // pekat, itu generasi yang paling mencolok.
+            //
+            // Pengganti: <x-select-dropdown> (dropdown + menu daisyUI).
+            if (preg_match_all('/<select\b/', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$tag, $offset]) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- pakai <x-select-dropdown> (dropdown + menu daisyUI)',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        $tag
+                    );
+                }
+            }
+        }
+
+        // Pemakai komponennya harus benar-benar ada, kalau tidak guard ini
+        // hanyaaturan tanpa recourse.
+        $this->assertFileExists(
+            resource_path('views/components/select-dropdown.blade.php'),
+            'Komponen <x-select-dropdown> tidak ada -- tidak ada pengganti <select>.'
+        );
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Masih ada <select> native (popup-nya putih, tidak bisa di-tema):\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
     public function test_tidak_ada_bidang_abu_dan_teksnya_terbaca(): void
     {
         $bermasalah = [];

@@ -761,23 +761,22 @@
                         $categoryFilterOptions = ['' => 'Semua Kategori'];
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
-                    <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
-                    <select id="filterCategory" name="category" onchange="applyFilters()"
-                            class="select select-bordered h-10 min-h-10 w-full">
-                        @foreach ($categoryFilterOptions as $value => $label)
-                            <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    {{-- <x-select-dropdown> menggantikan <select> native: daftar
+                         pilihnya sekarang dirender daisyUI (dropdown + menu) sehingga
+                         ikut gelap, bukan popup putih milik sistem operasi. --}}
+                    <x-select-dropdown id="filterCategory" name="category"
+                                       :value="request('category', '')"
+                                       :options="$categoryFilterOptions"
+                                       placeholder="Semua Kategori"
+                                       label="Filter berdasarkan kategori" />
                 </div>
 
                 <div class="lg:col-span-2">
-                    <label for="filterPeriod" class="sr-only">Filter berdasarkan periode waktu</label>
-                    <select id="filterPeriod" name="period" onchange="applyFilters()"
-                            class="select select-bordered h-10 min-h-10 w-full">
-                        @foreach (['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini'] as $value => $label)
-                            <option value="{{ $value }}" @selected(request('period', 'all') === (string) $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    <x-select-dropdown id="filterPeriod" name="period"
+                                       :value="request('period', 'all')"
+                                       :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
+                                       placeholder="Semua Waktu"
+                                       label="Filter berdasarkan periode waktu" />
                 </div>
 
                 {{-- Kolom harus berjumlah pas 12, kalau tidak tombol Reset akan

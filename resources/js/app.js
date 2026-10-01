@@ -83,6 +83,19 @@ window.toggleTheme = function () {
     // Tipe TIDAK ada di sini: sejak diubah jadi segoup radio native, nilainya
     // diambil langsung dari FormData (sudah sinkron, tidak ada balapan Alpine).
     const SELECTS = { category: 'filterCategory', period: 'filterPeriod' };
+
+    // <select> native sudah diganti <x-select-dropdown> (dropdown + menu daisyUI).
+    // Elemen pembawa nilainya tetap <input type="hidden"> dengan id yang sama,
+    // jadi baca/tulis `.value` di bawah tetap jalan tanpa mengubah alur filter.
+    // Tapi label di tombol dropdown tidak ikut berubah kalau `.value` di-set
+    // diam-diam -- karena itu penetapan nilai di sini mengirim `change`.
+    function setControlValue(el, v) {
+        el.value = v;
+        // Custom event, BUKAN `change`: `change` dipakai komponen dropdown
+        // untuk memicu filter, jadi menyinkronkan label tidak boleh ikut
+        // mengirim request.
+        el.dispatchEvent(new CustomEvent('control:synced', { bubbles: true }));
+    }
     // Pilihan "Semua ..." = keadaan netral, dipakai oleh tombol reset dan
     // untuk membuang parameter kosong dari URL.
     const DEFAULTS = { search: '', type: '', category: '', period: 'all' };
@@ -154,7 +167,7 @@ window.toggleTheme = function () {
             // Waktu" seperti semula.
             const want = p.has(key) ? p.get(key) : DEFAULTS[key];
             const el = $(SELECTS[key]);
-            if (el && el.value !== want) el.value = want;
+            if (el && el.value !== want) setControlValue(el, want);
         }
     }
 
@@ -270,7 +283,7 @@ window.toggleTheme = function () {
                 syncTypeRadio(DEFAULTS.type);
                 for (const key in SELECTS) {
                     const el = $(SELECTS[key]);
-                    if (el) el.value = DEFAULTS[key];
+                    if (el) setControlValue(el, DEFAULTS[key]);
                 }
                 window.applyFilters();
             });

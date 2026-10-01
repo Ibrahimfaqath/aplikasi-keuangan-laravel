@@ -83,38 +83,29 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label for="audit-action" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Jenis Aksi</label>
-                        <select name="action" id="audit-action" class="select select-bordered h-10 min-h-10 w-full text-sm">
-                            <option value="">Semua aksi</option>
-                            <option value="created" @selected(($filters['action'] ?? '') === 'created')>Tambah</option>
-                            <option value="updated" @selected(($filters['action'] ?? '') === 'updated')>Ubah</option>
-                            <option value="deleted" @selected(($filters['action'] ?? '') === 'deleted')>Hapus</option>
-                            <option value="restored" @selected(($filters['action'] ?? '') === 'restored')>Pulihkan</option>
-                            <option value="force_deleted" @selected(($filters['action'] ?? '') === 'force_deleted')>Hapus permanen</option>
-                            <option value="auth" @selected(($filters['action'] ?? '') === 'auth')>Login / Logout / Registrasi</option>
-                        </select>
+                        <x-select-dropdown id="audit-action" name="action"
+                                       :value="$filters['action'] ?? ''"
+                                       :options="['' => 'Semua aksi', 'created' => 'Tambah', 'updated' => 'Ubah', 'deleted' => 'Hapus', 'restored' => 'Pulihkan', 'force_deleted' => 'Hapus permanen', 'auth' => 'Login / Logout / Registrasi']"
+                                       placeholder="Semua aksi"
+                                       label="Filter Semua aksi" />
                     </div>
 
                     <div>
                         <label for="audit-model" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Data</label>
-                        <select name="model" id="audit-model" class="select select-bordered h-10 min-h-10 w-full text-sm">
-                            <option value="">Semua data</option>
-                            <option value="transaction" @selected(($filters['model'] ?? '') === 'transaction')>Transaksi</option>
-                            <option value="budget" @selected(($filters['model'] ?? '') === 'budget')>Anggaran</option>
-                            <option value="category" @selected(($filters['model'] ?? '') === 'category')>Kategori</option>
-                            <option value="account" @selected(($filters['model'] ?? '') === 'account')>Profil</option>
-                        </select>
+                        <x-select-dropdown id="audit-model" name="model"
+                                       :value="$filters['model'] ?? ''"
+                                       :options="['' => 'Semua data', 'transaction' => 'Transaksi', 'budget' => 'Anggaran', 'category' => 'Kategori', 'account' => 'Profil']"
+                                       placeholder="Semua data"
+                                       label="Filter Semua data" />
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="audit-period" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Periode</label>
-                        <select name="period" id="audit-period" class="select select-bordered h-10 min-h-10 w-full text-sm">
-                            <option value="">Selama ini</option>
-                            <option value="today" @selected(($filters['period'] ?? '') === 'today')>Hari ini</option>
-                            <option value="week" @selected(($filters['period'] ?? '') === 'week')>7 hari terakhir</option>
-                            <option value="month" @selected(($filters['period'] ?? '') === 'month')>Bulan ini</option>
-                            <option value="quarter" @selected(($filters['period'] ?? '') === 'quarter')>90 hari terakhir</option>
-                            <option value="year" @selected(($filters['period'] ?? '') === 'year')>Tahun ini</option>
-                        </select>
+                        <x-select-dropdown id="audit-period" name="period"
+                                       :value="$filters['period'] ?? ''"
+                                       :options="['' => 'Selama ini', 'today' => 'Hari ini', 'week' => '7 hari terakhir', 'month' => 'Bulan ini', 'quarter' => '90 hari terakhir', 'year' => 'Tahun ini']"
+                                       placeholder="Selama ini"
+                                       label="Filter Selama ini" />
                     </div>
                 </div>
 

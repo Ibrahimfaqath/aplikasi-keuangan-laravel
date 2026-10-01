@@ -318,25 +318,22 @@
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
                     <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
-                    <select id="filterCategory" name="category" onchange="applyFilters()"
-                            class="select select-bordered h-10 min-h-10 w-full">
-                        @foreach ($categoryFilterOptions as $value => $label)
-                            <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
-                        @endforeach
-                    </select>
+                    <x-select-dropdown id="filterCategory" name="category"
+                                       :value="request('category', '')"
+                                       :options="$categoryFilterOptions"
+                                       placeholder="Semua Kategori"
+                                       label="Filter berdasarkan kategori" />
                 </div>
 
                 {{-- Di halaman Sampah, "periode" berarti kapan dibuang, bukan kapan
                      transaksinya terjadi — lihat TransactionController::trashed(). --}}
                 <div class="lg:col-span-2">
                     <label for="filterPeriod" class="sr-only">Filter berdasarkan kapan transaksi dihapus</label>
-                    <select id="filterPeriod" name="period" onchange="applyFilters()"
-                            class="select select-bordered h-10 min-h-10 w-full">
-                            <option value="{{ 'all' }}" @selected(request('period', 'all') === (string) 'all')>{{ 'Semua Waktu' }}</option>
-                            <option value="{{ 'today' }}" @selected(request('period', 'all') === (string) 'today')>{{ 'Hari Ini' }}</option>
-                            <option value="{{ '7_days' }}" @selected(request('period', 'all') === (string) '7_days')>{{ '7 Hari Terakhir' }}</option>
-                            <option value="{{ 'this_month' }}" @selected(request('period', 'all') === (string) 'this_month')>{{ 'Bulan Ini' }}</option>
-                    </select>
+                    <x-select-dropdown id="filterPeriod" name="period"
+                                       :value="request('period', 'all')"
+                                       :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
+                                       placeholder="Semua Waktu"
+                                       label="Filter berdasarkan kapan transaksi dihapus" />
                 </div>
 
                 {{-- Kolom harus berjumlah pas 12, kalau tidak tombol reset terdorong

@@ -284,24 +284,40 @@
                     </div>
                 </div>
 
+                @php
+                    // <x-select-dropdown> butuh [ nilai => label ]; <select> dulu
+                    // memakai @foreach langsung ke $expenseCategories.
+                    $budgetCategoryOptions = ['' => 'Keseluruhan (semua pengeluaran)'];
+                    foreach ($expenseCategories as $cat) { $budgetCategoryOptions[$cat] = $cat; }
+
+                    $budgetMonthOptions = [];
+                    for ($m = 1; $m <= 12; $m++) {
+                        $budgetMonthOptions[(string) $m] = $m === 1 ? '1 Bulan Ini' : $m.' Bulan';
+                    }
+                @endphp
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="budget-category" class="block text-xs font-semibold text-base-content/70 mb-2">Kategori</label>
-                        <select id="budget-category" name="category" class="select select-bordered w-full">
-                            <option value="">Keseluruhan (semua pengeluaran)</option>
-                            @foreach($expenseCategories as $cat)
-                                <option value="{{ $cat }}">{{ $cat }}</option>
-                            @endforeach
-                        </select>
+                        {{-- on-change kosong: form ini disubmit normal (POST), bukan filter AJAX.
+                                     Kalau dibiarkan applyFilters(), kategori yang
+                                     dipilih akan memicu permintaan yang tak berarti. --}}
+                        <x-select-dropdown id="budget-category" name="category" size="md"
+                                           :value="$budget?->category ?? ''"
+                                           :options="$budgetCategoryOptions"
+                                           placeholder="Keseluruhan (semua pengeluaran)"
+                                           label="Kategori anggaran"
+                                           :on-change="''" />
                         <p class="mt-1.5 text-[11px] text-base-content/60">Pilih kategori untuk anggaran khusus, mis. "Makanan &amp; Minuman".</p>
                     </div>
                     <div>
                         <label for="budget-months" class="block text-xs font-semibold text-base-content/70 mb-2">Berlaku Selama</label>
-                        <select id="budget-months" name="months" class="select select-bordered w-full">
-                            @for($m = 1; $m <= 12; $m++)
-                                <option value="{{ $m }}" @selected($m === 1)>{{ $m === 1 ? '1 Bulan Ini' : $m.' Bulan' }}</option>
-                            @endfor
-                        </select>
+                                                <x-select-dropdown id="budget-months" name="months" size="md"
+                                           :value="(string) ($budget?->months ?? 1)"
+                                           :options="$budgetMonthOptions"
+                                           placeholder="1 Bulan"
+                                           label="Berlaku selama berapa bulan"
+                                           :on-change="''" />
                         <p class="mt-1.5 text-[11px] text-base-content/60">Terapkan nominal yang sama ke beberapa bulan sekaligus.</p>
                     </div>
                 </div>
