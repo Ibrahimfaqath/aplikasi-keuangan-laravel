@@ -82,9 +82,22 @@ class DaisyUiGuardTest extends TestCase
     {
         $files = [];
 
-        foreach (glob(resource_path('views/**/*.blade.php')) ?: [] as $path) {
-            $files[$path] = file_get_contents($path);
+        // PENTING: pakai RecursiveDirectoryIterator, bukan glob('**/*.blade.php').
+        // `**` di glob() PHP BUKAN wildcard rekursif -- ia cuma berarti satu
+        // tingkat folder. Akibatnya 9 file di views/transactions/partials/ dan
+        // friends TIDAK PERNAH diperiksa sama sekali, jadi semua guard di bawah
+        // bisa lolos padahal ada pelanggaran di file-file itu.
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(resource_path('views'), \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && str_ends_with($file->getFilename(), '.blade.php')) {
+                $files[$file->getPathname()] = file_get_contents($file->getPathname());
+            }
         }
+
+        ksort($files);
 
         return $files;
     }
@@ -364,6 +377,48 @@ class DaisyUiGuardTest extends TestCase
             [],
             $bermasalah,
             "Segmented control tulis-tangan masih ada -- pakai tabs tabs-boxed + grid-cols-N:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
+    public function test_setiap_tabel_memakai_kelas_table_daisyui(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            // pdf.blade.php dikecualikan: halamannya dirender DOMPDF yang tidak memuat
+            // Tailwind sama sekali, jadi tabelnya digaya oleh <style> sendiri
+            // (header-table, data-table, dst) -- bukan oleh daisyUI.
+            if (str_ends_with($path, 'transactions/pdf.blade.php')) {
+                continue;
+            }
+
+            $source = $this->maskComments($raw);
+
+            // Tangkap semua tag <table>, lalu cek sendiri apakah class-nya
+            // memuat `table` daisyUI. (Lookahead untuk ini tidak bisa dipakai:
+            // `\btable\b` akan ikut cocok pada `table-zebra`.)
+            if (preg_match_all('/<table\b([^>]*)>/s', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[1] as [$atribut, $offset]) {
+                    $class = preg_match('/\bclass="([^"]*)"/', $atribut, $c) ? $c[1] : '';
+
+                    if (preg_match('/(?:^|\s)table(?:\s|$)/', $class)) {
+                        continue;
+                    }
+
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- pakai class="table" daisyUI',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        trim(preg_replace('/\s+/', ' ', '<table'.$atribut.'>'))
+                    );
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Tabel tanpa kelas daisyUI `table` (styling lama seperti border-collapse):\n - ".implode("\n - ", $bermasalah)
         );
     }
 

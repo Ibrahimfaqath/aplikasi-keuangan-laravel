@@ -817,21 +817,21 @@
 
             <div x-show="isLoading">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="table">
                         <thead>
-                            <tr class="bg-base-200/40 border-b border-base-300">
-                                <th class="py-3.5 px-4"><div class="h-4 w-20 skeleton"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-16 skeleton"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-24 skeleton"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-16 skeleton"></div></th>
-                                <th class="py-3.5 px-4 text-right"><div class="h-4 w-20 skeleton ml-auto"></div></th>
-                                <th class="py-3.5 px-4 text-center"><div class="h-4 w-12 skeleton mx-auto"></div></th>
+                            <tr>
+                                <th><div class="h-4 w-20 skeleton"></div></th>
+                                <th><div class="h-4 w-16 skeleton"></div></th>
+                                <th><div class="h-4 w-24 skeleton"></div></th>
+                                <th><div class="h-4 w-16 skeleton"></div></th>
+                                <th class="text-right"><div class="h-4 w-20 skeleton ml-auto"></div></th>
+                                <th class="text-center"><div class="h-4 w-12 skeleton mx-auto"></div></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-base-300">
+                        <tbody>
                             @for ($i = 0; $i < 5; $i++)
                             <tr>
-                                <td class="py-4 px-4">
+                                <td>
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 skeleton"></div>
                                         <div class="space-y-2">
@@ -840,13 +840,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-4"><div class="h-4 w-24 skeleton"></div></td>
-                                <td class="py-4 px-4"><div class="h-4 w-16 skeleton"></div></td>
-                                <td class="py-4 px-4 text-right"><div class="h-4 w-28 skeleton ml-auto"></div></td>
-                                <td class="py-4 px-4 text-center">
+                                <td><div class="h-4 w-24 skeleton"></div></td>
+                                <td><div class="h-4 w-16 skeleton"></div></td>
+                                <td class="text-right"><div class="h-4 w-28 skeleton ml-auto"></div></td>
+                                <td class="text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <div class="skeleton h-8 w-8 w-8 rounded-lg"></div>
-                                        <div class="skeleton h-8 w-8 w-8 rounded-lg"></div>
+                                        <div class="skeleton h-8 w-8 rounded-lg"></div>
+                                        <div class="skeleton h-8 w-8 rounded-lg"></div>
                                     </div>
                                 </td>
                             </tr>
