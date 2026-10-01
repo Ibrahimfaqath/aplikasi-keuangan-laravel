@@ -51,9 +51,19 @@
                 <!-- Quick Period Filter -->
                 <div>
                     <label for="modalPeriod" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Periode Laporan</label>
-                    <x-custom-select name="period" id="modalPeriod" label="Periode laporan" hide-label
-                        :options="['all' => 'Semua Transaksi', 'today' => 'Hari Ini', 'yesterday' => 'Kemarin', '7_days' => '7 Hari Terakhir', '30_days' => '30 Hari Terakhir', 'this_month' => 'Bulan Ini', 'last_month' => 'Bulan Lalu', 'this_year' => 'Tahun Ini', 'custom' => 'Rentang Tanggal Khusus']"
-                        selected="all" onchange="toggleCustomDates" />
+                    <label for="modalPeriod" class="sr-only">Periode laporan</label>
+                    <select id="modalPeriod" name="period" onchange="toggleCustomDates()"
+                            class="select select-bordered select-sm w-full">
+                            <option value="{{ 'all' }}" @selected('all' === (string) 'all')>{{ 'Semua Transaksi' }}</option>
+                            <option value="{{ 'today' }}" @selected('all' === (string) 'today')>{{ 'Hari Ini' }}</option>
+                            <option value="{{ 'yesterday' }}" @selected('all' === (string) 'yesterday')>{{ 'Kemarin' }}</option>
+                            <option value="{{ '7_days' }}" @selected('all' === (string) '7_days')>{{ '7 Hari Terakhir' }}</option>
+                            <option value="{{ '30_days' }}" @selected('all' === (string) '30_days')>{{ '30 Hari Terakhir' }}</option>
+                            <option value="{{ 'this_month' }}" @selected('all' === (string) 'this_month')>{{ 'Bulan Ini' }}</option>
+                            <option value="{{ 'last_month' }}" @selected('all' === (string) 'last_month')>{{ 'Bulan Lalu' }}</option>
+                            <option value="{{ 'this_year' }}" @selected('all' === (string) 'this_year')>{{ 'Tahun Ini' }}</option>
+                            <option value="{{ 'custom' }}" @selected('all' === (string) 'custom')>{{ 'Rentang Tanggal Khusus' }}</option>
+                    </select>
                 </div>
 
                 <!-- Custom Range Inputs -->
@@ -71,9 +81,13 @@
                 <!-- Filter Tipe Transaksi -->
                 <div>
                     <label for="modalType" class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1.5">Tipe Transaksi</label>
-                    <x-custom-select name="type" id="modalType" label="Tipe transaksi" hide-label
-                        :options="['' => 'Semua Tipe (Pemasukan & Pengeluaran)', 'income' => 'Hanya Pemasukan', 'expense' => 'Hanya Pengeluaran']"
-                        selected="" />
+                    <label for="modalType" class="sr-only">Tipe transaksi</label>
+                    <select id="modalType" name="type" onchange="applyFilters()"
+                            class="select select-bordered select-sm w-full">
+                            <option value="{{ '' }}" @selected('' === (string) '')>{{ 'Semua Tipe (Pemasukan & Pengeluaran)' }}</option>
+                            <option value="{{ 'income' }}" @selected('' === (string) 'income')>{{ 'Hanya Pemasukan' }}</option>
+                            <option value="{{ 'expense' }}" @selected('' === (string) 'expense')>{{ 'Hanya Pengeluaran' }}</option>
+                    </select>
                 </div>
 
                 <!-- Submit Button with Loading State -->

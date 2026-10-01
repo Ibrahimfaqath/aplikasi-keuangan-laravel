@@ -16,131 +16,6 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 
 // -----------------------------------------------------------------
-// CUSTOM SELECT (Alpine data factory untuk <x-custom-select>).
-// Pengganti <select> native agar daftar pilihan bisa di-style penuh,
-// tetap ramah keyboard + screen reader (roles listbox/option).
-// Dipakai via x-data="customSelect({options, selected, ...})".
-// -----------------------------------------------------------------
-window.customSelect = function (config) {
-    const list = Object.entries(config.options || {}).map(([value, label]) => ({
-        value: String(value),
-        label: String(label),
-    }));
-
-    return {
-        open: false,
-        value: String(config.selected ?? ''),
-        filter: '',
-        activeIndex: -1,
-        dropUp: false,
-        searchable: !!config.searchable,
-        onchange: config.onchange || '',
-        options: list,
-        typeBuffer: '',
-        typeTimer: null,
-
-        get selectedLabel() {
-            const found = this.options.find((o) => o.value === this.value);
-            return found ? found.label : 'Pilih…';
-        },
-        get filtered() {
-            const q = this.filter.trim().toLowerCase();
-            if (!q) return this.options;
-            return this.options.filter((o) => o.label.toLowerCase().includes(q));
-        },
-
-        toggle() {
-            if (this.open) this.close();
-            else this.openPanel();
-        },
-        openPanel() {
-            this.open = true;
-            this.filter = '';
-            const idx = this.options.findIndex((o) => o.value === this.value);
-            this.activeIndex = idx >= 0 ? idx : 0;
-            this.$nextTick(() => {
-                // Auto-flip: buka ke atas bila ruang bawah tidak cukup
-                // (mis. dropdown di dalam modal dekat bawah layar).
-                try {
-                    const r = this.$refs.trigger.getBoundingClientRect();
-                    const need = Math.min(224, this.filtered.length * 46 + 16);
-                    this.dropUp = window.innerHeight - r.bottom < need && r.top > need;
-                } catch (e) {
-                    this.dropUp = false;
-                }
-                if (this.searchable && this.$refs.search) this.$refs.search.focus();
-                this.scrollActiveIntoView();
-            });
-        },
-        close(refocus) {
-            this.open = false;
-            this.filter = '';
-            this.activeIndex = -1;
-            if (refocus && this.$refs.trigger) this.$refs.trigger.focus();
-        },
-        choose(opt) {
-            if (!opt) return;
-            this.value = opt.value;
-            this.close(true);
-            // Hook opsional: nama fungsi global, mis. "toggleCustomDates" di modal export.
-            if (this.onchange && typeof window[this.onchange] === 'function') {
-                window[this.onchange](this.value);
-            }
-        },
-        // Set nilai dari luar (sinkronisasi form saat tombol Back / reset).
-        // Sengaja tidak memanggil onchange supaya tidak memicu submit berulang.
-        setValue(v) {
-            this.value = v === null || v === undefined ? '' : String(v);
-            this.close();
-        },
-        move(dir) {
-            if (!this.open) {
-                this.openPanel();
-                return;
-            }
-            const n = this.filtered.length;
-            if (!n) return;
-            this.activeIndex = (((this.activeIndex + dir) % n) + n) % n;
-            this.scrollActiveIntoView();
-        },
-        chooseActive() {
-            const list = this.filtered;
-            if (!list.length) return;
-            if (this.activeIndex < 0 || this.activeIndex >= list.length) this.activeIndex = 0;
-            this.choose(list[this.activeIndex]);
-        },
-        scrollActiveIntoView() {
-            this.$nextTick(() => {
-                try {
-                    const el = this.$refs.list?.querySelector('[data-index="' + this.activeIndex + '"]');
-                    if (el && typeof el.scrollIntoView === 'function') {
-                        el.scrollIntoView({ block: 'nearest' });
-                    }
-                } catch (e) {}
-            });
-        },
-        // Type-ahead untuk dropdown non-searchable: ketik huruf untuk lompat ke opsi.
-        typeAhead(e) {
-            const key = e && e.key ? e.key : '';
-            if (key.length !== 1 || key === ' ') return;
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
-            if (this.searchable && document.activeElement === this.$refs.search) return;
-            if (!this.open) this.openPanel();
-            this.typeBuffer = (this.typeBuffer + key).toLowerCase().slice(-12);
-            clearTimeout(this.typeTimer);
-            this.typeTimer = setTimeout(() => {
-                this.typeBuffer = '';
-            }, 600);
-            const idx = this.filtered.findIndex((o) => o.label.toLowerCase().startsWith(this.typeBuffer));
-            if (idx >= 0) {
-                this.activeIndex = idx;
-                this.scrollActiveIntoView();
-            }
-        },
-    };
-};
-
-// -----------------------------------------------------------------
 // THEME CORE (vanilla, berlaku di semua halaman)
 // -----------------------------------------------------------------
 function getSavedTheme() {
@@ -218,32 +93,18 @@ window.toggleTheme = function () {
 
     const $ = (id) => document.getElementById(id);
 
-    function selectData(id) {
-        const el = $(id);
-        return el && window.Alpine && window.Alpine.$data ? window.Alpine.$data(el) : null;
-    }
-
     function currentParams() {
         const f = $('filterForm');
         if (!f) return new URLSearchParams();
 
+        // Filter diambil apa adanya dari FormData. Dulu nilai dropdown harus
+        // dibaca lewat Alpine.$data() karena x-custom-select mengikat nilainya
+        // secara reaktif, sehingga DOM masih menyimpan nilai LAMA ketika
+        // FormData dibaca — dropdown sudah menulis "Pemasukan" sementara tabel
+        // masih menampilkan data filter sebelumnya. Setelah diganti <select>
+        // native, .value selalu sudah benar saat form dibaca, jadi seluruh
+        // workaround balapan itu (dan selectData()) bisa dihapus.
         const fd = new FormData(f);
-        // PENTING: jangan percaya hidden input untuk nilai dropdown.
-        //
-        // x-custom-select mengikat nilainya secara reaktif (`:value="value"`),
-        // jadi yang tertulis di DOM baru menyusul di microtask berikutnya.
-        // Label di layar sudah ikut berubah duluan (itu getter), tapi
-        // FormData yang dibaca di sini masih membawa nilai SEBELUMNYA --
-        // hasilnya: dropdown menulis "Pemasukan" sementara tabel, Ringkasan,
-        // dan donat masih menampilkan data filter yang lama.
-        //
-        // Membaca langsung dari state Alpine menutup celah balapan itu, karena
-        // nilainya sudah benar pada saat itu juga. Radio `type` tidak punya
-        // masalah ini dan tetap dibaca lewat FormData seperti aslinya.
-        for (const key in SELECTS) {
-            const d = selectData(SELECTS[key]);
-            fd.set(key, d && typeof d.value === 'string' ? d.value : DEFAULTS[key]);
-        }
 
         // URL dijaga tetap ringkas: parameter yang kosong atau sama dengan
         // pilihan default tidak perlu ikut.
@@ -292,8 +153,8 @@ window.toggleTheme = function () {
             // parameter akan mengembalikan Periode ke kosong, bukan "Semua
             // Waktu" seperti semula.
             const want = p.has(key) ? p.get(key) : DEFAULTS[key];
-            const d = selectData(SELECTS[key]);
-            if (d && typeof d.setValue === 'function' && d.value !== want) d.setValue(want);
+            const el = $(SELECTS[key]);
+            if (el && el.value !== want) el.value = want;
         }
     }
 
@@ -378,7 +239,7 @@ window.toggleTheme = function () {
         load(params, true);
     }
 
-    // Dipanggil x-custom-select lewat prop `onchange`.
+    // Dipanggil atribut onchange pada `<select>` dan `<input>` filter.
     window.applyFilters = function () {
         if (timer) { clearTimeout(timer); timer = null; }
         run();
@@ -397,10 +258,9 @@ window.toggleTheme = function () {
             });
         }
 
-        // Reset: tanpa reload. form.reset() tidak menyentuh x-custom-select
-        // karena nilainya diikat Alpine, bukan properti DOM. Setiap dropdown
-        // dikembalikan ke pilihan "Semua ...", bukan ke string kosong, supaya
-        // Periode kembali ke "Semua Waktu" dan tidak menyisakan nilai aneh.
+        // Reset: tanpa reload. Setiap kontrol dikembalikan ke pilihan
+        // "Semua ...", bukan ke string kosong, supaya Periode kembali ke
+        // "Semua Waktu" dan tidak menyisakan nilai aneh di URL.
         const reset = $('filterReset');
         if (reset) {
             reset.addEventListener('click', function (e) {
@@ -409,8 +269,8 @@ window.toggleTheme = function () {
                 if (search) search.value = DEFAULTS.search;
                 syncTypeRadio(DEFAULTS.type);
                 for (const key in SELECTS) {
-                    const d = selectData(SELECTS[key]);
-                    if (d && typeof d.setValue === 'function') d.setValue(DEFAULTS[key]);
+                    const el = $(SELECTS[key]);
+                    if (el) el.value = DEFAULTS[key];
                 }
                 window.applyFilters();
             });

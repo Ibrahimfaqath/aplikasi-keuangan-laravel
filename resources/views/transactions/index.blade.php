@@ -36,20 +36,6 @@
             .shadow-sm, .shadow-md, .shadow-xl, .shadow-lg { box-shadow: none !important; border: 1px solid #ccc !important; }
         }
 
-        @keyframes skeleton-shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .animate-shimmer {
-            background: linear-gradient(90deg, rgba(229, 229, 229, 0.9) 25%, rgba(245, 245, 245, 0.95) 37%, rgba(229, 229, 229, 0.9) 63%);
-            background-size: 200% 100%;
-            animation: skeleton-shimmer 1.4s infinite ease-in-out;
-        }
-        .dark .animate-shimmer {
-            background: linear-gradient(90deg, rgba(23, 23, 23, 0.95) 25%, rgba(38, 38, 38, 0.95) 37%, rgba(23, 23, 23, 0.95) 63%);
-            background-size: 200% 100%;
-            animation: skeleton-shimmer 1.4s infinite ease-in-out;
-        }
 
         img[loading="lazy"] { background: #F5F5F5; }
         .dark img[loading="lazy"] { background: #262626; }
@@ -404,22 +390,22 @@
         <div x-show="isLoading"
              class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-white dark:bg-[#171717] border border-neutral-200 dark:border-[#333333] lg:border-0 rounded-2xl shadow-sm">
             <div class="relative space-y-5">
-                <div class="h-3 w-20 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                <div class="h-3 w-20 skeleton"></div>
                 <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
                      tinggi kartu tidak melompat saat isLoading -> false. -->
                 <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr_1fr] gap-y-4 md:gap-y-0 md:gap-x-6 pt-5 border-t border-neutral-200 dark:border-[#333333]">
                     <div class="text-center md:text-left space-y-2">
-                        <div class="h-3 w-16 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                        <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                        <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
+                        <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 skeleton"></div>
                     </div>
                     <div class="grid grid-cols-2 divide-x divide-neutral-300/70 dark:divide-[#333333] rounded-2xl bg-neutral-100/80 dark:bg-[#262626]/50 py-3 md:contents">
                         <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
-                            <div class="h-3 w-16 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                            <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
+                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 skeleton"></div>
                         </div>
                         <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
-                            <div class="h-3 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
-                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 bg-neutral-200 dark:bg-[#262626] rounded animate-shimmer"></div>
+                            <div class="h-3 w-20 mx-auto md:mx-0 skeleton"></div>
+                            <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 skeleton"></div>
                         </div>
                     </div>
                 </div>
@@ -643,7 +629,7 @@
                     </span>
                 </div>
 
-                <div class="h-64 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                <div class="h-64 sm:h-72 flex items-center justify-center skeleton"
                      x-show="isLoading">
                     <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
                 </div>
@@ -657,7 +643,7 @@
                  isinya, dan daftar rincian di samping grafiknya sudah menandai
                  kategori mana yang paling besar. -->
             <div x-show="analisisTab === 'kategori'" x-cloak>
-                <div class="h-64 sm:h-72 flex items-center justify-center bg-neutral-100 dark:bg-[#262626]/50 rounded-xl animate-shimmer"
+                <div class="h-64 sm:h-72 flex items-center justify-center skeleton"
                      x-show="isLoading">
                     <span class="text-neutral-400 dark:text-neutral-500 text-sm">Memuat grafik...</span>
                 </div>
@@ -754,14 +740,23 @@
                         $categoryFilterOptions = ['' => 'Semua Kategori'];
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
-                    <x-custom-select name="category" id="filterCategory" label="Filter berdasarkan kategori"
-                        :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" onchange="applyFilters" />
+                    <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
+                    <select id="filterCategory" name="category" onchange="applyFilters()"
+                            class="select select-bordered select-sm w-full">
+                        @foreach ($categoryFilterOptions as $value => $label)
+                            <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="lg:col-span-2">
-                    <x-custom-select name="period" id="filterPeriod" label="Filter berdasarkan periode waktu"
-                        :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
-                        :selected="request('period', 'all')" onchange="applyFilters" />
+                    <label for="filterPeriod" class="sr-only">Filter berdasarkan periode waktu</label>
+                    <select id="filterPeriod" name="period" onchange="applyFilters()"
+                            class="select select-bordered select-sm w-full">
+                        @foreach (['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini'] as $value => $label)
+                            <option value="{{ $value }}" @selected(request('period', 'all') === (string) $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 {{-- Kolom harus berjumlah pas 12, kalau tidak tombol Reset akan
@@ -804,12 +799,12 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-neutral-50 dark:bg-[#262626]/40 border-b border-neutral-200 dark:border-[#333333]">
-                                <th class="py-3.5 px-4"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></th>
-                                <th class="py-3.5 px-4 text-right"><div class="h-4 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></th>
-                                <th class="py-3.5 px-4 text-center"><div class="h-4 w-12 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer mx-auto"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-20 skeleton"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-16 skeleton"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-24 skeleton"></div></th>
+                                <th class="py-3.5 px-4"><div class="h-4 w-16 skeleton"></div></th>
+                                <th class="py-3.5 px-4 text-right"><div class="h-4 w-20 skeleton ml-auto"></div></th>
+                                <th class="py-3.5 px-4 text-center"><div class="h-4 w-12 skeleton mx-auto"></div></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-neutral-200 dark:divide-[#333333]">
@@ -817,20 +812,20 @@
                             <tr>
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-neutral-200 dark:bg-[#333333] rounded-xl animate-shimmer"></div>
+                                        <div class="w-8 h-8 skeleton"></div>
                                         <div class="space-y-2">
-                                            <div class="h-4 w-32 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div>
-                                            <div class="h-3 w-20 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div>
+                                            <div class="h-4 w-32 skeleton"></div>
+                                            <div class="h-3 w-20 skeleton"></div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-4"><div class="h-4 w-24 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-4"><div class="h-4 w-16 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer"></div></td>
-                                <td class="py-4 px-4 text-right"><div class="h-4 w-28 bg-neutral-200 dark:bg-[#333333] rounded animate-shimmer ml-auto"></div></td>
+                                <td class="py-4 px-4"><div class="h-4 w-24 skeleton"></div></td>
+                                <td class="py-4 px-4"><div class="h-4 w-16 skeleton"></div></td>
+                                <td class="py-4 px-4 text-right"><div class="h-4 w-28 skeleton ml-auto"></div></td>
                                 <td class="py-4 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <div class="h-8 w-8 bg-neutral-200 dark:bg-[#333333] rounded-lg animate-shimmer"></div>
-                                        <div class="h-8 w-8 bg-neutral-200 dark:bg-[#333333] rounded-lg animate-shimmer"></div>
+                                        <div class="skeleton h-8 w-8 w-8 rounded-lg"></div>
+                                        <div class="skeleton h-8 w-8 w-8 rounded-lg"></div>
                                     </div>
                                 </td>
                             </tr>

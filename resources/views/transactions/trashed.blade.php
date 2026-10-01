@@ -317,16 +317,26 @@
                         $categoryFilterOptions = ['' => 'Semua Kategori'];
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
                     @endphp
-                    <x-custom-select name="category" id="filterCategory" label="Filter berdasarkan kategori"
-                        :options="$categoryFilterOptions" :selected="request('category', '')" :searchable="true" onchange="applyFilters" />
+                    <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
+                    <select id="filterCategory" name="category" onchange="applyFilters()"
+                            class="select select-bordered select-sm w-full">
+                        @foreach ($categoryFilterOptions as $value => $label)
+                            <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 {{-- Di halaman Sampah, "periode" berarti kapan dibuang, bukan kapan
                      transaksinya terjadi — lihat TransactionController::trashed(). --}}
                 <div class="lg:col-span-2">
-                    <x-custom-select name="period" id="filterPeriod" label="Filter berdasarkan kapan transaksi dihapus"
-                        :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
-                        :selected="request('period', 'all')" onchange="applyFilters" />
+                    <label for="filterPeriod" class="sr-only">Filter berdasarkan kapan transaksi dihapus</label>
+                    <select id="filterPeriod" name="period" onchange="applyFilters()"
+                            class="select select-bordered select-sm w-full">
+                            <option value="{{ 'all' }}" @selected(request('period', 'all') === (string) 'all')>{{ 'Semua Waktu' }}</option>
+                            <option value="{{ 'today' }}" @selected(request('period', 'all') === (string) 'today')>{{ 'Hari Ini' }}</option>
+                            <option value="{{ '7_days' }}" @selected(request('period', 'all') === (string) '7_days')>{{ '7 Hari Terakhir' }}</option>
+                            <option value="{{ 'this_month' }}" @selected(request('period', 'all') === (string) 'this_month')>{{ 'Bulan Ini' }}</option>
+                    </select>
                 </div>
 
                 {{-- Kolom harus berjumlah pas 12, kalau tidak tombol reset terdorong
