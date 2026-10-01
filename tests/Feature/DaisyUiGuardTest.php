@@ -287,8 +287,23 @@ class DaisyUiGuardTest extends TestCase
 
         $this->assertStringContainsString('daisyui', $konfigurasi, 'Plugin daisyUI belum terdaftar.');
         $this->assertStringContainsString('themes: [{ lofi }, { black }]', $konfigurasi, 'Daftar tema berubah — sesuaikan juga theme-boot partial dan applyTheme() di app.js.');
-        $this->assertStringContainsString("'base-100': '#1c1c1c'", $konfigurasi, 'Override base-100 tema gelap hilang; surface kartu akan kembali lebih gelap dari latar.');
-        $this->assertStringContainsString("'base-200': '#0d0d0d'", $konfigurasi, 'Override base-200 tema gelap hilang.');
+
+        // base-100/200/300/base-content tema gelap harus MELETAKKAN nilai asli
+        // daisyUI (tidak di-override). Kalau ada override hex di sini, mode
+        // gelap akan terasa kurang pekat daripada tema `black` daisyUI — itu
+        // yang pernah terjadi: base-100 dipaksa #1c1c1c sehingga sidebar dan
+        // setiap kartu ter-render abu terang, bukan hitam pekat.
+        foreach (["'base-100'", "'base-200'", "'base-300'", "'base-content'"] as $token) {
+            // Menangkap pola  'base-100': '#1c1c1c'  — token override hex.
+            $pola = '/'.preg_quote($token, '/').":\\s*'#/";
+
+            $this->assertDoesNotMatchRegularExpression(
+                $pola,
+                $konfigurasi,
+                $token.' tema gelap di-override. Pakai nilai asli daisyUI '
+                .'supaya mode gelap benar-benar pekat.'
+            );
+        }
 
         // Nama tema harus sama di ketiga tempat yang merujuknya, kalau tidak
         // komponen daisyUI diam-diam memakai tema bawaan yang lain.

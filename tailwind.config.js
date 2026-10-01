@@ -68,18 +68,30 @@ const lofi = {
 const black = {
     ...daisyuiThemes.black,
     ...radius,
-    'base-100': '#1c1c1c', // surface kartu  (sebelumnya #171717)
-    'base-200': '#0d0d0d', // latar halaman (sebelumnya #0A0A0A)
-    'base-300': '#2e2e2e', // border + hover (sebelumnya #333333)
-    'base-content': '#e5e5e5', // teks utama    (sebelumnya #FAFAFA)
-    // Primary di mode gelap dibalik jadi terang. Bawaan `black` bernilai
-    // #373737 — abu gelap, sehingga `btn-primary` terlihat redup BERBEDA dari
-    // tombol aksi utama yang lain. Sementara tema terang sudah benar:
-    // `lofi` primary #0D0D0D dengan konten putih. Setelah dibalik di sini,
-    // `btn-primary` memakai pola inversi yang sama dengan tab aktif, avatar, dan
-    // tombol "Tambah" di sidebar, di kedua mode.
+    // base-100/200/300/base-content SENGAJA TIDAK di-override: pakai nilai
+    // asli tema `black` daisyUI, yaitu
+    //   base-100 #000000  surface (sidebar, kartu, input)
+    //   base-200 #141414  latar halaman
+    //   base-300 #262626  border + hover
+    //   base-content #d6d6d6 teks utama
     //
-    // `neutral` sengaja TIDAK diubah: ia dipakai badge sekunder (angka Sampah)
+    // Sebelumnya base-100 dipaksa #1c1c1c dengan alasan "kartu harus lebih
+    // terang dari latar". Hasilnya majority permukaan aplikasi (sidebar dan
+    // setiap kartu) ter-render abu terang, sehingga mode gelap terasa jauh
+    // kurang pekat daripada tema `black` daisyUI. Sekarang kartu benar-benar
+    // hitam pekat.
+    //
+    // Konsekuensinya: kartu (base-100 #000) lebih GELAP dari latar
+    // (base-200 #141414). Itu memang konvensi tema `black` daisyUI, dan batas
+    // kartunya tetap terbaca karena `border-base-300`.
+    //
+    // Primary dibalik jadi terang: bawaan #373737 (abu) membuat `btn-primary`
+    // redup dan berbeda dari tombol aksi utama lain. `lofi` sudah benar
+    // (#0D0D0D + konten putih), jadi setelah dibalik di sini `btn-primary`
+    // memakai pola inversi yang sama dengan tab aktif, avatar, dan tombol
+    // "Tambah" di sidebar, di kedua mode.
+    //
+    // `neutral` sengaja TIDAK diubah: dipakai badge sekunder (angka Sampah)
     // dan elemen non-aksi yang memang harus tetap redup.
     primary: '#e5e5e5',
     'primary-content': '#1c1c1c',
