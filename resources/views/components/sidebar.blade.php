@@ -141,7 +141,7 @@
             // `menu-title` untuk label grup. Class `sb-section-label` tetap
             // ditambahkan karena app.css memakainya untuk menyembunyikan label
             // saat sidebar dikecilkan.
-            echo '<li class="sb-section-label menu-title px-3 pb-1 text-[11px] uppercase tracking-wider text-base-content/40">'.e($groupLabel).'</li>';
+            echo '<li class="sb-section-label menu-title px-3 pb-1 pt-2 text-[11px] uppercase tracking-wider text-base-content/40">'.e($groupLabel).'</li>';
 
             foreach ($items as $item) {
                 $active = ! empty($item['active']) ? ' active' : '';
@@ -222,8 +222,8 @@
 
             <!-- Bottom utilities (ikut scroll bersama nav) -->
             <div class="pt-2">
-                <p class="sb-section-label menu-title px-3 pb-1 text-[11px] uppercase tracking-wider text-base-content/40">Utilitas</p>
                 <ul class="menu menu-sm w-full gap-0.5 p-0">
+                    <li class="sb-section-label menu-title px-3 pb-1 pt-2 text-[11px] uppercase tracking-wider text-base-content/40">Utilitas</li>
                     <li>
                         <button type="button" data-privacy-toggle
                                 aria-label="Sembunyikan atau tampilkan saldo" title="Sembunyikan / tampilkan saldo"
@@ -379,8 +379,8 @@
                 {!! $menuGroups('drawer = false; ') !!}
 
                 <div>
-                    <p class="menu-title px-3 pb-1 text-[11px] uppercase tracking-wider text-base-content/40">Tampilan</p>
                     <ul class="menu menu-sm w-full gap-0.5 p-0">
+                        <li class="menu-title px-3 pb-1 pt-2 text-[11px] uppercase tracking-wider text-base-content/40">Tampilan</li>
                         <li>
                             <button type="button" data-privacy-toggle class="sb-link min-h-[44px] gap-3">
                                 <svg data-lock-open class="w-5 h-5 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>

@@ -85,6 +85,21 @@
    collapsed. Offset posisinya tetap digerakkan lewat `sb-collapsed` di <html>.
    ========================================================== */
 
+/* Item menu daisyUI memakai `display: grid`:
+       .menu :where(li:not(.menu-title) > *:not(ul, details, .menu-title, .btn))
+   Akibatnya ikon dan teks jadi dua baris terpisah, dan karena
+   `min-h-[44px]` lebih tinggi daripada isinya, kontennya menempel di ATAS —
+   keluhan "teksnya terlalu ke atas, tidak di tengah".
+
+   Yang kita mau justru satu baris flex yang menengahkan isinya. `html .sb-link`
+   dipilih supaya spesifisitasnya (0,1,1) Pasti mengalahkan aturan `.menu`
+   (0,1,0, karena bagian `:where()` tidak menambah bobot), jadi tidak bergantung
+   pada urutan layer sama sekali. */
+html .sb-link {
+    display: flex;
+    align-items: center;
+}
+
 /* Item menu yang aktif.
    Bawaan daisyUI mewarnainya `neutral`, yang di tema gelap bernilai #373737 —
    abu tengah yang tidak muncul di tempat lain pada app ini. Pola inversi
