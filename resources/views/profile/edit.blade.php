@@ -67,7 +67,7 @@
                 <p class="text-xs text-base-content/60 mt-0.5">Perbarui nama dan email akun kamu.</p>
             </div>
 
-            <form method="post" action="{{ route('profile.update') }}" class="card-body p-6 space-y-5">
+            <form method="post" action="{{ route('profile.update') }}" class="card-body p-6 gap-5">
                 @csrf @method('patch')
 
                 <div>
@@ -122,7 +122,7 @@
                 <p class="text-xs text-base-content/60 mt-0.5">Gunakan password yang kuat untuk keamanan akun.</p>
             </div>
 
-            <form method="post" action="{{ route('password.update') }}" class="card-body p-6 space-y-5">
+            <form method="post" action="{{ route('password.update') }}" class="card-body p-6 gap-5">
                 @csrf @method('put')
 
                 <div>

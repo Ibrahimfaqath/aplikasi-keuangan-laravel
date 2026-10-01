@@ -681,7 +681,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Catat Transaksi
                 </a>
-                <a href="{{ route('transactions.import') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-base-300 bg-white dark:bg-transparent px-5 py-2.5 text-sm font-semibold text-base-content/80 transition hover:bg-base-300">
+                <a href="{{ route('transactions.import') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-5 py-2.5 text-sm font-semibold text-base-content/80 transition hover:bg-base-300">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                     Import CSV
                 </a>

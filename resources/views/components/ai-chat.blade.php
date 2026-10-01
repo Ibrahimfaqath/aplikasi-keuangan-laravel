@@ -12,7 +12,7 @@
     <button @click="toggleChat()"
             type="button"
             aria-label="Buka AI Assistant"
-            class="flex items-center justify-center w-14 h-14 bg-base-content hover:bg-base-content/80 text-base-100 rounded-2xl shadow-sm hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:ring-offset-2 dark:focus:ring-offset-[#0A0A0A]"
+            class="btn btn-primary btn-circle w-14 h-14 shadow-sm hover:scale-105 transition-all duration-200"
             :class="isOpen ? 'scale-105' : ''">
 
         <!-- Icon Chat -->
@@ -34,13 +34,13 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-96 max-h-[70vh] bg-base-100 rounded-2xl shadow-sm border border-base-300 overflow-hidden flex flex-col"
+         class="card absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-96 max-h-[70vh] bg-base-100 border border-base-300 overflow-hidden flex flex-col"
          @click.away="closeChat()">
 
         <!-- Header -->
         <div class="flex items-center justify-between px-4 py-3 border-b border-base-300 bg-base-200/50">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
+                <div class="avatar placeholder"><div class="w-8 h-8 rounded-box bg-base-content text-base-100"><span class="text-[10px] font-bold">AI</span></div></div>
                 <div>
                     <p class="text-xs font-bold text-base-content">dompetku AI</p>
                     <p class="text-[10px] text-base-content/60">Asisten Keuangan</p>
@@ -70,7 +70,7 @@
             <template x-for="msg in messages" :key="messages.indexOf(msg)">
                 <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex gap-3'">
                     <template x-if="msg.role === 'assistant'">
-                        <div class="w-7 h-7 rounded-lg bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-[10px]">AI</div>
+                        <div class="avatar placeholder"><div class="w-7 h-7 rounded-box bg-base-content text-base-100"><span class="text-[10px] font-bold">AI</span></div></div>
                     </template>
                     <div :class="msg.role === 'user' ? 'bg-base-content text-base-100 rounded-2xl rounded-tr-md px-3 py-2 max-w-[85%]' : 'bg-base-200 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-3 py-2 max-w-[85%]'">
                         <p class="text-xs whitespace-pre-wrap break-words" x-text="msg.text"></p>
@@ -88,11 +88,8 @@
             </div>
             <div x-show="loading" class="flex justify-start">
                 <div class="bg-base-200 border border-base-300 rounded-2xl rounded-tl-md px-4 py-2">
-                    <span class="inline-flex gap-1">
-                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:0ms"></span>
-                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:150ms"></span>
-                        <span class="w-1.5 h-1.5 bg-base-content/40 rounded-full animate-bounce" style="animation-delay:300ms"></span>
-                    </span>
+                    <span class="loading loading-dots loading-sm" role="status"></span>
+                    <span class="sr-only">Asisten sedang mengetik</span>
                 </div>
             </div>
         </div>
@@ -114,7 +111,7 @@
                 <button @click="confirmTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-base-content hover:bg-base-content/80 text-base-100 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content">
+                        class="btn btn-primary btn-sm gap-1.5">
                     <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     <svg x-show="confirming" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                     <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
@@ -122,7 +119,7 @@
                 <button @click="cancelTransaction()"
                         type="button"
                         :disabled="confirming"
-                        class="inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[2.5rem] bg-white dark:bg-transparent hover:bg-base-300 text-base-content/80 border border-base-300 text-xs font-semibold rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-base-content/40">
+                        class="btn btn-outline btn-sm gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     <span>Batal</span>
                 </button>
@@ -134,11 +131,11 @@
             <input type="text"
                    x-model="input"
                    placeholder="Tanya atau catat transaksi..."
-                   class="flex-1 px-3 py-2 bg-base-100 border border-base-300 rounded-xl text-xs text-base-content placeholder:text-base-content/40 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300"
+                   class="input input-bordered input-sm flex-1"
                    :disabled="loading">
             <button type="submit"
                     :disabled="loading || !input.trim()"
-                    class="px-4 py-2 bg-base-content hover:bg-base-content/80 text-base-100 text-xs font-semibold rounded-xl transition disabled:opacity-50">
+                    class="btn btn-primary btn-sm">
                 <span x-show="!loading">Kirim</span>
                 <span x-show="loading" class="inline-block animate-pulse">•••</span>
             </button>
