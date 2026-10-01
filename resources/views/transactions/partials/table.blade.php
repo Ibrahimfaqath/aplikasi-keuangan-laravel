@@ -3,9 +3,9 @@
      oleh endpoint ?partial=1 saat filter berubah tanpa reload. Satu sumber
      markup, jadi tidak mungkin diverge. Butuh: $transactions --}}
             <div class="hidden md:block overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="table">
                     <thead>
-                        <tr class="bg-base-200/40 border-b border-base-300 text-base-content/60 text-xs font-semibold">
+                        <tr>
                             <th class="py-3.5 px-4">Tanggal</th>
                             <th class="py-3.5 px-4">Bukti</th>
                             <th class="py-3.5 px-4">Keterangan</th>
@@ -92,7 +92,7 @@
                                     <span class="truncate">{{ $catName }}</span>
                                 </span>
                             </td>
-                            <td class="py-4 px-4 text-right font-bold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                            <td class="py-4 px-4 text-right font-bold whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-success' : 'text-error' }}"
 data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
                                 {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                             </td>
@@ -113,7 +113,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                         @empty
                         <tr>
                             <td colspan="6" class="py-16 text-center">
-                                <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-base-content/60 rounded-xl flex items-center justify-center">
+                                <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-base-content/60 rounded-box flex items-center justify-center">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
                                 <h3 class="text-sm font-bold text-base-content">Tidak ada transaksi</h3>
@@ -165,7 +165,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                         </div>
 
                         <div class="flex-shrink-0 flex flex-col items-end gap-1">
-                            <p class="font-bold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}"
+                            <p class="font-bold text-sm sm:text-base whitespace-nowrap privacy-target {{ ($item->type ?? 'income') == 'income' ? 'text-success' : 'text-error' }}"
                                data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}">
                                 {{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\Services\AmountFormatter::compact($item->amount ?? $item->nominal ?? 0) }}
                             </p>
@@ -183,21 +183,21 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                          x-transition:leave="transition ease-in duration-150"
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="no-print flex items-center justify-end gap-2 pt-3 mt-3 border-t border-base-300">
+                         class="no-print flex flex-wrap items-center justify-end gap-2 pt-3 mt-3 border-t border-base-300">
                         @if(!empty($item->image))
-                        <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/80 rounded-lg text-xs font-semibold transition">
+                        <a href="{{ asset('storage/' . $item->image) }}" target="_blank" class="btn btn-ghost btn-xs gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             <span>Bukti</span>
                         </a>
                         @endif
-                        <a href="{{ route('transactions.edit', $item->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/80 rounded-lg text-xs font-semibold transition">
+                        <a href="{{ route('transactions.edit', $item->id) }}" class="btn btn-ghost btn-xs gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Edit</span>
                         </a>
 
                         <form action="{{ route('transactions.destroy', $item->id) }}" method="POST" class="inline">
                             @csrf @method('DELETE')
-                            <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-lg text-xs font-semibold transition">
+                            <button type="submit" onclick="return confirm('Hapus transaksi ini?')" class="btn btn-primary btn-xs gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 <span>Hapus</span>
                             </button>
@@ -206,7 +206,7 @@ data-amount="{{ ($item->type ?? 'income') == 'income' ? '+' : '−' }} {{ \App\S
                 </div>
                 @empty
                 <div class="py-16 text-center">
-                    <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-base-content/60 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 mx-auto mb-3 bg-base-200 text-base-content/60 rounded-box flex items-center justify-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <h3 class="text-sm font-bold text-base-content">Tidak ada transaksi</h3>

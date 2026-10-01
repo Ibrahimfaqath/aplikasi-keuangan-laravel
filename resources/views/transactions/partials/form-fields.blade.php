@@ -12,7 +12,7 @@
 
 <div class="space-y-2">
     @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-    <div class="flex items-start gap-2.5 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-2">
+    <div class="flex items-start gap-2.5 rounded-box border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-2">
         <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
         <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">
             Mode demo — form ini terkunci. Data hanya bisa dilihat, bukan diubah.
@@ -25,16 +25,16 @@
         Jenis Transaksi
     </label>
 
-    <div class="grid grid-cols-2 gap-1 p-1 bg-base-200 rounded-xl border border-base-300"
+    <div class="grid grid-cols-2 gap-1 p-1 bg-base-200 rounded-box border border-base-300"
          role="radiogroup" aria-label="Jenis Transaksi">
         <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
-            <input type="radio" name="type" value="income" class="sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
+            <input type="radio" name="type" value="income" class="radio radio-sm sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
             <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
         </label>
 
         <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
-            <input type="radio" name="type" value="expense" class="sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
+            <input type="radio" name="type" value="expense" class="radio radio-sm sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
             <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
             <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
         </label>
@@ -53,7 +53,7 @@
         <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
             Nominal Transaksi
         </label>
-        <div class="relative rounded-xl shadow-sm">
+        <div class="relative rounded-box shadow-sm">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/40 font-bold text-base sm:text-lg">
                 Rp
             </div>
@@ -66,7 +66,7 @@
                 required
                 min="1"
                 step="any"
-                class="w-full pl-12 pr-4 py-3 bg-base-200 border border-base-300 rounded-xl text-base-content font-extrabold text-base sm:text-lg placeholder:text-base-content/40 dark:placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content transition @error('amount') border-red-400 bg-red-50/50 @enderror"
+                class="input input-bordered w-full pl-12 font-extrabold text-base sm:text-lg @error('amount') input-error @enderror"
             >
         </div>
         @error('amount')
@@ -89,7 +89,7 @@
                     id="transaction_date"
                     value="{{ $dateValue }}"
                     required
-                    class="date-field w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content focus:bg-white focus:bg-base-200 transition @error('transaction_date') border-red-400 @enderror"
+                    class="date-field input input-bordered w-full font-medium @error('transaction_date') input-error @enderror"
                 >
                 <svg class="date-field-icon pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -114,7 +114,7 @@
                 value="{{ $titleValue }}"
                 placeholder="Contoh: Gaji Bulanan, Beli Kopi"
                 required
-                class="w-full px-4 py-3 bg-base-200 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 font-medium focus:outline-none focus:ring-2 focus:ring-base-content dark:focus:ring-base-300 focus:border-base-content focus:bg-white focus:bg-base-200 transition @error('title') border-red-400 @enderror"
+                class="input input-bordered w-full font-medium @error('title') input-error @enderror"
             >
             @error('title')
                 <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
@@ -153,7 +153,7 @@
                 $selected = $categoryValue == $cat;
                 $active = $selected ? ' active' : '';
                 return '<button type="button" data-category="' . e($cat) . '"' .
-                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl border text-xs font-semibold transition bg-base-200/60 border-base-300 text-base-content/80 hover:border-base-content dark:hover:border-base-300' . $active . '">' .
+                    ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-box border text-xs font-semibold transition bg-base-200/60 border-base-300 text-base-content/80 hover:border-base-content dark:hover:border-base-300' . $active . '">' .
                     '<span class="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center transition">' .
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                     '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
@@ -184,7 +184,7 @@
     <div x-data="{ open: @json(isset($transaction) && $transaction->image) }" class="space-y-3">
         <button type="button" @click="open = !open"
                 aria-expanded="false" :aria-expanded="open.toString()"
-                class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-base-300 bg-base-200/50 text-base-content/80 hover:bg-base-300 transition">
+                class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-box border border-base-300 bg-base-200/50 text-base-content/80 hover:bg-base-300 transition">
             <span class="flex items-center gap-2.5 min-w-0">
                 <svg class="w-4 h-4 shrink-0 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 <span class="text-sm font-semibold text-base-content">Fitur Lanjutan</span>
@@ -205,7 +205,7 @@
         </label>
         <button type="button" @click="toggleVoice()"
                 :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-base-200 text-base-content/80 border-base-300'"
-                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-semibold text-sm transition">
+                class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-box border font-semibold text-sm transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
             </svg>
@@ -226,7 +226,7 @@
         <div class="grid grid-cols-2 gap-3">
             <button type="button"
                     id="btnGallery"
-                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-xl border border-base-300 font-medium text-sm transition">
+                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-box border border-base-300 font-medium text-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -235,7 +235,7 @@
 
             <button type="button"
                     id="btnCamera"
-                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-xl border border-base-300 font-medium text-sm transition">
+                    class="btn-upload flex items-center justify-center gap-2 px-4 py-2.5 bg-base-200 hover:bg-base-300 text-base-content/80 rounded-box border border-base-300 font-medium text-sm transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -247,10 +247,10 @@
         <input type="file" name="image" id="fileInput" accept="image/*" class="hidden">
 
         <div id="dropZone"
-             class="relative border-2 border-dashed border-base-300 hover:border-base-content dark:hover:border-base-300 rounded-xl p-6 text-center bg-base-200/40 hover:bg-base-300 transition cursor-pointer hidden md:block">
+             class="relative border-2 border-dashed border-base-300 hover:border-base-content dark:hover:border-base-300 rounded-box p-6 text-center bg-base-200/40 hover:bg-base-300 transition cursor-pointer hidden md:block">
 
             <div id="uploadPlaceholder" class="space-y-2">
-                <div class="w-12 h-12 mx-auto bg-base-content text-base-100 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 mx-auto bg-base-content text-base-100 rounded-box flex items-center justify-center">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -263,7 +263,7 @@
         </div>
 
         <div id="previewContainer" class="hidden">
-            <div class="relative overflow-hidden rounded-xl border border-base-300 bg-base-100">
+            <div class="relative overflow-hidden rounded-box border border-base-300 bg-base-100">
                 <img id="imagePreview" src="#" alt="Preview bukti transaksi"
                      class="w-full max-h-80 object-contain bg-base-200">
                 <div class="flex items-center justify-between gap-2 px-3 py-2.5 border-t border-base-300">
@@ -300,16 +300,16 @@
 
     <div class="sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row items-center justify-end gap-3 -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 border-t border-base-300 bg-base-100 rounded-b-2xl"
          style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
-        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-base-200 hover:bg-base-content/10 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold transition">
+        <a href="{{ route('transactions.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-base-100 text-base-content/80 hover:bg-base-200 hover:bg-base-content/10 border border-base-300 rounded-box text-xs sm:text-sm font-semibold transition">
             Batal
         </a>
         @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-        <span class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-base-200 text-base-content/40 border border-base-300 rounded-xl text-xs sm:text-sm font-semibold cursor-not-allowed">
+        <span class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-base-200 text-base-content/40 border border-base-300 rounded-box text-xs sm:text-sm font-semibold cursor-not-allowed">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
             Simpan Terkunci (Mode Demo)
         </span>
         @else
-        <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">
+        <button type="submit" class="btn btn-primary w-full sm:w-auto gap-2 shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>

@@ -10,9 +10,11 @@
      Butuh: $hasActiveFilters (bool), $compact (bool — dirender di dalam <td> tabel) --}}
 
 <div class="mx-auto {{ $compact ?? false ? 'max-w-sm' : 'max-w-md' }}">
-    <div class="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center
+    {{-- Warna ditulis lewat token semantic, bukan pasangan amber-50 +
+          dark:amber-400, supaya ikut benar di kedua mode. --}}
+    <div class="w-12 h-12 mx-auto mb-3 rounded-box flex items-center justify-center
                 {{ ($hasActiveFilters ?? false)
-                    ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+                    ? 'bg-warning/10 text-warning'
                     : 'bg-base-200 text-base-content/60' }}">
         @if ($hasActiveFilters ?? false)
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
@@ -28,7 +30,7 @@
             Data kamu tetap aman — coba longgarkan filter untuk melihatnya.
         </p>
         <a href="{{ route('transactions.trashed') }}"
-           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs font-semibold transition">
+           class="btn btn-primary btn-sm mt-4 gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             Reset filter
         </a>
@@ -38,7 +40,7 @@
             Belum ada transaksi yang dihapus. Kalau ada, bakalan muncul di sini dan masih bisa dipulihkan.
         </p>
         <a href="{{ route('transactions.index') }}"
-           class="inline-flex items-center gap-1.5 mt-4 px-3.5 py-2 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/80 rounded-xl text-xs font-semibold transition">
+           class="btn btn-ghost btn-sm mt-4 gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
             Lihat transaksi
         </a>

@@ -422,12 +422,12 @@
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
                     <a href="{{ route('transactions.create') }}"
-                       class="inline-flex items-center gap-1.5 rounded-xl bg-base-content px-3 py-1.5 text-xs font-semibold text-base-100 shadow-sm transition hover:bg-base-content/80">
+                       class="btn btn-primary btn-xs shadow-sm">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                         Tambah
                     </a>
                     <button type="button" data-privacy-toggle
-                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/70 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content dark:focus-visible:ring-base-300"
+                            class="btn btn-ghost btn-sm btn-square"
                             aria-label="Sembunyikan saldo" title="Sembunyikan saldo">
                         <svg data-lock-open class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
                         <svg data-lock-closed class="w-[18px] h-[18px] hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
@@ -502,7 +502,7 @@
                     </div>
                 </div>
                 <a href="{{ route('budgets.index') }}"
-                   class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-base-200 hover:bg-base-300 text-base-content/70 border border-base-300 rounded-lg text-xs font-semibold transition no-print flex-shrink-0">
+                   class="btn btn-ghost btn-xs no-print flex-shrink-0">
                     Kelola
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
                 </a>
@@ -570,7 +570,7 @@
                 <div class="mt-3.5 flex items-center justify-between gap-3 rounded-lg border border-dashed border-base-300 bg-base-200/40 px-3 py-2.5">
                     <p class="text-[11px] font-semibold text-base-content/70">Belum ada anggaran bulan ini</p>
                     <a href="{{ route('budgets.index') }}"
-                       class="flex-shrink-0 inline-flex items-center px-2.5 py-1.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-lg text-[11px] font-semibold transition no-print">
+                       class="btn btn-primary btn-xs no-print shrink-0">
                         Atur
                     </a>
                 </div>
@@ -588,7 +588,7 @@
                     <p class="text-xs text-base-content/60"
                        x-text="analisisTab === 'tren' ? 'Perbandingan pemasukan dan pengeluaran' : 'Pengeluaran per kategori'">Perbandingan pemasukan dan pengeluaran</p>
                 </div>
-                <div class="inline-flex items-center gap-1 p-1 bg-base-200 border border-base-300 rounded-full no-print flex-shrink-0 self-start sm:self-auto">
+                <div class="badge badge-sm no-print flex-shrink-0 self-start sm:self-auto">
                     <button type="button" @click="setAnalisisTab('tren')"
                             class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
                             :class="analisisTab === 'tren' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
@@ -606,7 +606,7 @@
                  tombol periode yang sedang aktif. -->
             <div x-show="analisisTab === 'tren'" x-cloak>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                    <div class="inline-flex items-center gap-1 p-1 bg-base-200 border border-base-300 rounded-full no-print">
+                    <div class="badge badge-sm no-print">
                         <button type="button" @click="setTrendPeriod('week')"
                                 class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
                                 :class="trendPeriod === 'week' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
@@ -677,11 +677,11 @@
             <h2 class="mt-4 text-lg font-bold tracking-tight text-base-content">{{ $transactions->total() === 0 ? 'Mulai Kelola Keuanganmu' : 'Transaksi Masih Sedikit' }}</h2>
             <p class="mx-auto mt-1.5 max-w-md text-sm text-base-content/60">{{ $transactions->total() === 0 ? 'Catat pemasukan dan pengeluaran pertama agar ringkasan, grafik, dan laporan muncul otomatis di dashboard ini.' : 'Tambahkan beberapa transaksi lagi agar grafik tren dan analisis kategori tampil di dashboard ini.' }}</p>
             <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="{{ route('transactions.create') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-base-content px-5 py-2.5 text-sm font-semibold text-base-100 shadow-sm transition hover:bg-base-content/80">
+                <a href="{{ route('transactions.create') }}" class="btn btn-primary shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Catat Transaksi
                 </a>
-                <a href="{{ route('transactions.import') }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-base-300 bg-base-100 px-5 py-2.5 text-sm font-semibold text-base-content/80 transition hover:bg-base-300">
+                <a href="{{ route('transactions.import') }}" class="btn btn-ghost">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
                     Import CSV
                 </a>
@@ -763,7 +763,7 @@
                      3 (cari) + 4 (tipe) + 2 (kategori) + 2 (periode) + 1 (reset). --}}
                 <div class="lg:col-span-1 flex gap-2 items-center justify-end">
                     <a id="filterReset" href="{{ route('transactions.index') }}" title="Reset filter" aria-label="Reset semua filter"
-                       class="inline-flex items-center justify-center h-[38px] w-[38px] sm:h-[42px] sm:w-[42px] shrink-0 bg-base-100 text-base-content/60 border border-base-300 rounded-xl text-sm font-semibold hover:bg-base-200 hover:bg-base-content/10 hover:text-base-content transition {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">
+                       class="btn btn-ghost btn-sm btn-square shrink-0 {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </a>
                     <p id="filterStatus" role="status" aria-live="polite" class="sr-only"></p>
@@ -781,12 +781,12 @@
                 </div>
                 <div class="flex items-center gap-2">
                 <a href="{{ route('transactions.trashed') }}" title="Lihat transaksi di Sampah"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-200 hover:bg-base-300 hover:bg-base-content/10 text-base-content/70 rounded-xl text-xs font-semibold transition no-print">
+                   class="btn btn-ghost btn-xs no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                     Sampah
                 </a>
                 <a href="{{ route('transactions.create') }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-content hover:bg-base-content/80 text-base-100 rounded-xl text-xs font-semibold transition no-print">
+                   class="btn btn-primary btn-xs no-print">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     Tambah
                 </a>
