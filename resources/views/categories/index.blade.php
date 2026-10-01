@@ -111,7 +111,7 @@
                 </p>
             </div>
             @unless ($isDemo)
-            <button type="button" @click="openCreate()" class="btn btn-neutral btn-sm">
+            <button type="button" @click="openCreate()" class="btn btn-primary btn-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Tambah Kategori
             </button>
@@ -397,7 +397,7 @@
                                         :aria-label="'Ikon ' + key" :title="key"
                                         class="btn btn-xs btn-square h-8 w-8"
                                         :class="icon === key
-                                            ? 'btn-neutral'
+                                            ? 'btn-primary'
                                             : 'btn-ghost text-base-content/60'">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path :d="iconSet[key]"/></svg>
                                 </button>
@@ -421,7 +421,7 @@
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-base-300">
                         <button type="button" @click="closeModal()" class="btn btn-outline btn-sm">Batal</button>
                         <button type="submit" :disabled="! canSubmit()"
-                                class="btn btn-neutral btn-sm disabled:opacity-40"
+                                class="btn btn-primary btn-sm disabled:opacity-40"
                                 x-text="isEditing() ? 'Simpan Perubahan' : 'Simpan Kategori'"></button>
                     </div>
                 </form>

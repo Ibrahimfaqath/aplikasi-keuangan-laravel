@@ -67,7 +67,7 @@
                         Masuk
                     </a>
                     <a href="{{ route('register') }}"
-                       class="btn btn-neutral h-10 min-h-0 whitespace-nowrap px-3 text-sm font-semibold sm:px-4">
+                       class="btn btn-primary h-10 min-h-0 whitespace-nowrap px-3 text-sm font-semibold sm:px-4">
                         <span class="sm:hidden">Daftar</span><span class="hidden sm:inline">Daftar Gratis</span>
                     </a>
                 </div>
@@ -100,7 +100,7 @@
 
                         <div class="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
                             <a href="{{ route('register') }}"
-                               class="btn btn-neutral h-12 w-full gap-2 whitespace-nowrap text-sm sm:w-auto">
+                               class="btn btn-primary h-12 w-full gap-2 whitespace-nowrap text-sm sm:w-auto">
                                  Mulai Gratis
                                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                              </a>
@@ -396,7 +396,7 @@
                         </p>
                         <div class="mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
                             <a href="{{ route('register') }}"
-                               class="btn btn-neutral h-12 w-full gap-2 whitespace-nowrap text-sm sm:w-auto">
+                               class="btn btn-primary h-12 w-full gap-2 whitespace-nowrap text-sm sm:w-auto">
                                  Daftar Gratis
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                             </a>

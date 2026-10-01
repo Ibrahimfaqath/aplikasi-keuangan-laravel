@@ -75,7 +75,7 @@
                 </p>
             </div>
             @unless ($isDemo)
-            <button type="button" onclick="openBudgetModal()" class="btn btn-neutral btn-sm no-print">
+            <button type="button" onclick="openBudgetModal()" class="btn btn-primary btn-sm no-print">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 Tambah Anggaran
             </button>
@@ -161,7 +161,7 @@
                     <h3 class="text-sm font-bold text-base-content">Belum ada anggaran bulan ini</h3>
                     <p class="text-xs text-base-content/60 mt-1 max-w-xs">Tetapkan batas pengeluaran untuk mengontrol keuanganmu lebih disiplin.</p>
                     @unless ($isDemo)
-                    <button type="button" onclick="openBudgetModal()" class="btn btn-neutral btn-sm mt-4 no-print">
+                    <button type="button" onclick="openBudgetModal()" class="btn btn-primary btn-sm mt-4 no-print">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                         Atur Anggaran
                     </button>
@@ -309,7 +309,7 @@
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-base-300">
                     <button type="button" onclick="closeBudgetModal()" class="btn btn-outline btn-sm">Batal</button>
                     <button type="submit" :disabled="!(parseFloat(amount) > 0)"
-                            class="btn btn-neutral btn-sm disabled:opacity-40">Simpan Anggaran</button>
+                            class="btn btn-primary btn-sm disabled:opacity-40">Simpan Anggaran</button>
                 </div>
             </form>
 

@@ -72,6 +72,17 @@ const black = {
     'base-200': '#0d0d0d', // latar halaman (sebelumnya #0A0A0A)
     'base-300': '#2e2e2e', // border + hover (sebelumnya #333333)
     'base-content': '#e5e5e5', // teks utama    (sebelumnya #FAFAFA)
+    // Primary di mode gelap dibalik jadi terang. Bawaan `black` bernilai
+    // #373737 — abu gelap, sehingga `btn-primary` terlihat redup BERBEDA dari
+    // tombol aksi utama yang lain. Sementara tema terang sudah benar:
+    // `lofi` primary #0D0D0D dengan konten putih. Setelah dibalik di sini,
+    // `btn-primary` memakai pola inversi yang sama dengan tab aktif, avatar, dan
+    // tombol "Tambah" di sidebar, di kedua mode.
+    //
+    // `neutral` sengaja TIDAK diubah: ia dipakai badge sekunder (angka Sampah)
+    // dan elemen non-aksi yang memang harus tetap redup.
+    primary: '#e5e5e5',
+    'primary-content': '#1c1c1c',
     ...semanticDark,
 };
 

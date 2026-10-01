@@ -130,7 +130,7 @@
                     Pilih File Lain
                 </a>
                 @if (count($valid) > 0)
-                <button type="submit" class="btn btn-neutral btn-sm w-full sm:w-auto">
+                <button type="submit" class="btn btn-primary btn-sm w-full sm:w-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
