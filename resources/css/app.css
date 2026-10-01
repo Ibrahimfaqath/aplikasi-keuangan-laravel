@@ -77,11 +77,25 @@
 /* ==========================================================
    APP SHELL — sidebar fixed + collapse (desktop lg+)
 
-   Sidebar memakai komponen `drawer` daisyUI, tetapi state collapse
-   disimpan di localStorage, bukan lewat checkbox `<input>` seperti
-   bawaan daisyUI. Karena itu lebar dan offset posisinya masih harus
-   digerakkan manual lewat kelas `sb-collapsed` di <html>.
+   Isi sidebar memakai komponen `menu` daisyUI, tapi cangkangnya tetap
+   fixed + bisa di-COLLAPSE (256px <-> 76px) dengan state di localStorage.
+   daisyUI `drawer` tidak dipakai karena sumbunya lain: drawer itu
+   buka/tutup, sementara yang di sini memperkecil. Memaksakan drawer berarti
+   membungkus isi tiap halaman dengan `.drawer-content` dan kehilangan mode
+   collapsed. Offset posisinya tetap digerakkan lewat `sb-collapsed` di <html>.
    ========================================================== */
+
+/* Item menu yang aktif.
+   Bawaan daisyUI mewarnainya `neutral`, yang di tema gelap bernilai #373737 —
+   abu tengah yang tidak muncul di tempat lain pada app ini. Pola inversi
+   (netral di atas kebalikan) justru sudah dipakai untuk tab aktif, tombol
+   utama, dan avatar, jadi di sini disamakan supaya sidebar tidak jadi satu
+  -satunya tempat dengan gaya active yang berbeda. */
+.menu li > .active {
+    background-color: var(--bc);
+    color: var(--b1);
+}
+
 @media (min-width: 1024px) {
     .app-shell-content {
         padding-left: 256px;
