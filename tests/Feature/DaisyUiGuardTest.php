@@ -75,6 +75,9 @@ class DaisyUiGuardTest extends TestCase
         'modal-xl' => 'daisyUI v4 tidak punya modifier ukuran modal; pakai `sm:max-w-*` di atas modal-box',
     ];
 
+    /** Palet Tailwind: warna tetap yang tidak mengikuti tema sama sekali. */
+    private const PALET_TAILWIND = '/\b(?:bg|text|border|ring|fill|stroke|from|to|via)-(?:red|green|emerald|blue|yellow|amber|orange|purple|pink|indigo|cyan|teal|sky|lime|violet|rose)-[0-9]{2,3}\b/';
+
     private function bladeFiles(): array
     {
         $files = [];
@@ -278,6 +281,124 @@ class DaisyUiGuardTest extends TestCase
             [],
             $bermasalah,
             "Utilitas yang sudah diganti komponen daisyUI masih dipakai:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
+    public function test_segmented_control_wajib_pakai_tabs_dan_grid_cols(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+
+            // `tabs-boxed` daisyUI memakai display:grid dengan kolom auto, jadi
+            // tiap tab ikut lebar teksnya: "Semua" jadi jauh lebih sempit dari
+            // "Pengeluaran". Itu yang bikin segmented control terlihat murdering.
+            // Fix: tambahkan grid-cols-N supaya tiap segmen sama lebar.
+            if (preg_match_all('/class="([^"]*\\btabs-boxed\\b[^"]*)"/', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[1] as [$kelas, $offset]) {
+                    if (! preg_match('/\\bgrid-cols-\\d/', $kelas)) {
+                        $bermasalah[] = sprintf(
+                            '%s:%d  tabs-boxed tanpa grid-cols-N -> segmen tidak sama lebar',
+                            $this->relative($path),
+                            $this->locate($source, $offset)
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Segmented control tanpa grid-cols-N (tiap segmen jadi lebar berbeda):\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
+    public function test_tidak_ada_segmented_control_tulis_tangan(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+
+            // Segmented control buatan sendiri = <button> berbentuk pil. Dua
+            // gejalanya: <button> dibungkus <div class="badge"> (badge cuma
+            // untuk label, bukan wadah tombol --sehingga tinggi terkunci 1rem dan
+            // tombolnya meluber), dan tombol pil bergaya rounded-full.
+            $pola = [
+                '/<div class="badge[^"]*">(?:(?!<\\/div>).)*?<button/s' => 'tombol di dalam .badge',
+                '/\\bpx-3\\.5 py-1\\.5 rounded-full\\b/' => 'pola segmented control lama (px-3.5 py-1.5 rounded-full)',
+            ];
+
+            foreach ($pola as $regex => $alasan) {
+                if (preg_match($regex, $source, $m, PREG_OFFSET_CAPTURE)) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s',
+                        $this->relative($path),
+                        $this->locate($source, $m[0][1]),
+                        $alasan
+                    );
+                }
+            }
+
+            // Tombol berbentuk pil (rounded-full) itu sah kalau sudah pakai
+            // komponen btn daisyUI -- misalnya chip nominal cepat di /budgets.
+            // Yang dilarang adalah <button> rounded-full TANPA kelas btn:
+            // itu segmented control buatan sendiri yang tidak ikut terkunci
+            // tinggi daisyUI, sehingga never aligns with tetangganya.
+            if (preg_match_all('/<button[^>]*class="([^"]*)"[^>]*>/s', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[1] as [$kelas, $offset]) {
+                    if (str_contains($kelas, 'rounded-full') && ! preg_match('/\\bbtn\\b/', $kelas)) {
+                        $bermasalah[] = sprintf(
+                            '%s:%d  <button> rounded-full tanpa kelas btn',
+                            $this->relative($path),
+                            $this->locate($source, $offset)
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Segmented control tulis-tangan masih ada -- pakai tabs tabs-boxed + grid-cols-N:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
+    public function test_warna_semantik_pakai_token_bukan_palet_tailwind(): void
+    {
+        $bermasalah = [];
+
+        // Peta warna KATEGORI memang disengaja bervariasi -- itu identitas
+        // kategori, bukan warna semantik, dan tiap warnanya punya pasangan
+        // `dark:`. Jadi blok peta itu dikecualikan dari aturan ini.
+        $petaKategori = '/\$pillThemes\s*=\s*\[.*?\];/s';
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+
+            // Disamarkan dengan spasi agar panjang & offset tetap sama supaya
+            // nomor baris di pesan error akurat.
+            $source = preg_replace_callback($petaKategori, static fn (array $m): string => str_repeat(' ', strlen($m[0])), $source);
+
+            if (preg_match_all(self::PALET_TAILWIND, $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$kelas, $offset]) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- pakai token daisyUI (mis. text-error, bg-success/10)',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        $kelas
+                    );
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Warna semantik masih memakai palet Tailwind (tidak ikut berubah saat tema diganti):\n - ".implode("\n - ", $bermasalah)
         );
     }
 

@@ -12,11 +12,11 @@
 
 <div class="space-y-2">
     @if (\App\Services\DemoMode::isEnabled() && \App\Services\DemoMode::isDemoUser(Auth::user()))
-    <div class="flex items-start gap-2.5 rounded-box border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-3.5 mb-2">
-        <svg class="w-4 h-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
-        <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">
+    <div class="flex items-start gap-2.5 rounded-box border border-warning/30 bg-warning/10 p-3.5 mb-2">
+        <svg class="w-4 h-4 mt-0.5 shrink-0 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>
+        <p class="text-xs font-semibold text-base-content">
             Mode demo — form ini terkunci. Data hanya bisa dilihat, bukan diubah.
-            <a href="{{ route('register') }}" class="underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200">Daftar gratis</a> untuk mencoba mencatat.
+            <a href="{{ route('register') }}" class="underline underline-offset-2 hover:text-warning">Daftar gratis</a> untuk mencoba mencatat.
         </p>
     </div>
     @endif
@@ -29,18 +29,18 @@
          role="radiogroup" aria-label="Jenis Transaksi">
         <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
             <input type="radio" name="type" value="income" class="radio radio-sm sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
-            <span class="w-6 h-6 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
+            <span class="w-6 h-6 rounded-lg bg-success text-success-content flex items-center justify-center text-sm font-mono font-bold shrink-0">+</span>
             <span class="text-xs sm:text-sm font-bold">Pemasukan</span>
         </label>
 
         <label class="relative flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-lg cursor-pointer select-none transition-colors has-[:checked]:bg-base-content has-[:checked]:text-base-100 has-[:checked]:shadow-sm text-base-content/60 hover:text-base-content dark:hover:text-base-content focus-within:ring-2 focus-within:ring-base-content dark:focus-within:ring-base-300">
             <input type="radio" name="type" value="expense" class="radio radio-sm sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
-            <span class="w-6 h-6 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
+            <span class="w-6 h-6 rounded-lg bg-error text-error-content flex items-center justify-center text-sm font-mono font-bold shrink-0">−</span>
             <span class="text-xs sm:text-sm font-bold">Pengeluaran</span>
         </label>
     </div>
     @error('type')
-        <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+        <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             {{ $message }}
         </p>
@@ -70,7 +70,7 @@
             >
         </div>
         @error('amount')
-            <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+            <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 {{ $message }}
             </p>
@@ -96,7 +96,7 @@
                 </svg>
             </div>
             @error('transaction_date')
-                <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+                <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     {{ $message }}
                 </p>
@@ -117,7 +117,7 @@
                 class="input input-bordered w-full font-medium @error('title') input-error @enderror"
             >
             @error('title')
-                <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+                <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     {{ $message }}
                 </p>
@@ -172,7 +172,7 @@
             </div>
         </div>
         @error('category')
-            <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+            <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 {{ $message }}
             </p>
@@ -204,7 +204,7 @@
             Input Cepat via Suara <span class="text-base-content/40 font-normal lowercase">(Bawaan Browser)</span>
         </label>
         <button type="button" @click="toggleVoice()"
-                :class="recording ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-400' : 'bg-base-200 text-base-content/80 border-base-300'"
+                :class="recording ? 'border-error/30 bg-error/10 text-error' : 'bg-base-200 text-base-content/80 border-base-300'"
                 class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-box border font-semibold text-sm transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
@@ -289,7 +289,7 @@
         </div>
 
         @error('image')
-            <p class="text-xs text-red-600 dark:text-red-400 font-medium mt-1 flex items-center gap-1">
+            <p class="text-xs text-error font-medium mt-1 flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 {{ $message }}
             </p>

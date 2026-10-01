@@ -84,6 +84,11 @@
                 showAnalytics: @json((bool) ($showAnalytics ?? true)),
                 trendChartInstance: null,
                 categoryChartInstance: null,
+                // Warna yang benar-benar dipakai Chart.js. Dititipkan ke Alpine
+                // supaya titik legenda memakai nilai yang sama persis -- kalau
+                // di-hardcode terpisah, warna grafik dan legendanya pasti
+                // melenceng begitu tema atau data berubah.
+                trendColors: { income: '#16A34A', expense: '#DC2626' },
 
                 // Format Rupiah ringkas: di bawah 1 juta tampil lengkap;
                 // dari 1 juta ke atas dipadatkan per besaran (rb -> juta ->
@@ -248,6 +253,9 @@
                     const expenseColor = isDark ? '#F87171' : '#DC2626';
                     const incomeFill = isDark ? 'rgba(74, 222, 128, 0.07)' : 'rgba(22, 163, 74, 0.07)';
                     const expenseFill = isDark ? 'rgba(248, 113, 113, 0.07)' : 'rgba(220, 38, 38, 0.05)';
+
+                    // Satu sumber kebenaran untuk batang + titik legenda.
+                    this.trendColors = { income: incomeColor, expense: expenseColor };
 
                     this.trendChartInstance = new Chart(canvas, {
                         type: 'bar',
@@ -422,8 +430,8 @@
 
                 <div class="flex items-center gap-2 shrink-0 no-print">
                     <a href="{{ route('transactions.create') }}"
-                       class="btn btn-primary btn-xs shadow-sm">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                       class="btn btn-primary btn-sm shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                         Tambah
                     </a>
                     <button type="button" data-privacy-toggle
@@ -456,14 +464,14 @@
                 <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-200/80 bg-base-200/50 py-3 md:contents">
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
-                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-green-600 dark:text-green-400 privacy-target"
+                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-success privacy-target"
                            x-bind:data-amount="'+ ' + rupiahCompact(totalIncome)"
                            x-bind:title="'+ ' + rupiah(totalIncome)"
                            x-text="'+ ' + rupiahCompact(totalIncome)"></p>
                     </div>
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pengeluaran</p>
-                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-red-600 dark:text-red-400 privacy-target"
+                        <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-error privacy-target"
                            x-bind:data-amount="'− ' + rupiahCompact(totalExpense)"
                            x-bind:title="'− ' + rupiah(totalExpense)"
                            x-text="'− ' + rupiahCompact(totalExpense)"></p>
@@ -491,7 +499,7 @@
         <section class="bg-base-100 border border-base-300 lg:border-0 rounded-2xl p-4 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <div class="w-8 h-8 rounded-lg bg-info/10 text-info border border-info/30 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -517,21 +525,21 @@
                     $remaining  = $p['remaining'];
                     $isOver     = $p['isOver'];
                     $daily      = $p['daily'];
-                    // Progress semantic: calm neutral, amber saat ≥80%, red saat over
-                    $barColor   = $isOver ? 'bg-red-500' : ($percentage >= 80 ? 'bg-amber-500' : 'bg-base-content');
+                    // Progress semantic: netral, warning saat ≥80%, error saat over
+                    $barColor   = $isOver ? 'bg-error' : ($percentage >= 80 ? 'bg-warning' : 'bg-base-content');
                 @endphp
 
                 <div class="mt-4 flex items-end justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-[11px] font-medium {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-base-content/60' }}">
+                        <p class="text-[11px] font-medium {{ $isOver ? 'text-error' : 'text-base-content/60' }}">
                             {{ $isOver ? 'Melebihi anggaran' : 'Sisa anggaran' }}
                         </p>
-                        <p class="mt-0.5 text-2xl sm:text-3xl font-bold tracking-tight leading-tight tabular-nums privacy-target {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-base-content' }}"
+                        <p class="mt-0.5 text-2xl sm:text-3xl font-bold tracking-tight leading-tight tabular-nums privacy-target {{ $isOver ? 'text-error' : 'text-base-content' }}"
                            data-amount="{{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}">
                             {{ $isOver ? '−' : '' }}{{ \App\Services\AmountFormatter::compact(abs($remaining)) }}
                         </p>
                     </div>
-                    <p class="flex-shrink-0 text-xl sm:text-2xl font-bold tabular-nums leading-none pb-1 {{ $isOver ? 'text-red-600 dark:text-red-400' : 'text-base-content' }}">{{ $percentage }}%</p>
+                    <p class="flex-shrink-0 text-xl sm:text-2xl font-bold tabular-nums leading-none pb-1 {{ $isOver ? 'text-error' : 'text-base-content' }}">{{ $percentage }}%</p>
                 </div>
 
                 <div class="mt-3 w-full h-2.5 bg-base-300 rounded-full overflow-hidden">
@@ -556,9 +564,9 @@
                 </div>
 
                 @if($isOver)
-                <p class="mt-3 text-xs font-semibold text-red-700 dark:text-red-400">
+                <p class="mt-3 text-xs font-semibold text-error">
                     Batas bulan ini terlampaui —
-                    <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">kelola anggaran</a>.
+                    <a href="{{ route('budgets.index') }}" class="underline underline-offset-2 hover:text-error/80">kelola anggaran</a>.
                 </p>
                 @endif
             @elseif($categoryBudgets->isNotEmpty())
@@ -588,15 +596,21 @@
                     <p class="text-xs text-base-content/60"
                        x-text="analisisTab === 'tren' ? 'Perbandingan pemasukan dan pengeluaran' : 'Pengeluaran per kategori'">Perbandingan pemasukan dan pengeluaran</p>
                 </div>
-                <div class="badge badge-sm no-print flex-shrink-0 self-start sm:self-auto">
-                    <button type="button" @click="setAnalisisTab('tren')"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                            :class="analisisTab === 'tren' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
+                {{-- Pola segmented control yang sama dengan baris filter:
+                     `tabs tabs-boxed` menata latar, radius, dan state aktif.
+                     h-8 supaya setinggi btn-sm di header kartu. --}}
+                <div class="tabs tabs-boxed grid-cols-2 h-8 no-print flex-shrink-0 self-start sm:self-auto"
+                     role="tablist" aria-label="Tampilan analisis">
+                    <button type="button" role="tab" @click="setAnalisisTab('tren')"
+                            class="tab h-full px-3 text-xs font-semibold"
+                            :class="analisisTab === 'tren' ? 'tab-active' : ''"
+                            :aria-selected="analisisTab === 'tren'">
                         Tren
                     </button>
-                    <button type="button" @click="setAnalisisTab('kategori')"
-                            class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                            :class="analisisTab === 'kategori' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
+                    <button type="button" role="tab" @click="setAnalisisTab('kategori')"
+                            class="tab h-full px-3 text-xs font-semibold"
+                            :class="analisisTab === 'kategori' ? 'tab-active' : ''"
+                            :aria-selected="analisisTab === 'kategori'">
                         Kategori
                     </button>
                 </div>
@@ -606,26 +620,30 @@
                  tombol periode yang sedang aktif. -->
             <div x-show="analisisTab === 'tren'" x-cloak>
                 <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                    <div class="badge badge-sm no-print">
-                        <button type="button" @click="setTrendPeriod('week')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'week' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
+                    <div class="tabs tabs-boxed grid-cols-3 h-8 no-print"
+                         role="tablist" aria-label="Periode grafik">
+                        <button type="button" role="tab" @click="setTrendPeriod('week')"
+                                class="tab h-full px-2 text-xs font-semibold"
+                                :class="trendPeriod === 'week' ? 'tab-active' : ''"
+                                :aria-selected="trendPeriod === 'week'">
                             Minggu
                         </button>
-                        <button type="button" @click="setTrendPeriod('month')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'month' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
+                        <button type="button" role="tab" @click="setTrendPeriod('month')"
+                                class="tab h-full px-2 text-xs font-semibold"
+                                :class="trendPeriod === 'month' ? 'tab-active' : ''"
+                                :aria-selected="trendPeriod === 'month'">
                             Bulan
                         </button>
-                        <button type="button" @click="setTrendPeriod('year')"
-                                class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition"
-                                :class="trendPeriod === 'year' ? 'bg-base-content text-base-100 shadow-sm' : 'text-base-content/60 hover:text-base-content dark:hover:text-base-content'">
+                        <button type="button" role="tab" @click="setTrendPeriod('year')"
+                                class="tab h-full px-2 text-xs font-semibold"
+                                :class="trendPeriod === 'year' ? 'tab-active' : ''"
+                                :aria-selected="trendPeriod === 'year'">
                             Tahun
                         </button>
                     </div>
                     <span class="flex items-center gap-3 text-xs font-semibold text-base-content/70">
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-600 flex-shrink-0"></span> Pemasukan</span>
-                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 flex-shrink-0"></span> Pengeluaran</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" :style="'background-color: ' + trendColors.income"></span> Pemasukan</span>
+                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" :style="'background-color: ' + trendColors.expense"></span> Pengeluaran</span>
                     </span>
                 </div>
 
@@ -699,7 +717,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari transaksi..." autocomplete="off"
-                           class="w-full pl-11 pr-4 py-2.5 bg-base-100 border border-base-300 rounded-xl text-xs sm:text-sm text-base-content placeholder:text-base-content/40 focus:outline-none focus:border-base-content focus:border-base-content focus:ring-1 focus:ring-base-content dark:focus:ring-base-300 transition">
+                           class="input input-bordered h-10 w-full pl-11 text-sm">
                 </div>
 
                 {{-- Tipe memakai segoup radio asli, bukan tombol JS: tetap ikut
@@ -708,27 +726,31 @@
                 <div class="lg:col-span-4">
                     <fieldset>
                         <legend class="sr-only">Filter berdasarkan tipe transaksi</legend>
-                        <div class="flex w-full gap-1 p-1 rounded-xl bg-base-200 border border-base-300">
+                        {{-- Segmented control: `tabs tabs-boxed` handles background,
+                             radius, padding, dan state aktif. `.tabs` = grid, jadi
+                             ketiga tab otomatis sama lebar. h-10 di container +
+                             h-full di tab = 40px, sama dengan input & select
+                             di sebelahnya.
+
+                             Pola ini identik dengan yang dipakai di /transactions/trashed
+                             dan /categories — jangan dibuat ulang dengan div + peer. --}}
+                        <div class="tabs tabs-boxed grid-cols-3 h-10 w-full" role="group">
                             @php
                                 $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
                                 $currentType = (string) request('type', '');
                             @endphp
                             @foreach ($typeFilters as $typeValue => $typeLabel)
+                                {{-- Tiap pasangan input+label dibungkus <label> sendiri;
+                                     kalau tidak, `has-[:checked]:` akan menyalakan
+                                     lebih dari satu tab sekaligus. --}}
                                 @php $typeId = 'filterType' . ($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
-                                {{-- Tiap pasangan input+label dibungkus div sendiri.
-                                     Kalau tidak, `peer-checked` akan menimpa label
-                                     berikutnya begitu satu radio aktif. --}}
-                                <div class="flex-1 min-w-0">
+                                <label for="{{ $typeId }}"
+                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
-                                           class="peer sr-only" @checked($currentType === (string) $typeValue)
+                                           class="sr-only" @checked($currentType === (string) $typeValue)
                                            onchange="applyFilters()">
-                                    <label for="{{ $typeId }}"
-                                           class="block px-1.5 sm:px-2 py-2 text-center text-xs sm:text-sm font-semibold rounded-lg cursor-pointer select-none truncate text-base-content/60 transition
-                                                  peer-checked:bg-base-content peer-checked:text-base-100 peer-checked:shadow-sm
-                                                  peer-focus-visible:ring-2 peer-focus-visible:ring-base-content dark:peer-focus-visible:ring-base-300">
-                                        {{ $typeLabel }}
-                                    </label>
-                                </div>
+                                    {{ $typeLabel }}
+                                </label>
                             @endforeach
                         </div>
                     </fieldset>
@@ -741,7 +763,7 @@
                     @endphp
                     <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
                     <select id="filterCategory" name="category" onchange="applyFilters()"
-                            class="select select-bordered select-sm w-full">
+                            class="select select-bordered h-10 min-h-10 w-full">
                         @foreach ($categoryFilterOptions as $value => $label)
                             <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
                         @endforeach
@@ -751,7 +773,7 @@
                 <div class="lg:col-span-2">
                     <label for="filterPeriod" class="sr-only">Filter berdasarkan periode waktu</label>
                     <select id="filterPeriod" name="period" onchange="applyFilters()"
-                            class="select select-bordered select-sm w-full">
+                            class="select select-bordered h-10 min-h-10 w-full">
                         @foreach (['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini'] as $value => $label)
                             <option value="{{ $value }}" @selected(request('period', 'all') === (string) $value)>{{ $label }}</option>
                         @endforeach

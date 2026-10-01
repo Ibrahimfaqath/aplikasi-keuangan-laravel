@@ -83,7 +83,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label for="audit-action" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Jenis Aksi</label>
-                        <select name="action" id="audit-action" class="select select-bordered w-full text-xs sm:text-sm">
+                        <select name="action" id="audit-action" class="select select-bordered h-10 min-h-10 w-full text-sm">
                             <option value="">Semua aksi</option>
                             <option value="created" @selected(($filters['action'] ?? '') === 'created')>Tambah</option>
                             <option value="updated" @selected(($filters['action'] ?? '') === 'updated')>Ubah</option>
@@ -96,7 +96,7 @@
 
                     <div>
                         <label for="audit-model" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Data</label>
-                        <select name="model" id="audit-model" class="select select-bordered w-full text-xs sm:text-sm">
+                        <select name="model" id="audit-model" class="select select-bordered h-10 min-h-10 w-full text-sm">
                             <option value="">Semua data</option>
                             <option value="transaction" @selected(($filters['model'] ?? '') === 'transaction')>Transaksi</option>
                             <option value="budget" @selected(($filters['model'] ?? '') === 'budget')>Anggaran</option>
@@ -107,7 +107,7 @@
 
                     <div class="sm:col-span-2">
                         <label for="audit-period" class="label-text block text-[11px] font-semibold uppercase tracking-wider text-base-content/60 mb-1">Periode</label>
-                        <select name="period" id="audit-period" class="select select-bordered w-full text-xs sm:text-sm">
+                        <select name="period" id="audit-period" class="select select-bordered h-10 min-h-10 w-full text-sm">
                             <option value="">Selama ini</option>
                             <option value="today" @selected(($filters['period'] ?? '') === 'today')>Hari ini</option>
                             <option value="week" @selected(($filters['period'] ?? '') === 'week')>7 hari terakhir</option>

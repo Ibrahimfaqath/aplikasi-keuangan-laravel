@@ -277,7 +277,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" id="filterSearch" name="search" value="{{ request('search') }}" placeholder="Cari di Sampah..." autocomplete="off"
-                           class="input input-bordered w-full pl-11 pr-4 text-xs sm:text-sm placeholder:text-base-content/40">
+                           class="input input-bordered h-10 w-full pl-11 text-sm placeholder:text-base-content/40">
                 </div>
 
                 {{-- Tipe memakai segoup radio asli, sama seperti di /transactions:
@@ -290,7 +290,7 @@
                 <div class="lg:col-span-4">
                     <fieldset>
                         <legend class="sr-only">Filter berdasarkan tipe transaksi</legend>
-                        <div class="tabs tabs-boxed w-full" role="group">
+                        <div class="tabs tabs-boxed grid-cols-3 h-10 w-full" role="group">
                             @php
                                 $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
                                 $currentType = (string) request('type', '');
@@ -301,7 +301,7 @@
                                      lebih dari satu tab sekaligus. --}}
                                 @php $typeId = 'trashType'.($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
                                 <label for="{{ $typeId }}"
-                                       class="tab px-1.5 sm:px-2 py-2 text-center text-xs sm:text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-content">
+                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
                                            class="sr-only" @checked($currentType === (string) $typeValue)
                                            onchange="applyFilters()">
@@ -319,7 +319,7 @@
                     @endphp
                     <label for="filterCategory" class="sr-only">Filter berdasarkan kategori</label>
                     <select id="filterCategory" name="category" onchange="applyFilters()"
-                            class="select select-bordered select-sm w-full">
+                            class="select select-bordered h-10 min-h-10 w-full">
                         @foreach ($categoryFilterOptions as $value => $label)
                             <option value="{{ $value }}" @selected(request('category', '') === (string) $value)>{{ $label }}</option>
                         @endforeach
@@ -331,7 +331,7 @@
                 <div class="lg:col-span-2">
                     <label for="filterPeriod" class="sr-only">Filter berdasarkan kapan transaksi dihapus</label>
                     <select id="filterPeriod" name="period" onchange="applyFilters()"
-                            class="select select-bordered select-sm w-full">
+                            class="select select-bordered h-10 min-h-10 w-full">
                             <option value="{{ 'all' }}" @selected(request('period', 'all') === (string) 'all')>{{ 'Semua Waktu' }}</option>
                             <option value="{{ 'today' }}" @selected(request('period', 'all') === (string) 'today')>{{ 'Hari Ini' }}</option>
                             <option value="{{ '7_days' }}" @selected(request('period', 'all') === (string) '7_days')>{{ '7 Hari Terakhir' }}</option>
