@@ -382,6 +382,39 @@ class DaisyUiGuardTest extends TestCase
         );
     }
 
+    public function test_menu_dropdown_wajib_satu_kolom(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+
+            // daisyUI `.menu` memakai `flex-flow: column wrap` -- item mengisi ke
+            // bawah lalu MEMBUNGKUS ke kolom baru di kanan. Pada daftar dropdown
+            // yang panjang (15 kategori) dengan max-height, daftar jadi terlihat
+            // TERBELAH DUA: 13 item di kiri, 2 di kanan.
+            //
+            // `.dropdown-menu` yang memaksa `column nowrap`. Tanpa itu, dropdown
+            // kategori tampil sebagai dua bagian.
+            if (preg_match_all('/<ul(?![^>]*dropdown-menu)[^>]*class="[^"]*\\bdropdown-content\\b[^"]*"[^>]*>/s', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$tag, $offset]) {
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- tambah kelas dropdown-menu (satu kolom, bukan column wrap)',
+                        $this->relative($path),
+                        $this->locate($source, $offset),
+                        trim(preg_replace('/\s+/', ' ', $tag))
+                    );
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Menu dropdown tanpa `dropdown-menu` -- akan terbelah jadi dua kolom:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
     public function test_radius_pakai_token_tema_bukan_nilai_tertulis(): void
     {
         $bermasalah = [];

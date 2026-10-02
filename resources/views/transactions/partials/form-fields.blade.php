@@ -31,21 +31,21 @@
          ABU TERANG di tema gelap, persis yang diminta dihilangkan.
          State aktif sekarang angkat halus base-300 (baris accent + teks
          terang), dan aria tetap terbaca sebagai radiogroup. --}}
-    <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-2 p-1"
+    <div class="tabs tabs-boxed dropdown-menu bg-base-100 border border-base-300 grid-cols-2 h-14 p-1.5"
          role="radiogroup" aria-label="Jenis Transaksi">
-        <label class="tab h-full gap-2 px-3 text-xs sm:text-sm font-bold cursor-pointer select-none
+        <label class="tab h-full gap-2.5 px-4 text-sm sm:text-base font-bold cursor-pointer select-none
                       text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content
                       has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
             <input type="radio" name="type" value="income" class="radio radio-sm sr-only" {{ $typeValue == 'income' ? 'checked' : '' }} required>
-            <span class="w-5 h-5 rounded bg-success text-success-content flex items-center justify-center text-xs font-mono font-bold shrink-0">+</span>
+            <span class="w-7 h-7 rounded-btn bg-success text-success-content flex items-center justify-center text-base font-mono font-bold shrink-0">+</span>
             Pemasukan
         </label>
 
-        <label class="tab h-full gap-2 px-3 text-xs sm:text-sm font-bold cursor-pointer select-none
+        <label class="tab h-full gap-2.5 px-4 text-sm sm:text-base font-bold cursor-pointer select-none
                       text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content
                       has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
             <input type="radio" name="type" value="expense" class="radio radio-sm sr-only" {{ $typeValue == 'expense' ? 'checked' : '' }} required>
-            <span class="w-5 h-5 rounded bg-error text-error-content flex items-center justify-center text-xs font-mono font-bold shrink-0">−</span>
+            <span class="w-7 h-7 rounded-btn bg-error text-error-content flex items-center justify-center text-base font-mono font-bold shrink-0">−</span>
             Pengeluaran
         </label>
     </div>

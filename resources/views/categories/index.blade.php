@@ -215,7 +215,7 @@
                             {{-- Dulu teks mati. Sekarang link ke /transactions yang
                                  sudah mendukung filter kategori. --}}
                             <a href="{{ route('transactions.index', ['category' => $item['name']]) }}"
-                               class="link inline-flex items-center gap-0.5 text-[11px] text-base-content/60 whitespace-nowrap"
+                               class="inline-flex items-center gap-0.5 text-[11px] text-base-content/60 hover:text-base-content whitespace-nowrap transition-colors"
                                title="Lihat {{ $used }} transaksi memakai {{ $item['name'] }}">
                                 {{ $used }} transaksi
                                 <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>

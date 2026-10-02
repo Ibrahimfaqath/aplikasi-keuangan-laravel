@@ -245,7 +245,13 @@ class BudgetFeatureTest extends TestCase
         $response->assertOk();
         $response->assertSee('Anggaran per Kategori');
         $response->assertSee('Makanan &amp; Minuman', false);
-        $response->assertSee('dari Rp 1 juta');
+
+        // Anggaran per kategori kini tabel: batas dan jumlah terpakai jadi
+        // KOLOM TERPISAH, bukan satu kalimat "Rp 250.000 dari Rp 1 juta".
+        // Ketiganya tetap harus muncul.
+        $response->assertSee('Rp 1 juta');
+        $response->assertSee('Rp 250.000');
+        $response->assertSee('25%');
     }
 
     public function test_dashboard_budget_card_links_to_budget_page(): void

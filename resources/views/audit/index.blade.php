@@ -74,7 +74,7 @@
         };
     @endphp
 
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         <section class="card bg-base-100 border border-base-300 shadow-sm p-5 mb-6">
             <form method="GET" action="{{ route('audit.index') }}" class="space-y-4">

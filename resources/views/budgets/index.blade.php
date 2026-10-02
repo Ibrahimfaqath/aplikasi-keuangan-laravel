@@ -52,7 +52,7 @@
         $barVariant = $isOver ? 'progress-error' : ($percentage >= 80 ? 'progress-warning' : 'progress-success');
     @endphp
 
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         @if ($isDemo)
         {{-- `alert` dipinjam untuk bentuk + radius-nya saja, tata letaknya tetap
@@ -177,44 +177,76 @@
                 <span class="badge badge-ghost badge-sm font-medium">{{ $categoryBudgets->count() }} item</span>
             </div>
 
-            <div class="divide-y divide-base-300">
-                @forelse($categoryBudgets as $cb)
-                    @php
-                        $spent = $categorySpent[$cb->category] ?? 0;
-                        $cp    = $summary->progress((float) $cb->amount, (float) $spent, $now);
-                        $cPct  = $cp['percentage'];
-                        $cOver = $cp['isOver'];
-                        // Sama seperti $barVariant di atas: nama kelas literal.
-                        $cBar  = $cOver ? 'progress-error' : ($cPct >= 80 ? 'progress-warning' : 'progress-success');
-                    @endphp
-                    <div class="px-5 py-4">
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="text-xs font-bold text-base-content">{{ $cb->category }}</p>
-                            @unless ($isDemo)
-                            <div class="flex items-center gap-1.5 no-print">
-                                <a href="#" onclick="event.preventDefault(); openBudgetModal({{ Js::from($cb->category) }}, {{ $cb->amount }})"
-                                   class="btn btn-xs btn-outline">Ubah</a>
-                                <form action="{{ route('budgets.destroy', $cb) }}" method="POST" onsubmit="return confirm('Hapus anggaran {{ addslashes($cb->category) }} bulan ini?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-xs btn-outline btn-error">Hapus</button>
-                                </form>
-                            </div>
-                            @endunless
-                        </div>
-                        <progress class="progress {{ $cBar }} w-full h-2 mt-2.5" value="{{ $cPct }}" max="100">{{ $cPct }}%</progress>
-                        <div class="flex items-center justify-between gap-2 mt-2">
-                            <p class="text-[11px] text-base-content/60 break-all sm:break-words privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}">{{ \App\Services\AmountFormatter::compact($spent) }} dari {{ \App\Services\AmountFormatter::compact($cb->amount) }}</p>
-                            <p class="text-[11px] font-bold {{ $cOver ? 'text-error' : 'text-base-content/70' }}">
-                                {{ $cPct }}%{{ $cOver ? ' · melebihi' : '' }}
-                            </p>
-                        </div>
-                    </div>
-                @empty
-                    <div class="py-8 px-5 text-center">
-                        <p class="text-xs text-base-content/60">Belum ada anggaran per kategori.</p>
-                        <p class="text-[11px] text-base-content/60 mt-0.5 px-6">Tambah anggaran khusus per kategori bila ingin mengendalikan pengeluaran tertentu (mis. "Makanan &amp; Minuman").</p>
-                    </div>
-                @endforelse
+            {{-- Daftar anggaran per kategori diubah dari tumpukan kartu jadi TABEL
+                 daisyUI. Alasannya: dengan halaman yang sudah lebar, kolom
+                 (kategori / batas / terpakai / sisa / progres) jauh lebih
+                 mudah dibandingkan secara vertikal, dan tidak ada lagi baris tinggi
+                 yang boros. Di layar sempit tabel tetap bisa digeser
+                 horizontal lewat `overflow-x-auto`. --}}
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Kategori</th>
+                            <th class="text-right whitespace-nowrap">Batas</th>
+                            <th class="text-right whitespace-nowrap">Terpakai</th>
+                            <th class="text-right whitespace-nowrap">Sisa</th>
+                            <th class="w-48">Progres</th>
+                            <th class="text-right whitespace-nowrap no-print">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($categoryBudgets as $cb)
+                            @php
+                                $spent = $categorySpent[$cb->category] ?? 0;
+                                $cp    = $summary->progress((float) $cb->amount, (float) $spent, $now);
+                                $cPct  = $cp['percentage'];
+                                $cOver = $cp['isOver'];
+                                $cBar  = $cOver ? 'progress-error' : ($cPct >= 80 ? 'progress-warning' : 'progress-success');
+                            @endphp
+                            <tr>
+                                <td class="font-semibold text-sm">{{ $cb->category }}</td>
+
+                                <td class="text-right whitespace-nowrap tabular-nums text-sm privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact((float) $cb->amount) }}">{{ \App\Services\AmountFormatter::compact($cb->amount) }}</td>
+
+                                <td class="text-right whitespace-nowrap tabular-nums text-sm privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact((float) $spent) }}">{{ \App\Services\AmountFormatter::compact($spent) }}</td>
+
+                                <td class="text-right whitespace-nowrap tabular-nums text-sm font-semibold {{ $cOver ? 'text-error' : 'text-base-content' }} privacy-target" data-amount="{{ \App\Services\AmountFormatter::compact((float) $cp['remaining']) }}">{{ \App\Services\AmountFormatter::compact($cp['remaining']) }}</td>
+
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <progress class="progress {{ $cBar }} h-2 flex-1" value="{{ $cPct }}" max="100">{{ $cPct }}%</progress>
+                                        <span class="text-[11px] font-bold tabular-nums w-16 text-right {{ $cOver ? 'text-error' : 'text-base-content/70' }}">{{ $cPct }}%</span>
+                                    </div>
+                                    @if ($cOver)
+                                        <p class="text-[11px] text-error mt-1">Melebihi batas</p>
+                                    @endif
+                                </td>
+
+                                <td class="text-right whitespace-nowrap no-print">
+                                    @unless ($isDemo)
+                                        <div class="flex items-center justify-end gap-1.5">
+                                            <a href="#" onclick="event.preventDefault(); openBudgetModal({{ Js::from($cb->category) }}, {{ $cb->amount }})"
+                                               class="btn btn-xs btn-outline">Ubah</a>
+                                            <form action="{{ route('budgets.destroy', $cb) }}" method="POST" onsubmit="return confirm('Hapus anggaran {{ addslashes($cb->category) }} bulan ini?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-xs btn-outline btn-error">Hapus</button>
+                                            </form>
+                                        </div>
+                                    @endunless
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="py-8 text-center">
+                                    <p class="text-xs text-base-content/60">Belum ada anggaran per kategori.</p>
+                                    <p class="text-[11px] text-base-content/60 mt-0.5">Tambah anggaran khusus per kategori bila ingin batas yang lebih ketat untuk pos tertentu.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
             </div>
         </section>
 

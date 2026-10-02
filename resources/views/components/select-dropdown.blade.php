@@ -131,7 +131,7 @@
              pendek menu tidak meluber melewati bawah layar, dan daftar tetap
              punya tempat untuk di-scroll. --}}
         x-ref="menu"
-        class="dropdown-content menu menu-sm z-30 mt-1
+        class="dropdown-content menu menu-sm dropdown-menu z-30 mt-1
                min-w-[13rem] max-w-[min(20rem,calc(100vw-1.5rem))]
                max-h-[min(24rem,60vh)] overflow-y-auto dropdown-scroll
                bg-base-100 border border-base-300 rounded-box shadow-xl shadow-black/40"
