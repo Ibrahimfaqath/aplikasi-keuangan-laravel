@@ -710,8 +710,8 @@
 
         <!-- FILTER -->
         <section class="bg-base-100 border border-base-300 rounded-box p-4 sm:p-5 shadow-sm no-print">
-            <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-                <div class="lg:col-span-3 relative">
+            <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12 gap-2 sm:gap-3 items-center">
+                <div class="lg:col-span-3 xl:col-span-2 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/60">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -723,7 +723,7 @@
                 {{-- Tipe memakai segoup radio asli, bukan tombol JS: tetap ikut
                      submit kalau JS mati, panah kiri/kanan langsung memindah
                      pilihan, dan terbaca screen reader sebagai radiogroup. --}}
-                <div class="lg:col-span-4">
+                <div class="lg:col-span-3 xl:col-span-4">
                     <fieldset>
                         <legend class="sr-only">Filter berdasarkan tipe transaksi</legend>
                         {{-- Segmented control: `tabs tabs-boxed` handles background,
@@ -734,7 +734,7 @@
 
                              Pola ini identik dengan yang dipakai di /transactions/trashed
                              dan /categories — jangan dibuat ulang dengan div + peer. --}}
-                        <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-3 h-10 w-full" role="group">
+                        <div class="tabs tabs-boxed bg-base-100 border border-base-300 grid-cols-3 h-10 w-full min-w-0" role="group">
                             @php
                                 $typeFilters = ['' => 'Semua', 'income' => 'Pemasukan', 'expense' => 'Pengeluaran'];
                                 $currentType = (string) request('type', '');
@@ -745,7 +745,7 @@
                                      lebih dari satu tab sekaligus. --}}
                                 @php $typeId = 'filterType' . ($typeValue === '' ? 'All' : ucfirst($typeValue)); @endphp
                                 <label for="{{ $typeId }}"
-                                       class="tab h-full px-1.5 sm:px-2 text-center text-sm font-semibold cursor-pointer truncate text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
+                                       class="tab h-full px-1.5 text-center text-[13px] 2xl:text-sm font-semibold min-w-0 cursor-pointer truncate text-base-content/60 has-[:checked]:!bg-base-300 has-[:checked]:!text-base-content has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-base-300">
                                     <input type="radio" name="type" id="{{ $typeId }}" value="{{ $typeValue }}"
                                            class="sr-only" @checked($currentType === (string) $typeValue)
                                            onchange="applyFilters()">
@@ -756,7 +756,7 @@
                     </fieldset>
                 </div>
 
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 xl:col-span-3">
                     @php
                         $categoryFilterOptions = ['' => 'Semua Kategori'];
                         foreach (\App\Models\Category::allNames(auth()->id()) as $cat) { $categoryFilterOptions[$cat] = $cat; }
@@ -771,7 +771,7 @@
                                        label="Filter berdasarkan kategori" />
                 </div>
 
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-3 xl:col-span-2">
                     <x-select-dropdown id="filterPeriod" name="period"
                                        :value="request('period', 'all')"
                                        :options="['all' => 'Semua Waktu', 'today' => 'Hari Ini', '7_days' => '7 Hari Terakhir', 'this_month' => 'Bulan Ini']"
@@ -781,7 +781,7 @@
 
                 {{-- Kolom harus berjumlah pas 12, kalau tidak tombol Reset akan
                      terdorong ke baris sendiri dan terlihat berantakan:
-                     3 (cari) + 4 (tipe) + 2 (kategori) + 2 (periode) + 1 (reset). --}}
+                     3+3+2+3+1 (enam kolom, dua baris) lalu 2+4+3+2+1 (dua belas kolom, satu baris). --}}
                 <div class="lg:col-span-1 flex gap-2 items-center justify-end">
                     <a id="filterReset" href="{{ route('transactions.index') }}" title="Reset filter" aria-label="Reset semua filter"
                        class="btn btn-ghost btn-sm btn-square shrink-0 {{ (request('search') || request('type') || request('category') || (request('period') && request('period') !== 'all')) ? '' : 'hidden' }}">

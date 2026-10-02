@@ -27,7 +27,6 @@
     'options' => [],          // [ nilai => label ]
     'placeholder' => 'Pilih…',
     'label' => null,          // aria-label tombol
-    'menuAlign' => 'left',
     'size' => 'sm',
     // Filter di halaman ini dipicu oleh atribut `onchange` pada tiap kontrol
     // (lihat resources/js/app.js). Karena pembawa nilainya sekarang
@@ -41,11 +40,6 @@
         ->map(fn ($l, $v) => ['v' => (string) $v, 'l' => (string) $l])
         ->values()
         ->all();
-
-    $alignClass = match ($menuAlign) {
-        'right' => 'right-0',
-        default => 'left-0',
-    };
 
     // min-h wajib, bukan hanya h-*: `.select` daisyUI mengunci tinggi dengan
     // `min-height: 3rem`, jadi `h-10` saja kalah dan tombol jadi 48px --
@@ -67,11 +61,29 @@
      x-bind:class="open && 'dropdown-open'"
      x-data="{
          open: false,
+         alignRight: false,
          value: @js((string) $value),
          options: {{ Illuminate\Support\Js::from($optionsJs) }},
          label() {
              const found = this.options.find((o) => o.v === this.value);
              return found ? found.l : @js($placeholder);
+         },
+         toggleMenu() {
+             // Menutup dulu supaya bisa diukur dalam kondisi terbuka.
+             if (this.open) { this.open = false; return; }
+
+             this.open = true;
+             this.$nextTick(() => {
+                 const menu = this.$refs.menu;
+                 const trigger = this.$refs.trigger;
+                 if (!menu || !trigger) return;
+
+                 // Kalau melebar ke kanan akan keluar dari layar,lundur ke
+                 // KANAN tombol dan tumbuh ke kiri. Tanpa ini, menu di kolom
+                 // paling kanan akan terpotong tepi layar.
+                 const pad = 8;
+                 this.alignRight = menu.getBoundingClientRect().right > window.innerWidth - pad;
+             });
          },
          choose(v) {
              this.value = v;
@@ -91,8 +103,8 @@
             x-ref="trigger"
             tabindex="0"
             class="select select-bordered bg-none {{ $btnSize }} w-full items-center justify-between gap-2 px-3 text-left font-normal"
-            @click="open = !open"
-            @keydown.down.prevent="open = true"
+            @click="toggleMenu()"
+            @keydown.down.prevent="toggleMenu()"
             :aria-expanded="open"
             @if ($label) aria-label="{{ $label }}" @endif>
         <span class="truncate" x-text="label()"></span>
@@ -115,8 +127,15 @@
            @control:synced="value = $event.target.value">
 
     <ul tabindex="0"
-        class="dropdown-content menu menu-sm {{ $alignClass }} z-30 mt-1 w-full max-h-72 overflow-y-auto
-               bg-base-100 border border-base-300 rounded-box shadow-lg"
+        {{-- max-h memakai min() supaya mengikuti tinggi viewport: di layar
+             pendek menu tidak meluber melewati bawah layar, dan daftar tetap
+             punya tempat untuk di-scroll. --}}
+        x-ref="menu"
+        class="dropdown-content menu menu-sm z-30 mt-1
+               min-w-[13rem] max-w-[min(20rem,calc(100vw-1.5rem))]
+               max-h-[min(24rem,60vh)] overflow-y-auto dropdown-scroll
+               bg-base-100 border border-base-300 rounded-box shadow-xl shadow-black/40"
+        :class="alignRight ? 'right-0 left-auto' : 'left-0 right-auto'"
         x-cloak
         @keydown.escape="open = false">
         @foreach ($optionsJs as $option)

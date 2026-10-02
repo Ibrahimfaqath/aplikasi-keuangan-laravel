@@ -69,6 +69,37 @@
     }
 }
 
+/* Daftar dropdown yang panjang (mis. 15 kategori) melebihi tinggi menu, jadi
+   di-scroll. Tanpa penanda, daftar terlihat terpotong dan orang mengira hanya
+   ada 8 kategori. Di atas hitam, scrollbar bawaan hampir tak terlihat --
+   jadi dibuat tipis dan memakai token tema. */
+@layer utilities {
+    .dropdown-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: var(--b3) transparent;
+        overscroll-behavior: contain;
+    }
+
+    .dropdown-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .dropdown-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .dropdown-scroll::-webkit-scrollbar-thumb {
+        background-color: var(--b3);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    .dropdown-scroll::-webkit-scrollbar-thumb:hover {
+        background-color: var(--bc);
+    }
+}
+
 /* ==========================================================
    APP SHELL — sidebar fixed + collapse (desktop lg+)
 
