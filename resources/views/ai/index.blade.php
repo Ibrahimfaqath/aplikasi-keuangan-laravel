@@ -35,14 +35,37 @@
             Warnanya cukup lewat token surface. --}}
         <div x-ref="chatContainer" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2" style="max-height: 60vh;">
             @forelse($messages as $msg)
-            <div class="{{ $msg['role'] === 'user' ? 'flex justify-end' : 'flex gap-3' }}">
-                @if($msg['role'] === 'assistant')
-                <div class="w-8 h-8 rounded-box bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
-                @endif
-                <div class="{{ $msg['role'] === 'user' ? 'bg-base-content text-base-100 rounded-box rounded-tr-md px-4 py-3 max-w-[80%]' : 'bg-base-100 border border-base-300 text-base-content rounded-box rounded-tl-md px-4 py-3 max-w-[80%]' }}">
-                    <p class="text-sm whitespace-pre-wrap break-words">{!! nl2br(e($msg['text'])) !!}</p>
+            {{-- Komponen `chat` daisyUI, bukan <div> susun manual: ini bubble
+                 sungguhan (sudut tumpul asimetris + ekor bubble kecil di dekat
+                 avatar), otomatis handle posisi kiri/kanan lewat chat-start /
+                 chat-end. Gaya & radius ikut tema, jadi guard tetap hijau. --}}
+            @if($msg['role'] === 'user')
+            <div class="chat chat-end">
+                <div class="chat-header text-xs text-base-content/60 pb-1 text-right">Kamu</div>
+                <div class="chat-bubble bg-base-content text-base-100 text-sm break-words">
+                    {!! \App\Support\Markdown::render($msg['text']) !!}
                 </div>
             </div>
+            @else
+            <div class="chat chat-start">
+                <div class="chat-header text-xs text-base-content/60 pb-1">Asisten AI</div>
+                <div class="chat-image avatar placeholder self-start">
+                    <div class="bg-base-content text-base-100 w-8 rounded-field">
+                        <span class="text-xs font-bold">AI</span>
+                    </div>
+                </div>
+                {{-- Urutan WAJIB header -> image -> bubble: `.chat` daisyUI itu grid, bukan
+                     flex. `chat-image` membentang dua baris di kolom 1, jadi kalau
+                     ditulis sebelum `chat-header`, avatar jatuh ke bawah gelembung.
+                     `self-start` menarik avatar ke atas agar rata dengan label.
+                     --}}
+                {{-- Reply asisten masih markdown mentah (`**tebal**`, `- butir`).
+                     Tanpa renderer ini user melihat asteriknya. --}}
+                <div class="chat-bubble bg-base-100 border border-base-content/20 text-sm break-words">
+                    {!! \App\Support\Markdown::render($msg['text']) !!}
+                </div>
+            </div>
+            @endif
             @empty
             <div class="text-center py-12 text-base-content/60 text-sm">
                 Belum ada percakapan. Ketik pesan di bawah untuk mulai!
@@ -50,41 +73,68 @@
             @endforelse
         </div>
 
-        <!-- Area Konfirmasi Transaksi -->
-        <div x-show="showConfirm"
-             x-transition
-             class="card bg-base-100 border border-base-content/40 shadow-sm p-4 mb-4">
-            <p class="card-title text-sm font-semibold mb-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                Konfirmasi Transaksi
-            </p>
-            <div class="space-y-1 text-sm text-base-content/70">
-                <p><span class="font-medium">Judul:</span> <span x-text="pendingTransaction?.title"></span></p>
-                <p><span class="font-medium">Jumlah:</span> <span x-text="'Rp ' + formatNumber(pendingTransaction?.amount)"></span></p>
-                <p><span class="font-medium">Jenis:</span> <span x-text="pendingTransaction?.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span></p>
-                <p><span class="font-medium">Kategori:</span> <span x-text="pendingTransaction?.category"></span></p>
-                <p><span class="font-medium">Tanggal:</span> <span x-text="pendingTransaction?.transaction_date"></span></p>
-            </div>
-            <div class="flex flex-wrap gap-2 mt-3">
-                <button @click="confirmTransaction()"
-                        type="button"
-                        :disabled="confirming"
-                        class="btn btn-primary btn-sm">
-                    <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    {{-- `loading loading-spinner` menggantikan SVG spinner lama; binding
-                         x-show-nya tetap sama. --}}
-                    <span x-show="confirming" class="loading loading-spinner w-4 h-4"></span>
-                    <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
-                </button>
-                <button @click="cancelTransaction()"
-                        type="button"
-                        :disabled="confirming"
-                        class="btn btn-outline btn-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    <span>Batal</span>
-                </button>
-            </div>
+{{-- Kartu konfirmasi. Sengaja memakai gaya `chat` yang sama dengan gelembung
+     di atas supaya alurnya terbaca sebagai percakapan: AI bertanya ->
+     transaksi ditampilkan -> klik "Ya, Simpan" -> baru masuk database.
+     Kalau ditutup atau jawab "Batal", transaksi tidak pernah tersimpan
+     (pendingTransaction disimpan di session dan dibuang server). --}}
+<div x-show="showConfirm"
+     x-transition
+     class="chat chat-start mb-4">
+    <div class="chat-header text-xs text-base-content/60 pb-1">Asisten AI</div>
+    <div class="chat-image avatar placeholder self-start">
+        <div class="bg-base-content text-base-100 w-8 rounded-field">
+            <span class="text-xs font-bold">AI</span>
         </div>
+    </div>
+    <div class="chat-bubble p-0 bg-base-100 border border-base-content/40 overflow-hidden w-full max-w-[92%]">
+        <div class="bg-base-content/5 border-b border-base-content/10 px-4 py-2 flex items-center gap-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <span class="text-sm font-semibold">Transaksi ini mau disimpan?</span>
+        </div>
+
+        <dl class="px-4 py-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+            <dt class="text-base-content/60">Judul</dt>
+            <dd class="font-medium text-right break-words" x-text="pendingTransaction?.title"></dd>
+
+            <dt class="text-base-content/60">Jumlah</dt>
+            <dd class="font-semibold text-right text-primary" x-text="'Rp ' + formatNumber(pendingTransaction?.amount)"></dd>
+
+            <dt class="text-base-content/60">Jenis</dt>
+            <dd class="text-right">
+                <span class="badge badge-sm"
+                      :class="pendingTransaction?.type === 'income' ? 'badge-success' : 'badge-error'"
+                      x-text="pendingTransaction?.type === 'income' ? 'Pemasukan' : 'Pengeluaran'"></span>
+            </dd>
+
+            <dt class="text-base-content/60">Kategori</dt>
+            <dd class="text-right" x-text="pendingTransaction?.category"></dd>
+
+            <dt class="text-base-content/60">Tanggal</dt>
+            <dd class="text-right" x-text="pendingTransaction?.transaction_date"></dd>
+        </dl>
+
+        <div class="px-4 pb-4 flex flex-wrap gap-2">
+            <button @click="confirmTransaction()"
+                    type="button"
+                    :disabled="confirming"
+                    class="btn btn-primary btn-sm">
+                <svg x-show="!confirming" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {{-- `loading loading-spinner` menggantikan SVG spinner lama; binding
+                     x-show-nya tetap sama. --}}
+                <span x-show="confirming" class="loading loading-spinner w-4 h-4"></span>
+                <span x-text="confirming ? 'Menyimpan...' : 'Ya, Simpan'"></span>
+            </button>
+            <button @click="cancelTransaction()"
+                    type="button"
+                    :disabled="confirming"
+                    class="btn btn-ghost btn-sm border border-base-content/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <span>Batal, jangan simpan</span>
+            </button>
+        </div>
+    </div>
+</div>
 
         {{-- Composer. Tetap <input type="text">, BUKAN textarea: mengganti ke
              textarea mengubah perilaku tombol Enter (mengirim pesan), dan itu
@@ -140,20 +190,29 @@
                 // Kelas di string HTML di bawah harus PERSIS sama dengan gelembung
                 // di Blade (dan tetap literal, bukan dirangkai), supaya pesan yang
                 // dirender server dan yang dikirim dari sini tidak berbeda tampilan.
+                // Isi bubble lewat renderAiMarkdown (resources/js/ai-markdown.js) —
+                // cermin dari app/Support/Markdown.php — supaya `**tebal**` dan
+                // `- butir` tampil sebagai bold/list, bukan asterik mentah.
+                const html = window.renderAiMarkdown
+                    ? window.renderAiMarkdown(text)
+                    : this.escapeHtml(text);
+
                 if (role === 'user') {
-                    div.className = 'flex justify-end';
+                    div.className = 'chat chat-end';
                     div.innerHTML = `
-                        <div class="bg-base-content text-base-100 rounded-box rounded-tr-md px-4 py-3 max-w-[80%]">
-                            <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
-                        </div>
+                        <div class="chat-header text-xs text-base-content/60 pb-1 text-right">Kamu</div>
+                        <div class="chat-bubble bg-base-content text-base-100 text-sm break-words">${html}</div>
                     `;
                 } else {
-                    div.className = 'flex gap-3';
+                    div.className = 'chat chat-start';
                     div.innerHTML = `
-                        <div class="w-8 h-8 rounded-box bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
-                        <div class="bg-base-100 border border-base-300 text-base-content rounded-box rounded-tl-md px-4 py-3 max-w-[80%]">
-                            <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
+                        <div class="chat-header text-xs text-base-content/60 pb-1">Asisten AI</div>
+                        <div class="chat-image avatar placeholder self-start">
+                            <div class="bg-base-content text-base-100 w-8 rounded-field">
+                                <span class="text-xs font-bold">AI</span>
+                            </div>
                         </div>
+                        <div class="chat-bubble bg-base-100 border border-base-content/20 text-sm break-words">${html}</div>
                     `;
                 }
 

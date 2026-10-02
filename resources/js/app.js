@@ -12,6 +12,13 @@
  *    Label teks sinkron via [data-privacy-label].
  */
 import Alpine from 'alpinejs';
+import { renderAiMarkdown } from './ai-markdown.js';
+
+// Reply AI datang sebagai JSON mentah dari /ai/chat. Alpine di view ai
+// memanggil renderer ini supaya `**tebal**` dan `- butir` tampil sebagai
+// bold/list, bukan karakter mentah. Versi PHP-nya ada di
+// app/Support/Markdown.php untuk pesan yang sudah tersimpan di session.
+window.renderAiMarkdown = renderAiMarkdown;
 
 window.Alpine = Alpine;
 
