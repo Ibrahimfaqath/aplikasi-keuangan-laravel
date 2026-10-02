@@ -556,6 +556,11 @@ class AiConfirmTransactionTest extends TestCase
 
         config(['services.langchain.url' => 'http://127.0.0.1:8787']);
 
+        // Test ini khusus menguji jalur LangChain. KiosAPI sengaja dikosongkan:
+        // kalau tidak, service akan fallback ke KiosAPI saat LangChain gagal,
+        // sehingga yang diuji bukan lagi pesan dari jalur LangChain.
+        config(['services.kiosapi.key' => null]);
+
         $user = User::factory()->create();
 
         $chat = $this->actingAs($user)
@@ -563,6 +568,8 @@ class AiConfirmTransactionTest extends TestCase
 
         $chat->assertOk();
         $this->assertNull($chat->json('transaction'));
+        // 502 = service sempat dihubungi lalu error, jadi pesannya "sibuk"
+        // (bukan "koneksi terputus" yang dipakai saat memang tidak terjangkau).
         $this->assertStringContainsString('sibuk', $chat->json('reply'));
     }
 }

@@ -244,4 +244,76 @@ class AiKiosapiIntegrationTest extends TestCase
         $response->assertOk();
         $this->assertEquals('Ini adalah balasan dari AI.', $response->json('reply'));
     }
+
+    /**
+     * Sidecar LangChain (127.0.0.1:8787) tidak berjalan kalau yang aktif hanya
+     * `php artisan serve`. .env lokal memuat LANGCHAIN_SERVICE_URL, jadi jalur
+     * LangChain terpilih lebih dulu -- dan dulu KiosAPI TIDAK PERNAH dicoba
+     * setelahnya. Akibatnya asisten selalu balas "koneksi terputus" padahal
+     * KiosAPI aktif dan berfungsi.
+     */
+    public function test_jatuh_ke_kiosapi_bila_sidecar_langchain_tidak_reachable(): void
+    {
+        config(['services.langchain.url' => 'http://127.0.0.1:8787']);
+
+        Http::fake([
+            // Persis kondisi "tidak ada yang listen" di port sidecar.
+            'http://127.0.0.1:8787/*' => fn () => throw new ConnectionException('Connection refused'),
+            'https://kiosapi.com/v1/chat/completions' => Http::response([
+                'choices' => [['message' => ['content' => 'Saldo kamu Rp 1.000.000.']]],
+            ]),
+        ]);
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/ai/chat', ['message' => 'Berapa saldo saya?']);
+
+        $response->assertOk();
+        $this->assertStringContainsString('Rp 1.000.000', (string) $response->json('reply'));
+
+        // KiosAPI benar-benar dipanggil, bukan cuma dibiarkan menampilkan error.
+        Http::assertSent(fn ($r) => str_contains($r->url(), 'kiosapi.com'));
+    }
+
+    public function test_tidak_menyinggung_kiosapi_bila_langchain_masih_berjalan(): void
+    {
+        config(['services.langchain.url' => 'http://127.0.0.1:8787']);
+
+        Http::fake([
+            'http://127.0.0.1:8787/chat' => Http::response([
+                'reply' => 'Jawab dari LangChain.',
+                'transaction' => null,
+            ]),
+            'https://kiosapi.com/v1/chat/completions' => Http::response([
+                'choices' => [['message' => ['content' => 'Jawab dari KiosAPI.']]],
+            ]),
+        ]);
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/ai/chat', ['message' => 'Halo']);
+
+        $response->assertOk();
+        $this->assertStringContainsString('LangChain', (string) $response->json('reply'));
+        $this->assertStringNotContainsString('KiosAPI', (string) $response->json('reply'));
+    }
+
+    public function test_tanpa_kiosapi_tetap_menghasilkan_pesan_yang_mudah_dipahami(): void
+    {
+        // Tidak ada jalur pengganti sama sekali -> pesan harus tetap ramah,
+        // bukan exception atau 500.
+        config(['services.langchain.url' => 'http://127.0.0.1:8787']);
+        config(['services.kiosapi.key' => null]);
+
+        Http::fake([
+            'http://127.0.0.1:8787/*' => fn () => throw new ConnectionException('Connection refused'),
+        ]);
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/ai/chat', ['message' => 'Halo']);
+
+        $response->assertOk();
+        $this->assertStringContainsString('Maaf', (string) $response->json('reply'));
+    }
 }

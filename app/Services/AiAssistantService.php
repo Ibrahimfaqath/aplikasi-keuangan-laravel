@@ -57,9 +57,30 @@ class AiAssistantService
             [$reply, $transaction, $timing['api_ms'], $timing['parse_ms']] =
                 $this->attemptViaKiosApi($systemPrompt, $message, $userId, $cleanHistory);
         } else {
-            [$reply, $transaction, $timing['api_ms']] =
+            [$reply, $transaction, $timing['api_ms'], $langchainOk] =
                 $this->attemptViaLangChain($langchainUrl, $systemPrompt, $message, $userId, $cleanHistory);
+
             $timing['parse_ms'] = null;
+
+            // Sidecar LangChain (127.0.0.1:8787) sering BELUM berjalan kalau
+            // yang aktif hanya `php artisan serve`. Dulu LangChain dianggap
+            // satu-satunya jalur begitu LANGCHAIN_SERVICE_URL terisi: begitu
+            // gagal, KiosAPI yang sudah dikonfigurasi dan berfungsi tidak
+            // pernah dicoba, dan user cuma dapat "koneksi terputus".
+            // Sekarang ada fallback, sesuai komentar di atas.
+            if (! $langchainOk && filled(config('services.kiosapi.key'))) {
+                Log::notice('LangChain tidak terjangkau, beralih ke KiosAPI', [
+                    'user_id' => $userId,
+                ]);
+
+                [$reply, $transaction, $timing['api_ms'], $timing['parse_ms']] =
+                    $this->attemptViaKiosApi($systemPrompt, $message, $userId, $cleanHistory);
+            }
+            // Kalau KiosAPI tidak dikonfigurasi, $reply sudah berisi pesan ramah
+            // dari percobaan LangChain -- dibiarkan apa adanya. Bedakan:
+            // 502 berarti service sempat dihubungi lalu error ("sibuk"), sedangkan
+            // ConnectionException berarti memang tidak terjangkau ("koneksi
+            // terputus"). Menyamakan keduanya jadi pesan yang kurang tepat.
         }
 
         if ($reply === null) {
@@ -160,7 +181,11 @@ class AiAssistantService
      * mengembalikan JSON terstruktur {reply, transaction} via rantai LangChain
      * (PromptTemplate -> ChatOpenAI/KiosAPI -> JsonOutputParser).
      *
-     * @return array{0: ?string, 1: ?array, 2: ?int} [reply, transaction, api_ms]
+     * Elemen ke-4 menyatakan apakah service-nya SEDANG TERHUBUN. False pada
+     * error HTTP, balasan rusak, dan exception -- كلها kondisi yang layak
+     * dicoba lewat jalur lain (KiosAPI) sebelum menyerah ke user.
+     *
+     * @return array{0: ?string, 1: ?array, 2: ?int, 3: bool} [reply, transaction, api_ms, reachable]
      */
     private function attemptViaLangChain(string $url, string $systemPrompt, string $message, int $userId, array $history = []): array
     {
@@ -189,7 +214,7 @@ class AiAssistantService
             if (! $response->successful()) {
                 $this->logApiError($response, 'langchain');
 
-                return ['Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!', null, $apiMs];
+                return ['Maaf, asisten sedang sibuk. Coba lagi dalam beberapa saat ya!', null, $apiMs, false];
             }
 
             $data = $response->json();
@@ -200,7 +225,7 @@ class AiAssistantService
                     'body_sample' => mb_substr($response->body(), 0, 500),
                 ]);
 
-                return ['Maaf, asisten sedang mengalami masalah. Coba lagi ya!', null, $apiMs];
+                return ['Maaf, asisten sedang mengalami masalah. Coba lagi ya!', null, $apiMs, false];
             }
 
             $reply = trim((string) ($data['reply'] ?? ''));
@@ -232,7 +257,7 @@ class AiAssistantService
                 'has_transaction' => $transaction !== null,
             ]);
 
-            return [$reply, $transaction, $apiMs];
+            return [$reply, $transaction, $apiMs, true];
         } catch (ConnectionException $e) {
             Log::error('LangChain connection error', [
                 'user_id' => $userId,
@@ -240,7 +265,7 @@ class AiAssistantService
                 'message' => $e->getMessage(),
             ]);
 
-            return ['Maaf, koneksi ke asisten terputus. Periksa koneksi internetmu ya!', null, $apiMs];
+            return ['Maaf, koneksi ke asisten terputus. Periksa koneksi internetmu ya!', null, $apiMs, false];
         } catch (\Throwable $e) {
             Log::error('LangChain request exception', [
                 'user_id' => $userId,
@@ -248,7 +273,7 @@ class AiAssistantService
                 'message' => $e->getMessage(),
             ]);
 
-            return ['Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!', null, $apiMs];
+            return ['Maaf, layanan AI sedang mengalami masalah teknis. Coba lagi ya!', null, $apiMs, false];
         }
     }
 

@@ -26,7 +26,22 @@ class TransactionPeriodFilterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Tanggal dikunci supaya seluruh test di file ini deterministik.
+        // Tanpa ini, test yang bergantung pada POSISI HARI DALAM BULAN akan
+        // lulus atau gagal tergantung tanggal test dijalankan -- persis yang
+        // terjadi di test_period_7_days_keeps_open_ended_upper_bound (hanya
+        // lulus tanggal 24-31).
+        Carbon::setTestNow(Carbon::parse('2026-06-15 10:00:00'));
+
         $this->user = User::factory()->create();
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     private function makeTransaction(string $title, string $date): Transaction
@@ -91,7 +106,12 @@ class TransactionPeriodFilterTest extends TestCase
 
     public function test_period_7_days_keeps_open_ended_upper_bound(): void
     {
-        $this->makeTransaction('MASA DEPAN', Carbon::now()->addWeek()->toDateString());
+        // Transaksi di BULAN BERJUTA, bukan sekadar 7 hari ke depan. Kalau
+        // hanya addWeek(), pada tanggal 1-23 sebuah bulan tanggal itu masih
+        // jatuh di bulan ini -- jadi `this_month` akan memuatnya, dan itu
+        // memang perilaku yang benar (this_month dibatasi akhir bulan ini),
+        // bukan bug.
+        $this->makeTransaction('MASA DEPAN', Carbon::now()->addMonth()->startOfMonth()->toDateString());
 
         // "7 hari terakhir" sengaja tidak dibatasi atas, jadi transaksi
         // bertanggal ke depan tetap ikut terhitung. Menutup batas atasnya

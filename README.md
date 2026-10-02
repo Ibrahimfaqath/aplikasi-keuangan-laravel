@@ -54,6 +54,10 @@ composer dev     # serve + queue + pail + vite
 
 Buka: `http://localhost:8000`
 
+Tidak perlu override `DB_*` di shell: `.env` lokal sudah diarahkan ke SQLite, jadi `php artisan serve`, `php artisan migrate`, dan `php artisan tinker` langsung nyambung ke `database/database.sqlite`. Kalau `.env` masih menunjuk MySQL sementara XAMPP tidak jalan, semua halaman akan balas **500** — ubah `DB_CONNECTION=sqlite` dan `DB_DATABASE` ke path absolut file itu.
+
+> Jangan `DB_DATABASE=... php artisan test` dengan file yang sedang dipakai preview. Test dikunci ke `:memory:` di `tests/TestCase.php` supaya tidak bisa mengosongkan database lokal, tapi lebih aman tetap jalankan `php artisan test` polos.
+
 ## Akun Demo Publik ("Coba Demo")
 
 Landing & halaman login punya tombol **Coba Demo** untuk mencoba aplikasi tanpa daftar. Tombol login otomatis sebagai akun demo dan semua form-nya dikunci read-only — aman untuk dicoba siapa pun.
@@ -105,7 +109,17 @@ KIOSAPI_MODEL=agnes-2.5-flash
 # LANGCHAIN_SERVICE_TOKEN=
 ```
 
-Catatan: Model di `KIOSAPI_MODEL` hanyalah default dari `.env` — `AiAssistantService` memakainya sebagai model OpenAI-compatible. Jika keduanya (`KIOSAPI_API_KEY` & `LANGCHAIN_SERVICE_URL`) kosong, chat AI akan balas pesan ramah `belum dikonfigurasi` — aplikasi tetap jalan normal.
+Catatan: Model di `KIOSAPI_MODEL` hanyalah default dari `.env` — `AiAssistantService` memakainya sebagai model OpenAI-compatible.
+
+**Kedua jalur boleh diisi bersamaan, dan itu aman.** Urutannya:
+
+1. Kalau `LANGCHAIN_SERVICE_URL` terisi, service itu dicoba lebih dulu.
+2. Kalau tidak terjangkau / error / balasannya rusak, service **otomatis fallback ke KiosAPI** — asal `KIOSAPI_API_KEY` ada.
+3. Kalau KiosAPI juga tidak terisi, pesan ramah dari percobaan LangChain yang dipakai apa adanya (mis. `sibuk` untuk 502, `koneksi terputus` kalau memang tidak terjangkau).
+
+Jadi kondisi "`php artisan serve` saja, sidecar LangChain belum dijalankan" tetap punya asisten yang berfungsi, selama `KIOSAPI_API_KEY` terisi.
+
+Kalau `KIOSAPI_API_KEY` dan `LANGCHAIN_SERVICE_URL` **dua-duanya kosong**, chat AI akan balas pesan ramah `belum dikonfigurasi` — aplikasi tetap jalan normal.
 
 ## Testing
 
