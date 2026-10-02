@@ -382,6 +382,48 @@ class DaisyUiGuardTest extends TestCase
         );
     }
 
+    public function test_radius_pakai_token_tema_bukan_nilai_tertulis(): void
+    {
+        $bermasalah = [];
+
+        foreach ($this->bladeFiles() as $path => $raw) {
+            $source = $this->maskComments($raw);
+            $baris_all = explode("\n", $source);
+
+            // Tema hanya menyedikan dua radius: --rounded-box (.25rem) dan
+            // --rounded-btn (.125rem), keduanya overridable lewat
+            // tailwind.config.js. Kelas tetap seperti `rounded-2xl` (1rem)
+            // mengabaikan tema sepenuhnya -- itulah kenapa kartu di dashboard
+            // pernah bulat 16px padahal tokennya 4px.
+            //
+            // Pengecualian: `btn` dan `badge` sudah punya radius sendiri dari
+            // daisyUI, jadi kelas di baris itu tidak boleh ikut ditulis ulang.
+            if (preg_match_all('/\brounded-(?:2xl|xl|lg|md)\b/', $source, $m, PREG_OFFSET_CAPTURE)) {
+                foreach ($m[0] as [$kelas, $offset]) {
+                    $baris = $this->locate($source, $offset);
+                    $konteks = $baris_all[$baris - 1] ?? '';
+
+                    if (preg_match('/\b(btn|badge)\b/', $konteks)) {
+                        continue;
+                    }
+
+                    $bermasalah[] = sprintf(
+                        '%s:%d  %s -- pakai rounded-box / rounded-btn',
+                        $this->relative($path),
+                        $baris,
+                        $kelas
+                    );
+                }
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $bermasalah,
+            "Radius ditulis langsung, jadi tidak ikut berubah saat token tema diganti:\n - ".implode("\n - ", $bermasalah)
+        );
+    }
+
     public function test_tidak_ada_select_native_pakai_dropdown_daisyui(): void
     {
         $bermasalah = [];

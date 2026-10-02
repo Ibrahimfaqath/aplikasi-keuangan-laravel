@@ -39,8 +39,8 @@
         <!-- ============ NAVBAR ============ -->
         <header class="sticky top-0 z-40 w-full border-b border-base-300 bg-base-100/85 backdrop-blur-xl">
             <div class="navbar mx-auto h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 py-0 sm:px-8">
-                <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content" aria-label="dompetku — kembali ke halaman utama">
-                    <x-application-logo class="h-8 w-8 rounded-lg" />
+                <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-box focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content" aria-label="dompetku — kembali ke halaman utama">
+                    <x-application-logo class="h-8 w-8 rounded-box" />
                     <span class="hidden text-sm font-extrabold tracking-tight text-base-content sm:inline">dompetku</span>
                 </a>
 
@@ -191,7 +191,7 @@
                                     <div class="card border border-base-300 bg-base-100 p-4 lg:col-span-2">
                                          <p class="card-title text-xs font-bold tracking-wide">Transaksi Terakhir</p>
                                         <ul class="mt-3 space-y-0.5">
-                                            <li class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+                                            <li class="flex items-center gap-2.5 rounded-box px-1.5 py-1.5">
                                                 <span class="h-2 w-2 shrink-0 rounded-full bg-success"></span>
                                                 <div class="min-w-0 flex-1">
                                                     <p class="truncate text-[13px] font-semibold text-base-content">Gaji PT Sejahtera</p>
@@ -199,7 +199,7 @@
                                                 </div>
                                                 <p class="shrink-0 text-[13px] font-bold tabular-nums text-success">+ Rp 5.000.000</p>
                                             </li>
-                                            <li class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+                                            <li class="flex items-center gap-2.5 rounded-box px-1.5 py-1.5">
                                                 <span class="h-2 w-2 shrink-0 rounded-full bg-error"></span>
                                                 <div class="min-w-0 flex-1">
                                                     <p class="truncate text-[13px] font-semibold text-base-content">Makan siang warteg</p>
@@ -207,7 +207,7 @@
                                                 </div>
                                                 <p class="shrink-0 text-[13px] font-bold tabular-nums text-error">− Rp 25.000</p>
                                             </li>
-                                            <li class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+                                            <li class="flex items-center gap-2.5 rounded-box px-1.5 py-1.5">
                                                 <span class="h-2 w-2 shrink-0 rounded-full bg-error"></span>
                                                 <div class="min-w-0 flex-1">
                                                     <p class="truncate text-[13px] font-semibold text-base-content">Token listrik</p>
@@ -215,7 +215,7 @@
                                                 </div>
                                                 <p class="shrink-0 text-[13px] font-bold tabular-nums text-error">− Rp 200.000</p>
                                             </li>
-                                            <li class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+                                            <li class="flex items-center gap-2.5 rounded-box px-1.5 py-1.5">
                                                 <span class="h-2 w-2 shrink-0 rounded-full bg-success"></span>
                                                 <div class="min-w-0 flex-1">
                                                     <p class="truncate text-[13px] font-semibold text-base-content">Jualan online</p>
@@ -223,7 +223,7 @@
                                                 </div>
                                                 <p class="shrink-0 text-[13px] font-bold tabular-nums text-success">+ Rp 750.000</p>
                                             </li>
-                                            <li class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+                                            <li class="flex items-center gap-2.5 rounded-box px-1.5 py-1.5">
                                                 <span class="h-2 w-2 shrink-0 rounded-full bg-error"></span>
                                                 <div class="min-w-0 flex-1">
                                                     <p class="truncate text-[13px] font-semibold text-base-content">Nonton bioskop</p>
@@ -255,7 +255,7 @@
                 <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <!-- Pencatatan -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -266,7 +266,7 @@
 
                     <!-- Ringkasan -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                             </svg>
@@ -277,7 +277,7 @@
 
                     <!-- Anggaran -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
                             </svg>
@@ -288,7 +288,7 @@
 
                     <!-- Asisten AI -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456Z" />
                             </svg>
@@ -299,7 +299,7 @@
 
                     <!-- Laporan -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                             </svg>
@@ -310,7 +310,7 @@
 
                     <!-- Input Suara -->
                     <div class="card border border-base-300 bg-base-100 p-6 shadow-sm">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
                             </svg>
@@ -358,21 +358,21 @@
             <section class="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8">
                 <dl class="grid gap-10 sm:grid-cols-3 sm:gap-8">
                     <div class="flex flex-col items-start">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content/70">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content/70">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                         </span>
                         <dt class="mt-4 text-sm font-bold text-base-content">Privat</dt>
                         <dd class="mt-1.5 text-sm leading-relaxed text-base-content/60">Data keuanganmu hanya bisa diakses oleh akunmu sendiri — tidak dibagikan ke siapa pun.</dd>
                     </div>
                     <div class="flex flex-col items-start">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content/70">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content/70">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z"/></svg>
                         </span>
                         <dt class="mt-4 text-sm font-bold text-base-content">Aman</dt>
                         <dd class="mt-1.5 text-sm leading-relaxed text-base-content/60">Kata sandi dienkripsi dan koneksi dilindungi untuk menjaga datamu tetap aman.</dd>
                     </div>
                     <div class="flex flex-col items-start">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-base-300 bg-base-100 text-base-content/70">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content/70">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 6h.008v.008H6V6Z"/></svg>
                         </span>
                         <dt class="mt-4 text-sm font-bold text-base-content">Gratis</dt>
@@ -424,8 +424,8 @@
             <div class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-8">
                 <div class="grid gap-10 sm:grid-cols-3">
                     <div class="max-w-xs">
-                        <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content" aria-label="dompetku — kembali ke halaman utama">
-                            <x-application-logo class="h-7 w-7 rounded-lg" />
+                        <a href="{{ url('/') }}" class="flex items-center gap-2.5 rounded-box focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-base-content" aria-label="dompetku — kembali ke halaman utama">
+                            <x-application-logo class="h-7 w-7 rounded-box" />
                             <span class="text-sm font-extrabold tracking-tight text-base-content">dompetku</span>
                         </a>
                         <p class="mt-4 text-sm leading-relaxed text-base-content/60">

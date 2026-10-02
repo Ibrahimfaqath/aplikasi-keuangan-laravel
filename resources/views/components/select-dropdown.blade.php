@@ -53,7 +53,18 @@
     $btnSize = $size === 'md' ? 'h-12 min-h-12 text-base' : 'h-10 min-h-10 text-sm';
 @endphp
 
+{{-- PENTING: daisyUI tidak memakai `display` untuk membuka dropdown.
+         `.dropdown-content` disembunyikan dengan visibility:hidden +
+         opacity:0 + scale(.95), dan HANYA dibuka oleh
+         `.dropdown.dropdown-open` (untuk pemicu dari JS) atau
+         `.dropdown:focus-within` (untuk fokus/hover).
+
+         Karena menu di sini dibuka lewat state Alpine -- bukan fokus tombol --
+         WAJIB memasang `dropdown-open`. Dulu hanya `x-show`, hasilnya menu
+         tetap tak terlihat: x-show cuma mengeset display, sedangkan
+         visibility/opacity daisyUI tidak tersentuh. --}}
 <div class="dropdown w-full"
+     x-bind:class="open && 'dropdown-open'"
      x-data="{
          open: false,
          value: @js((string) $value),
@@ -68,7 +79,9 @@
              const input = this.$refs.input;
              input.value = v;
              input.dispatchEvent(new Event('change', { bubbles: true }));
-             this.$refs.trigger.focus();
+             // Sengaja TIDAK mengembalikan fokus ke tombol: daisyUI membuka
+             // `.dropdown-content` lewat `.dropdown:focus-within`, jadi memfokuskan
+             // kembali tombol akan MEMBUKA lagi menunya tepat setelah ditutup.
          },
      }"
      @click.outside="open = false"
@@ -77,15 +90,20 @@
     <button type="button"
             x-ref="trigger"
             tabindex="0"
-            class="select select-bordered {{ $btnSize }} w-full items-center justify-between gap-2 px-3 text-left font-normal"
+            class="select select-bordered bg-none {{ $btnSize }} w-full items-center justify-between gap-2 px-3 text-left font-normal"
             @click="open = !open"
             @keydown.down.prevent="open = true"
             :aria-expanded="open"
             @if ($label) aria-label="{{ $label }}" @endif>
         <span class="truncate" x-text="label()"></span>
-        <svg class="w-4 h-4 shrink-0 opacity-60 transition-transform" x-bind:class="open && 'rotate-180'"
-             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        {{-- Panah chevron sendiri. Panjang stroke 2 dengan viewBox 24 bikin
+             ujungnya tajam dan ukurannya 14px supaya tidak bertabrakan dengan border
+             dan tidak menggeser teks label. --}}
+        <svg class="w-3.5 h-3.5 shrink-0 opacity-70 transition-transform duration-150"
+             x-bind:class="open && 'rotate-180'"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
         </svg>
     </button>
 
@@ -99,7 +117,6 @@
     <ul tabindex="0"
         class="dropdown-content menu menu-sm {{ $alignClass }} z-30 mt-1 w-full max-h-72 overflow-y-auto
                bg-base-100 border border-base-300 rounded-box shadow-lg"
-        x-show="open"
         x-cloak
         @keydown.escape="open = false">
         @foreach ($optionsJs as $option)

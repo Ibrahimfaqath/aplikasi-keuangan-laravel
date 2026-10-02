@@ -396,7 +396,7 @@
         </div>
 
         <div x-show="isLoading"
-             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-2xl shadow-sm">
+             class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-box shadow-sm">
             <div class="relative space-y-5">
                 <div class="h-3 w-20 skeleton"></div>
                 <!-- Struktur placeholder meniru isi asli (label + nominal) supaya
@@ -406,7 +406,7 @@
                         <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                         <div class="h-9 lg:h-10 w-40 sm:w-44 mx-auto md:mx-0 skeleton"></div>
                     </div>
-                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-100/80 bg-base-100/50 py-3 md:contents">
+                    <div class="grid grid-cols-2 divide-x divide-base-300/70 rounded-box bg-base-100 py-3 md:contents">
                         <div class="px-3 text-center md:text-left md:px-3 lg:px-6 space-y-2">
                             <div class="h-3 w-16 mx-auto md:mx-0 skeleton"></div>
                             <div class="h-5 lg:h-7 w-20 mx-auto md:mx-0 skeleton"></div>
@@ -421,7 +421,7 @@
         </div>
 
         <section x-show="!isLoading" x-cloak
-                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-2xl shadow-sm">
+                 class="relative overflow-hidden p-4 sm:p-5 lg:p-6 bg-base-100 border border-base-300 rounded-box shadow-sm">
 
             <div class="relative flex items-center justify-between gap-3">
                 <div class="min-w-0">
@@ -461,7 +461,7 @@
                        x-text="rupiahCompact(totalBalance)"></p>
                 </div>
 
-                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-2xl bg-base-100/80 bg-base-100/50 py-3 md:contents">
+                <div class="mt-4 md:mt-0 grid grid-cols-2 divide-x divide-base-300/70 rounded-box bg-base-100 py-3 md:contents">
                     <div class="min-w-0 px-3 text-center md:text-left md:px-3 lg:px-6">
                         <p class="text-[11px] font-semibold uppercase tracking-wider text-base-content/60 md:text-xs md:font-medium md:normal-case md:tracking-normal">Pemasukan</p>
                         <p class="mt-1 whitespace-nowrap text-sm md:text-lg lg:text-xl font-bold tabular-nums text-success privacy-target"
@@ -496,10 +496,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-6">
 
         <!-- ANGGARAN (ringkas) -->
-        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 shadow-sm">
+        <section class="bg-base-100 border border-base-300 rounded-box p-4 shadow-sm">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-info/10 text-info border border-info/30 flex items-center justify-center flex-shrink-0">
+                    <div class="w-8 h-8 rounded-box bg-info/10 text-info border border-info/30 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -570,12 +570,12 @@
                 </p>
                 @endif
             @elseif($categoryBudgets->isNotEmpty())
-                <p class="mt-3.5 px-3 py-2.5 text-[11px] text-base-content/60 bg-base-100/40 border border-base-300 rounded-lg">
+                <p class="mt-3.5 px-3 py-2.5 text-[11px] text-base-content/60 bg-base-100/40 border border-base-300 rounded-box">
                     {{ $categoryBudgets->count() }} anggaran per kategori aktif, belum ada batas keseluruhan —
                     <a href="{{ route('budgets.index') }}" class="font-semibold text-base-content/80 underline underline-offset-2">lanjutkan di halaman Anggaran</a>.
                 </p>
             @else
-                <div class="mt-3.5 flex items-center justify-between gap-3 rounded-lg border border-dashed border-base-300 bg-base-100/40 px-3 py-2.5">
+                <div class="mt-3.5 flex items-center justify-between gap-3 rounded-box border border-dashed border-base-300 bg-base-100/40 px-3 py-2.5">
                     <p class="text-[11px] font-semibold text-base-content/70">Belum ada anggaran bulan ini</p>
                     <a href="{{ route('budgets.index') }}"
                        class="btn btn-primary btn-xs no-print shrink-0">
@@ -589,7 +589,7 @@
              mobile tetap pendek. Di desktop kini duduk di sebelah kanan kartu
              Anggaran, jadi grafiknya jauh lebih lega. Subjudul ikut berubah
              mengikuti tab aktif — tidak ada dua lapis judul yang mengulang info. -->
-        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 sm:p-5 shadow-sm overflow-hidden">
+        <section class="bg-base-100 border border-base-300 rounded-box p-4 sm:p-5 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="min-w-0">
                     <h2 class="text-base font-semibold tracking-tight text-base-content">Analisis</h2>
@@ -672,7 +672,7 @@
                     </div>
                     <ul class="w-full sm:flex-1 min-w-0 space-y-1.5 max-h-60 overflow-y-auto" aria-label="Rincian kategori">
                         <template x-for="item in categoryLegend()" :key="item.label">
-                            <li class="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-base-300/60 transition">
+                            <li class="flex items-center gap-2.5 px-2 py-2 rounded-btn hover:bg-base-300/60 transition">
                                 <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="'background-color: ' + item.color"></span>
                                 <span class="flex-1 min-w-0 truncate text-xs font-medium text-base-content/70" x-text="item.label"></span>
                                 <span class="text-xs font-bold tabular-nums text-base-content" x-text="item.pct + '%'"></span>
@@ -688,8 +688,8 @@
         </div>
 
         <div x-show="!showAnalytics" x-cloak>
-        <section class="bg-base-100 border border-base-300 rounded-2xl p-6 sm:p-8 shadow-sm text-center">
-            <div class="mx-auto w-14 h-14 rounded-2xl bg-base-content text-base-100 flex items-center justify-center">
+        <section class="bg-base-100 border border-base-300 rounded-box p-6 sm:p-8 shadow-sm text-center">
+            <div class="mx-auto w-14 h-14 rounded-box bg-base-content text-base-100 flex items-center justify-center">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
             </div>
             <h2 class="mt-4 text-lg font-bold tracking-tight text-base-content">{{ $transactions->total() === 0 ? 'Mulai Kelola Keuanganmu' : 'Transaksi Masih Sedikit' }}</h2>
@@ -709,7 +709,7 @@
         </div>
 
         <!-- FILTER -->
-        <section class="bg-base-100 border border-base-300 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
+        <section class="bg-base-100 border border-base-300 rounded-box p-4 sm:p-5 shadow-sm no-print">
             <form id="filterForm" method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
                 <div class="lg:col-span-3 relative">
                     <label for="filterSearch" class="sr-only">Cari transaksi</label>
@@ -793,7 +793,7 @@
         </section>
 
         <!-- TABLE TRANSACTIONS -->
-        <section id="riwayat" class="bg-base-100 border border-base-300 rounded-2xl shadow-sm overflow-hidden">
+        <section id="riwayat" class="bg-base-100 border border-base-300 rounded-box shadow-sm overflow-hidden">
 
             <div class="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-base-300">
                 <div>
@@ -844,8 +844,8 @@
                                 <td class="text-right"><div class="h-4 w-28 skeleton ml-auto"></div></td>
                                 <td class="text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <div class="skeleton h-8 w-8 rounded-lg"></div>
-                                        <div class="skeleton h-8 w-8 rounded-lg"></div>
+                                        <div class="skeleton h-8 w-8 rounded-btn"></div>
+                                        <div class="skeleton h-8 w-8 rounded-btn"></div>
                                     </div>
                                 </td>
                             </tr>

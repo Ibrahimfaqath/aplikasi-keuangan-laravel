@@ -37,9 +37,9 @@
             @forelse($messages as $msg)
             <div class="{{ $msg['role'] === 'user' ? 'flex justify-end' : 'flex gap-3' }}">
                 @if($msg['role'] === 'assistant')
-                <div class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
+                <div class="w-8 h-8 rounded-box bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
                 @endif
-                <div class="{{ $msg['role'] === 'user' ? 'bg-base-content text-base-100 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]' : 'bg-base-100 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]' }}">
+                <div class="{{ $msg['role'] === 'user' ? 'bg-base-content text-base-100 rounded-box rounded-tr-md px-4 py-3 max-w-[80%]' : 'bg-base-100 border border-base-300 text-base-content rounded-box rounded-tl-md px-4 py-3 max-w-[80%]' }}">
                     <p class="text-sm whitespace-pre-wrap break-words">{!! nl2br(e($msg['text'])) !!}</p>
                 </div>
             </div>
@@ -143,15 +143,15 @@
                 if (role === 'user') {
                     div.className = 'flex justify-end';
                     div.innerHTML = `
-                        <div class="bg-base-content text-base-100 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%]">
+                        <div class="bg-base-content text-base-100 rounded-box rounded-tr-md px-4 py-3 max-w-[80%]">
                             <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
                         </div>
                     `;
                 } else {
                     div.className = 'flex gap-3';
                     div.innerHTML = `
-                        <div class="w-8 h-8 rounded-xl bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
-                        <div class="bg-base-100 border border-base-300 text-base-content rounded-2xl rounded-tl-md px-4 py-3 max-w-[80%]">
+                        <div class="w-8 h-8 rounded-box bg-base-content text-base-100 flex items-center justify-center flex-shrink-0 font-bold text-xs">AI</div>
+                        <div class="bg-base-100 border border-base-300 text-base-content rounded-box rounded-tl-md px-4 py-3 max-w-[80%]">
                             <p class="text-sm whitespace-pre-wrap break-words">${this.escapeHtml(text)}</p>
                         </div>
                     `;

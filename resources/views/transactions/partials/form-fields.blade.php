@@ -57,7 +57,7 @@
     @enderror
 </div>
 
-<main class="bg-base-100 rounded-2xl border border-base-300 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
+<main class="bg-base-100 rounded-box border border-base-300 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6">
 
     <div class="space-y-2">
         <label for="amount" class="block text-xs font-semibold uppercase tracking-wider text-base-content/70">
@@ -164,7 +164,7 @@
                 $active = $selected ? ' active' : '';
                 return '<button type="button" data-category="' . e($cat) . '"' .
                     ' class="cat-chip shrink-0 w-24 sm:w-28 snap-start flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-box border text-xs font-semibold transition bg-base-100/60 border-base-300 text-base-content/80 hover:border-base-content dark:hover:border-base-300' . $active . '">' .
-                    '<span class="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center transition">' .
+                    '<span class="w-8 h-8 rounded-box bg-base-300 flex items-center justify-center transition">' .
                     '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' . ($catIcons[$cat] ?? '') . '</svg></span>' .
                     '<span class="truncate w-full text-center">' . e($cat) . '</span></button>';
             };
@@ -288,7 +288,7 @@
                     </div>
                     <button type="button"
                             id="removeFileBtn"
-                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-base-content border border-base-300 hover:bg-base-content hover:text-white dark:hover:bg-base-300/40 dark:hover:text-base-content rounded-lg transition flex-shrink-0">
+                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-base-content border border-base-300 hover:bg-base-content hover:text-white dark:hover:bg-base-300/40 dark:hover:text-base-content rounded-box transition flex-shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>

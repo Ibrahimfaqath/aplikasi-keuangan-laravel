@@ -23,7 +23,7 @@
             <div class="flex items-center justify-between">
                 <x-input-label for="password" :value="__('Kata Sandi')" />
                 @if (Route::has('password.request'))
-                    <a class="rounded-md text-xs font-semibold text-base-content/60 hover:text-base-content focus:outline-none focus:ring-2 focus:ring-base-content" href="{{ route('password.request') }}">
+                    <a class="rounded-box text-xs font-semibold text-base-content/60 hover:text-base-content focus:outline-none focus:ring-2 focus:ring-base-content" href="{{ route('password.request') }}">
                         {{ __('Lupa kata sandi?') }}
                     </a>
                 @endif

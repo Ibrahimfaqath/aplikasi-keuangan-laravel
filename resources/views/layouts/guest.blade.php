@@ -49,7 +49,7 @@
             <!-- Top brand -->
             <div class="relative z-10 w-full px-6 pt-7 sm:px-8">
                 <a href="/" class="inline-flex w-max items-center gap-2.5 group" aria-label="dompetku — kembali ke halaman utama">
-                    <x-application-logo class="h-9 w-9 rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105" />
+                    <x-application-logo class="h-9 w-9 rounded-box shadow-sm transition-transform duration-200 group-hover:scale-105" />
                     <span class="text-base font-extrabold tracking-tight text-base-content">dompetku</span>
                 </a>
             </div>
@@ -61,7 +61,7 @@
                         @if ($title)
                             <div class="mb-6">
                                 @isset($icon)
-                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-base-300 bg-base-100 text-base-content">
+                                    <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-box border border-base-300 bg-base-100 text-base-content">
                                         {{ $icon }}
                                     </div>
                                 @endisset

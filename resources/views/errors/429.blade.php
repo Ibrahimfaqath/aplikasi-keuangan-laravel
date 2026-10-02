@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-full flex items-center justify-center px-4 py-12 text-base-content font-sans antialiased">
-    <main class="w-full max-w-md text-center bg-base-100 border border-base-300 rounded-2xl shadow-sm p-8 space-y-4">
+    <main class="w-full max-w-md text-center bg-base-100 border border-base-300 rounded-box shadow-sm p-8 space-y-4">
         <p class="text-5xl" aria-hidden="true">⏳</p>
         <h1 class="text-xl font-bold tracking-tight">Sabar ya, kamu terlalu cepat!</h1>
         <p class="text-sm text-base-content/60">
