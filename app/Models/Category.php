@@ -107,7 +107,6 @@ class Category extends Model
         ];
     }
 
-
     /**
      * Ubah nama &/atau jenis sebuah kategori MILIK USER, sambil menarik
      * semua data yang mereferensikannya ikut berubah.

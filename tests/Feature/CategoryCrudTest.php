@@ -665,9 +665,9 @@ class CategoryCrudTest extends TestCase
             ->getContent();
 
         // Ikon disimpan sebagai markup `<path .../>` utuh, tapi Alpine
-        // mengikat nilainya ke atribut `d`. Kalau yang dikirim markup, hasil
-        //nya `d="<path ..."` — tidak valid, dan preview di modal maupun
-        //seluruh ikon di picker tidak tergambar.
+        // mengikat nilainya ke atribut `d`. Kalau yang dikirim markup, hasilnya
+        // `d="<path ..."` — tidak valid, dan preview di modal maupun seluruh
+        // ikon di picker tidak tergambar.
         //
         // Di dalam HTML, `<` pada payload JS ter-escape jadi \u003C, jadi
         // cukup cari sisa-sisa markup SVG di halaman.
